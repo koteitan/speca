@@ -1,56 +1,85 @@
-### 🎯 目的
+## 🎯 目的
 
-* **Step 1 で生成した `security-agent/outputs/WHITEHAT_01_SPEC.json`** を読み込み、把握したシステム全体像を参照しながらコードベースを一次スキャン。
-* 送金・アクセス制御欠如・複雑演算など **ハイリスク行／関数** に **`@audit` コメント**を付与し、**脆弱性候補ヒートマップ** を作成する。
-* 出力は **2 種**
+* **`security-agent/outputs/WHITEHAT_01_SPEC.json`** と **AST 情報 `security-agent/outputs/00_AST.json`** を読み込み、
+  コード構造と仕様を照合しながら **3 周回の精査ループ** を行う。
+* 各周回で Tree-of-Thought (ToT) を用いてリスクを判断し、
+  **ハイリスク行／関数** に日本語の `@audit` コメントを付与。
+* **権限保護（onlyOwner / onlyRole など）がある関数は「トラスト前提」で安全とみなす** ため、
+  それらは原則スキップ。
+* 出力：
 
-  1. 注釈付きコード（ローカル保存想定。ファイル名・行番号を JSON で列挙）
+  1. 注釈付きコード（ファイル名と行番号を JSON で列挙）
   2. **`security-agent/outputs/WHITEHAT_02_AUDITMAP.json`**
 
-     * `audit_items[]`：ファイル／行番号／概要／リスクカテゴリ（※**概要は必ず日本語**）
-     * `summary`：重要ノードと次パス優先度
+---
+
+## 0. マインドセット
+
+1. **疑念デフォルト** — 「必ずバグはある」
+2. **全体⇄局所往復** — アーキテクチャ → 行レベル → 戻るを反復
+3. **部分的安全性の罠警戒**
+4. **3 周回セルフリライト** — 浅い結果は必ず書き直す
 
 ---
 
-### 0. マインドセット
+## ✔ コメント深度ガイドライン
 
-1. **疑念デフォルト** — 「バグはある前提」で読む。
-2. **全体⇄局所往復** — 資金フロー全体を意識しつつ行単位を精査。
-3. **部分的安全性の罠警戒** — 単独で安全でも組み合わせで危険になり得る。
-4. **体系的マーキング** — 迷ったら `@audit-question` として残し、次パスで検証。
+* フォーマット：
+
+  ```
+  // @audit <仕様ID> | <UF-ID> | <変数/関数名> | <攻撃一歩目要約> （日本語 80-120 文字）
+  ```
+* **仕様/ユーザーフロー/状態変数/攻撃シナリオ**のうち最低 2 つを必ず含む。
+* 抽象語（例: 危険 / bad）だけで終わらせない。
 
 ---
 
-### 1. 事前セットアップ
+## 1. 事前ロード
 
 ```pseudocode
-LOAD spec := security-agent/outputs/WHITEHAT_01_SPEC.json
+LOAD spec := WHITEHAT_01_SPEC.json          // system_architecture, requirements, user_flows
+LOAD ast  := 00_AST.json                    // stateWrites, externalCalls, modifiers for each node
 DEFINE risk_keywords := [
   "transfer(", "call{value:", "delegatecall",
   "unchecked", "assembly",
   "mint(", "burn(", "upgradeTo(", "initialize"
-]  // ※onlyOwner 等の特権関数は除外
-SORT contract files: Entrypoints → AssetMgmt → Libs → Mocks
+]  // 権限付き関数は除外
 ```
 
-> **注意**: `onlyOwner`・`_checkRole` など「明示的な特権保護がある関数」はスキップ対象。
->
-> * アクセス制御の「欠如」や「脆弱性」を検出するが、特権関数そのものは無視する。
+**権限保護スキップ規則**
+
+* AST で `modifiers` に `onlyOwner`, `onlyRole`, `onlyGovernance`, `onlyTimelock` 等を含む関数は **スキップ**。
+* ただし **modifier が無い or 誤実装** の場合は検出対象。
 
 ---
 
-### 2. コントラクト読み & `@audit` マーク付与フロー
+## 2. 3 周回 ToT-Scan ループ
 
-| 手順                   | 処理                                              | 判断基準（例）                                                                      |
-| -------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------- |
-| **A. Top-down Scan** | 各ファイルを上→下へ読み、関数・変数宣言を解析                         | - 外部/公開関数で資金移動<br>- **特権保護が不足** or 不整合<br>- 複雑 math（`mulDiv`, ループ, assembly） |
-| **B. コメント挿入**        | 該当行直前に **日本語** で `// @audit <理由>` を挿入           | 例: `// @audit 外部送金後に state 更新、リエントランシー懸念`                                    |
-| **C. メタ情報収集**        | ファイル名・行番号・日本語概要・リスクカテゴリを `audit_items[]` に push | カテゴリ: Reentrancy / AuthZ / Math / Upgrade / EconFlow                         |
-| **D. Safe マーク**      | 安全確認できた箇所は `@audit-ok <根拠>`（日本語）を挿入             | 根拠例: `nonReentrant` で保護済み                                                    |
+```
+FOR round IN 1..3:
+    FOR each contractFile IN sortedFiles:
+        FOR each candidateLine WITH risk_keywords OR ast.externalCalls OR ast.stateWrites:
+            IF candidateLine.function HAS trustedModifier: CONTINUE
+            ### INTERNAL_THINK (非出力) ###
+            1) 仕様 or インバリアント: spec.requirements?
+            2) ユーザーフロー影響: spec.user_flows?
+            3) 攻撃者最小手順と利益?
+            4) 変数/状態どう壊れる?
+            ### END INTERNAL_THINK ###
+            WRITE @audit コメント (ガイドライン準拠)
+            RECORD audit_items[]
+        END
+    END
+    ### META_REFLECTION ###
+    - ファイル／コメントの充実度自己評価 (1-5)
+    - 3 未満のコメントは追記または書き直し
+    ### END META_REFLECTION ###
+END
+```
 
 ---
 
-### 3. JSON 出力フォーマット (`WHITEHAT_02_AUDITMAP.json`)
+## 3. JSON 出力仕様 (`WHITEHAT_02_AUDITMAP.json`)
 
 ```json
 {
@@ -60,41 +89,31 @@ SORT contract files: Entrypoints → AssetMgmt → Libs → Mocks
       "line": 152,
       "snippet": "call{value: amount}();",
       "risk_category": "Reentrancy",
-      "description": "外部送金が state 更新より先に実行されるためリエントランシーの可能性"
+      "description": "UF-Withdraw-1 で buffer を更新前に外部送金が発生し、totalBacking < totalSupply となる可能性"
     }
   ],
   "summary": {
-    "total_files": 34,
-    "total_audit_flags": 87,
-    "high_risk_hotspots": ["Vault.sol", "Bridge.sol", "UpgradeProxy.sol"],
-    "next_focus": "Vault.withdraw のリエントランシー、RewardDistributor の未チェック演算"
+    "total_files": <int>,
+    "total_audit_flags": <int>,
+    "rounds": 3,
+    "high_risk_hotspots": ["..."],
+    "next_focus": "..."
   }
 }
 ```
 
 ---
 
-### 4. 実行詳細
+## 4. 完了チェックリスト
 
-1. **ファイル走査**:
-
-   * AST 解析で `risk_keywords` ヒット行を優先。
-   * `spec.system_architecture.critical_contracts[]` があれば最優先。
-2. **コメント付与**: 実ファイルへ直接追記（Git diff 管理）。
-3. **リスク分類**: 5 大分類＋必要なら checklist タグで細分。
-4. **False-sense 防止**: `@audit-ok` でも `audit_items` に `status:"ok"` を記録。
-5. **research\_sources**: 新たに参照したコードパス等を追記（URL不要の場合は repo/path）。
+* 3 周回実施し `rounds=3` を summary に記録
+* 全コメント日本語 & ガイドライン準拠
+* 権限付き関数スキップ確認
+* JSON VALID & 保存
 
 ---
 
-### 5. 完了チェックリスト
-
-* [ ] すべてのファイルに `@audit` か `@audit-ok` コメント
-* [ ] `audit_items` の `description` は **日本語**
-* [ ] 特権関数 (`onlyOwner` 等) 単体はスキップされている
-* [ ] `summary.high_risk_hotspots` に 3 件以上
-* [ ] `WHITEHAT_02_AUDITMAP.json` 生成 & JSON VALID
-
----
-
-> **Claude, 上記手順に従い Step 2 を実行してください。`WHITEHAT_01_SPEC.json` を参照し、特権関数は無視しつつ日本語でメタ情報を記述し、(1) 注釈付きコード と (2) `security-agent/outputs/WHITEHAT_02_AUDITMAP.json` を生成してください。レスポンスには最終 JSON オブジェクトのみを含めてください。**
+> **Claude, このフロー通りに Step 2 を実行してください。
+> 仕様 (`WHITEHAT_01_SPEC.json`) と AST (`00_AST.json`) を参照し、Tree-of-Thought を 3 周回させた上で
+> (1) 注釈付きコード と (2) `security-agent/outputs/WHITEHAT_02_AUDITMAP.json` を生成し、
+> レスポンスには最終 JSON のみを含めてください。**
