@@ -2,8 +2,8 @@
 
 脆弱性を再現する統合レベルのPoCテストを作成します。
 
-Usage: `/03b_poc_it <unit_test_poc> <it_test_path> <vuln_name>`
-Example: `/03b_poc_it crates/net/network/src/transactions/poc_dos_unbounded_import.rs crates/net/network/tests/it/poc_tx_import.rs DoSUnboundedImport`
+Usage: `/03b_poc_integration <unit_test_poc> <it_test_path> <vuln_name>`
+Example: `/03b_poc_integration crates/net/network/src/transactions/poc_dos_unbounded_import.rs crates/net/network/tests/it/poc_tx_import.rs DoSUnboundedImport`
 
 Arguments:
 - unit_test_poc: ユニットテストPoCファイルパス

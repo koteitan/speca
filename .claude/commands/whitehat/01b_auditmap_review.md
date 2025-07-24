@@ -1,12 +1,11 @@
-# WHITEHAT 01 SPEC - 仕様書生成
+# WHITEHAT 01b AUDITMAP ORDER Generator
 
-プロジェクトの包括的な仕様書を生成します。
+Generate an ordered audit map for security review of a specific target folder.
 
-Usage: `/01_spec <target_folder>`
-Example: `/01_spec ../contracts/docs`
+Usage: `/01b_auditmap_review <target_folder>`
 
 Arguments:
-- target_folder: 解析対象のドキュメントディレクトリパス
+- target_folder: The folder path to analyze (relative to the project root)
 
 ---
 
@@ -17,7 +16,7 @@ const targetFolder = args[0];
 
 // Read the original prompt content
 const fs = require('fs');
-const promptContent = fs.readFileSync('prompts/whitehat/01_SPEC.md', 'utf8');
+const promptContent = fs.readFileSync('prompts/whitehat/01_AUDITMAP_ORDER.md', 'utf8');
 
 // Replace the template variable
 const processedContent = promptContent.replace(/\{\{TARGET_FOLDER\}\}/g, targetFolder);

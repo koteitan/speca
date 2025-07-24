@@ -1,9 +1,9 @@
 ## 🚀 Claude Code Prompt ― “WHITEHAT Integration‑PoC Generator (DoS import)”
 
 ````
-# 🏷️ UNIT_TEST_POC      = crates/net/network/src/transactions/poc_dos_unbounded_import.rs
-# 🏷️ IT_TEST_PATH       = crates/net/network/tests/it/poc_tx_import.rs
-# 🏷️ VULN_NAME          = DoSUnboundedImport
+# 🏷️ UNIT_TEST_POC      = {{UNIT_TEST_POC}}
+# 🏷️ IT_TEST_PATH       = {{IT_TEST_PATH}}
+# 🏷️ VULN_NAME          = {{VULN_NAME}}
 # ==========  PROMPT START  ==========
 # Task Name
 Create an **integration‑level PoC test** reproducing VULN_NAME
@@ -30,13 +30,13 @@ and failing only when the DoS vulnerability is present.
 - Audit report:      `security-agent/outputs/WHITEHAT_02_AUDITMAP.json`
 - Project spec:      `security-agent/outputs/WHITEHAT_01_SPEC.json`
 - Bug corpus / specs: `security-agent/docs/ethereum/{bugs_*,spec_*}.json`
-- Source tree under  `crates/net/network/`
+- Source tree under the target directory
 
 # 📤 Output Artifacts
 1. **Test file** `{{IT_TEST_PATH}}`
 2. **Run command**
    ```bash
-   cargo test --test poc_tx_import -- --nocapture
+   cargo test --test {{TEST_NAME}} -- --nocapture
 ````
 
 3. **Status update** (append to WHITEHAT\_02\_AUDITMAP.json)
@@ -55,7 +55,7 @@ and failing only when the DoS vulnerability is present.
 # 🔍 Generation Algorithm
 
 ```
-1. Scan sibling tests in crates/net/network/tests/it/ for reusable Testnet helpers.
+1. Scan sibling tests in the project's tests directory for reusable helpers.
 2. Draft Arrange‑Act‑Assert skeleton per Attack Scenario table.
 3. Import mocks or re‑export structs from UNIT_TEST_POC to avoid duplication.
 4. Compile (`cargo check`) and iterate ≤ 4 times:
@@ -79,7 +79,7 @@ If still blocked → print `"Need guidance: <stderr snippet>"` and stop.
 # ⛔ Constraints
 
 * Do **not** alter production code.
-* Stay within `crates/net/network/tests/it/` for new files.
+* Stay within the project's tests directory for new files.
 * No external crates unless already in Cargo.toml.
 
 # ✅ Success Criteria
