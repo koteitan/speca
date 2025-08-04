@@ -1,10 +1,10 @@
-## 🚀 Claude Code Prompt ― “WHITEHAT 03 AUDIT Review & Validate”
-
-````
-# 🏷️ TARGET_FOLDER    = {{TARGET_FOLDER}}
-# 🏷️ AUDIT_ORDER_FILE = {{AUDIT_ORDER_FILE}}
-# ==========  PROMPT START  ==========
-# Task Name
+---
+Description: 既存の@audit注釈をレビューし、検証します。
+Usage: `/04_review <TARGET_FOLDER>`
+Example: `/04_review crates/net/`
+Arguments:
+- TARGET_FOLDER: レビュー対象のフォルダパス
+---
 Review all existing @audit comments, confirm validity, and update reports
 
 # 🎯 Goal
@@ -15,13 +15,13 @@ If confirmed (or partially confirmed), keep `@audit`, expand insight, and
 categorise the exact risk.
 
 Finally, synchronise results into
-`security-agent/outputs/WHITEHAT_02_AUDITMAP.json`
-and increment `review_rounds` in `{{AUDIT_ORDER_FILE}}`.
+`security-agent/outputs/03_OUDITMAP.json`
+and increment `review_rounds` in `security-agent/outputs/02_ORDER.json`
 
 # 📥 Input
 1. Source code (rec.): `{{TARGET_FOLDER}}`
-2. Audit map:         `{{AUDIT_ORDER_FILE}}`
-3. Project spec:      `security-agent/outputs/WHITEHAT_01_SPEC.json`
+2. Audit map:         `security-agent/outputs/02_ORDER.json`
+3. Project spec:      `security-agent/outputs/01_SPEC.json`
 4. Ethereum specs:    `security-agent/docs/ethereum/spec_*.json`
 5. Bug DB:            `security-agent/docs/ethereum/bugs_*.json`
 
@@ -33,12 +33,13 @@ and increment `review_rounds` in `{{AUDIT_ORDER_FILE}}`.
    // @audit-ok: nonReentrant modifier ensures single execution
 ````
 
-2. **Updated** `WHITEHAT_02_AUDITMAP.json`
+2. **Updated** `03_AUDITMAP.json`
 
    ```jsonc
    {
      "audit_items": [
        {
+         "id": "03523523",
          "file": "src/Vault.sol",
          "line": 152,
          "snippet": "call{value: amount}();",
@@ -81,7 +82,7 @@ FOR each @audit in TARGET_FOLDER ordered by file→line:
     4. Decide:
         a) Exploitable ⇒ keep @audit, enrich description, set status="Vuln"
         b) Non‑exploitable ⇒ transform to @audit-ok, set status="ok"
-    5. Update WHITEHAT_02_AUDITMAP.json & AUDIT_ORDER_FILE.review_rounds++
+    5. Update 03_AUDITMAP.json & security-agent/outputs/02_ORDER.json.review_rounds++
 REPEAT until no unchecked @audit remain.
 ```
 
@@ -117,7 +118,7 @@ REPEAT until no unchecked @audit remain.
 # ✅ Success Criteria
 
 * Every prior @audit reviewed once.
-* WHITEHAT\_02\_AUDITMAP.json parses & mirrors code state.
+* 03_AUDITMAP.json parses & mirrors code state.
 * High‑risk hotspots surfaced.
 * summary.next\_focus suggests concrete next steps.
 

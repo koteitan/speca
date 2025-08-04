@@ -1,11 +1,10 @@
-## 🚀 Claude Code Prompt ― “WHITEHAT 01b AUDITMAP ORDER Generator”
-
-````
-# 🏷️ TARGET_FOLDER   = {{TARGET_FOLDER}}
-# 🏷️ STATIC_CALLGRAPH = NONE
-# ==========  PROMPT START  ==========
-# Task Name
-Generate WHITEHAT_01b_AUDITMAP_ORDER.json from the sources
+---
+Description: Generate an ordered audit map for security review of a specific target folder.
+Usage: `/02_order <TARGET_FOLDER>`
+Arguments:
+- TARGET_FOLDER: The folder path to analyze (relative to the project root)
+---
+Generate 02_ORDER.json from the sources
 
 # 🎯 Goal
 Produce an *ordered* audit map covering **every function** in `{{TARGET_FOLDER}}`, so that a
@@ -17,13 +16,13 @@ trust anchors while naturally uncovering hierarchical defences.
 2.  **Static call‑graph (optional):** `{{STATIC_CALLGRAPH}}`
     - If set to `NONE`, derive call relationships yourself.
 3.  **Project specification:**
-    `security-agent/outputs/WHITEHAT_01_SPEC.json`
+    `security-agent/outputs/01_SPEC.json`
 4.  **Ethereum canonical specs:**
     `security-agent/docs/ethereum/spec_*.json` (multiple files, merge).
 
 # 📤 Output
 Create **one** JSON file:
-`security-agent/outputs/WHITEHAT_01b_AUDITMAP_ORDER.json`
+`security-agent/outputs/02_ORDER.json`
 
 ```jsonc
 {
@@ -107,5 +106,3 @@ Create **one** JSON file:
 * 100 % of functions covered; zero duplicates.
 * Chunk sequence moves logically from attack surface to core.
 * ≥ 3 attack paths provided, each plausible and source‑linked.
-
-# ==========  PROMPT END  ==========

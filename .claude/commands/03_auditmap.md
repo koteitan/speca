@@ -1,11 +1,11 @@
-## 🚀 Claude Code Prompt ― “WHITEHAT 02 AUDIT Annotator & Map Updater”
-
-````
-# 🏷️ TARGET_FOLDER      = {{TARGET_FOLDER}}
-# 🏷️ AUDIT_ORDER_FILE   = {{AUDIT_ORDER_FILE}}
-# ==========  PROMPT START  ==========
-# Task Name
-Annotate source with @audit / @audit-ok and update WHITEHAT_02_AUDITMAP.json
+---
+Description: ソースコードに@audit/@audit-ok注釈を追加し、監査マップを更新します。
+Usage: `/03_auditmap <TARGET_FOLDER>`
+Example: `/03_auditmap crates/net/`
+Arguments:
+- TARGET_FOLDER: 監査対象のフォルダパス
+---
+Annotate source with @audit / @audit-ok and update 03_AUDITMAP.json by using code-inspector-agent.
 
 # 🎯 Goal
 Iteratively review **every function** in `{{TARGET_FOLDER}}`, adding
@@ -16,23 +16,24 @@ while updating the audit‑order map and producing a structured vulnerability re
 
 # 📥 Input
 1. **Folder (recursive):** `{{TARGET_FOLDER}}`
-2. **Audit order:** `{{AUDIT_ORDER_FILE}}`
+2. **Audit order:** `security-agent/outputs/02_ORDER.json`
 3. **Specs:**
-   - `security-agent/outputs/WHITEHAT_01_SPEC.json`
+   - `security-agent/outputs/01_SPEC.json`
    - `security-agent/docs/ethereum/spec_*.json`
 4. **Known bugs DB:** `security-agent/docs/ethereum/bugs_*.json`
 
 # 📤 Outputs
 1. **Inline annotations** in source files (`@audit`, `@audit-ok`).
-2. **Updated order map** — write back to `{{AUDIT_ORDER_FILE}}`
+2. **Updated order map** — write back to `security-agent/outputs/02_ORDER.json`
    - Increment `review_count` for each function touched.
 3. **New report**
-   `security-agent/outputs/WHITEHAT_02_AUDITMAP.json` (schema below).
+   `security-agent/outputs/03_AUDITMAP.json` (schema below).
 
 ```jsonc
 {
   "audit_items": [
     {
+      "id": "03523523",
       "file": "src/Vault.sol",
       "line": 152,
       "snippet": "call{value: amount}();",
@@ -53,7 +54,7 @@ while updating the audit‑order map and producing a structured vulnerability re
 # 🔍 Review Algorithm
 
 1. **Select next target**
-   ‑ Parse `{{AUDIT_ORDER_FILE}}` → pick function(s) with the lowest `review_count` or `unchecked`.
+   ‑ Parse `security-agent/outputs/02_ORDER.json` → pick function(s) with the lowest `review_count` or `unchecked`.
 2. **Skip** any code already containing `@audit` / `@audit-ok`.
 3. **Analyse** chosen code path:
 
@@ -61,8 +62,8 @@ while updating the audit‑order map and producing a structured vulnerability re
    * Execute logical trace: follow calls & modifiers to sinks.
 4. **Insert annotation** just above the vulnerable / cleared line.
 5. **Classify** `risk_category` (Reentrancy, Auth‑Bypass, DoS, …).
-6. **Append/Update** entry in `WHITEHAT_02_AUDITMAP.json`.
-7. **Increment** `review_count` in `{{AUDIT_ORDER_FILE}}`.
+6. **Append/Update** entry in `03_AUDITMAP.json`.
+7. **Increment** `review_count` in `security-agent/outputs/02_ORDER.json`.
 
 # 🤖 Self‑Reflection Loop (3 rounds)
 
@@ -79,7 +80,7 @@ After each round, refine or `@audit-ok` if risk disproved.
 
 # 🛠️ Methodology
 
-* **Breadth‑first‑within‑chunk**: follow ordering in `{{AUDIT_ORDER_FILE}}`.
+* **Breadth‑first‑within‑chunk**: follow ordering in `security-agent/outputs/02_ORDER.json`.
 * Chain‑of‑thought is internal; expose only annotations & JSON.
 * Use known bug patterns to strengthen or dismiss each finding.
 * Keep individual `description` ≤ 120 words; be precise.
@@ -104,8 +105,6 @@ After each round, refine or `@audit-ok` if risk disproved.
 # ✅ Success Criteria
 
 * 100 % of functions eventually have ≥ 1 `review_count`.
-* `WHITEHAT_02_AUDITMAP.json` validates against schema.
+* `03_AUDITMAP.json` validates against schema.
 * Zero orphan audit comments (all reflected in JSON).
 * High‑risk hotspots clearly listed in summary.
-
-# ==========  PROMPT END  ==========

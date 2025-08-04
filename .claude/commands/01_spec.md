@@ -1,6 +1,11 @@
-# ==========  PROMPT START  ==========
-# Task Name
-Generate WHITEHAT_01_SPEC.json from target directory
+---
+Description: produce a *comprehensive* specification
+Usage: `/01_spec <target_folder>`
+Example: `/01_spec ../contracts/docs`
+Arguments:
+- TARGET_DIRECTORY: 解析対象のドキュメントディレクトリパス / URL
+---
+Generate 01_SPEC.json from target directory.
 
 # 🎯 Goal
 Before beginning a source‑code security audit, produce a *comprehensive* specification
@@ -21,7 +26,7 @@ that captures:
 
 # 📤 Output
 Write a single JSON file at
-`security-agent/outputs/WHITEHAT_01_SPEC.json`
+`security-agent/outputs/01_SPEC.json`
 using the schema below (strict order & naming). **Do not return anything else.**
 
 ```jsonc
@@ -113,5 +118,3 @@ using the schema below (strict order & naming). **Do not return anything else.**
 * All five sections populated and non‑empty.
 * User‑flows are concrete, numbered, and cover ≥ 80 % of documented features.
 * Security‑requirements list ≥ 5 items, each mapped to components.
-
-# ==========  PROMPT END  ==========

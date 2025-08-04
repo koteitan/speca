@@ -1,4 +1,4 @@
-# Security Agents - Multi-Phase Security Analysis System
+# Security Agents
 
 An automated security analysis system using Claude Code for comprehensive Bug Bounty research and vulnerability assessment.
 
@@ -8,16 +8,16 @@ This system performs multi-phase security analysis for blockchain projects, spec
 
 ## How to use
 
-### Generate Callgraph (Optional)
-```bash
-uv sync
-uv run python -m utils.static_analyzer .. --verbose
-```
-
 ### Launch Claude Code
 
-```
+```bash
+rm -rf security-agent/.git
+mv security-agent/.claude .claude
 claude --dangerously-skip-permissions
+> /security
+> /01_spec ...
+> /02_order ...
+> /03_auditmap ...
 ```
 
 Use custom slash commands for each task:
@@ -26,7 +26,11 @@ Use custom slash commands for each task:
 
 ---
 
-## Call Graph Visualization
+### Generate Callgraph (Optional)
+```bash
+uv sync
+uv run python -m utils.static_analyzer .. --verbose
+```
 
 Navigate to the callgraphs directory and visualize specific contracts:
 
@@ -45,17 +49,3 @@ dot -Tsvg all_contracts.call-graph.dot -o all_contracts.svg
 # Generate PDF for documentation
 dot -Tpdf PoolManager.call-graph.dot -o PoolManager.pdf
 ```
-
-## Requirements
-
-- **Graphviz**: Required for DOT file visualization
-  ```bash
-  # Ubuntu/Debian
-  sudo apt install graphviz
-
-  # macOS
-  brew install graphviz
-
-  # Verify installation
-  dot -V
-  ```
