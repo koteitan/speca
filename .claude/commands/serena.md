@@ -1,4 +1,4 @@
-## Usage Patterns Guide
+[## Usage Patterns Guide
 
 ### 1. Basic Usage
 ```bash
@@ -55,3 +55,4 @@ Serena automatically selects the optimal reasoning pattern based on **keywords**
 /serena "Optimize database queries"
 # → Current state analysis → Bottleneck identification → Improvement opportunities → Solution options → Prioritization → Implementation impact assessment
 ```
+](https://zenn.dev/sc30gsw/articles/ff81891959aaef)
