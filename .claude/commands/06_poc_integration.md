@@ -8,6 +8,7 @@ Arguments:
 ---
 
 Generate an **integration-level Proof-of-Concept** that reproduces **VULN_ID** and passes *only* while the vulnerability is present.
+**Always use /serena for these development tasks to maximize token efficiency:**
 
 # 📥 Auto-load from 03_AUDITMAP.json
 1. **Read** `security-agent/outputs/03_AUDITMAP.json`

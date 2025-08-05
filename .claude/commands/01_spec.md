@@ -7,6 +7,8 @@ Arguments:
 ---
 Generate 01_SPEC.json from target directory.
 
+**Always use /serena for these development tasks to maximize token efficiency:**
+
 # 🎯 Goal
 Before beginning a source‑code security audit, produce a *comprehensive* specification
 that captures:

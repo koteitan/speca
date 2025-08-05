@@ -6,6 +6,8 @@ Arguments:
 - TARGET_FOLDER: レビュー対象のフォルダパス
 ---
 Review all existing @audit comments, confirm validity, and update reports
+**Always use /serena for these development tasks to maximize token efficiency:**
+
 
 # 🎯 Goal
 For every **@audit** in `{{TARGET_FOLDER}}`, decide with rigorous reasoning
