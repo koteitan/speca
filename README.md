@@ -41,7 +41,7 @@ claude --dangerously-skip-permissions
 > /03_auditmap ...
 ```
 
-Use custom slash commands for each task:
+4. Use custom slash commands for each task:
 
 <img src="./usage.gif" width="500">
 
