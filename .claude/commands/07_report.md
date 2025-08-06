@@ -11,6 +11,8 @@ Arguments:
 ---
 
 Generate a complete **Markdown bug-bounty report** for the Ethereum Foundation.
+**Always use /serena for these development tasks to maximize token efficiency:**
+
 
 # 📥 Auto-load from 03_AUDITMAP.json
 1. **Read** `security-agent/outputs/03_AUDITMAP.json`.

@@ -8,6 +8,8 @@ Arguments:
 ---
 
 Create & validate a minimal PoC test that reproduces **VULN_ID**
+**Always use /serena for these development tasks to maximize token efficiency:**
+
 
 # 📥 Auto-load from 03_AUDITMAP.json
 1. **Read** `security-agent/outputs/03_AUDITMAP.json`

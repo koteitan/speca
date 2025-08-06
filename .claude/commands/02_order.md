@@ -5,6 +5,8 @@ Arguments:
 - TARGET_FOLDER: The folder path to analyze (relative to the project root)
 ---
 Generate 02_ORDER.json from the sources
+**Always use /serena for these development tasks to maximize token efficiency:**
+
 
 # 🎯 Goal
 Produce an *ordered* audit map covering **every function** in `{{TARGET_FOLDER}}`, so that a

@@ -8,12 +8,37 @@ This system performs multi-phase security analysis for blockchain projects, spec
 
 ## How to use
 
-### Launch Claude Code
+## Requirement
+
+Before using this agent, please setup below tools.
+
+- Claude Code
+- Serena MCP
+
+### Repogitory Initialization
+
+1. setup repository
 
 ```bash
 git clone git@github.com:NyxFoundation/security-agent.git
 rm -rf security-agent/.git
 mv security-agent/.claude .claude
+```
+
+2. setup serena MCP server
+
+```bash
+claude mcp add serena-mcp-server "uvx --from git+https://github.com/oraios/serena serena-mcp-server --context ide-assistant --project $(pwd)"
+
+# initialize serena memory
+/mcp__serena__initial_instructions
+```
+
+### Running Security Agent
+
+3. Launch claude code, confirm that serena MCP is running.
+
+```bash
 claude --dangerously-skip-permissions
 > /security
 > /01_spec ...
@@ -21,7 +46,7 @@ claude --dangerously-skip-permissions
 > /03_auditmap ...
 ```
 
-Use custom slash commands for each task:
+4. Use custom slash commands for each task:
 
 <img src="./usage.gif" width="500">
 

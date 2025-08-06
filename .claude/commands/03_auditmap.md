@@ -6,6 +6,8 @@ Arguments:
 - TARGET_FOLDER: 監査対象のフォルダパス
 ---
 Annotate source with @audit / @audit-ok and update 03_AUDITMAP.json by using code-inspector-agent.
+**Always use /serena for these development tasks to maximize token efficiency:**
+
 
 # 🎯 Goal
 Iteratively review **every function** in `{{TARGET_FOLDER}}`, adding
