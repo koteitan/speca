@@ -18,10 +18,14 @@ Generate a complete **Markdown bug-bounty report** for the Ethereum Foundation.
 1. **Read** `security-agent/outputs/03_AUDITMAP.json`.
 2. **Locate** the entry where `audit_items[].id == {{VULN_ID}}`.
 3. **Extract**
-   - `SNIPPET`        ← `audit_items[].snippet`
-   - `VULN_FILE_LINE` ← `audit_items[].file` + `:L` + `audit_items[].line`
-   - `UT_PATH`        ← first `poc_tests[].file` with `"type": "unit"`
-   - `IT_PATH`        ← first `integration_tests[].file` (if any)
+   - `SNIPPET`        <- `audit_items[].snippet`
+   - `SRC_FILE`       <- `audit_items[].file`
+   - `SRC_FUNCTION`   <- infer the enclosing function or method name (fallback: short descriptive label)
+   - `UT_PATH`        <- first `poc_tests[].file` with `"type": "unit"`
+   - `IT_PATH`        <- first `integration_tests[].file` (if any)
+   - `VULN_TITLE_RAW` <- `audit_items[].description`
+   - `VULN_TITLE`     <- text before the first colon (`:`) in `VULN_TITLE_RAW`, or the full string if no colon exists. If empty, craft a concise fallback title without embedding `VULN_ID`.
+   - `TITLE_SLUG`     <- `VULN_TITLE` transformed to lowercase snake_case containing only ASCII letters, digits, and underscores (convert spaces/punctuation to underscores, collapse repeats, strip leading/trailing underscores).
 4. **If not found** → abort with
    `"Vulnerability '{{VULN_ID}}' not found in 03_AUDITMAP.json"`.
 
@@ -38,7 +42,7 @@ Generate a complete **Markdown bug-bounty report** for the Ethereum Foundation.
 
 # 📤 Output
 Write exactly **one Markdown file**:
-`security-agent/outputs/REPORT_{{VULN_ID}}.md`
+`security-agent/outputs/report_{{TITLE_SLUG}}.md`
 (no extra headings, no missing sections).
 
 # 📝 Mandatory Sections  (as defined in template)
@@ -46,7 +50,7 @@ Write exactly **one Markdown file**:
 2. Severity & Impact
 3. Reproduction Steps
 4. Proof of Concept (code fenced)
-5. Affected Code (10-line context around `SNIPPET`)
+5. Affected Code (around `SRC_FILE` + `SRC_FUNCTION`, ±10 lines context)
 6. Root Cause Analysis
 7. Suggested Fix / Mitigation
 8. References
@@ -57,8 +61,8 @@ Write exactly **one Markdown file**:
 
 1. Parse REPORT\_TEMPLATE → collect placeholders like {{SEVERITY}}, {{POC}}.
 2. Determine severity per bounty rules (Impact × Likelihood).
-3. Read PoC files (UT\_PATH and IT\_PATH) and include in fenced code blocks.
-4. Grab 10 lines of source around VULN\_FILE\_LINE for context.
+3. Read PoC files (UT_PATH and IT_PATH) and include in fenced code blocks.
+4. Grab ~10 lines of source around the vulnerable logic, annotating references using `SRC_FILE` + `SRC_FUNCTION` only (no raw line numbers, GitHub URLs, or absolute paths).
 5. Replace all placeholders; verify none remain.
 6. Save Markdown to output path.
 
@@ -75,7 +79,7 @@ Write exactly **one Markdown file**:
 
 # ✅ Success Criteria
 - Entry with `id == VULN_ID` found.
-- `REPORT_{{VULN_ID}}.md` created and passes placeholder audit.
+- `report_{{TITLE_SLUG}}.md` created and passes placeholder audit.
 - PoCs compile via the project’s test runner, e.g.
   ```bash
   # Unit test
@@ -87,4 +91,3 @@ Write exactly **one Markdown file**:
 * Severity is justified per bounty guidelines.
 
 ```
-

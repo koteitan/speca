@@ -1,0 +1,665 @@
+{
+  "metadata": {
+    "source_directory": "EL: execution-specs/src/ethereum/forks/osaka ; CL: consensus-specs/specs/fulu [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+    "spec_generated_at": "2025-09-18T07:07:54.956705+09:00",
+    "latest_tags_or_commits": {
+      "osaka": "5ddb904fa7ba27daeff423e78466744c51e8cb6a [S1] Sources: [S1] https://github.com/ethereum/execution-specs/commit/5ddb904fa7ba27daeff423e78466744c51e8cb6a",
+      "fulu": "340d23358a0cdb4f4b547226dadd36d1cf775f20 [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/commit/340d23358a0cdb4f4b547226dadd36d1cf775f20"
+    },
+    "latest_release_dates": {
+      "osaka": "2025-09-15 [S1] Sources: [S1] https://github.com/ethereum/execution-specs/commit/5ddb904fa7ba27daeff423e78466744c51e8cb6a",
+      "fulu": "2025-09-17 [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/commit/340d23358a0cdb4f4b547226dadd36d1cf775f20"
+    },
+    "schema_version": "2.0.0-nl"
+  },
+  "forks": [
+    {
+      "name": "Osaka",
+      "layer": "Execution",
+      "genre": "Ethereum Client Spec",
+      "architecture": {
+        "overview": "Osaka extends the executable EL spec with stricter transaction caps, blob fee bounds, new CLZ opcode, secp256r1 precompile, and requests hashing so the consensus layer can audit deposits and custody-linked payloads through Engine API exchanges. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/__init__.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+        "components": [
+          {
+            "name": "State Transition",
+            "type": "service",
+            "description": "Applies header validation, enforced RLP block size, blob gas accounting, withdrawals, and request hashing before mutating state roots. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+            "depends_on": [
+              "Transactions",
+              "Fee Market",
+              "Engine API"
+            ],
+            "technology": [
+              "Python",
+              "EVM",
+              "RLP"
+            ]
+          },
+          {
+            "name": "Transaction Validation",
+            "type": "module",
+            "description": "Checks Osaka intrinsic gas floor, 2**24 gas cap, nonce bounds, calldata pricing, and blob bundle integrity prior to execution. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+            "depends_on": [
+              "State Transition",
+              "EVM"
+            ],
+            "technology": [
+              "Python",
+              "EVM"
+            ]
+          },
+          {
+            "name": "Requests Pipeline",
+            "type": "service",
+            "description": "Extracts deposit, withdrawal, and consolidation requests from receipts, encodes them, and computes the block-level requests_hash exposed to the CL. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+            "depends_on": [
+              "State Transition",
+              "Trie"
+            ],
+            "technology": [
+              "Python",
+              "SHA2-256"
+            ]
+          },
+          {
+            "name": "Precompile Suite",
+            "type": "library",
+            "description": "Implements P256VERIFY with strict field bounds, constant 6,900 gas charge, and 160-byte input contract to validate secp256r1 signatures without reverts. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/precompiled_contracts/p256verify.py",
+            "depends_on": [
+              "EVM",
+              "Gas Accounting"
+            ],
+            "technology": [
+              "Python",
+              "ECC"
+            ]
+          }
+        ],
+        "state_machines": [
+          {
+            "name": "Block Execution",
+            "inputs": [
+              "BlockEnvironment from fork choice [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+              "Ordered transactions with blob sidecars [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+              "Parent header fields and requests list [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+            ],
+            "outputs": [
+              "Updated state root [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+              "Receipts root and logs bloom [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+              "requests_hash commitment [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py"
+            ],
+            "invariants": [
+              "Total gas used must not exceed the header gas limit or the block is invalid. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+              "Blob gas used must match header blob_gas_used and stay within MAX_BLOB_GAS_PER_BLOCK. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+            ],
+            "transitions": [
+              "1. Validate header envelope and enforce MAX_RLP_BLOCK_SIZE before execution. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://eips.ethereum.org/EIPS/eip-7934",
+              "2. Iterate transactions, running Osaka validation then EVM execution with updated gas accounting and requests tracking. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+              "3. Seal block outputs, recompute trie roots, logs bloom, blob metrics, and aggregate requests_hash for CL consumption. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py"
+            ]
+          }
+        ],
+        "data_flow_diagram": "```mermaid\ngraph TD\n  FCU[CL forkchoiceUpdated] -->|payloadAttributes| Builder\n  Builder -->|transactions| TxPool\n  TxPool -->|validated tx| EL[Osaka State Transition]\n  EL -->|requests_hash, receipts| EngineAPI\n  EL -->|blob_gas_used/excess| FCU\n``` [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md"
+      },
+      "normative_spec": [
+        {
+          "id": "OSK-TX-VALIDATION",
+          "title": "Transaction Validation under Osaka [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+          "summary": "Nodes must apply Osaka intrinsic gas floors, 2**24 cap, nonce and signature bounds, and blob bundle checks before accepting a transaction for execution. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+          "preconditions": [
+            "Osaka fork flag enabled in chain configuration. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/__init__.py",
+            "Typed transaction decoded per EIP envelopes. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py"
+          ],
+          "inputs": [
+            "Signed or authorized transaction envelope [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/eoa_delegation.py",
+            "Current account state and chain config [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+            "Blob bundle metadata when transaction type requires [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py"
+          ],
+          "procedure": [
+            "1. Decode tx type; reject unknown prefixes or missing authorizations for SetCode transactions. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/eoa_delegation.py",
+            "2. Compute intrinsic gas with calldata floor pricing and ensure tx.gas covers both intrinsic and floor costs. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+            "3. Enforce TX_MAX_GAS_LIMIT = 16,777,216, nonce < 2**64-1, signature bounds, and balance sufficiency. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py, [S2] https://eips.ethereum.org/EIPS/eip-7825",
+            "4. For blob transactions, verify versioned hashes, max blob count, fee caps, and inclusion of blob data commitments. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py"
+          ],
+          "postconditions": [
+            "Validation returns intrinsic gas and calldata floor cost or raises a structured error. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py"
+          ],
+          "errors": [
+            {
+              "code": "ERR_TX_GAS_CAP",
+              "when": "gas > TX_MAX_GAS_LIMIT = 2**24. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py, [S2] https://eips.ethereum.org/EIPS/eip-7825",
+              "effect": "Reject transaction before execution. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py"
+            },
+            {
+              "code": "ERR_BLOB_PRICE",
+              "when": "Blob fee caps below required base price or missing blob data. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+              "effect": "Reject blob transaction and surface InsufficientMaxFeePerBlobGasError. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+            },
+            {
+              "code": "ERR_AUTH_EMPTY",
+              "when": "Authorization list empty for SetCode transaction. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+              "effect": "Raise EmptyAuthorizationListError and reject tx. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+            }
+          ],
+          "rationale": "Protects execution layer from DoS and consensus splits by enforcing deterministic bounds on gas, calldata pricing, and blob inclusion semantics. [S1][S2][S3] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py, [S2] https://eips.ethereum.org/EIPS/eip-7825, [S3] https://eips.ethereum.org/EIPS/eip-7918"
+        },
+        {
+          "id": "OSK-BLOCK-HASHING",
+          "title": "Block Import and Requests Hashing [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py",
+          "summary": "During block import, nodes must cap encoded block size, recompute trie roots, and build requests_hash from deposit, withdrawal, and consolidation side-effects before sealing the header. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py",
+          "preconditions": [
+            "Parent block finalized and Osaka fork rules active. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+            "Block body includes receipts for deposit contract events. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py"
+          ],
+          "inputs": [
+            "Block header, transactions, withdrawals, receipts tries [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+            "Execution receipts with deposit logs [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py"
+          ],
+          "procedure": [
+            "1. Reject blocks whose RLP encoding exceeds MAX_RLP_BLOCK_SIZE (10,485,760 - 2,097,152 safety margin). [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://eips.ethereum.org/EIPS/eip-7934",
+            "2. Apply transactions and withdrawals, updating state, blob metrics, and receipts trie; verify gas used and roots match header values. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+            "3. Parse deposit logs into request payloads, compute SHA2-based requests_hash, and compare to header field. [S1][S2][S3] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S3] https://eips.ethereum.org/EIPS/eip-7685"
+          ],
+          "postconditions": [
+            "Block accepted only if roots, blob metrics, and requests_hash align with execution outputs. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+          ],
+          "errors": [
+            {
+              "code": "ERR_BLOCK_RLP_OVERFLOW",
+              "when": "len(rlp.encode(block)) > MAX_RLP_BLOCK_SIZE. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://eips.ethereum.org/EIPS/eip-7934",
+              "effect": "Raise InvalidBlock and reject the payload. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+            },
+            {
+              "code": "ERR_REQUEST_HASH_MISMATCH",
+              "when": "Computed requests_hash differs from header field. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py",
+              "effect": "Reject block and signal INVALID_BLOCK via Engine API. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+            }
+          ],
+          "rationale": "Aligns execution outputs with consensus references so Fulu can trust requests commitments and avoid oversized payload DoS. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py"
+        }
+      ],
+      "algorithms": [
+        {
+          "name": "Blob Base Fee Update (Osaka) [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/gas.py, [S2] https://eips.ethereum.org/EIPS/eip-7918",
+          "purpose": "Compute blob gas price from excess_blob_gas with enforced execution-cost floor. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/gas.py, [S2] https://eips.ethereum.org/EIPS/eip-7918",
+          "pseudocode": "`pseudo\\nfunction calculate_blob_gas_price(excess_blob_gas):\\n    price = blob_base_fee_per_excess(excess_blob_gas)\\n    return max(price, MIN_BLOB_GAS_PRICE)\\n` [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/gas.py",
+          "complexity": "O(1) arithmetic per block. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/gas.py",
+          "notes": "Ensure monotonic price evolution and prevent underflow/overflow when updating excess_blob_gas. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/gas.py, [S2] https://eips.ethereum.org/EIPS/eip-7918"
+        }
+      ],
+      "apis": {
+        "interfaces": [
+          {
+            "kind": "json_rpc",
+            "name": "eth_config [S1] Sources: [S1] https://eips.ethereum.org/EIPS/eip-7910",
+            "stability": "Stable after Osaka activation. [S1] Sources: [S1] https://eips.ethereum.org/EIPS/eip-7910",
+            "request_schema": "`{\"id\":1,\"method\":\"eth_config\",\"params\":[]}` [S1] Sources: [S1] https://eips.ethereum.org/EIPS/eip-7910",
+            "response_schema": "Returns fork versioning, blob schedule, and gas caps keyed by fork name. [S1][S2] Sources: [S1] https://eips.ethereum.org/EIPS/eip-7910, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/__init__.py",
+            "errors": [
+              "InvalidParams when params array non-empty. [S1] Sources: [S1] https://eips.ethereum.org/EIPS/eip-7910",
+              "InternalError if fork table unavailable. [S1] Sources: [S1] https://eips.ethereum.org/EIPS/eip-7910"
+            ],
+            "notes": "Clients must surface Osaka gas caps and blob schedule for tooling parity. [S1][S2] Sources: [S1] https://eips.ethereum.org/EIPS/eip-7910, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/__init__.py"
+          },
+          {
+            "kind": "engine_api",
+            "name": "engine_newPayloadV3 [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+            "stability": "Stable for Fusaka devnets. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+            "sequence_diagram": "```mermaid\nsequenceDiagram\n  CL->>EL: engine_newPayloadV3(payload, versioned_hashes, parent_beacon_root, execution_requests)\n  EL-->>CL: VALID\n  CL->>EL: engine_forkchoiceUpdatedV3(state, payloadAttributes)\n  EL-->>CL: PayloadStatus(executionStatus, blobStatus)\n``` [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+            "notes": "Osaka must verify blob metrics and requests_hash before acknowledging payload to Fulu. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md"
+          }
+        ]
+      },
+      "wire_protocol": {
+        "topics": [],
+        "notes": "Osaka references eth/69 history expiry and relies on CL PeerDAS topics for blob propagation handled in Fulu networking. [S1][S2][S3] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/__init__.py, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md, [S3] https://eips.ethereum.org/EIPS/eip-7642"
+      },
+      "constants": [
+        {
+          "name": "TX_MAX_GAS_LIMIT",
+          "value": "16777216",
+          "units": "gas",
+          "notes": "Defines the 2**24 cap enforced during validation. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py, [S2] https://eips.ethereum.org/EIPS/eip-7825"
+        },
+        {
+          "name": "MAX_RLP_BLOCK_SIZE",
+          "value": "8388608",
+          "units": "bytes",
+          "notes": "10,485,760 byte hard cap minus 2,097,152 safety margin per Osaka. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://eips.ethereum.org/EIPS/eip-7934"
+        },
+        {
+          "name": "BLOB_COUNT_LIMIT",
+          "value": "6",
+          "units": "blobs",
+          "notes": "Blocks must not carry more than six blobs under Osaka. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+        },
+        {
+          "name": "GAS_P256VERIFY",
+          "value": "6900",
+          "units": "gas",
+          "notes": "Fixed gas charged before P256 signature verification. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/gas.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/precompiled_contracts/p256verify.py"
+        }
+      ],
+      "invariants": [
+        "Engine must emit requests_hash consistent with parsed deposit events. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py",
+        "MODEXP execution must respect tightened bounds to avoid underpriced inputs. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/gas.py, [S2] https://eips.ethereum.org/EIPS/eip-7883",
+        "CLZ opcode returns 256 when operand is zero, ensuring consensus alignment. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/instructions/__init__.py, [S2] https://eips.ethereum.org/EIPS/eip-7939"
+      ],
+      "user_flows": [
+        {
+          "id": 1,
+          "title": "[Client] Osaka Payload Build [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+          "actors": [
+            "Tx Pool",
+            "Execution Engine",
+            "Consensus Layer"
+          ],
+          "preconditions": [
+            "Osaka rules activated and Engine API authenticated. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/__init__.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+          ],
+          "steps": [
+            "1. Tx pool filters incoming tx via OSK-TX-VALIDATION and queues blob sidecars. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+            "2. Builder selects transactions, applies state transition, and records requests outputs. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py",
+            "3. Engine returns payload via get_payload including blob metrics. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+            "4. Consensus layer submits engine_newPayloadV3 and awaits VALID status. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+          ],
+          "postconditions": [
+            "Payload ready for forkchoiceUpdated with matching blob and request commitments. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md"
+          ]
+        }
+      ],
+      "worked_examples": [
+        {
+          "id": "EX-OSK-CALLDATA-FLOOR",
+          "title": "Calldata Floor Gas Rejection [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+          "scenario": "User submits a blobless transaction with 1,024 non-zero calldata bytes. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+          "given": "Intrinsic gas = 21,000; calldata floor adds 4,096 tokens * 10 gas. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+          "when": "If supplied gas < 61,000, validation raises InsufficientTransactionGasError. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+          "then": "Transaction dropped before execution, preventing state changes. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py"
+        }
+      ],
+      "edge_cases": [
+        "SetCode transactions without at least one authorization MUST trigger EmptyAuthorizationListError and fail. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+        "Blob transaction carrying >6 versioned hashes MUST raise BlobCountExceededError. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+        "P256VERIFY input shorter than 160 bytes MUST return empty output without reverting. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/precompiled_contracts/p256verify.py"
+      ],
+      "compatibility": {
+        "cross_layer": "Osaka exposes requests_hash and blob gas metrics that Fulu verifies via engine_newPayload and process_execution_payload, so both layers must agree on hash construction and blob limits. [S1][S2][S3] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py, [S3] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md"
+      },
+      "changelog": {
+        "latest_version": "forks/osaka@5ddb904f [S1] Sources: [S1] https://github.com/ethereum/execution-specs/commit/5ddb904fa7ba27daeff423e78466744c51e8cb6a",
+        "since_previous": [
+          {
+            "commit": "5ddb904fa7ba27daeff423e78466744c51e8cb6a [S1] Sources: [S1] https://github.com/ethereum/execution-specs/commit/5ddb904fa7ba27daeff423e78466744c51e8cb6a",
+            "date": "2025-09-15 [S1] Sources: [S1] https://github.com/ethereum/execution-specs/commit/5ddb904fa7ba27daeff423e78466744c51e8cb6a",
+            "summary": "Refactored fork metadata into namespace package, clarifying Osaka module layout. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/commit/5ddb904fa7ba27daeff423e78466744c51e8cb6a"
+          },
+          {
+            "commit": "12cc993674d3ffa6e7c4e50647c197ae7148144f [S1] Sources: [S1] https://github.com/ethereum/execution-specs/commit/12cc993674d3ffa6e7c4e50647c197ae7148144f",
+            "date": "2025-09-15 [S1] Sources: [S1] https://github.com/ethereum/execution-specs/commit/12cc993674d3ffa6e7c4e50647c197ae7148144f",
+            "summary": "Reorganized forks directory to prepare for Osaka inclusion. [S1] Sources: [S1] https://github.com/ethereum/execution-specs/commit/12cc993674d3ffa6e7c4e50647c197ae7148144f"
+          }
+        ],
+        "breaking_changes": [
+          "Enforced TX_MAX_GAS_LIMIT per EIP-7825 requires client config updates. [S1][S2] Sources: [S1] https://eips.ethereum.org/EIPS/eip-7825, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+          "MAX_RLP_BLOCK_SIZE enforcement per EIP-7934 affects block production and sync. [S1][S2] Sources: [S1] https://eips.ethereum.org/EIPS/eip-7934, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+          "Mandatory requests_hash field couples EL outputs to CL processing per EIP-7685. [S1][S2] Sources: [S1] https://eips.ethereum.org/EIPS/eip-7685, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+        ]
+      },
+      "bug_bounty": {
+        "scope": "Execution clients implementing Osaka, executable spec, and associated test vectors are in scope. [S1][S2] Sources: [S1] https://ethereum.org/en/bug-bounty/, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/__init__.py",
+        "impact": "Consensus faults, payload invalidation, or DoS due to Osaka gas, blob, or requests handling qualify for rewards. [S1][S2] Sources: [S1] https://ethereum.org/en/bug-bounty/, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+        "exclusions": "UI, telemetry, or documentation-only findings remain out of scope. [S1] Sources: [S1] https://ethereum.org/en/bug-bounty/",
+        "reproduction": "Proofs must include reproducible payload or transaction demonstrating Osaka rule violation on supported clients. [S1] Sources: [S1] https://ethereum.org/en/bug-bounty/",
+        "reporting": "Report privately via bounty.ethereum.org or bounty@ethereum.org with optional PGP per EF policy. [S1] Sources: [S1] https://ethereum.org/en/bug-bounty/",
+        "rewards": "Rewards follow EF tiers scaled by consensus impact and ease of exploitation. [S1] Sources: [S1] https://ethereum.org/en/bug-bounty/"
+      }
+    },
+    {
+      "name": "Fulu",
+      "layer": "Consensus",
+      "genre": "Ethereum Client Spec",
+      "architecture": {
+        "overview": "Fulu augments the beacon chain with PeerDAS data column sampling, proposer lookahead storage, and extended execution payload validation including blob schedule control and execution_requests forwarding. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+        "components": [
+          {
+            "name": "Beacon State",
+            "type": "state_machine",
+            "description": "Extends BeaconState with proposer_lookahead array, blob parameters, and execution payload header fields for PeerDAS enforcement. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/fork.md",
+            "depends_on": [
+              "Fork Logic",
+              "Execution Payload"
+            ],
+            "technology": [
+              "SSZ",
+              "Python"
+            ]
+          },
+          {
+            "name": "PeerDAS Core",
+            "type": "service",
+            "description": "Defines custody groups, sampling requirements, DataColumnSidecar format, and reconstruction helpers for erasure-coded blob data. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+            "depends_on": [
+              "Polynomial Commitments",
+              "Networking"
+            ],
+            "technology": [
+              "SSZ",
+              "KZG",
+              "libp2p"
+            ]
+          },
+          {
+            "name": "Networking",
+            "type": "service",
+            "description": "Upgrades gossip, Req/Resp, and discovery protocols with data_column_sidecar topics, custody_group_count metadata, and Status v2 earliest_available_slot. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+            "depends_on": [
+              "PeerDAS Core",
+              "Beacon Node"
+            ],
+            "technology": [
+              "libp2p",
+              "gossipsub",
+              "SSZ"
+            ]
+          },
+          {
+            "name": "Validator Duties",
+            "type": "service",
+            "description": "Adjusts custody obligations, payload requests via GetPayloadResponse, and sidecar publishing/retention for validators. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md",
+            "depends_on": [
+              "PeerDAS Core",
+              "Execution Engine"
+            ],
+            "technology": [
+              "Python",
+              "SSZ"
+            ]
+          }
+        ],
+        "state_machines": [
+          {
+            "name": "process_execution_payload",
+            "inputs": [
+              "BeaconState with proposer_lookahead [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+              "BeaconBlockBody carrying blob_kzg_commitments and execution_requests [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+              "Execution engine interface [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md"
+            ],
+            "outputs": [
+              "Updated latest_execution_payload_header [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+              "Blob schedule enforcement results [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+              "Notification to execution engine via verify_and_notify_new_payload [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md"
+            ],
+            "invariants": [
+              "len(blob_kzg_commitments) must not exceed get_blob_parameters(epoch).max_blobs_per_block. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://eips.ethereum.org/EIPS/eip-7892",
+              "execution_engine.verify_and_notify_new_payload must succeed or block processing aborts. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md"
+            ],
+            "transitions": [
+              "1. Check parent hash, prev_randao, and timestamp consistency. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+              "2. Enforce blob commitment limit via blob parameters schedule. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://eips.ethereum.org/EIPS/eip-7892",
+              "3. Call execution engine with versioned hashes and execution_requests, then cache payload header. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md"
+            ]
+          }
+        ],
+        "data_flow_diagram": "```mermaid\nsequenceDiagram\n  Validator->>CL: Propose beacon block + data_column_sidecars\n  CL->>EL: engine_newPayloadV3(payload, versioned_hashes, execution_requests)\n  EL-->>CL: VALID\n  Peer->>Validator: data_column_sidecar gossip\n  Validator-->>Peers: Req/Resp DataColumnSidecarsByRange\n``` [S1][S2][S3] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md, [S3] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md"
+      },
+      "normative_spec": [
+        {
+          "id": "FULU-PEERDAS-SAMPLING",
+          "title": "PeerDAS Custody Sampling [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+          "summary": "Nodes must advertise custody_group_count, join corresponding subnets, and sample at least SAMPLES_PER_SLOT columns, escalating to reconstruction if coverage drops. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+          "preconditions": [
+            "Node has computed custody groups via get_custody_groups. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md"
+          ],
+          "inputs": [
+            "Node ID and custody_group_count [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+            "Column subscriptions and sidecar feeds [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+          ],
+          "procedure": [
+            "1. Determine custody groups and columns using get_custody_groups and compute_columns_for_custody_group. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+            "2. Join data_column_sidecar_{subnet_id} topics for assigned groups and begin sampling >= max(SAMPLES_PER_SLOT, custody_group_count). [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+            "3. Validate sidecars via verify_data_column_sidecar, KZG proofs, and inclusion proof before marking samples available. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+            "4. If coverage < threshold, reconstruct missing columns via recover_matrix and rebroadcast if subscribed. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md"
+          ],
+          "postconditions": [
+            "Node updates custody records and exposes availability to peers. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+          ],
+          "errors": [
+            {
+              "code": "ERR_PEERDAS_INVALID_SIDECAR",
+              "when": "Sidecar fails structural or KZG verification. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+              "effect": "Reject gossip message and penalize peer per scoring rules. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+            },
+            {
+              "code": "ERR_CUSTODY_UNDER_SAMPLED",
+              "when": "Node fails to fetch required samples per slot. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+              "effect": "Client must trigger recovery or mark column unavailable impacting attestations. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md"
+            }
+          ],
+          "rationale": "Ensures data availability guarantees and resilience against partial sidecar loss. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md, [S2] https://eips.ethereum.org/EIPS/eip-7594"
+        },
+        {
+          "id": "FULU-PROPOSER-LOOKAHEAD",
+          "title": "Proposer Lookahead Maintenance [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/fork.md",
+          "summary": "Beacon nodes must maintain proposer_lookahead across epochs and verify proposer indices for sidecar validation. [S1][S2][S3] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/fork.md, [S3] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+          "preconditions": [
+            "State upgraded via upgrade_to_fulu with proposer_lookahead initialized. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/fork.md"
+          ],
+          "inputs": [
+            "BeaconState with proposer_lookahead [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+            "Current epoch and custody scheduling parameters [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md"
+          ],
+          "procedure": [
+            "1. During epoch processing, run process_proposer_lookahead to refresh indices for (MIN_SEED_LOOKAHEAD+1)*SLOTS_PER_EPOCH slots. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+            "2. When validating data_column_sidecar, confirm proposer_index matches lookahead entry for slot. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+            "3. If mismatch detected, queue sidecar until proposer shuffling confirmed or reject if proven invalid. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+          ],
+          "postconditions": [
+            "Lookahead array stays aligned with fork choice and custody validations. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+          ],
+          "errors": [
+            {
+              "code": "ERR_LOOKAHEAD_DESYNC",
+              "when": "proposer_index differs from expected index for slot. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+              "effect": "Client ignores sidecar until proposer mapping recomputed. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+            }
+          ],
+          "rationale": "Provides deterministic proposer verification for PeerDAS sidecars and attestation duties. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+        }
+      ],
+      "algorithms": [
+        {
+          "name": "Custody Assignment [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+          "purpose": "Assign custody groups and columns per node deterministically. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+          "pseudocode": "`pseudo\\nfunction assign_custody(node_id, custody_group_count):\\n    groups = get_custody_groups(node_id, custody_group_count)\\n    return {g: compute_columns_for_custody_group(g) for g in groups}\\n` [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+          "notes": "Avoids duplicates, supports super-full nodes, and scales with NUMBER_OF_CUSTODY_GROUPS. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md"
+        }
+      ],
+      "apis": {
+        "interfaces": [
+          {
+            "kind": "beacon_api",
+            "name": "GET /eth/v2/beacon/blocks/{slot} [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+            "stability": "Stable with PeerDAS extensions. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+            "notes": "Responses include blob_kzg_commitments and execution_requests needed for Osaka verification. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md"
+          },
+          {
+            "kind": "req_resp",
+            "name": "DataColumnSidecarsByRange v1 [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+            "stability": "Experimental for Fusaka devnets. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+            "notes": "Serves DataColumnSidecar payloads over SSZ chunks within MIN_EPOCHS_FOR_DATA_COLUMN_SIDECARS_REQUESTS window. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+          }
+        ]
+      },
+      "wire_protocol": {
+        "topics": [
+          "data_column_sidecar_{subnet_id} [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+        ],
+        "notes": "Nodes must validate subnet routing, anti-equivocation, and proposer signatures before forwarding sidecars. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+      },
+      "constants": [
+        {
+          "name": "SAMPLES_PER_SLOT",
+          "value": "8",
+          "units": "columns",
+          "notes": "Minimum samples honest node must download each slot. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md"
+        },
+        {
+          "name": "NUMBER_OF_CUSTODY_GROUPS",
+          "value": "128",
+          "units": "groups",
+          "notes": "Total custody groups available across PeerDAS network. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md"
+        },
+        {
+          "name": "DATA_COLUMN_SIDECAR_SUBNET_COUNT",
+          "value": "128",
+          "units": "subnets",
+          "notes": "Number of gossip subnets dedicated to column distribution. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md, [S2] https://eips.ethereum.org/EIPS/eip-7594"
+        },
+        {
+          "name": "MIN_EPOCHS_FOR_DATA_COLUMN_SIDECARS_REQUESTS",
+          "value": "4096",
+          "units": "epochs",
+          "notes": "Retention window for serving DataColumnSidecar requests. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+        }
+      ],
+      "invariants": [
+        "Proposer lookahead array length equals (MIN_SEED_LOOKAHEAD+1)*SLOTS_PER_EPOCH. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/fork.md",
+        "earliest_available_slot in Status v2 must reflect oldest stored data column sidecars. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+        "Custody requirement for validator-attached nodes scales with effective balance. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md"
+      ],
+      "user_flows": [
+        {
+          "id": 1,
+          "title": "[Validator] PeerDAS Sampling Cycle [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+          "actors": [
+            "Validator",
+            "Beacon Node"
+          ],
+          "preconditions": [
+            "Validator metadata advertises custody_group_count >= VALIDATOR_CUSTODY_REQUIREMENT. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md"
+          ],
+          "steps": [
+            "1. At slot start, compute sampling groups using total_node_balance derived requirement. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md",
+            "2. Subscribe to required data_column_sidecar subnets and request missing columns. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md",
+            "3. Verify sidecars and record custody proofs; reconstruct if partial coverage. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md",
+            "4. Publish attestations only if sampling thresholds satisfied. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md"
+          ],
+          "postconditions": [
+            "Validator ready to attest with availability evidence or abstain if data incomplete. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md"
+          ]
+        }
+      ],
+      "worked_examples": [
+        {
+          "id": "EX-FULU-SAMPLING",
+          "title": "Sampling with Partial Sidecar Loss [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+          "scenario": "Node misses two custody groups due to slow gossip. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+          "given": "custody_group_count = 8 requiring >=8 samples per slot. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md",
+          "when": "Node retrieves 6 sidecars via gossip and requests remaining 2 via DataColumnSidecarsByRange. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+          "then": "If Req/Resp succeeds before attestation deadline, node attests; otherwise it must abstain to avoid invalid vote. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+        }
+      ],
+      "edge_cases": [
+        "Sidecar with empty kzg_commitments list must be rejected before gossip propagation. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+        "Node advertising reduced custody_group_count must still serve historical higher count. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md",
+        "BlobSidecarsByRange requests beyond retention window may return empty without peer penalty. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md"
+      ],
+      "compatibility": {
+        "cross_layer": "Fulu verifies Osaka requests_hash, blob_gas_used, and excess_blob_gas through engine APIs while enforcing blob schedule via get_blob_parameters. [S1][S2][S3] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S3] https://eips.ethereum.org/EIPS/eip-7892"
+      },
+      "changelog": {
+        "latest_version": "specs/fulu@340d2335 [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/commit/340d23358a0cdb4f4b547226dadd36d1cf775f20",
+        "since_previous": [
+          {
+            "commit": "340d23358a0cdb4f4b547226dadd36d1cf775f20 [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/commit/340d23358a0cdb4f4b547226dadd36d1cf775f20",
+            "date": "2025-09-17 [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/commit/340d23358a0cdb4f4b547226dadd36d1cf775f20",
+            "summary": "Adjusted pyspec test generation to gate ssz_static creation in generator mode, keeping PeerDAS fixtures lean. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/commit/340d23358a0cdb4f4b547226dadd36d1cf775f20"
+          },
+          {
+            "commit": "1af06e9781ccc8471b53166d5e7109478ac5d874 [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/commit/1af06e9781ccc8471b53166d5e7109478ac5d874",
+            "date": "2025-09-17 [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/commit/1af06e9781ccc8471b53166d5e7109478ac5d874",
+            "summary": "Forwarded verbose flag to pyspec rebuild step, aiding debug of Fulu generators. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/commit/1af06e9781ccc8471b53166d5e7109478ac5d874"
+          }
+        ],
+        "breaking_changes": [
+          "DataColumnSidecar gossip replaces blob_sidecar topics, requiring networking upgrades. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md, [S2] https://eips.ethereum.org/EIPS/eip-7594",
+          "Status v2 earliest_available_slot field mandated for PeerDAS availability tracking. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+          "Validators must satisfy upgraded custody requirements tied to effective balances. [S1] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md"
+        ]
+      },
+      "bug_bounty": {
+        "scope": "Consensus clients implementing Fulu networking, PeerDAS sampling, and proposer lookahead fall within EF bounty scope. [S1][S2] Sources: [S1] https://ethereum.org/en/bug-bounty/, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md",
+        "impact": "Findings causing consensus splits, invalid availability votes, or custody bypass qualify for higher tiers. [S1][S2] Sources: [S1] https://ethereum.org/en/bug-bounty/, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md",
+        "exclusions": "Cosmetic issues in specs or non-security documentation remain out of scope. [S1] Sources: [S1] https://ethereum.org/en/bug-bounty/",
+        "reproduction": "Reports must include reproducible beacon node traces or failing test vectors demonstrating PeerDAS or lookahead faults. [S1][S2] Sources: [S1] https://ethereum.org/en/bug-bounty/, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+        "reporting": "Submit via bounty.ethereum.org or bounty@ethereum.org following responsible disclosure timelines. [S1] Sources: [S1] https://ethereum.org/en/bug-bounty/",
+        "rewards": "Rewards mirror EF consensus bounty tiers scaled by slashable fault risk. [S1] Sources: [S1] https://ethereum.org/en/bug-bounty/"
+      }
+    }
+  ],
+  "cross_layer": {
+    "interfaces": [
+      {
+        "name": "Engine API / Fork Choice [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+        "preconditions": [
+          "EL and CL share JWT auth and advertise matching fork versions. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/__init__.py"
+        ],
+        "sequence_diagram": "```mermaid\nsequenceDiagram\n  CL->>EL: engine_newPayloadV3(payload, hashes, parent_root, execution_requests)\n  EL-->>CL: PayloadStatus(VALID|INVALID, blobStatus)\n  CL->>EL: engine_forkchoiceUpdatedV3(state, payloadAttributes)\n  EL-->>CL: PayloadId / SYNCING\n``` [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+        "errors": [
+          "INVALID_PARAMS when payload structure malformed. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+          "SYNCING when EL behind finalized head. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+          "INVALID_BLOCK_HASH when requests_hash or blob metrics mismatch. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py"
+        ],
+        "timeouts": "Clients should retry forkchoiceUpdated if EL does not respond within slot time, backing off exponentially. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+        "notes": "Fulu relies on Osaka to reject invalid blob bundles and publish execution_requests for CL processing. [S1][S2][S3] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S3] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/requests.py"
+      }
+    ],
+    "data_availability": "Osaka enforces blob fee floors and blob count limits while Fulu spreads columns across custody groups; together they guarantee availability via pricing and PeerDAS sampling. [S1][S2][S3] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/gas.py, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md, [S3] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md"
+  },
+  "security_requirements": [
+    {
+      "id": "SR-EL-001",
+      "description": "Execution clients must enforce Osaka gas caps, block size, and requests hashing before exposing payloads to consensus. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/transactions.py",
+      "risk_category": "integrity",
+      "related_components": [
+        "Transaction Validation",
+        "State Transition"
+      ]
+    },
+    {
+      "id": "SR-CL-001",
+      "description": "Consensus clients must validate PeerDAS sidecars and meet sampling thresholds before attesting to block availability. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/das-core.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/validator.md",
+      "risk_category": "consensus",
+      "related_components": [
+        "PeerDAS Core",
+        "Validator Duties"
+      ]
+    },
+    {
+      "id": "SR-XL-001",
+      "description": "Engine API interactions must keep CL and EL fork choice aligned, rejecting payloads with mismatched blob metrics or requests_hash. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/fork.py",
+      "risk_category": "consistency",
+      "related_components": [
+        "Engine API / Fork Choice"
+      ]
+    },
+    {
+      "id": "SR-EL-002",
+      "description": "Blob fee computation must remain monotonic with the Osaka minimum to prevent economic attacks or underflows. [S1][S2] Sources: [S1] https://github.com/ethereum/execution-specs/blob/5ddb904fa7ba27daeff423e78466744c51e8cb6a/src/ethereum/forks/osaka/vm/gas.py, [S2] https://eips.ethereum.org/EIPS/eip-7918",
+      "risk_category": "economic",
+      "related_components": [
+        "Fee Market"
+      ]
+    },
+    {
+      "id": "SR-CL-002",
+      "description": "Proposer lookahead must be reproducible from beacon state so peers can detect equivocation or invalid sidecars. [S1][S2] Sources: [S1] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/beacon-chain.md, [S2] https://github.com/ethereum/consensus-specs/blob/340d23358a0cdb4f4b547226dadd36d1cf775f20/specs/fulu/p2p-interface.md",
+      "risk_category": "liveness",
+      "related_components": [
+        "Beacon State",
+        "Networking"
+      ]
+    }
+  ]
+}
