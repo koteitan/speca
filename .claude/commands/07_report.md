@@ -45,16 +45,9 @@ Write exactly **one Markdown file**:
 `security-agent/outputs/report_{{TITLE_SLUG}}.md`
 (no extra headings, no missing sections).
 
-# 📝 Mandatory Sections  (as defined in template)
-1. Summary
-2. Severity & Impact
-3. Reproduction Steps
-4. Proof of Concept (code fenced)
-5. Affected Code (around `SRC_FILE` + `SRC_FUNCTION`, ±10 lines context)
-6. Root Cause Analysis
-7. Suggested Fix / Mitigation
-8. References
-9. Disclosure Policy Acknowledgement
+# 📝 Mandatory Sections
+
+Must Follow templete
 
 # 🛠️ Generation Workflow
 ```

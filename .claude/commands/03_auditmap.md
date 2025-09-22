@@ -29,7 +29,7 @@ Given `NORMATIVE_IDS`, **sequentially audit** the corresponding local functions 
 2. **Spec (source of truth for IDs & threats):** `security-agent/outputs/01_SPEC.json` (v2.0.0‑nl).
 3. **Order/map:** `security-agent/outputs/02_ORDER.json` (must contain one `audit_chunk` per normative ID with **local** `functions`).
 4. **Risk knowledge base:** `security-agent/docs/**` (all files). Use as checklists and references for *every* audit decision.
-5. **Known bugs DB (optional but recommended):** `security-agent/docs/ethereum/bugs_*.json`.
+5. **Known bugs DB (mandatory reconnaissance):** `security-agent/docs/ethereum/bugs_ethereum.json`.
 6. **Static call‑graph (optional):** `{{STATIC_CALLGRAPH}}` (`NONE` to derive).
 
 ---
@@ -80,7 +80,7 @@ Given `NORMATIVE_IDS`, **sequentially audit** the corresponding local functions 
 
 3. **Risk sweep (two phases)** using `security-agent/docs/**` and `01_SPEC.json`:
 
-   **3a. Generic sweep** — Apply checklists: DoS (CPU/IO/mem), consensus split, economic invariants, auth bypass, integer over/underflow, RLP/SSZ bounds, signature/KZG proof handling, blob fee math, engine/beacon API contracts, race conditions, replay, time/slot drift, subnet routing. Map findings to CWE where useful.
+   **3a. Generic sweep** — Apply checklists: DoS (CPU/IO/mem), consensus split, economic invariants, auth bypass, integer over/underflow, RLP/SSZ bounds, signature/KZG proof handling, blob fee math, engine/beacon API contracts, race conditions, replay, time/slot drift, subnet routing. Map findings to CWE where useful. Consult `security-agent/docs/ethereum/bugs_ethereum.json` for analogous exploits and log hypotheses (e.g., malformed precompile inputs, refund drift, handshake desync) before concluding the sweep.
 
    **3b. Attack‑Path Focused sweep (MANDATORY):**
    For every **applicable AP** in `01_SPEC.json.threats.attack_paths` (e.g., **AP‑1 … AP‑11**), evaluate **each checkpoint** against the code.
@@ -110,6 +110,38 @@ Given `NORMATIVE_IDS`, **sequentially audit** the corresponding local functions 
 //
 // @audit-ok (AP-<n>.C<k>): <reason linked to Osaka/Fulu normative + constants/invariants/procedure>
 ````
+
+---
+
+## 🔬 Advanced Attack Exploration
+
+Before finalising any checkpoint, use `security-agent/docs/ethereum/bugs_ethereum.json`
+to drive proactive, derivative exploit hunts:
+
+- **Precompiles & cryptography** — ALTBN128, ModExp, BLS, and KZG weaknesses
+  show fragile curve checks. Search for custom deserialisation, pairing
+  optimisations, or bigint helpers (`rg "deserialize"`, `rg "BLS"`); attempt
+  malformed group elements or builder→EL→CL payloads.
+- **Gas accounting / blob economics** — Fee or refund drift can split consensus.
+  Inspect bespoke gas math, blob fee comparisons, refund caps, and interactions
+  with fork-specific pricing constants.
+- **Handshake & networking** — ForkID, chain-ID width, ping flood, and partial
+  eclipse flaws recur. Review handshake validation, replay tolerance, timeout
+  symmetry, and uncommon p2p message flows reachable from the audited code.
+- **Resource exhaustion** — Slow-input, goroutine floods, huge RPC queries,
+  SSE underruns highlight unbounded work. Identify loops without bounds,
+  dynamic allocations, or rate-limit bypasses, and model EL↔CL propagation.
+- **Sync / reorg / recovery** — Deep reorg, history truncation, checkpoint and
+  snap stalls indicate fragile unwind logic. Stress partial database states,
+  rollback paths, and divergent engine responses with mocked payloads.
+- **API / schema drift** — Prysm regressions reveal nil-vs-empty arrays, path
+  typos, and schema mismatches. Audit JSON tags, SSE streams, REST routers for
+  similar cracks and tooling desynchronisation.
+- **Data availability / PeerDAS** — Column mis-indexing and custody subnet
+  attrition suggest checking shard mappings, cache invalidation, and index math.
+
+Capture emergent hypotheses in the audit record—even without immediate proof—so
+future rounds can pursue the leads.
 
 ---
 

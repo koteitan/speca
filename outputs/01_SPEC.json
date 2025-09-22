@@ -1028,6 +1028,348 @@
         "related": [
           "FULU-PROPOSER-LOOKAHEAD"
         ]
+      },
+      {
+        "id": "AP-12",
+        "title": "Custody subnet saturation and listener starvation",
+        "description": "Adversaries concentrate peers on specific custody subnets to absorb sampling requests or leave subnets without listeners, delaying blob availability confirmations.",
+        "checkpoints": [
+          "Enforce per-subnet inbound/outbound peer caps and rotate peers when sample success ratio drops",
+          "Emit metrics/alerts when a custody subnet peer count falls below the redundancy threshold",
+          "Reassign or rejoin custody subnets proactively when repeated timeouts occur"
+        ],
+        "mitigations": [
+          "Randomize peer replacement across custody groups each epoch",
+          "Drop or deprioritize peers that exceed request-failure limits"
+        ],
+        "related": [
+          "FULU-CUSTODY-CALC",
+          "FULU-SUBNET-ASSIGNMENT",
+          "FULU-PEERDAS-SAMPLING"
+        ]
+      },
+      {
+        "id": "AP-13",
+        "title": "PeerDAS request backpressure bypass",
+        "description": "Flooding DataColumnSidecars or cell sampling requests without adequate backpressure causes goroutine/thread exhaustion or memory spikes.",
+        "checkpoints": [
+          "Rate-limit concurrent column-sidecar requests per peer and per slot",
+          "Attach cancellable contexts and release resources on disconnect or timeout",
+          "Track outstanding work; refuse new requests when queue depth exceeds safe limits"
+        ],
+        "mitigations": [
+          "Share a bounded worker pool across DAS handlers",
+          "Record peer penalties for repeated cancellations or incomplete responses"
+        ],
+        "related": [
+          "FULU-PEERDAS-SAMPLING",
+          "apis.interfaces[1] DataColumnSidecarsByRange v1"
+        ]
+      },
+      {
+        "id": "AP-14",
+        "title": "Stale fragment replay loop",
+        "description": "Rebroadcasting expired column fragments or extended cells can keep validators busy revalidating obsolete data until TTL rules eject them.",
+        "checkpoints": [
+          "Assign per-slot TTL and drop sidecars older than the spec window before validation",
+          "Maintain deduplication keys (slot, proposer, column, chunk) with bounded TTL",
+          "Stop retrying peers that repeatedly deliver stale or duplicated fragments"
+        ],
+        "mitigations": [
+          "Emit metrics for stale fragment drops",
+          "Escalate to reconstruction requests when gossip sources stale repeatedly"
+        ],
+        "related": [
+          "FULU-PEERDAS-SAMPLING",
+          "FULU-RS-RECONSTRUCTION"
+        ]
+      },
+      {
+        "id": "AP-15",
+        "title": "cell_proofs wrapper integrity bypass",
+        "description": "Mixed or truncated cell proofs combined with valid blob commitments bypass integrity checks when wrapper length validation is incomplete.",
+        "checkpoints": [
+          "Verify cell_proofs count equals CELLS_PER_EXT_BLOB * len(blobs)",
+          "Ensure each proof index aligns with its blob commitment before batch verification",
+          "Reject unknown or unsupported wrapper_version before decoding"
+        ],
+        "mitigations": [
+          "Fuzz wrapper decoding with mismatched lengths",
+          "Keep cross-client test vectors for wrapper_version evolution"
+        ],
+        "related": [
+          "OSK-TX-VALIDATION",
+          "FULU-PEERDAS-SAMPLING"
+        ]
+      },
+      {
+        "id": "AP-16",
+        "title": "Versioned hash compression drift",
+        "description": "Differences in kzg_to_versioned_hash prefixing or G1 compression cause mismatch between commitments and versioned hashes across clients.",
+        "checkpoints": [
+          "Run canonical test vectors for kzg_to_versioned_hash across languages",
+          "Ensure prefix and truncation logic conform to 4844 spec",
+          "Validate codec output matches blob header version expectations before acceptance"
+        ],
+        "mitigations": [
+          "Centralize the conversion routine and reuse in EL/CL pipelines",
+          "Add regression tests for edge-case commitments (infinity, small-order)"
+        ],
+        "related": [
+          "OSK-TX-VALIDATION",
+          "FULU-DISTRIBUTED-BLOB-PUBLISHING"
+        ]
+      },
+      {
+        "id": "AP-17",
+        "title": "Invalid KZG point acceptance regression",
+        "description": "Relaxed deserialisation of G1/G2 points allows invalid commitments to be accepted, leading to consensus splits.",
+        "checkpoints": [
+          "Force deserialisation routines to reject points not on the curve or outside the subgroup",
+          "Fuzz decoding with known invalid point sets per release",
+          "Abort verification when library returns malformed points instead of fallback acceptance"
+        ],
+        "mitigations": [
+          "Pin kzg libraries to releases with subgroup checks",
+          "Add dynamic health checks that spot divergence after deserialisation"
+        ],
+        "related": [
+          "FULU-PEERDAS-SAMPLING",
+          "OSK-TX-VALIDATION"
+        ]
+      },
+      {
+        "id": "AP-18",
+        "title": "Sampling bias under partial availability",
+        "description": "An adversary withholds roughly half the columns and biases sampling so many validators hit only available regions, delaying reconstruction.",
+        "checkpoints": [
+          "Reroll sampling targets when repeated timeouts occur",
+          "Mix peers across operators and custody groups before finalising availability",
+          "Escalate to full reconstruction once minority of samples fail twice"
+        ],
+        "mitigations": [
+          "Track peer diversity and enforce minimum distinct operators per sampling window",
+          "Instrument sampling outcome metrics (success rate, retry counts)"
+        ],
+        "related": [
+          "FULU-PEERDAS-SAMPLING",
+          "FULU-RS-RECONSTRUCTION"
+        ]
+      },
+      {
+        "id": "AP-19",
+        "title": "Finalized epoch sidecar gaps",
+        "description": "Failure to serve or request DataColumnSidecars across finality boundaries prevents late joiners from reconstructing old blobs.",
+        "checkpoints": [
+          "Expose DataColumnSidecarsByRoot for finalized epochs as required",
+          "Test finalized/unfinalized transitions end-to-end",
+          "Cache finalised sidecars on disk with retention policies"
+        ],
+        "mitigations": [
+          "Backfill missing finalized sidecars during warm-up",
+          "Alert when finalized retrieval fails repeatedly"
+        ],
+        "related": [
+          "FULU-DISTRIBUTED-BLOB-PUBLISHING",
+          "apis.interfaces[1] DataColumnSidecarsByRoot v1"
+        ]
+      },
+      {
+        "id": "AP-20",
+        "title": "Partial-bad cell flood",
+        "description": "Sending many minimally corrupted cells forces repeated batch verification retries, exhausting CPU.",
+        "checkpoints": [
+          "Abort batch verification on first failure and penalize sender",
+          "Set per-slot limits on failed batch retries",
+          "Separate healthy and faulty cells to avoid reprocessing good data repeatedly"
+        ],
+        "mitigations": [
+          "Maintain peer failure counters tied to invalid cell rate",
+          "Prioritize verification of distinct slots before retrying failed ones"
+        ],
+        "related": [
+          "FULU-PEERDAS-SAMPLING",
+          "FULU-RS-RECONSTRUCTION"
+        ]
+      },
+      {
+        "id": "AP-21",
+        "title": "Checkpoint sync restart inconsistency",
+        "description": "Restarting after periods of non-finality can leave custody data or DAS caches inconsistent and block sampling.",
+        "checkpoints": [
+          "Clear stale DAS cache entries on checkpoint sync",
+          "Validate database migrations and version markers before serving requests",
+          "Warm up required sidecars after restart before marking availability"
+        ],
+        "mitigations": [
+          "Run integration tests covering restart from checkpoint with partial availability",
+          "Log restart audits and refuse to serve until caches are repopulated"
+        ],
+        "related": [
+          "FULU-DISTRIBUTED-BLOB-PUBLISHING",
+          "OSK-TX-VALIDATION"
+        ]
+      },
+      {
+        "id": "AP-22",
+        "title": "Devnet regression relapse",
+        "description": "Historical PeerDAS devnet bugs reappear when patches regress, reintroducing custody isolation or reconstruction failures.",
+        "checkpoints": [
+          "Add regression tests reproducing devnet-2/3/6 incidents (custody isolation, reconstructor stalls, listener holes)",
+          "Monitor metrics for early warning (peers per subnet, reconstruction lag, request failure rate)",
+          "Document remediation runbooks and verify alerts fire within one slot"
+        ],
+        "mitigations": [
+          "Keep invariant tests that replay archived devnet traces",
+          "Include devnet regression suites in CI before releases"
+        ],
+        "related": [
+          "FULU-PEERDAS-SAMPLING",
+          "FULU-CUSTODY-CALC",
+          "FULU-RS-RECONSTRUCTION"
+        ]
+      },
+      {
+        "id": "AP-23",
+        "title": "Full-wrapper mempool flood",
+        "description": "High-rate transactions with maximum blobs and cell proofs drive verification queues and memory to exhaustion before admission controls react.",
+        "checkpoints": [
+          "Enforce per-slot and global limits on total blob and cell_proof payload accepted into the pool",
+          "Throttle parallel wrapper verification workers and drop excess",
+          "Record metrics for blob/cell proof backlog and alert on sustained growth"
+        ],
+        "mitigations": [
+          "Reuse verified wrapper fingerprints across transactions",
+          "Gracefully shed load once verification backlog exceeds threshold"
+        ],
+        "related": [
+          "OSK-TX-VALIDATION",
+          "FULU-PEERDAS-SAMPLING"
+        ]
+      },
+      {
+        "id": "AP-24",
+        "title": "Duplicate sidecar flood",
+        "description": "Attackers spam identical or near-identical DataColumnSidecars on a custody subnet to exhaust receive queues and memory buffers.",
+        "checkpoints": [
+          "Maintain deduplication keys (root, column, chunk) with bounded TTL",
+          "Cap simultaneous sidecar processing per (slot, column) and per peer",
+          "Downgrade peers whose duplicate ratio exceeds policy"
+        ],
+        "mitigations": [
+          "Track duplicate statistics per subnet",
+          "Drop late-arriving sidecars once quorum achieved"
+        ],
+        "related": [
+          "FULU-SUBNET-ASSIGNMENT",
+          "FULU-PEERDAS-SAMPLING"
+        ]
+      },
+      {
+        "id": "AP-25",
+        "title": "Incomplete sampling backlog",
+        "description": "Adversaries deliver partial column responses and disconnect just before completion, causing unfinished sampling records to accumulate.",
+        "checkpoints": [
+          "Evict incomplete sampling state immediately on timeout or peer switch",
+          "Limit concurrent incomplete sampling records per peer",
+          "Penalize peers that repeatedly produce partial responses"
+        ],
+        "mitigations": [
+          "Prefer peers with recent full-success history",
+          "Persist only successful samples to long-lived caches"
+        ],
+        "related": [
+          "FULU-PEERDAS-SAMPLING"
+        ]
+      },
+      {
+        "id": "AP-26",
+        "title": "Micro-reorg re-fetch thrash",
+        "description": "Frequent small reorgs force repeated DataColumnSidecarsByRoot fetches, stressing memory and bandwidth if responses are not coalesced.",
+        "checkpoints": [
+          "Bound concurrent ByRoot re-fetches and prefer ByRange when reorg depth >= 2",
+          "Release cached sidecars for superseded roots immediately",
+          "Debounce re-fetches when fork choice oscillates within a slot"
+        ],
+        "mitigations": [
+          "Stage re-fetch work through a bounded queue",
+          "Expose metrics for ByRoot retry counts"
+        ],
+        "related": [
+          "FULU-DISTRIBUTED-BLOB-PUBLISHING",
+          "apis.interfaces[1] DataColumnSidecarsByRoot v1"
+        ]
+      },
+      {
+        "id": "AP-27",
+        "title": "Adversarial compute_cells workload",
+        "description": "Blobs crafted to trigger worst-case FFT/cache behavior keep compute_cells busy and stall downstream verification.",
+        "checkpoints": [
+          "Benchmark compute_cells against adversarial vectors and abort when runtime exceeds configured budget",
+          "Schedule compute_cells on bounded worker pools with priority to current slot",
+          "Cache results keyed by blob commitment and reuse across requests"
+        ],
+        "mitigations": [
+          "Adopt shared polynomial libraries with constant-time configuration",
+          "Collect histograms of compute_cells latency to catch regressions"
+        ],
+        "related": [
+          "FULU-RS-RECONSTRUCTION",
+          "OSK-TX-VALIDATION"
+        ]
+      },
+      {
+        "id": "AP-28",
+        "title": "Commitment fingerprint evasion",
+        "description": "Repeatedly reusing the same blob commitment across many transactions forces redundant verification when caches are weak or absent.",
+        "checkpoints": [
+          "Maintain per-slot commitment fingerprints and skip re-verification",
+          "Reject pools that exceed blob reuse limits",
+          "Expose metrics for commitment reuse to operators"
+        ],
+        "mitigations": [
+          "Share verification results across mempool, gossip, and block builder",
+          "Score peers negatively for mass duplicate commitments"
+        ],
+        "related": [
+          "OSK-TX-VALIDATION"
+        ]
+      },
+      {
+        "id": "AP-29",
+        "title": "Incomplete sidecar persistence leak",
+        "description": "Unfinished or superseded sidecars linger in memory or disk after restarts, consuming resources and confusing availability checks.",
+        "checkpoints": [
+          "Purge incomplete DAS entries at startup and on checkpoint sync",
+          "Mark superseded roots and delete associated sidecar files promptly",
+          "Bound the number of cached partial sidecars per slot"
+        ],
+        "mitigations": [
+          "Add integrity scans for DAS storage",
+          "Refuse to serve availability until caches are sane"
+        ],
+        "related": [
+          "FULU-DISTRIBUTED-BLOB-PUBLISHING",
+          "FULU-PEERDAS-SAMPLING"
+        ]
+      },
+      {
+        "id": "AP-30",
+        "title": "Logging/metrics amplification",
+        "description": "Forged error conditions or duplicate requests trigger excessive logging or metrics updates, consuming CPU and disk bandwidth.",
+        "checkpoints": [
+          "Rate-limit high cardinality logs tied to DAS failures",
+          "Batch metrics updates for repeated errors",
+          "Provide configuration to downgrade verbose logging under load"
+        ],
+        "mitigations": [
+          "Use structured sampling for repetitive messages",
+          "Monitor log volume and auto-throttle when exceeding limits"
+        ],
+        "related": [
+          "FULU-PEERDAS-SAMPLING",
+          "FULU-DISTRIBUTED-BLOB-PUBLISHING"
+        ]
       }
     ]
   }
