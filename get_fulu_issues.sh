@@ -1,0 +1,4 @@
+gh search issues --repo sigp/lighthouse --include-prs  fulu --limit 200 --json body,closedAt,isPullRequest,labels,state,title,updatedAt,url >> security-agent/docs/ethereum/pr_lighthouse.json
+gh search issues --repo OffchainLabs/prysm --include-prs  fulu --limit 200 --json body,closedAt,isPullRequest,labels,state,title,updatedAt,url >> security-agent/docs/ethereum/pr_prysm.json
+gh search issues --repo ChainSafe/lodestar --include-prs  fulu --limit 200 --json body,closedAt,isPullRequest,labels,state,title,updatedAt,url >> security-agent/docs/ethereum/pr_lodestar.json
+gh search issues --repo Consensys/teku --include-prs  fulu --limit 200 --json body,closedAt,isPullRequest,labels,state,title,updatedAt,url >> security-agent/docs/ethereum/pr_teku.json
