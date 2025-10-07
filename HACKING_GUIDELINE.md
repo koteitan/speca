@@ -74,9 +74,9 @@ rm -rf security-agent/.git
 
 [.claude/commands/](.claude/commands/)にあるプロンプトを02,03,04の順番に進めていく。
 
-以下のようにテキストベースで引数を指定 (引数はMDファイルのUsageを参考に) 。
+03は03_auditmapか03c_auditissueのどちらかを選択して実行する。
 
-03は03_auditmapか03c_auditissueのどちらかを選択して実行。
+以下のようにテキストベースで引数を指定(引数はMDファイルのUsageを参考に):
 
 ```
 codex --ask-for-approval never --sandbox workspace-write --search
@@ -89,7 +89,7 @@ x10
 ```
 
 気をつけること
-- 03_auditmap / 03c_auditissue では各実行が途中で終了することがよくあるため、続けて `未着手箇所の調査を続けて` を 10 回前後送信する。
+- 02_order / 03_auditmap / 03c_auditissue では各実行が途中で終了することがよくあるため、続けて `未着手箇所の調査を続けて` を 10 回前後送信する。
 - 各ステップごとにcodexを立ち上げ直し、コンテキストウィンドウをリセットする。
 
 ---
