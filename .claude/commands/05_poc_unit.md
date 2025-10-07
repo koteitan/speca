@@ -19,7 +19,7 @@ Create & validate a minimal PoC test that reproduces **VULN_ID**
    - `TARGET_FILE` <- `audit_items[].file` + `:L` + `audit_items[].line`
    - `VULN_TITLE_RAW` <- `audit_items[].description`
    - `VULN_TITLE` <- text before the first colon (`:`) in `VULN_TITLE_RAW`, or the full string if no colon is present. If `VULN_TITLE` is empty, craft a concise fallback title (e.g., "Peer DAS sampling cache bypass") that still avoids embedding `VULN_ID`.
-   - `TITLE_SLUG` <- `VULN_TITLE` transformed to lowercase snake_case containing only ASCII letters, digits, and underscores (convert spaces and punctuation to underscores, collapse repeats, strip leading/trailing underscores).
+   - `TITLE_SLUG` <- `VULN_TITLE` transformed to lowercase snake_case containing only ASCII letters, digits, and underscores (convert spaces and punctuation to underscores, collapse repeats, strip leading/trailing underscores). If the slug exceeds 40 characters, remove filler words or truncate while preserving meaning so the final slug length ≤ 40.
 4. **If not found** → abort with error
    `"Vulnerability '{{VULN_ID}}' not found in 03_AUDITMAP.json"`
 
@@ -43,7 +43,8 @@ Produce **one Rust test file** that:
 
 # 📤 Output Artifacts
 1. **PoC test file** → `{{OUTPUT_TEST_PATH}}`
-   - `{OUTPUT_TEST_PATH}` must include `poc_{TITLE_SLUG}` and must not include `VULN_ID`.
+   - `{OUTPUT_TEST_PATH}` must include `poc_{TITLE_SLUG}` (post-trimming) and must not include `VULN_ID`.
+   - Keep the filename (without directories) ≤ 50 characters. If longer, shorten the slug or adjust wording before writing the file.
 2. **Run command**
    ```bash
    cargo test --test poc_{{TITLE_SLUG}} -- --nocapture

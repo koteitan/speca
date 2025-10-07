@@ -18,6 +18,7 @@ Generate an **integration-level Proof-of-Concept** that reproduces **VULN_ID** a
    - `TARGET_FILE`  ← `audit_items[].file:L{line}`
    - `DESCRIPTION`  ← `audit_items[].description`
    - `UT_PATH`      ← first `poc_tests[].file` in the same entry (unit-test PoC) — if any
+   - `TITLE_SLUG`   ← humanised summary of `DESCRIPTION` converted to lowercase snake_case (ASCII only). Trim filler words and ensure the slug length ≤ 40 characters; truncate gracefully if needed.
 4. **If not found** → abort with
    `"Vulnerability '{{VULN_ID}}' not found in 03_AUDITMAP.json"`
 
@@ -50,6 +51,7 @@ Generate an **integration-level Proof-of-Concept** that reproduces **VULN_ID** a
 
 # 📤 Output Artifacts
 1. **Integration-test file** → `{{IT_PATH}}`
+   - Prefer names following `poc_{TITLE_SLUG}` (using the trimmed slug) and keep the filename component ≤ 50 characters; shorten before writing if exceeded.
 2. **Run command** (auto-selected, e.g.)
    ```bash
    <PROJECT_TEST_RUNNER> <ARGS>   # filled in by generator

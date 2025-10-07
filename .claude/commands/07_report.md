@@ -1,16 +1,14 @@
 ---
 Description: Bug-Bounty Report Builder
-Usage: `/07_report <VULN_ID> <REPORT_TEMPLATE> <BOUNTY_PAGE_URL>`
-Example: `/07_report 0023344 security-agent/docs/report_template_ethereum.md https://ethereum.org/en/bug-bounty/`
+Usage: `/07_report <VULN_ID> <REPORT_TYPE> [<SEVERITY>]`
+Example: `/07_report 0023344 ETHEREUM critical`
 Arguments:
 - **VULN_ID**         : `audit_items[].id` in `03_AUDITMAP.json`
-- **REPORT_TEMPLATE** : Path to the Markdown template
-                       *(default: `security-agent/docs/report_template_ethereum.md`)*
-- **BOUNTY_PAGE_URL** : Bug-bounty rules page
-                       *(default: `https://ethereum.org/en/bug-bounty/`)*
+- **REPORT_TYPE**     : One of `CANTINA`, `CODE4RENA`, `ETHEREUM`, `IMMUNEFI`, `SHERLOCK`
+- **SEVERITY**        : Optional override (e.g. `critical`, `high`, `medium`, `low`)
 ---
 
-Generate a complete **Markdown bug-bounty report** for the Ethereum Foundation.
+Generate a complete **Markdown bug-bounty report** tailored to the selected bounty program.
 **Always use /serena for these development tasks to maximize token efficiency:**
 
 
@@ -25,24 +23,27 @@ Generate a complete **Markdown bug-bounty report** for the Ethereum Foundation.
    - `IT_PATH`        <- first `integration_tests[].file` (if any)
    - `VULN_TITLE_RAW` <- `audit_items[].description`
    - `VULN_TITLE`     <- text before the first colon (`:`) in `VULN_TITLE_RAW`, or the full string if no colon exists. If empty, craft a concise fallback title without embedding `VULN_ID`.
-   - `TITLE_SLUG`     <- `VULN_TITLE` transformed to lowercase snake_case containing only ASCII letters, digits, and underscores (convert spaces/punctuation to underscores, collapse repeats, strip leading/trailing underscores).
+   - `TITLE_SLUG`     <- `VULN_TITLE` transformed to lowercase snake_case containing only ASCII letters, digits, and underscores (convert spaces/punctuation to underscores, collapse repeats, strip leading/trailing underscores). If the slug length exceeds 40 characters, remove filler words or truncate cleanly so the final slug ≤ 40 characters.
 4. **If not found** → abort with
    `"Vulnerability '{{VULN_ID}}' not found in 03_AUDITMAP.json"`.
+5. **Resolve template** → map `REPORT_TYPE` to `security-agent/docs/report_templete_{{REPORT_TYPE}}.md`; abort if the file does not exist.
 
 # 🎯 Goal
-1. **Read** `{{REPORT_TEMPLATE}}` and fill *all* placeholders while preserving heading order.
+1. **Read** `security-agent/docs/report_templete_{{REPORT_TYPE}}.md` and fill *all* placeholders while preserving heading order and stylistic expectations.
 2. Use internal data sources (Ethereum specs, audit map, bounty rules) strictly for authoring context—never surface repository paths or filenames in the final report.
    - Pull from `security-agent/docs/ethereum/spec_*`, `security-agent/outputs/01_SPEC.json`, and `security-agent/outputs/03_AUDITMAP.json` as needed, but redact those identifiers from the deliverable.
-   - Reference `{{BOUNTY_PAGE_URL}}` for impact & severity details without citing internal shorthand like 03_AUDITMAP/AP/SR.
+   - When `<SEVERITY>` is omitted, consult `security-agent/outputs/00_bounty_guideline.md` to derive a justified classification.
+   - Strip or rewrite any internal markers (e.g. `AP`, `SR`, `NORMATIVE_ID`, `@audit`, `@audit-ok`) so the public report contains only neutral wording.
 3. Embed **verbatim PoC code** from sanitized sources:
    - Unit test → `{{UT_PATH}}`
    - Integration test → `{{IT_PATH}}` (if present)
-   Provide human-friendly labels and run commands that omit `security-agent/` prefixes or other repository-only context.
+   Provide human-friendly labels and run commands that omit `security-agent/` prefixes or other repository-only context, explicitly including the test file path(s) and exact command(s) needed to execute them.
 
 # 📤 Output
 Write exactly **one Markdown file**:
 `security-agent/outputs/report_{{TITLE_SLUG}}.md`
 (no extra headings, no missing sections).
+Ensure the filename component `report_{{TITLE_SLUG}}.md` stays ≤ 55 characters; reduce the slug length further if necessary before writing.
 
 # 📝 Mandatory Sections
 
@@ -50,25 +51,26 @@ Must Follow templete
 
 # 🛠️ Generation Workflow
 ```
-
-1. Parse REPORT\_TEMPLATE → collect placeholders like {{SEVERITY}}, {{POC}}.
-2. Determine severity per bounty rules (Impact × Likelihood).
-3. Read PoC files (UT_PATH and IT_PATH) and include in fenced code blocks.
+1. Resolve REPORT_TYPE → load `security-agent/docs/report_templete_{{REPORT_TYPE}}.md` and collect placeholders like {{SEVERITY}}, {{POC}}.
+2. Determine severity: if `<SEVERITY>` argument present, normalise and apply it; otherwise compute Impact × Likelihood using `security-agent/outputs/00_bounty_guideline.md` and record the rationale internally.
+3. Read PoC files (UT_PATH and IT_PATH) and include in fenced code blocks, ensuring each snippet is accompanied by the file path and explicit test command.
 4. Grab ~10 lines of source around the vulnerable logic, annotating references using `SRC_FILE` + `SRC_FUNCTION` only (no raw line numbers, GitHub URLs, or absolute paths).
 5. Replace all placeholders; verify none remain.
 6. Save Markdown to output path.
-
-````
+```
 
 # 🧪 Self-Check
 - Re-open the written file → scan for `{{` or `}}`; abort if any remain.
 - Confirm the heading sequence matches the template exactly.
+- Ensure the PoC section explicitly lists the test file path(s) and exact command(s) required to reproduce the issue.
+- Search the rendered Markdown for forbidden internal identifiers (`AP`, `SR`, `NORMATIVE_ID`, `@audit`, `@audit-ok`) and replace any occurrences with public-friendly phrasing before finalizing.
 
 # ⛔ Constraints
 - **Do not** wrap Markdown in JSON.
 - No public URLs for PoC code; assume local testnet execution.
 - Never mention internal identifiers like `03_AUDITMAP`, `AP`, `SR`, or any `security-agent/` paths in the generated report.
 - All links must be fully-qualified `https://`.
+- Redact or translate away any occurrences of `AP`, `SR`, `NORMATIVE_ID`, `@audit`, or `@audit-ok` so they never reach the delivered document.
 
 # ✅ Success Criteria
 - Entry with `id == VULN_ID` found.
@@ -79,8 +81,5 @@ Must Follow templete
   <runner_for_project> <args_to_run> {{UT_PATH}}
   # Integration test (if present)
   <runner_for_project> <args_to_run> {{IT_PATH}}
-````
-
-* Severity is justified per bounty guidelines.
-
-```
+  ```
+- Severity matches the `<SEVERITY>` argument when provided; otherwise it is derived using `security-agent/outputs/00_bounty_guideline.md` with clear internal justification.
