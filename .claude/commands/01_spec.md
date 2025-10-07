@@ -1,420 +1,316 @@
-# === Fusaka (Osaka+Fulu) Spec: Deep Crawl & Natural‑Language Spec Generation ===
-# Task Owner: /01_spec
-# Usage: /01_spec <TARGET_DIRECTORY>
-# Example: /01_spec ../contracts/docs
-#
-# Description:
-# Produce a *comprehensive*, natural‑language specification for the Fusaka upgrade, covering
-#   • Osaka (Execution Layer) and
-#   • Fulu (Consensus Layer),
-# by recursively traversing the seed links and all relevant sublinks (docs, code, READMEs),
-# extracting authoritative details, and augmenting with web search. Emit a single JSON file
-# at security-agent/outputs/01_SPEC.json that conforms to the NEW schema below (supports
-# narrative procedures, step lists, error catalogs, invariants, runbooks, and worked examples).
-#
-# IMPORTANT:
-# • Always run with `/serena` to maximize token efficiency.
-# • Language: English.
-# • Scope: Fusaka only (Osaka EL + Fulu CL). Include cross‑layer interfaces (Engine API, requests_hash, PeerDAS) where they constrain behavior.
-# • Aggressively follow sublinks from the seeds; prefer primary sources.
-# • Cite sources *inside strings* with [S1], [S2], … and append plain‑text `Sources:` mapping at the end of each string.
-# • Output only the JSON file; no extra prints. Use the schema below exactly (order & names are strict).
+---
 
-SEED_URLS (breadth‑first across domains; then depth‑first up to depth=5 per domain):
-1) Osaka EL (Python spec): https://github.com/ethereum/execution-specs/tree/forks/osaka/src/ethereum/forks/osaka
-2) Fulu CL (MD spec): https://github.com/ethereum/consensus-specs/tree/master/specs/fulu
-3) Auditor guide (index to EIPs, client links, devnets): https://notes.ethereum.org/@fredrik/fusaka-auditor-guide
+**Description:** Generate a comprehensive, citation-rich natural-language specification for a target project by crawling local artefacts and designated references, optionally augmented with vetted web research. Output must conform to `security-agent/outputs/01_SPEC.json`.
 
-CRAWLING RULES (strict):
-- Start from SEED_URLS. Enumerate and visit all intra‑site references and inter‑repo links that define Osaka/Fulu behavior:
-  * For Osaka: EL state transition, tx validation, gas accounting, EVM changes, precompiles, JSON‑RPC deltas (`eth_config`), blob fees/limits, requests pipeline.
-  * For Fulu: fork activation, proposer lookahead, PeerDAS (data columns/sidecars, gossip topics, Req/Resp), custody/sampling, CL‑EL boundaries (Engine API expectations, requests_hash commitment).
-- Include: READMEs, design/docs, CHANGELOG/RELEASE NOTES, test vectors/fixtures, in‑source docstrings/comments, p2p/Beacon API docs that are tagged for Fulu/Osaka.
-- Prefer latest *stable* releases (tags `v*`, `release-*`). If unavailable, use `forks/osaka` tip and `consensus-specs/master` for Fulu. Record selected tag/commit and dates per fork.
-- Exclude legacy or unrelated branches unless referenced by the latest fork docs. Skip examples unless they illustrate Fusaka behavior.
+**Usage:** `/01_spec <TARGET_DIRECTORY> <CATEGORY_LIST> <PROJECT_NAME> [REFERENCE_URL ...]`
 
-MANDATORY — Web Search:
-- After repo crawling, perform web search to collect: official docs, EIPs included in Fusaka, Engine API refs, Beacon API refs, design notes, release posts, **bug bounty requirements** (scope/exclusions/reporting/severity/rewards) from recognized platforms (Sherlock/Code4rena/Immunefi/HackerOne).
-- Prioritize: official GitHub/Docs > Foundation/EIP/Ethereum.org > official audits > recognized bounty platforms.
-- Use inline `[S#]` footnotes in strings; append `Sources: [S1] https://..., [S2] https://...`.
+**Example:** `/01_spec ../docs "ethereum-el,zk" "Atlas L2" https://example.com/spec https://example.com/audit`
 
-AUTO‑DETECT GENRE:
-- Expect **Ethereum Client** (EL/CL specs). If multi‑domain patterns appear (e.g., WebApp docs), still capture but tag flows accordingly.
+**Language:** English only.
 
-🎯 GOALS — Before a security audit, capture:
-1) Current architecture per fork (components, state machines, data flows, cross‑layer interfaces).
-2) **Natural‑language normative behavior**: detailed “what” and **procedural “how”** with numbered steps.
-3) APIs & key algorithms (Engine/Beacon APIs, fee math, sampling, validation gates) with **error catalogs**.
-4) Security‑critical invariants and requirements (DoS limits, custody thresholds, consensus safety).
-5) Historical deltas (latest two versions/commits) and **worked examples** for edge cases.
+**Execution hint:** Always run with `/serena` to maximize token efficiency.
 
-📥 INPUT POLICY:
-- Root Directory: {{TARGET_DIRECTORY}}
-- Traverse Markdown/HTML/PDF/**code** breadth‑first; dedupe by path/heading.
-- Prefer latest stable; else branch tips as above.
-- Augment via web search; embed per‑string citations and source lists.
-- **Fusaka‑only filter**: only include Osaka/Fulu items or cross‑layer elements affecting them.
+---
 
-📤 OUTPUT:
-- Write one file: `security-agent/outputs/01_SPEC.json`.
-- Use the NEW schema (below). Do not add keys or comments beyond the schema. Textual fields may be long and should use RFC 2119 keywords (MUST/SHOULD/MAY) where applicable.
+**Goal**
 
-SCHEMA (NEW, natural‑language capable; schema_version = "2.0.0-nl"):
-```
+Produce a multi-domain specification for `{{PROJECT_NAME}}` that maintains consistent depth across architecture, normative behavior, algorithms, APIs, threat modeling, observability, runbooks, change history, and bug bounty coverage. Respect the category mix supplied through `CATEGORY_LIST` while retaining generality beyond Ethereum-specific ecosystems.
 
-{
-"metadata": {
-"source\_directory": "{{TARGET\_DIRECTORY}}",
-"spec\_generated\_at": "<RFC3339 timestamp>",
-"latest\_tags\_or\_commits": {
-"osaka": "\<tag|commit-hash>",
-"fulu": "\<tag|commit-hash>"
-},
-"latest\_release\_dates": {
-"osaka": "<YYYY-MM-DD>",
-"fulu": "<YYYY-MM-DD>"
-},
-"schema\_version": "2.0.0-nl"
-},
-"forks": \[
-{
-"name": "Osaka",
-"layer": "Execution",
-"genre": "Ethereum Client Spec",
-"architecture": {
-"overview": "Natural-language paragraph describing Osaka scope, activation conditions, components, and CL boundary (Engine API, requests\_hash). \[S1]\[S2] Sources: \[S1] https\://..., \[S2] https\://...",
-"components": \[
-{
-"name": "State Transition",
-"type": "service|library|module",
-"description": "Role, boundaries, and trust assumptions. \[S1] Sources: \[S1] https\://...",
-"depends\_on": \["Tx Validation", "EVM", "Engine API"],
-"technology": \["Python", "EVM", "RLP"]
-}
-],
-"state\_machines": \[
-{
-"name": "Block Execution",
-"inputs": \["BlockEnvironment", "Transactions", "Parent Header"],
-"outputs": \["State Root", "Receipts Root", "Requests Hash"],
-"invariants": \[
-"Total gas used MUST NOT exceed block gas limit. \[S1] Sources: \[S1] https\://..."
-],
-"transitions": \[
-"1. Validate header fields (timestamps, limits, base fee).",
-"2. For each transaction, apply Osaka tx rules and execute EVM.",
-"3. Accumulate receipts, logs bloom, blob/fee accounting, requests."
-]
-}
-],
-"data\_flow\_diagram": "Mermaid code block (flowchart or sequence) showing Osaka datapaths and CL interface. \[S1] Sources: \[S1] https\://..."
-},
-"normative\_spec": \[
-{
-"id": "OSK-TX-VALIDATION",
-"title": "Transaction Validation under Osaka",
-"summary": "What the validator MUST/SHOULD do before execution. \[S1]\[S2] Sources: ...",
-"preconditions": \[
-"Fork activation time reached; chain config loaded. \[S1] Sources: ..."
-],
-"inputs": \["Typed transaction", "Chain config", "Account state"],
-"procedure": \[
-"1. Decode typed transaction; reject if unknown type.",
-"2. Enforce TX\_MAX\_GAS\_LIMIT and calldata floor pricing.",
-"3. Verify nonce, signature/auth (e.g., SetCode auth), and balances.",
-"4. If blob tx: validate blob hashes, count, and price bounds."
-],
-"postconditions": \[
-"Transaction is either accepted into execution or rejected with precise error."
-],
-"errors": \[
-{"code": "ERR\_TX\_GAS\_CAP", "when": "gas > 2^24", "effect": "reject"},
-{"code": "ERR\_BLOB\_COUNT", "when": ">6 per tx", "effect": "reject"}
-],
-"rationale": "Defends against DoS from over‑sized transactions and enforces fee market rules. \[S1] Sources: ..."
-}
-],
-"algorithms": \[
-{
-"name": "Blob Base Fee Update (Osaka)",
-"purpose": "Compute blob gas price from excess\_blob\_gas with lower bound.",
-"pseudocode": "`pseudo\nfunction blob_gas_price(excess): ...\n` \[S1] Sources: \[S1] https\://...",
-"complexity": "O(1)",
-"notes": "Monotonicity MUST hold; no under/overflow. \[S1] Sources: ..."
-}
-],
-"apis": {
-"interfaces": \[
-{
-"kind": "json\_rpc",
-"name": "eth\_config",
-"stability": "stable",
-"request\_schema": "{...}",
-"response\_schema": "{...}",
-"errors": \["InvalidParams", "InternalError"],
-"notes": "Expose Osaka constants and blob schedule. \[S1] Sources: ..."
-},
-{
-"kind": "engine\_api",
-"name": "forkchoiceUpdatedV\*",
-"stability": "stable",
-"sequence\_diagram": "Mermaid sequence of CL→EL FCU with Osaka fields. \[S1] Sources: ..."
-}
-]
-},
-"wire\_protocol": {
-"topics": \[],
-"notes": "EL wire protocols referenced (if any). Keep brief; most wire‑level changes are on CL side."
-},
-"constants": \[
-{"name": "TX\_MAX\_GAS\_LIMIT", "value": "16777216", "units": "gas", "notes": "2^24. \[S1] Sources: ..."}
-],
-"invariants": \[
-"RLP execution block size MUST NOT exceed MAX\_RLP\_BLOCK\_SIZE. \[S1] Sources: ..."
-],
-"user\_flows": \[
-{
-"id": 1,
-"title": "\[Client] New transaction inclusion (Osaka rules)",
-"actors": \["User", "EL Client", "CL via Engine API"],
-"preconditions": \["Osaka active", "Engine API connected"],
-"steps": \[
-"1. Receive tx via RPC/p2p.",
-"2. Run OSK-TX-VALIDATION procedure.",
-"3. Execute EVM; update receipts, requests\_hash.",
-"4. Return payload result to CL."
-],
-"postconditions": \["State updated; payload advertised. \[S1] Sources: ..."]
-}
-],
-"worked\_examples": \[
-{
-"id": "EX-OSK-BLOB-PRICE",
-"title": "Blob gas price under low demand",
-"scenario": "excess\_blob\_gas below threshold",
-"given": "target=..., base cost=..., excess=...",
-"when": "block contains k blobs",
-"then": "blob gas price is bounded by execution cost lower bound. \[S1] Sources: ..."
-}
-],
-"edge\_cases": \[
-"CLZ opcode with input=0 MUST return 256. \[S1] Sources: ..."
-],
-"compatibility": {
-"backwards": "Describe incompatibilities vs previous fork.",
-"cross\_layer": "Summarize Osaka↔Fulu interplay (requests\_hash, blob availability). \[S1]\[S2] Sources: ..."
-},
-"changelog": {
-"latest\_version": "\<tag|branch>",
-"since\_previous": \[
-{"commit": "<hash>", "date": "<YYYY-MM-DD>", "summary": "User‑visible Osaka delta. \[S1] Sources: ..."}
-],
-"breaking\_changes": \[
-"List explicit breaking behaviors (caps, limits, new opcodes). \[S1] Sources: ..."
-]
-},
-"bug\_bounty": {
-"scope": "Repos/branches, in‑scope Osaka components. \[S1] Sources: ...",
-"impact": "Critical/High definitions (funds at risk, consensus split, auth bypass). \[S1] Sources: ...",
-"exclusions": "Non‑issues and out‑of‑scope items. \[S1] Sources: ...",
-"reproduction": "Required PoC format, env, funding limits. \[S1] Sources: ...",
-"reporting": "Channel/PGP/SLA. \[S1] Sources: ...",
-"rewards": "Policy/tiers. \[S1] Sources: ..."
-}
-},
-{
-"name": "Fulu",
-"layer": "Consensus",
-"genre": "Ethereum Client Spec",
-"architecture": {
-"overview": "Natural-language paragraph describing Fulu scope (e.g., PeerDAS, proposer lookahead), activation, and EL boundary expectations. \[S1]\[S2] Sources: ...",
-"components": \[
-{
-"name": "PeerDAS Sampling",
-"type": "service|module",
-"description": "Sampling, custody assignment, sidecar handling, validation gates. \[S1] Sources: ..."
-}
-],
-"state\_machines": \[
-{
-"name": "Proposer Lookahead",
-"inputs": \["Beacon state", "Epoch transitions"],
-"outputs": \["Deterministic schedule"],
-"invariants": \["Lookahead vector MUST be deterministic for pre‑confirmation safety. \[S1] Sources: ..."],
-"transitions": \[
-"1. Compute lookahead at epoch boundary.",
-"2. Persist in state for external verification."
-]
-}
-],
-"data\_flow\_diagram": "Mermaid showing gossip topics (data\_column\_sidecar\_\*), Req/Resp, sampling & custody. \[S1] Sources: ..."
-},
-"normative\_spec": \[
-{
-"id": "FULU-PEERDAS",
-"title": "Data Availability Sampling (PeerDAS)",
-"summary": "Node MUST sample columns and verify cell KZG proofs; proposer MUST assemble sidecars correctly. \[S1] Sources: ...",
-"preconditions": \["Fork active; subnet subscriptions in place. \[S1] Sources: ..."],
-"inputs": \["Block body", "Data columns/sidecars", "KZG commitments"],
-"procedure": \[
-"1. Subscribe to per‑column subnets.",
-"2. Sample assigned columns; verify KZG proofs.",
-"3. Mark custody and contribute to availability decision."
-],
-"postconditions": \["Availability considered satisfied if sampling thresholds met. \[S1] Sources: ..."],
-"errors": \[
-{"code": "ERR\_INSUFFICIENT\_SAMPLES", "when": "below threshold", "effect": "treat as unavailable"}
-],
-"rationale": "Enables scalable blob throughput while bounding verification cost. \[S1] Sources: ..."
-}
-],
-"algorithms": \[
-{
-"name": "Custody Assignment",
-"purpose": "Assign columns to validators each slot/epoch.",
-"pseudocode": "`pseudo\nassign_custody(state, slot): ...\n` \[S1] Sources: ...",
-"notes": "Uniform distribution; resilience under churn. \[S1] Sources: ..."
-}
-],
-"apis": {
-"interfaces": \[
-{
-"kind": "beacon\_api",
-"name": "GET /eth/v2/beacon/blocks/{slot}",
-"stability": "stable",
-"notes": "Document fields relevant to PeerDAS/requests. \[S1] Sources: ..."
-}
-]
-},
-"wire\_protocol": {
-"topics": \[
-"data\_column\_sidecar\_{subnet\_id}"
-],
-"notes": "Req/Resp RPCs for column range fetch. \[S1] Sources: ..."
-},
-"constants": \[
-{"name": "SAMPLES\_PER\_BLOCK", "value": "<n>", "units": "columns", "notes": "If specified. \[S1] Sources: ..."}
-],
-"invariants": \[
-"Proposer lookahead MUST be derivable from beacon root. \[S1] Sources: ..."
-],
-"user\_flows": \[
-{
-"id": 1,
-"title": "\[Client] PeerDAS sampling cycle",
-"actors": \["Validator", "Beacon Node"],
-"preconditions": \["Subscribed to column subnets"],
-"steps": \[
-"1. Receive sidecars; verify proofs.",
-"2. Sample assigned columns; record custody.",
-"3. Contribute to availability verdict."
-],
-"postconditions": \["Block considered available/unavailable. \[S1] Sources: ..."]
-}
-],
-"worked\_examples": \[
-{
-"id": "EX-FULU-SAMPLING",
-"title": "Sampling with partial sidecar loss",
-"scenario": "Lost sidecars in some subnets",
-"given": "Assignment across k subnets",
-"when": "Missing m sidecars",
-"then": "Availability decision still satisfied if threshold met. \[S1] Sources: ..."
-}
-],
-"edge\_cases": \[
-"Sidecar with invalid cell proof MUST be rejected and penalized per rules. \[S1] Sources: ..."
-],
-"compatibility": {
-"cross\_layer": "Fulu expectations on EL payloads (e.g., requests\_hash, blob accounting). \[S1]\[S2] Sources: ..."
-},
-"changelog": {
-"latest\_version": "\<tag|branch>",
-"since\_previous": \[
-{"commit": "<hash>", "date": "<YYYY-MM-DD>", "summary": "User‑visible Fulu delta. \[S1] Sources: ..."}
-],
-"breaking\_changes": \[
-"List explicit changes affecting client behavior. \[S1] Sources: ..."
-]
-},
-"bug\_bounty": {
-"scope": "Repos/branches, in‑scope Fulu components. \[S1] Sources: ...",
-"impact": "Consensus split, slashable faults, DoS. \[S1] Sources: ...",
-"exclusions": "Telemetry-only, cosmetic issues. \[S1] Sources: ...",
-"reproduction": "Devnet/testnet steps; PoC requirements. \[S1] Sources: ...",
-"reporting": "Channel/PGP/SLA. \[S1] Sources: ...",
-"rewards": "Policy/tiers. \[S1] Sources: ..."
-}
-}
-],
-"cross\_layer": {
-"interfaces": \[
-{
-"name": "Engine API / Fork Choice",
-"preconditions": \["EL/CL versions compatible; JWT/auth as required"],
-"sequence\_diagram": "Mermaid sequence of CL→EL FCU, payload attributes/payload status, with requests\_hash and excess\_blob\_gas fields. \[S1] Sources: ...",
-"errors": \["INVALID\_PARAMS", "SYNCING", "INVALID\_BLOCK\_HASH"],
-"timeouts": "Document expected timeouts and retries. \[S1] Sources: ...",
-"notes": "Map Fulu expectations to Osaka commitments (headers, receipts). \[S1] Sources: ..."
-}
-],
-"data\_availability": "Summarize how PeerDAS (Fulu) and blob pricing/limits (Osaka) interact. \[S1]\[S2] Sources: ..."
-},
-"security\_requirements": \[
-{
-"id": "SR-EL-001",
-"description": "EL MUST enforce Osaka gas/size caps before execution; reject malformed payloads deterministically. \[S1] Sources: ...",
-"risk\_category": "integrity",
-"related\_components": \["Tx Validation", "State Transition"]
-},
-{
-"id": "SR-CL-001",
-"description": "CL MUST ensure DA sampling thresholds and proof verification before attesting. \[S1] Sources: ...",
-"risk\_category": "consensus",
-"related\_components": \["PeerDAS Sampling"]
-},
-{
-"id": "SR-XL-001",
-"description": "EL/CL interface MUST keep FCU/finality consistent; unvalidated payloads must not alter canonical state. \[S1] Sources: ...",
-"risk\_category": "consistency",
-"related\_components": \["Engine API"]
-},
-{
-"id": "SR-EL-002",
-"description": "Blob fee invariants MUST be monotonic with defined lower bound; prevent arithmetic under/overflow. \[S1] Sources: ...",
-"risk\_category": "economic",
-"related\_components": \["Fee Market"]
-},
-{
-"id": "SR-CL-002",
-"description": "Proposer lookahead MUST be deterministic from beacon state and verifiable externally. \[S1] Sources: ...",
-"risk\_category": "liveness",
-"related\_components": \["Proposer Lookahead"]
-}
-]
-}
+---
+
+**Scope and Discovery Rules**
+
+- Use `TARGET_DIRECTORY` as the primary crawl root; treat each `REFERENCE_URL` as an additional seed.
+- Traverse Markdown, HTML, PDF, source comments, READMEs, release notes, configuration files, test fixtures, and architecture diagrams up to depth five per domain.
+- Mirror the repository structure, deduplicate by canonical path or heading, and capture version identifiers (tags, commits, semantic versions) with release dates for critical artefacts.
+- Record retrieval timestamps for all external URLs.
+- When `CATEGORY_LIST` spans multiple domains, partition findings by domain and call out shared components explicitly.
+
+---
+
+**Web Research Expectations**
+
+- After local crawling, search official documentation portals, RFCs, whitepapers, governance proposals (EIPs, NEPs, etc.), API references, release blog posts, audit reports, and bug bounty programs relevant to the categories.
+- Prioritize sources in this order: official repositories, official foundation or standards sites, accredited audit firms, recognized bounty platforms (Immunefi, Sherlock, Code4rena, HackerOne, Bugcrowd), then high-signal community notes.
+- If web access is unavailable, continue with local materials and record the limitation in `metadata.research_notes`.
+
+---
+
+**Argument Reference**
+
+- `TARGET_DIRECTORY`: Root path containing local documentation, code, specs, configuration, and tests.
+- `CATEGORY_LIST`: Comma-separated descriptors such as `ethereum-el`, `ethereum-cl`, `zk`, `blockchain`, `smart-contract`, `web`, `devops`. Use lowercase kebab-case; the first value is the primary category.
+- `PROJECT_NAME`: Human-readable project or upgrade name that must appear throughout the generated specification.
+- `REFERENCE_URL`: Optional list of absolute URLs (docs, repositories, audits, RFCs) used as additional crawl seeds.
+
+---
+
+**Category Guide**
+
+- `ethereum-el`: Execution pipeline, EVM deltas, mempool policy, fee markets, Engine API, transaction validity, storage transitions, blob or data-availability bridges.
+- `ethereum-cl`: Fork activation, consensus states, validator duties, Beacon APIs, data-availability sampling, sync committees, cross-layer expectations (payload attributes, finality, fork choice).
+- `zk`: Circuit architecture, trusted setup, prover and verifier roles, commitment schemes, recursion strategy, performance heuristics, security assumptions, cryptographic parameters.
+- `blockchain`: Protocol topology, networking, consensus (PoS, PoW, BFT), block structure, economic incentives, governance hooks, upgrade paths.
+- `smart-contract`: Contract architecture, storage layout, role-based access, upgradeability, on-chain invariants, failure modes, integrations (oracles, bridges, token standards).
+- `web`: Frontend and backend composition, authentication, session handling, API gateways, third-party services, content security, observability, DevSecOps lifecycle.
+- `devops` (or similar): Deployment pipelines, infrastructure-as-code, secrets management, monitoring, compliance dependencies.
+
+---
+
+**Specification Goals**
+
+1. Describe current architecture per domain, including components, data flows, state machines, and inter-domain contracts.
+2. Provide normative behavior using RFC 2119 keywords with numbered procedures and clear decision outcomes.
+3. Detail APIs, protocols, algorithms, configuration defaults, and error-handling semantics.
+4. Enumerate security-critical invariants, threat surfaces, rate limits, custody rules, and economic guardrails.
+5. Surface release history (latest two versions) with migration considerations and worked examples for edge cases.
+
+---
+
+**Citation Policy**
+
+- Annotate every descriptive or prescriptive sentence with `[S#]` tokens referencing distinct sources.
+- End each narrative string with `Sources: [S1] https://..., [S2] https://...` (comma-separated, no Markdown links).
+- Reuse source identifiers consistently and keep them in chronological order when practical.
+
+---
+
+**Output Requirements**
+
+- Emit only `security-agent/outputs/01_SPEC.json`.
+- Follow the schema below exactly; do not add or remove keys.
+- Keep each narrative block under 250 words and flag unknowns as TODO items with justification and citations.
 
 ```
-
-USER‑FLOW CONSTRUCTION (by genre):
-- **[Ethereum Client]** Focus on inter‑node requests & consensus boundaries:
-  Peer discovery → Handshake (eth/69 or Beacon gossip) → Tx/Blob propagation → Block import → FCU → Engine/Beacon API → Sync/Pruning → Metrics/Healthcheck.
-
-QUALITY & WRITING RULES:
-- Use RFC‑2119 keywords (MUST/SHOULD/MAY) in **normative_spec**.
-- Each **procedure** is a *numbered* step list; each **errors** entry names a code, condition, and effect.
-- Keep each narrative chunk concise but self‑contained (≤ 250 words).
-- End every string with `Sources: [S#] URL, ...`
-
-BUG BOUNTY INTEGRATION:
-- Populate `bug_bounty` for both forks with: Scope, Impact, Exclusions, Reproduction, Reporting (PGP/contact/SLA), Rewards.
-- Prefer official EF posts/pages and recognized platforms.
-
-CHANGE LOG:
-- Diff the two most recent releases/commits per fork; list **only user‑visible** changes. Mark breaking changes and migrations.
-
-RUNTIME NOTE:
-- If web search is unavailable, **abort** and treat as retryable error (do **not** emit a partial spec).
+Schema (schema_version = "3.0.0-generic")
+{
+  "metadata": {
+    "source_directory": "{{TARGET_DIRECTORY}}",
+    "project_name": "{{PROJECT_NAME}}",
+    "spec_generated_at": "<RFC3339 timestamp>",
+    "primary_category": "<first entry of CATEGORY_LIST>",
+    "secondary_categories": ["<other categories>"],
+    "reference_urls": ["<url>", "<url>"],
+    "artefact_versions": [
+      {"name": "<repo or component>", "tag_or_commit": "<identifier>", "released_at": "<YYYY-MM-DD>", "notes": "<context>"}
+    ],
+    "research_notes": "Declare missing sources or offline-only coverage.[S1] Sources: [S1] https://...",
+    "schema_version": "3.0.0-generic"
+  },
+  "domains": [
+    {
+      "name": "<domain label, e.g., Execution Layer>",
+      "layer_or_scope": "execution|consensus|zk|application|web|infrastructure|other",
+      "genre": "Ethereum Execution Spec|Ethereum Consensus Spec|Zero-Knowledge System|Blockchain Protocol|Smart Contract Suite|Web Platform|DevOps Runbook|Other",
+      "architecture": {
+        "overview": "Narrative describing scope, lifecycle, activation triggers, dependencies.[S1][S2] Sources: ...",
+        "components": [
+          {
+            "name": "<component>",
+            "type": "service|module|contract|circuit|ui|pipeline",
+            "description": "Role, trust assumptions, interfaces.[S1] Sources: ...",
+            "depends_on": ["<component>", "<external system>"],
+            "technology": ["Rust", "EVM", "Halo2", "TypeScript", "Kubernetes"]
+          }
+        ],
+        "state_machines": [
+          {
+            "name": "<process>",
+            "inputs": ["<input>"],
+            "outputs": ["<output>"],
+            "invariants": ["Invariant stated with MUST/SHOULD and justification.[S1] Sources: ..."],
+            "transitions": ["1. Step one.", "2. Step two."]
+          }
+        ],
+        "data_flow_diagram": "Mermaid sequence or flowchart capturing actors, messages, storage, error paths.[S1] Sources: ..."
+      },
+      "normative_spec": [
+        {
+          "id": "<unique identifier>",
+          "title": "<procedure title>",
+          "summary": "Expected behavior overview.[S1] Sources: ...",
+          "preconditions": ["Prerequisites and configs.[S1] Sources: ..."],
+          "inputs": ["Artifacts consumed"],
+          "procedure": [
+            "1. Numbered step detailing validations and actions.",
+            "2. Enumerate branching decisions with MUST/SHOULD."
+          ],
+          "postconditions": ["Outcomes and observable effects.[S1] Sources: ..."],
+          "errors": [
+            {"code": "<ERR_CODE>", "when": "Condition", "effect": "Outcome"}
+          ],
+          "rationale": "Security, safety, or UX justification.[S1] Sources: ..."
+        }
+      ],
+      "algorithms": [
+        {
+          "name": "<algorithm or formula>",
+          "purpose": "Reason for existence.[S1] Sources: ...",
+          "pseudocode": "`pseudo\nfunction algo(...)\n`[S1] Sources: ...",
+          "complexity": "O(n) or equivalent",
+          "notes": "Corner cases, precision, cryptographic parameters.[S1] Sources: ..."
+        }
+      ],
+      "apis": {
+        "interfaces": [
+          {
+            "kind": "json_rpc|rest|graphql|engine_api|beacon_api|cli|abi",
+            "name": "<endpoint or contract function>",
+            "stability": "alpha|beta|stable|deprecated",
+            "request_schema": "Describe fields and validation.[S1] Sources: ...",
+            "response_schema": "Describe outputs and status codes.[S1] Sources: ...",
+            "errors": ["List error codes or messages."],
+            "notes": "Authentication, rate limits, pagination, retry semantics.[S1] Sources: ..."
+          }
+        ],
+        "events": [
+          {
+            "name": "<event or log>",
+            "payload": {"field": "description"},
+            "trigger": "Condition raising the event.[S1] Sources: ...",
+            "consumers": ["Services or contracts subscribing"]
+          }
+        ]
+      },
+      "data_models": [
+        {
+          "name": "<structure>",
+          "schema": {"field": "type"},
+          "constraints": ["Validation rules and ranges.[S1] Sources: ..."],
+          "storage": "Persistence target (database, contract storage, commitments).[S1] Sources: ..."
+        }
+      ],
+      "user_flows": [
+        {
+          "id": 1,
+          "title": "<Flow title>",
+          "actors": ["User", "Validator", "Web Client"],
+          "preconditions": ["Required state."],
+          "steps": ["1. Action", "2. Reaction"],
+          "postconditions": ["System state or output.[S1] Sources: ..."]
+        }
+      ],
+      "worked_examples": [
+        {
+          "id": "EX-001",
+          "title": "<Scenario>",
+          "scenario": "Context of example.[S1] Sources: ...",
+          "given": "Initial conditions",
+          "when": "Event or input",
+          "then": "Expected result with math or reasoning.[S1] Sources: ..."
+        }
+      ],
+      "edge_cases": ["Enumerate pathological scenarios and required handling.[S1] Sources: ..."],
+      "compatibility": {
+        "upstream": "Dependencies and backwards compatibility.[S1] Sources: ...",
+        "downstream": "Consumers relying on this domain.[S1] Sources: ...",
+        "external_interfaces": "Cross-protocol or third-party integrations.[S1] Sources: ..."
+      },
+      "observability": {
+        "metrics": ["Key metrics, formulae, alert thresholds.[S1] Sources: ..."],
+        "logs": ["Log categories, severity, structured fields.[S1] Sources: ..."],
+        "dashboards": "Monitoring expectations or runbooks.[S1] Sources: ..."
+      },
+      "runbooks": [
+        {
+          "name": "<Runbook>",
+          "triggers": ["Alarm conditions"],
+          "steps": ["1. Mitigation", "2. Verification"],
+          "resolution": "Success criteria and rollback guidance.[S1] Sources: ..."
+        }
+      ],
+      "changelog": {
+        "latest_version": "<tag|branch>",
+        "since_previous": [
+          {"commit": "<hash>", "date": "<YYYY-MM-DD>", "summary": "User-visible change.[S1] Sources: ..."}
+        ],
+        "breaking_changes": ["Explicit compatibility breaks.[S1] Sources: ..."]
+      },
+      "bug_bounty": {
+        "scope": "Repos, contracts, services, exclusions.[S1] Sources: ...",
+        "impact": "Eligible impact categories and severity tiers.[S1] Sources: ...",
+        "exclusions": "Known safe harbors and out-of-scope vectors.[S1] Sources: ...",
+        "reproduction": "Proof-of-concept and environment requirements.[S1] Sources: ...",
+        "reporting": "Disclosure channels, encryption keys, expected SLA.[S1] Sources: ...",
+        "rewards": "Payout structure or point system.[S1] Sources: ..."
+      }
+    }
+  ],
+  "cross_domain": {
+    "interfaces": [
+      {
+        "name": "<Cross-domain interface>",
+        "participants": ["Domain A", "Domain B"],
+        "sequence_diagram": "Mermaid sequence capturing message exchange, authentication, retries.[S1] Sources: ...",
+        "constraints": "Latency, throughput, data contracts, authentication.[S1] Sources: ...",
+        "error_handling": ["Interface-level errors and fallback policies.[S1] Sources: ..."]
+      }
+    ],
+    "data_availability": "Summaries of data propagation, redundancy, recovery across domains.[S1] Sources: ...",
+    "upgrade_paths": "Coordinated rollout steps, migration prerequisites, backward and forward compatibility.[S1] Sources: ..."
+  },
+  "security_requirements": [
+    {
+      "id": "SR-001",
+      "description": "Normative security statement with MUST or SHOULD language.[S1] Sources: ...",
+      "risk_category": "integrity|availability|confidentiality|economic|compliance",
+      "related_components": ["List components"]
+    }
+  ],
+  "threat_catalog": {
+    "attack_vectors": [
+      {"name": "<Threat>", "category": "network|consensus|application|zk|web|infra", "description": "What could happen.[S1] Sources: ...", "mitigations": ["Controls mapped to normative_spec."]}
+    ],
+    "open_questions": ["Document unknowns or pending design decisions with owners.[S1] Sources: ..."]
+  },
+  "appendices": {
+    "glossary": [
+      {"term": "<Term>", "definition": "Definition with citation.[S1] Sources: ..."}
+    ],
+    "references": [
+      {"id": "S1", "title": "<Doc title>", "url": "https://...", "retrieved_at": "<YYYY-MM-DD>"}
+    ]
+  }
+}
 ```
+
+---
+
+**User-Flow Templates**
+
+- ethereum-el: peer discovery -> tx pool intake -> block building -> Engine API submission -> payload validation.
+- ethereum-cl: validator duty scheduling -> gossip subscription -> block proposal -> attestation -> finality.
+- zk: witness generation -> circuit proving -> proof aggregation -> on-chain verification.
+- smart-contract: admin upgrade -> role-based action -> failure fallback -> monitoring.
+- web: user auth -> session issuance -> API call -> data persistence -> audit logging.
+
+---
+
+**Quality and Writing Rules**
+
+- Maintain active voice and precise terminology; place summaries before action lists.
+- Declare assumptions explicitly (for example, "Assumes prover nodes have >= 16 GiB RAM") and cite supporting material.
+- Keep pseudocode self-contained and specify units for constants or thresholds.
+- Flag deprecated or experimental features and propose mitigations or guardrails.
+
+---
+
+**Bug Bounty Integration**
+
+- Map bounty scope to specific domains and components, noting active programs and deadlines.
+- Reference official bounty charters; if none exist, add TODO entries with recommended next steps.
+
+---
+
+**Change Log Guidance**
+
+- Compare the two most recent tagged releases or commits per artefact, highlight user-visible changes and migrations, and recommend upgrade or rollback procedures.
+
+---
+
+**Runtime Notes**
+
+- Verify every cited source is reachable. If a source is private or missing, mark the relevant entry as TODO with justification.
+- When web search is unavailable, proceed with existing material and document the constraint in `metadata.research_notes`.
 
 ---
