@@ -1,9 +1,9 @@
 ---
-Description: 既存の@audit注釈をレビューし、検証します。
+Description: Review and validate existing @audit annotations.
 Usage: `/04_review <TARGET_FOLDER>`
 Example: `/04_review crates/net/`
 Arguments:
-- TARGET_FOLDER: レビュー対象のフォルダパス
+- TARGET_FOLDER: Folder path that scopes the review
 ---
 Review all existing @audit comments, confirm validity, and update reports
 **Always use /serena for these development tasks to maximize token efficiency:**
@@ -26,6 +26,7 @@ and increment `review_rounds` in `security-agent/outputs/02_ORDER.json`
 3. Project spec:      `security-agent/outputs/01_SPEC.json`
 4. Ethereum specs:    `security-agent/docs/ethereum/spec_*.json`
 5. Bug DB:            `security-agent/docs/ethereum/bugs_*.json`
+6. External context:  Use web search to locate related PRs or documentation and weigh them alongside `01_SPEC.json` when interpreting intent.
 
 # 📤 Output
 1. **Inline updates** — replace / append comments directly in‐file:
@@ -33,7 +34,7 @@ and increment `review_rounds` in `security-agent/outputs/02_ORDER.json`
    // @audit Reentrancy: external call precedes state update
    // ↳ After review: guard `nonReentrant` present → no exploit
    // @audit-ok: nonReentrant modifier ensures single execution
-````
+```
 
 2. **Updated** `03_AUDITMAP.json`
 
@@ -76,25 +77,26 @@ and increment `review_rounds` in `security-agent/outputs/02_ORDER.json`
 
 ```
 FOR each @audit in TARGET_FOLDER ordered by file→line:
-    IF already re‑labelled `@audit-ok` → skip
+    IF already re-labelled `@audit-ok` → skip
     1. Derive execution path (AST + callgraph).
-       ‑ Show line‑number trace in proof_trace.
-    2. Apply Evaluation Framework (§🧮).
-    3. Cross‑check similar bugs in bugs_*.json → note variant attacks.
-    4. Decide:
+       ‑ Show line-number trace in proof_trace.
+    2. Research spec alignment: run a web search for related PRs or product documentation and combine those findings with `01_SPEC.json` to understand expected behaviour.
+    3. Apply Evaluation Framework (§🧮).
+    4. Cross-check similar bugs in bugs_*.json → note variant attacks.
+    5. Decide:
         a) Exploitable ⇒ keep @audit, enrich description, set status="Vuln"
-        b) Non‑exploitable ⇒ transform to @audit-ok, set status="ok"
-    5. Update 03_AUDITMAP.json & security-agent/outputs/02_ORDER.json.review_rounds++
+        b) Non-exploitable ⇒ transform to @audit-ok, set status="ok"
+    6. Update 03_AUDITMAP.json & security-agent/outputs/02_ORDER.json.review_rounds++
 REPEAT until no unchecked @audit remain.
 ```
 
-# 🧠 Required Deep‑Dive Tests
+# 🧠 Required Deep-Dive Tests
 
-* **Step‑by‑Step 実行トレース** — include in `proof_trace` (file\:line)
-* **論理矛盾検証**  — ensure premises simultaneously satisfiable
-* **ガード全列挙**  — list modifiers / require / ACL that could block
-* **独立検証** — rely on own reading, not external scanner verdicts
-* **実行可能性実証** — if doubtful, mark *Need further investigation*
+* **Step-by-step execution trace** — include in `proof_trace` (file:line)
+* **Logical contradiction check** — ensure premises stay jointly satisfiable
+* **Guard enumeration** — list modifiers / require / ACL that could block
+* **Independent verification** — rely on own reading, not external scanner verdicts
+* **Exploitability demonstration** — if doubtful, mark *Need further investigation*
 
 # 📝 Comment Syntax (strict)
 
