@@ -4,17 +4,17 @@
 
 ```mermaid
 flowchart LR
-    A[01_SPEC] --> B[02_order]
+    A[01_spec] --> B[02_order]
     B --> C{監査ステップ選択}
     C --> C1[03_auditmap]
     C --> C2[03b_dynamictest]
     C --> C3[03c_auditissue]
-    C1 --> D[04_review (03/03c)]
+    C1 --> D[04_review]
     C3 --> D
     C2 --> E[04_review]
     D --> F[05_poc_unit]
     E --> F
-    F --> G[06_poc_integration (optional)]
+    F --> G[06_poc_integration]
     G --> H[07_report]
     F --> H
 ```
