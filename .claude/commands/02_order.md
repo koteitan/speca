@@ -1,227 +1,194 @@
 ---
 
-**Description:** Generate an ordered audit map for the **current workspace** (repo root), mapping each `normative_spec.id` from `security-agent/outputs/01_SPEC.json` to **local implementation files & functions** only. **Do not reference spec repositories**.
-**Usage:** `/02_order`
-**Arguments:** *None*
-**Always use `/serena` for these development tasks to maximize token efficiency.**
+**Description:** Build a complete function ordering and call-graph view for the current workspace by mapping selected `normative_spec.id` entries from `security-agent/outputs/01_SPEC.json` to in-scope implementation code. Use the supplied documentation paths as supporting context while traversing the call graph exhaustively. Emit `security-agent/outputs/02_ORDER.json` only.
 
-Generate `security-agent/outputs/02_ORDER.json` from **local sources only**.
+**Usage:** `/02_order <NORMATIVE_IDS> <DOC_PATH_LIST>`
 
-> **Critical requirement — Bounty Scope Enforcement (workspace‑bound):**
-> Analyze **only files explicitly in bug‑bounty scope** for this repository. Build concrete include/exclude rules and **ignore everything outside scope**. If scope cannot be unambiguously resolved, **abort with a retryable error**.
+**Example:** `/02_order "OSK-TX-VALIDATION,ZK-PROVER-PIPELINE" "docs/specs/**/*.md,notes/design/overview.md"`
 
----
+**Language:** English instructions and outputs.
 
-# 🎯 Goal
-
-Produce an *ordered* audit map that:
-
-1. Covers **every in‑scope local function** in the **current repository** related to **Fusaka** (Osaka=EL, Fulu=CL).
-2. For **each** `normative_spec.id` in `security-agent/outputs/01_SPEC.json`, **exhaustively lists the corresponding local implementation files & functions** at the finest granularity (include line numbers when possible), **restricted by layer**:
-
-   * **Execution (Osaka)** normatives → map **only to local EL client code** in this repo.
-   * **Consensus (Fulu)** normatives → map **only to local CL client code** in this repo.
-   * **Never** record spec‑repo paths (e.g., `execution-specs`, `consensus-specs`) in `functions`.
-
-> **Schema note:** Do **not** change the JSON schema. Create **one `audit_chunk` per `normative_spec.id`**; place all mapped **local** functions for that normative into that chunk’s `functions`. Put scope notes, coverage, and any unresolved IDs at the **end of `ordering_strategy`**.
+**Execution hint:** Always run with `/serena` to maximize token efficiency.
 
 ---
 
-# 📥 Input
+**Goal**
 
-1. **Workspace root:** current repository (scan recursively).
-2. **Static call‑graph (optional):** `{{STATIC_CALLGRAPH}}` (`NONE` to self‑derive).
-3. **Project specification (normatives):** `security-agent/outputs/01_SPEC.json` (v2.0.0‑nl).
-4. **Ethereum canonical specs (optional hints only):** `security-agent/docs/ethereum/spec_*.json` (do **not** record these paths in `functions`).
-5. **Bounty scope sources (for this repo):**
+Produce an ordered audit map that:
 
-   * Local: `SECURITY.md`, `SECURITY_POLICY`, `BUG_BOUNTY.md`, README “Scope”, `/.well-known/security.txt`.
-   * Remote (if needed): official program page for **this client** (Immunefi/Code4rena/Sherlock/HackerOne), EF security page.
-   * Prefer sources that list **paths/globs**, **branches/tags**, **commit ranges**.
+1. Covers every in-scope local function related to the requested normative IDs.
+2. Assembles a deterministic call graph (caller → callee) that has been traversed exhaustively within scope, including boundary nodes for out-of-scope callees.
+3. Records one `audit_chunk` per normative ID, listing local functions (with file paths and line numbers) in caller-to-callee order.
+4. Documents traversal strategy, scope rules, documentation references, coverage statistics, and unmapped IDs at the end of `ordering_strategy`.
 
 ---
 
-## 🧭 Workspace & Layer Auto‑Detection (mandatory)
+**Arguments**
 
-1. Detect **client type** and **layer(s)** from local files (no spec repos):
+- `NORMATIVE_IDS`: Comma-separated list of `normative_spec.id` values to process. Use `*` to indicate all IDs in `01_SPEC.json`.
+- `DOC_PATH_LIST`: Comma-separated list of workspace-relative documentation paths or glob patterns (Markdown, HTML, code comments, etc.) that must be consulted while assembling keywords, architectural hints, and expected call flows.
 
-   * **EL candidates (Osaka mapping)**: presence of `go.mod` + `core/`, `eth/`, `execution/`, `miner/`, `txpool/`, `core/vm/` (Go); or `crates/{evm,interpreter,payload}/` (Rust); or `ethereum/eth/*` (Java/C#); JSON‑RPC servers (`rpc/`, `ethapi/`).
-   * **CL candidates (Fulu mapping)**: `beacon/`, `consensus/`, `fork_choice/`, `attestation/`, `p2p/`, `gossip/`, `ssz/`, `builder/`.
-2. Filter `normative_spec` by **layer match**:
-
-   * If repo is **EL‑only**, build chunks **only for Osaka** normatives; list Fulu IDs as “out of repo scope (layer mismatch)” in `ordering_strategy`.
-   * If **CL‑only**, do the inverse.
-   * If monorepo, include both but map each normative to its **own local sub‑trees**.
+If `DOC_PATH_LIST` is empty, derive supporting context from `metadata.reference_urls` in `01_SPEC.json` and local README/SECURITY files. Reject non-existent paths unless the bounty scope explicitly excludes them.
 
 ---
 
-## 🔒 Bounty Scope — Resolution & Enforcement (workspace‑wide)
+**Primary Inputs**
 
-**Resolution hierarchy (first definitive match wins):**
-
-1. `01_SPEC.json` → `bug_bounty.scope` / `forks[].bug_bounty.scope` (repo‑specific)
-2. Local `SECURITY.md` / `BUG_BOUNTY.md` (this repo)
-3. Official bounty page for **this client**
-4. Official docs explicitly naming **this repo’s** scope
-
-**Materialize scope into rules (applied globally):**
-
-* **Include globs** (examples; adapt to current repo):
-
-  * **EL (Go)**: `./core/**/*.go`, `./eth/**/*.go`, `./execution/**/*.go`, `./miner/**/*.go`, `./rpc/**/*.go`, `./cmd/**`.
-  * **EL (Rust)**: `./crates/**/src/**/*.rs`.
-  * **EL (Java/C#)**: `./**/src/main/**/(java|cs)/**`.
-  * **CL**: `./beacon/**`, `./consensus/**`, `./fork_choice/**`, `./p2p/**`, `./gossip/**`, `./ssz/**`, `./builder/**`, `./api/**`.
-* **Exclude globs** unless explicitly in scope: `vendor/`, `third_party/`, `lib/`, `generated/`, `out/`, `dist/`, `build/`, `target/`, `mocks/`, `test/`, `docs/`, `spec/`, `eips/`, `execution-specs/`, `consensus-specs/`.
-* **Branch/commit filters**: honor constraints from bounty scope.
-* **Fail‑closed**: if ambiguity remains, **abort** with a clear, retryable error.
-
-Append the final rule set and sources at the end of `ordering_strategy`.
+1. Workspace root (current repository).
+2. `security-agent/outputs/01_SPEC.json` (version `3.0.0-generic`).
+3. Optional static call graph file `{{STATIC_CALLGRAPH}}` (set to `NONE` to auto-derive).
+4. Documentation set indicated by `DOC_PATH_LIST` (and any additional scope-approved references).
+5. Bounty scope artefacts: `SECURITY.md`, `BUG_BOUNTY.md`, `SECURITY_POLICY`, `.well-known/security.txt`, official program pages.
 
 ---
 
-## 🔍 Fusaka Matching Heuristics (workspace‑only)
+**Bounty Scope Resolution**
 
-Use `01_SPEC.json`’s **`forks[].normative_spec[]`** to drive matching. For each `normative_spec.id`:
-
-* **Osaka examples (EL)**
-
-  * **OSK‑TX‑VALIDATION**: tx admission & validation (intrinsic/calldata cost, gas cap 2^24, signature/nonce/balance, blob count/price). Likely in `txpool/`, `core/`, `execution/`, `eth/`.
-  * **OSK‑RLP‑BLOCK‑SIZE**: block serialization & import guards (RLP length checks). Likely in `core/types`, `rlp/`, `blockchain/`, `miner/`.
-  * **OSK‑CLZ**: opcode table & VM interpreter (`OP_CLZ` dispatch; bit‑ops helpers). Likely `core/vm/`, `interpreter/`, `evm/`.
-  * **OSK‑P256**: precompile registry/dispatch (`0x0100`), scalar/point checks, success‑word. Likely `core/vm/precompile/`.
-  * **OSK‑MODEXP‑LIMITS/PRICING**: ModExp length checks & pricing. Likely `core/vm/precompile/modexp`.
-  * **OSK‑ETH\_CONFIG**: JSON‑RPC method handler. Likely `rpc/`, `ethapi/`, `cmd/rpcdaemon/`.
-  * **OSK‑BLOB‑FEE‑LOWER‑BOUND**: blob fee math; `calcExcessBlobGas`, base fee floor. Likely `blobpool/`, `fee/`, `core/`.
-
-* **Fulu examples (CL)**
-
-  * **FULU‑PEERDAS**: gossip topics, DataColumnSidecar encode/verify, KZG checks, req/resp handlers, custody assignment. Likely `p2p/`, `gossip/`, `network/`, `das/`, `kzg/`.
-  * **FULU‑PROPOSER‑LOOKAHEAD**: next‑epoch schedule computation/storage; beacon transitions. Likely `beacon/`, `state/`, `fork_choice/`.
-  * **FULU‑ENGINE‑INTERFACE**: BlobsBundleV2, requests hashing expectations to EL. Likely `builder/`, `engine/`, `api/`.
-
-**Mapping method (fine‑grained):**
-
-1. From each normative, derive keywords (EIP numbers, constants, API names, procedure verbs).
-2. Enumerate local candidates per include globs; parse AST to list all defs (functions/methods).
-3. Score matches (name/doc/comment/constant usage/import proximity/call‑graph proximity).
-4. Keep only branches **executed under Fusaka feature gates** (fork timestamp, feature flags).
-5. Record as `<qualified_name>` with `file` (repo‑relative) and `line`.
-6. **Deduplicate** globally so each local function appears **once** across all chunks.
-
-> **Never** output spec‑repo paths in `functions`.
+1. Resolve scope using the first definitive source in this order:
+   - `01_SPEC.json` → `bug_bounty.scope` or `domains[*].bug_bounty.scope`.
+   - Local security policy files (`SECURITY.md`, `BUG_BOUNTY.md`, etc.).
+   - Official bug bounty program page for this repository or organization.
+   - Other official documentation that enumerates scope.
+2. Translate scope into explicit include and exclude globs (language-specific paths, infrastructure directories, etc.).
+3. Honor branch, tag, and commit restrictions if provided.
+4. Fail closed: if scope cannot be uniquely resolved, abort with a retryable error.
+5. Append the final scope rules and source citations to `ordering_strategy`.
 
 ---
 
-## 🧠 Function Discovery (language‑aware, workspace‑only)
+**Domain & Layer Detection**
 
-* **Go**: list `func` (pkg & methods w/ receivers), `init`; detect line via parser/scan.
-* **Rust**: `fn`, impl methods, trait impls; include module path; lines.
-* **Java/C#**: methods/constructors; module path; lines.
-* **TS/Nim**: procs/functions/methods; route handlers.
-* Normalized key: `<normalized_path>#<qualified_name>#L<line>`.
+- Inspect repository structure to determine applicable domains (execution, consensus, zk, smart-contract, web, devops, infrastructure, etc.).
+- Filter `NORMATIVE_IDS` by matching `domains[*].layer_or_scope` and `domains[*].genre` from `01_SPEC.json` to detected local domains.
+- Record any mismatches (e.g., normative IDs targeting components absent from this repo) under “Unmapped normative IDs” in `ordering_strategy`.
 
 ---
 
-## 🧩 Chunking & Ordering
+**Documentation Cross-Referencing**
 
-* **One `audit_chunk` per `normative_spec.id`**:
-  `chunk_title = "§ <ID> — <Short Title> [Osaka|Fulu]"`
-  `rationale` (≤ 60 words): why these **local** functions implement that normative.
-* **Global order** (threat‑driven):
-
-  1. Untrusted inputs (RPC/gossip)
-  2. Crypto/validation gates (P‑256, KZG, ModExp)
-  3. State mutation hubs (state transition / fork choice)
-  4. Bridges/external deps
-  5. Utilities
-* Within each chunk, order **caller → callee**; tie‑break by path then line.
+- Ingest all files matching `DOC_PATH_LIST` before code traversal.
+- Extract terminology, component names, module boundaries, and API references to seed search heuristics.
+- When documentation conflicts with code, defer to code but record the discrepancy in `ordering_strategy`.
 
 ---
 
-## 🕸️ Call‑Graph Construction
+**Function Discovery & Call-Graph Construction**
 
-* If `{{STATIC_CALLGRAPH}}` provided, merge; else derive locally (ignore std‑lib edges).
-* Show edges to out‑of‑scope callees as **boundary nodes** (not expanded).
-
----
-
-## ⚡ Top Attack Paths
-
-* Provide **≥ 3** plausible entry→sink paths **using only local functions** listed in `audit_chunks[].functions`.
-* Each `risk_reason` ≤ 40 words; focus on how untrusted input could reach a sensitive sink under Fusaka rules.
+- Enumerate all in-scope source files (respecting include/exclude globs).
+- Parse ASTs or symbol tables to list functions, methods, handlers, tasks, and entry points relevant to the selected normative IDs.
+- Build or merge a call graph starting from all entry points identified for each normative, tracing through synchronous and asynchronous invocations, callbacks, trait/ interface implementations, and generated code stubs where resolvable.
+- Treat out-of-scope callees as boundary nodes; record their names but do not expand them further.
+- Ensure every reachable in-scope function appears exactly once across all chunks.
+- Do not include external specification repositories or third-party packages as function entries; reference them only as boundary notes if necessary.
 
 ---
 
-## 📤 Output
+**Iterative Deepening Loop**
 
-Write **one** JSON file: `security-agent/outputs/02_ORDER.json`
+- Execute up to five passes over discovery, mapping, and call-graph expansion.
+- After each pass, compare newly observed edges, functions, and documentation cues against prior iterations.
+- Continue to the next pass only if additional in-scope functions, alternative branches, or unresolved attack-path checkpoints remain.
+- Record per-pass deltas (new functions, edges, unresolved items) in `ordering_strategy`; stop early when no incremental depth is achieved.
+
+---
+
+**Normative Mapping**
+
+For each requested normative ID:
+
+1. Gather keywords from `normative_spec.summary`, `procedure`, `inputs`, `errors`, `rationale`, `security_requirements`, and relevant `threat_catalog.attack_vectors` entries.
+2. Match keywords against documentation tokens and code identifiers to locate candidate modules.
+3. Rank candidates using structural cues (module ownership, dependency direction, file naming, test fixtures).
+4. Select the minimal function set that fully implements the normative behavior, ensuring coverage of validation, state mutation, error handling, and telemetry hooks.
+5. Order functions from external entry point to deepest callee following the constructed call graph.
+
+---
+
+**Call-Graph Coverage Expectations**
+
+- Traverse all call edges reachable from normative entry points, including error paths, retries, feature-flag branches, and asynchronous continuations where code is present in scope.
+- Document any intentionally skipped branches (e.g., platform-specific stubs) with justification in `ordering_strategy`.
+- If the call graph cannot be completed due to missing symbols, mark the normative as partially mapped and describe blockers.
+
+---
+
+**Top Attack Paths**
+
+- Produce at least three plausible entry → sink paths drawing exclusively from functions listed in `audit_chunks[].functions`.
+- Each path must include `entry_function`, `sink_function`, and a concise `risk_reason` (≤40 words) describing potential misuse or failure.
+- Align attack paths with threats cited in `01_SPEC.json` or observed during traversal.
+
+---
+
+**Output Format**
+
+Write a single JSON file `security-agent/outputs/02_ORDER.json` matching the schema below (unchanged):
 
 ```jsonc
 {
   "metadata": {
-    "target_folder": "<WORKSPACE_ROOT>",         // always this value (no TARGET_FOLDER arg)
-    "static_callgraph": "{{STATIC_CALLGRAPH}}",  // "AUTO" or "NONE" if self-derived
+    "target_folder": "<WORKSPACE_ROOT>",
+    "static_callgraph": "{{STATIC_CALLGRAPH}}",
     "spec_loaded": true,
     "generated_at": "<RFC3339 timestamp>",
     "schema_version": "1.0.0"
   },
   "audit_chunks": [
     {
-      "chunk_title": "§ OSK-TX-VALIDATION — Transaction Validation [Osaka]",
-      "rationale": "Local tx admission gate for Osaka; rejects over-gas/malformed tx before execution.",
+      "chunk_title": "§ OSK-TX-VALIDATION — Transaction Validation [Execution]",
+      "rationale": "Local transaction admission gate; enforces intrinsic bounds before execution.",
       "functions": [
         {"name": "txpool.validateTransaction", "file": "core/txpool/txpool.go", "line": 312},
         {"name": "core.checkTransaction", "file": "core/tx_validator.go", "line": 87}
       ]
     }
-    // …one chunk per normative_spec.id with only local functions…
   ],
   "top_attack_paths": [
     {
       "entry_function": "rpc.eth_config",
       "sink_function": "core.blockchain.InsertChain",
-      "risk_reason": "Misvalidated params influence building/import decisions."
+      "risk_reason": "Misvalidated params influence block import and state transitions."
     }
-    // ≥ 3 paths
   ],
-  "ordering_strategy": "Boundary-inward (RPC/gossip → validation → state). Caller→callee within chunks. Append here: (1) Bounty-scope include/exclude rules; (2) Sources/links; (3) Coverage stats; (4) Unmapped normative IDs with reasons (layer mismatch / not present in this repo)."
+  "ordering_strategy": "Describe traversal order, scope rules, documentation sources, coverage stats, and unmapped normative IDs."
 }
 ```
 
-> **Do not change the JSON schema.** Put the **scope rule set**, **citations**, **coverage**, and **unmapped IDs** as plain text at the end of `ordering_strategy`.
+Do not alter key names. Append human-readable summaries (scope rules, document references, coverage, unmapped IDs) to the tail of `ordering_strategy` as plain text.
 
 ---
 
-## 🛠️ Methodology (deterministic, workspace‑wide)
+**Methodology Checklist**
 
-1. Load `01_SPEC.json`; collect Fusaka normatives; tag each with **Osaka** or **Fulu**.
-2. Resolve bounty scope (workspace globs & branch filters); **fail‑closed** if ambiguous.
-3. Auto‑detect repo layer(s); filter normatives accordingly (EL, CL, or both).
-4. Enumerate **local** files by include globs; parse AST; list functions; build/merge call‑graph.
-5. For each normative: derive keywords; match & score; restrict to **Fusaka‑gated** branches; record `file` + `line`.
-6. Build one chunk per normative; global ordering threat‑driven; intra‑chunk caller→callee.
-7. Construct ≥ 3 **local** attack paths.
-8. Validate: **every in‑scope local function appears exactly once**; RFC3339 timestamp; deterministic ordering.
-9. Write only `security-agent/outputs/02_ORDER.json`.
-
----
-
-## ✅ Success Criteria
-
-* JSON exists & parses.
-* **100% coverage** of in‑scope **local** functions; **no spec paths**.
-* Every `normative_spec.id` gets a dedicated chunk with **local** functions from the correct layer (Osaka or Fulu).
-* ≥ 3 attack paths built from local functions.
-* `ordering_strategy` ends with: **Scope summary & sources**, **Coverage stats**, **Unmapped IDs** (with reasons).
+1. Load `01_SPEC.json`; validate schema version and extract requested normative IDs (expand `*` to all IDs).
+2. Resolve bounty scope; build include/exclude globs.
+3. Verify every path in `DOC_PATH_LIST`; ingest contents for heuristic seeding.
+4. Detect repository domains; filter normative IDs accordingly.
+5. Iterate up to five deepening passes: enumerate in-scope files, parse ASTs, construct/merge call graphs, and expand frontier nodes until no new in-scope edges appear.
+6. Map each normative ID to its ordered function list with supporting rationale, excluding non-workspace code paths.
+7. Generate ≥3 attack paths referencing mapped functions only.
+8. Populate `ordering_strategy` with traversal notes (including per-pass deltas), scope rules, documentation references (relative paths), coverage metrics, and unmapped IDs with reasons.
+9. Emit JSON with RFC3339 timestamp; validate against schema.
 
 ---
 
-### Client directory hints (workspace examples)
+**Success Criteria**
 
-* **Erigon (Go)**: `./core/**/*.go`, `./eth/**/*.go`, `./execution/**/*.go`, `./rpc/**/*.go`, `./cmd/**`
-* **Geth (Go)**: `./core/**/*.go`, `./eth/**/*.go`, `./miner/**/*.go`, `./consensus/**/*.go`, `./internal/ethapi/**/*.go`
-* **Reth (Rust)**: `./crates/**/src/**/*.rs` (e.g., `revm`, `interpreter`, `payload`, `rpc`)
-* **Besu (Java)**: `./ethereum/**/src/main/java/**`
-* **Nethermind (C#)**: `./src/**/Ethereum/**.cs`
-* **Lighthouse/Teku/Prysm/Lodestar (CL)**: `./beacon_node/**`, `./consensus/**`, `./network/**`, `./fork_choice/**`, `./builder/**`, `./api/**`
+- JSON parses successfully and retains schema `1.0.0`.
+- Every requested normative ID has an `audit_chunk`; mismatches are recorded with justification.
+- Each in-scope function appears in exactly one chunk.
+- Call graph traversal is exhaustive within scope; skipped edges are documented.
+- At least three top attack paths are provided.
+- `ordering_strategy` concludes with scope rules, documentation list, coverage summary, and unmapped IDs.
+- Iterative deepening loop executes up to five passes (or stops early) with per-pass deltas captured in `ordering_strategy`.
+
+---
+
+**Notes & Hints**
+
+- Leverage language-specific tools (`go list`, `cargo metadata`, `tsc --listFiles`, etc.) to assist with symbol discovery when available.
+- For frameworks with inversion of control (e.g., dependency injection, event-driven systems), include registration sites and callbacks in the call graph.
+- When documentation paths include architectural diagrams or ADRs, extract function/module names and compare against code to avoid omissions.
+- If generated code is in scope, ensure the source templates or generators are represented; otherwise mark them as boundary nodes and explain why.
+
+---
