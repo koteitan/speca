@@ -10,6 +10,8 @@
 
 **Execution hint:** Always run with `/serena` to maximize token efficiency.
 
+**NORMATIVE_ID source:** Values supplied in `NORMATIVE_IDS` must exactly match the `id` fields under `domains[].normative_spec[]` in `security-agent/outputs/01_SPEC.json`. Work from a fresh branch created off `master` for each ID (or cohesive set of IDs) to keep audit artifacts isolated.
+
 ---
 
 **Goal**

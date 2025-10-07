@@ -10,6 +10,8 @@
 
 **Execution hint:** Always run with `/serena` for token efficiency.
 
+**NORMATIVE_ID hygiene:** Provide IDs exactly as emitted in `security-agent/outputs/01_SPEC.json` under `domains[].normative_spec[].id`, and craft tests from branches cut off `master` per ID set to simplify reviews and merges.
+
 ---
 
 **Strict Rules**

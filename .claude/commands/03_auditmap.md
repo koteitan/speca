@@ -10,6 +10,8 @@
 
 **Execution hint:** Always run with `/serena` for token efficiency.
 
+**NORMATIVE_ID source:** `NORMATIVE_IDS` refer to the `id` fields defined under `domains[].normative_spec[]` in `security-agent/outputs/01_SPEC.json`. Perform each audit run on a branch cut from `master` that is dedicated to the target ID set so that findings can be merged independently.
+
 ---
 
 **Strict Rules**

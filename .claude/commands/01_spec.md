@@ -10,6 +10,8 @@
 
 **Execution hint:** Always run with `/serena` to maximize token efficiency.
 
+**Normative IDs:** Each element emitted under `domains[].normative_spec[]` receives an `id`. Treat this as the canonical `NORMATIVE_ID` for downstream phases (branch naming, `/02_order`, `/03_auditmap`, `/03b_dynamictest`, `/03c_auditissue`).
+
 ---
 
 **Goal**

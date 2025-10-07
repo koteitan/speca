@@ -72,11 +72,13 @@ rm -rf security-agent/.git
 
 #### 4. ハッキング
 
+作業を始める前に必ず`master`ブランチを最新化し、NORMATIVE_IDごとに`master`から新しい作業ブランチを切って進める。NORMATIVE_IDは`security-agent/outputs/01_SPEC.json`の`normative_spec`に付与されているIDを指す。
+
 [.claude/commands/](.claude/commands/)にあるプロンプトを02,03,04の順番に進めていく。
 
-03は03_auditmapか03c_auditissueのどちらかを選択して実行する。
+03系のステップは03_auditmap→03b_dynamictestをすべて完了させてから、最後に03c_auditissueへ進む。03cを実行する前に関連するissue/prを一気に取得するオプション手順があるが、03cのプロンプトで利用するためのものなので、すでに`00_issues.md`に作成済みの場合は無視して問題ない。
 
-以下のようにテキストベースで引数を指定(引数はMDファイルのUsageを参考に):
+以下のようにテキストベースで引数を指定(引数はプロンプトのUsageを参考に):
 
 ```
 codex --ask-for-approval never --sandbox workspace-write --search

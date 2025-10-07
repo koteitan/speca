@@ -8,6 +8,10 @@ Usage: get_github_issues.sh [options] [<repo1> ...]
 Options:
   --repos list        Comma or space separated repositories (repeatable)
   --keywords list     Comma or space separated keywords; defaults to "fulu"
+
+Notes:
+  - Run once per `NORMATIVE_ID` branch (IDs are defined in security-agent/outputs/01_SPEC.json under domains[].normative_spec[].id).
+  - Append results to security-agent/outputs/00_issues.md for reuse in /03c_auditissue prompts.
 USAGE
 }
 

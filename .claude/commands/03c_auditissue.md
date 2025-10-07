@@ -10,6 +10,8 @@
 
 **Execution hint:** Always run with `/serena` for token efficiency.
 
+**Before you run:** Confirm you are on the branch derived from `master` for the target `NORMATIVE_ID` (the `id` located under `domains[].normative_spec[]` in `security-agent/outputs/01_SPEC.json`). If you have not yet gathered supporting issue/PR context, optionally execute `./get_github_issues.sh` once per repository and persist the results to `security-agent/outputs/00_issues.md`; skip this step when that file already exists.
+
 ---
 
 **Goal**
