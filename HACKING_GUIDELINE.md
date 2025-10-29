@@ -4,34 +4,25 @@
 
 ```mermaid
 flowchart LR
-    A[01_spec] --> B[02_order]
-    B --> C{監査ステップ選択}
-    C --> C1[03_auditmap]
-    C --> C2[03b_dynamictest]
-    C --> C3[03c_auditissue]
-    C1 --> D[04_review]
-    C3 --> D
-    C2 --> E[04_review]
-    D --> F[05_poc_unit]
-    E --> F
-    F --> G[06_poc_integration]
-    G --> H[07_report]
-    F --> H
+    A[01_specで仕様を収集] --> B[02_checklistで監査観点を確定]
+    B --> C[03_auditmapで静的監査を実施]
+    C --> D[04_reviewで@auditの妥当性を検証]
+    D --> E{PoCが必要か?}
+    E -- はい --> F[05_pocでPoCテストを生成]
+    F --> G[06_reportで最終レポート化]
+    E -- いいえ --> G
 ```
 
 ## ハッキング・エージェントの全体像
 
-| タイトル | 目的 | 前提 | プロンプト例 | 成果物ファイル名 |
+| コマンド | 目的 | 主な前提 | Usage例 | 主な成果物 |
 | --- | --- | --- | --- | --- |
-| [01_SPEC](.claude/commands/01_spec.md) | 仕様書とメタデータを洗い出し、仕様・スコープ・バウンティ条件の唯一のソースとして扱う | なし | `/01_spec ../docs "ethereum-el,zk" "Atlas L2" https://example.com/spec https://example.com/audit` | `security-agent/outputs/01_SPEC.json` |
-| [02_ORDER](.claude/commands/02_order.md) | 探索すべきファイルに優先順位をつけ、対象関数のコールグラフを組み立てる | なし | `/02_order "OSK-TX-VALIDATION,ZK-PROVER-PIPELINE" "docs/specs/**/*.md,notes/design/overview.md"` | `security-agent/outputs/02_ORDER.json` |
-| [03_AUDITMAP](.claude/commands/03_auditmap.md) | コードを一行ずつ精査し、怪しい箇所へ@auditコメントを追加して静的レビュー成果を集約する | `security-agent/outputs/02_ORDER.json` | `/03_auditmap "TX-ADMISSION,DA-SAMPLING" security-agent/docs/bugs/shared_findings.json` | `security-agent/outputs/03_AUDITMAP.json` |
-| [03b_dynamictest](.claude/commands/03b_dynamictest.md) | ダイナミックテストやリプレイを実行してバグを探索する | `security-agent/outputs/02_ORDER.json` | `/03b_dynamictest "OSK-TX-VALIDATION,FULU-DATA-AVAILABILITY"` | なし |
-| [03c_auditissue](.claude/commands/03c_auditissue.md) | 既知バグデータと照合しながら類似バグがないか監査し、静的レビュー成果に追記する | `security-agent/outputs/00_issues.json` | `/03c_auditissue reth security-agent/datasets/execution_bug_patterns.json` | `security-agent/outputs/03_AUDITMAP.json` |
-| [04_review](.claude/commands/04_review.md) | 監査結果の妥当性をレビューし、逸脱指摘と再調整プランを記録したうえで人間レビューへ回す | `security-agent/outputs/03_AUDITMAP.json` | `/04_review crates/net/` | なし |
-| [05_poc_unit](.claude/commands/05_poc_unit.md) | バグを再現する最低限の単体テストを作成する | 監査で特定した脆弱性 | `/05_poc_unit 03523523 crates/net/network/src/transactions/poc_reentrancy.rs` | なし |
-| [06_poc_integration](.claude/commands/05_poc_integration.md) | バグを再現するE2Eテストを作成する（任意ステップ） | 05_poc_unit | `/06_poc_integration tests/integration/poc_reentrancy.rs 0023344` | なし |
-| [07_report](.claude/commands/07_report.md) | 監査とPoCの結果を基に最終レポートを作成する | 監査とPoCの結果 | `/07_report 0023344 ETHEREUM critical` | `security-agent/outputs/report_xxxx.md` |
+| [01_spec](prompts/01_spec.md) | 仕様・スコープ・バウンティ条件を網羅した基礎資料を生成する | なし | `/01_spec TARGET_DIRECTORY="./docs" CATEGORY="ethereum-el" PROJECT_NAME="Atlas L2" REFERENCE_URLS="https://example.com/spec,https://example.com/audit"` | `security-agent/outputs/01_SPEC.json` |
+| [02_checklist](prompts/02_checklist.md) | 既存アウトプットを基に自動化しやすい監査チェックリストを作る | `security-agent/outputs/01_SPEC.json` など既存成果物 | `/02_checklist` | `security-agent/outputs/02_CHECKLIST.json` |
+| [03_auditmap](prompts/03_auditmap.md) | チェックリストに従ってソースを走査し、@audit/@audit-okを付与して監査結果を集約する | `security-agent/outputs/02_CHECKLIST.json` | `/03_auditmap PATH="./src"` | `security-agent/outputs/03_AUDITMAP.json` とソース内の注釈 |
+| [04_review](prompts/04_review.md) | 既存@auditコメントの妥当性を再検証し、`03_AUDITMAP.json`を同期させる | `security-agent/outputs/03_AUDITMAP.json` | `/04_review` | 更新済みの `security-agent/outputs/03_AUDITMAP.json` |
+| [05_poc](prompts/05_poc.md) | 指定した脆弱性ID向けに最小限のPoCテストを生成し自己検証する | `security-agent/outputs/03_AUDITMAP.json` で脆弱性IDが確定していること | `/05_poc TYPE=unit VULN_ID=03523523 OUTPUT_PATH=crates/net/network/src/transactions/poc_reentrancy.rs` | OUTPUT_PATHで指定したPoCテストファイル |
+| [06_report](prompts/06_report.md) | PoCと監査結果をまとめ、バウンティ向け最終レポートを作成する | `security-agent/outputs/03_AUDITMAP.json` と PoC成果物 | `/06_report VULN_ID=0023344 REPORT_TYPE=ETHEREUM SEVERITY=critical` | `security-agent/outputs/report_<slug>.md` |
 
 ---
 
@@ -65,24 +56,30 @@ git remote add audit git@github.com:NyxFoundation/<audit-repo>.git
 監査対象レポジトリのルートディレクトリで以下を実行:
 ```
 git clone -b master git@github.com:NyxFoundation/security-agent.git
+git checkout -b audit
 rm -rf security-agent/.git
+./security-agent/setup.sh
 ```
+
+監査リーダーは以下を実行(監査者はスキップ):
+1. `security-agent/outputs/01_PAST_REPORTS/`に過去のハッカーレポートファイルを収納
+2. `security-agent/get_github_issues  --repos list --keywords list`を実行
+3. 01 / 02 のプロンプトを実行
+4. ChatGPTに02のアウトプットファイルを洗練させる
 
 ---
 
 #### 4. ハッキング
 
-作業を始める前に必ず`master`ブランチを最新化し、NORMATIVE_IDごとに`master`から新しい作業ブランチを切って進める。NORMATIVE_IDは`security-agent/outputs/01_SPEC.json`の`normative_spec`に付与されているIDを指す。
+作業を始める前に必ず`master`ブランチを最新化し、フォルダパスごとにプロンプトを並行で実行する。
 
-[.claude/commands/](.claude/commands/)にあるプロンプトを02,03,04の順番に進めていく。
-
-03系のステップは03_auditmap→03b_dynamictestをすべて完了させてから、最後に03c_auditissueへ進む。03cを実行する前に関連するissue/prを一気に取得するオプション手順があるが、03cのプロンプトで利用するためのものなので、すでに`00_issues.md`に作成済みの場合は無視して問題ない。
+[./prompts/](./prompts)にあるプロンプトを03,04の順番に進めていく。
 
 以下のようにテキストベースで引数を指定(引数はプロンプトのUsageを参考に):
 
 ```
 codex --ask-for-approval never --sandbox workspace-write --search
->> Do the following task with ARGMENT=VELUE, ..., . <MDのプロンプトをコピペ>
+>> /03_auditmap PATH=./src/
 ...
 
 >> 未着手箇所の調査を続けて
@@ -91,7 +88,7 @@ x10
 ```
 
 気をつけること
-- 02_order / 03_auditmap / 03c_auditissue では各実行が途中で終了することがよくあるため、続けて `未着手箇所の調査を続けて` を 10 回前後送信する。
+-  03_auditmap では各実行が途中で終了することがよくあるため、続けて `未着手箇所の調査を続けて` を 10 回前後送信する。
 - 各ステップごとにcodexを立ち上げ直し、コンテキストウィンドウをリセットする。
 
 ---
