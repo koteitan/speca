@@ -4,13 +4,13 @@
 
 ```mermaid
 flowchart LR
-    A[01_specで仕様を収集] --> B[02_checklistで監査観点を確定]
-    B --> C[03_auditmapで静的監査を実施]
-    C --> D[04_reviewで@auditの妥当性を検証]
-    D --> E{PoCが必要か?}
-    E -- はい --> F[05_pocでPoCテストを生成]
-    F --> G[06_reportで最終レポート化]
-    E -- いいえ --> G
+    A[Collect spec via 01_spec] --> B[Build checklist via 02_checklist]
+    B --> C[Static audit with 03_auditmap]
+    C --> D[Review @audit via 04_review]
+    D --> E{Need PoC?}
+    E -- yes --> F[Generate PoC with 05_poc]
+    F --> G[Publish final report with 06_report]
+    E -- no --> G
 ```
 
 ## ハッキング・エージェントの全体像
