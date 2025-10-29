@@ -1,2 +1,2 @@
 rm -rf ~/.codex/prompts/*
-cp ./prompts/* ~/.codex/prompts/*
+cp ./security-agent/prompts/* ~/.codex/prompts/*

@@ -2,7 +2,7 @@
 
 **Description:** Generate a comprehensive, citation-rich natural-language specification for a target project by crawling local artefacts and designated references, optionally augmented with vetted web research. Output must conform to `security-agent/outputs/01_SPEC.json` and populate the `trusted_entity`, `user_flows`, and `algorithms` sections under each domain.
 
-**Usage:** `/01_spec <TARGET_DIRECTORY> <CATEGORY_LIST> <PROJECT_NAME> [REFERENCE_URLS ...]`
+**Usage:** `/01_spec TARGET_DIRECTORY=... CATEGORY=... PROJECT_NAME=... [REFERENCE_URLS=...]`
 
 **Example:** `/01_spec TARGET_DIRECTORY="/docs" CATEGORY="ethereum-el" PROJECT_NAME="Atlas L2" REFERENCE_URLS="https://example.com/spec,https://example.com/audit"`
 
@@ -85,8 +85,8 @@ Produce a multi-domain specification for `$PROJECT_NAME` focusing on exhaustive 
 ```json
 {
   "metadata": {
-    "source_directory": "<TARGET_DIRECTORY>",
-    "project_name": "<PROJECT_NAME>",
+    "source_directory": "$TARGET_DIRECTORY",
+    "project_name": "$PROJECT_NAME",
     "spec_generated_at": "2025-10-29T08:30:00Z",
     "category": "ethereum-el",
     "reference_urls": [

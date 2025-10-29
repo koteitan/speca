@@ -130,7 +130,7 @@ Build an exhaustive **mapping from code patterns to suspected bugs and verificat
 ```json
 {
   "metadata": {
-    "project_name": "<PROJECT_NAME>",
+    "project_name": "$PROJECT_NAME",
     "generated_at": "2025-10-29T09:00:00Z",
     "sources": [
       "security-agent/outputs/01_SPEC.json",

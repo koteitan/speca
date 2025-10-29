@@ -1,28 +1,28 @@
 ---
 Description: PoC Generator & Self-Verifying Tests
-Usage: `/05_poc $TYPE <VULN_ID> <OUTPUT_PATH>`
-Example: `/05_poc unit 03523523 crates/net/network/src/transactions/poc_reentrancy.rs`
+Usage: `/05_poc TYPE=... VULN_ID=... OUTPUT_PATH=...`
+Example: `/05_poc TYPE=unit VULN_ID=03523523 OUTPUT_PATH=crates/net/network/src/transactions/poc_reentrancy.rs`
 Arguments:
-- **TYPE**: `unit`, `it`, or `e2e`. Selects the granularity of the PoC.
-- **VULN_ID**: value of `audit_items[].id` in `03_AUDITMAP.json`.
-- **OUTPUT_PATH**: destination path for the generated test or scenario file.
+- **$TYPE**: `unit`, `it`, or `e2e`. Selects the granularity of the PoC.
+- **$VULN_ID**: value of `audit_items[].id` in `03_AUDITMAP.json`.
+- **$OUTPUT_PATH**: destination path for the generated test or scenario file.
 ---
 
-Create & validate a minimal PoC that reproduces **VULN_ID** at the chosen scope.
+Create & validate a minimal PoC that reproduces **$VULN_ID** at the chosen scope.
 **Always use /serena for these development tasks to maximize token efficiency.**
 **Never assume the implementation language; detect and reuse the project's existing language, test harness, fixtures, and mocks.**
 
 # 📥 Auto-load from 03_AUDITMAP.json
 1. **Read** `security-agent/outputs/03_AUDITMAP.json`.
-2. **Locate** the entry where `audit_items[].id == {{VULN_ID}}`.
+2. **Locate** the entry where `audit_items[].id == $VULN_ID`.
 3. **Extract**
    - `VULN_SNIPPET` ← `audit_items[].snippet`
    - `TARGET_FILE` ← `audit_items[].file` + `:L` + `audit_items[].line`
    - `VULN_TITLE_RAW` ← `audit_items[].description`
-   - `VULN_TITLE` ← text before the first colon (`:`) in `VULN_TITLE_RAW`, or the full string if no colon exists. If empty, craft a concise fallback title (avoid embedding `VULN_ID`).
+   - `VULN_TITLE` ← text before the first colon (`:`) in `VULN_TITLE_RAW`, or the full string if no colon exists. If empty, craft a concise fallback title (avoid embedding `$VULN_ID`).
    - `TITLE_SLUG` ← `VULN_TITLE` transformed to lowercase snake_case using ASCII letters/digits/underscores only. Replace punctuation/spaces with `_`, collapse repeats, strip outer `_`, and ensure length ≤ 40 characters (trim filler words or truncate meaningfully if needed).
    - `EXISTING_POC_FILES` ← array of all `poc_tests[].file`, `integration_tests[].file`, and `e2e_tests[].file` in the vulnerability entry (if any).
-4. **If not found** → abort with error `"Vulnerability '{{VULN_ID}}' not found in 03_AUDITMAP.json"`.
+4. **If not found** → abort with error `"Vulnerability '$VULN_ID' not found in 03_AUDITMAP.json"`.
 
 # 🎯 Goals
 1. Generate the PoC in the **project's native stack** (language, test runner, mocks, fixtures).
@@ -62,7 +62,7 @@ Create & validate a minimal PoC that reproduces **VULN_ID** at the chosen scope.
 
 # 📤 Output Artifacts
 1. **PoC file** → `{{OUTPUT_PATH}}`
-   - Filename must include `poc_{TITLE_SLUG}` and must not include `VULN_ID`.
+   - Filename must include `poc_{TITLE_SLUG}` and must not include `$VULN_ID`.
    - Keep the filename component ≤ 50 characters; shorten the slug if necessary.
 2. **Run command** → provide the full command that executes just this PoC within the native test runner.
 3. **Status JSON** → append to the vulnerability entry:
@@ -134,7 +134,7 @@ FOR attempt in 1..=4:
 * Keep PoC files self-contained and ≤ 120 LOC unless the existing style clearly requires more.
 
 # ✅ Success Criteria
-* Entry with `id == VULN_ID` located and processed.
+* Entry with `id == $VULN_ID` located and processed.
 * PoC runs via the detected native runner and fails once the vulnerability is fixed.
 * Status JSON appended to the correct entry with accurate metadata.
 * Artifact adheres to project language, environment, and naming standards.

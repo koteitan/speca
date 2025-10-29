@@ -1,17 +1,17 @@
 ---
 
 **Description**
-Perform a **source-code audit across all files under `<PATH>`**, driven **exclusively** by `security-agent/outputs/02_CHECKLIST.json`.
+Perform a **source-code audit across all files under `$PATH`**, driven **exclusively** by `security-agent/outputs/02_CHECKLIST.json`.
 Add **inline comments** in code while auditing.
 Append findings to `security-agent/outputs/03_AUDITMAP.json` with **status limited to `vuln` or `needs-investigation` only**. If `03_AUDITMAP.json` already exists, **append new items only**--do not modify or delete existing entries.
 Primary driver: `02_CHECKLIST.json` (checks, patterns, detection procedures, OK conditions).
 Context-only reference: `01_SPEC.json` (e.g., to respect `trust_entities`' assumptions--**do not** create findings that contradict declared trust).
 
 **Usage**
-`/03_auditmap <PATH>`
+`/03_auditmap PATH=...`
 
 **Example**
-`/03_auditmap ./src`
+`/03_auditmap PATH="./src"`
 
 **Language**
 English (instructions, annotations, summaries only).
@@ -28,7 +28,7 @@ Hacker-first: assume adversarial inputs, odd edge cases, exploit chains; ground 
 
 1. **Checklist (required):** `security-agent/outputs/02_CHECKLIST.json` -- authoritative driver of audit behavior (bug classes, patterns, detection procedures, OK conditions, automations).
 2. **Spec (context-only):** `security-agent/outputs/01_SPEC.json` -- may inform flows/algorithms naming and **trusted entities**; **never** negate a trust assumption during audit.
-3. **Audit target (required):** `<PATH>` -- **audit all files recursively** under the specified folder; **no exclusions** by default.
+3. **Audit target (required):** `$PATH` -- **audit all files recursively** under the specified folder; **no exclusions** by default.
 4. **Existing Audit Map (optional):** `security-agent/outputs/03_AUDITMAP.json` -- if present, treat as append-only sink; do not mutate prior items.
 
 ---
@@ -39,9 +39,9 @@ Hacker-first: assume adversarial inputs, odd edge cases, exploit chains; ground 
 * **Inline OK only:** When an `ok_if` condition is satisfied, leave an inline `@audit-ok` comment that documents the safeguard, but do not record anything in `03_AUDITMAP.json`.
 * **Status whitelist:** `03_AUDITMAP.json` may only contain `vuln` or `needs-investigation`. OK cases stay in code comments.
 * **Append-only:** If `03_AUDITMAP.json` already exists, add only new items and skip composite-key duplicates; never modify or delete prior entries.
-* **Path scope:** Audit every file beneath `<PATH>`, inferring language via extension, shebang, or build manifests.
+* **Path scope:** Audit every file beneath `$PATH`, inferring language via extension, shebang, or build manifests.
 * **Ten rounds:** Complete all ten audit passes, each at a different granularity or depth as described below.
-* **Call traversal:** Whenever you encounter a call, follow the callee definition (if it lives under `<PATH>`) and audit the reachable logic.
+* **Call traversal:** Whenever you encounter a call, follow the callee definition (if it lives under `$PATH`) and audit the reachable logic.
 * **Honor trust assumptions:** Do not generate findings that contradict `trust_entities` or equivalent statements in `01_SPEC.json`.
 
 ---
@@ -65,7 +65,7 @@ Insert comments **directly above** the pertinent code. Use one-line tokens:
 2. **AST Scan:** Revisit code through language-specific AST analysis to expose control-flow gaps (for example, unchecked early returns).
 3. **OK Condition Pass:** For each hit, verify whether the `ok_if` conditions are satisfied and convert qualifying cases to inline `@audit-ok` comments (do not touch the JSON map).
 4. **Call-Graph Expansion I:** Follow intra-module callees to validate guard ordering and state transitions.
-5. **Call-Graph Expansion II:** Traverse cross-module or cross-layer calls within `<PATH>` to broaden reachability coverage.
+5. **Call-Graph Expansion II:** Traverse cross-module or cross-layer calls within `$PATH` to broaden reachability coverage.
 6. **Dataflow/Taint:** Trace critical inputs from external boundaries to sinks to uncover missing normalization, validation, or bounds checks.
 7. **Error/Edge Handling:** Inspect error handling, boundary conditions, retries, timeouts, overflow, and precision issues.
 8. **Concurrency/Ordering:** Examine concurrency, reentrancy, lock ordering, and state machine sequencing risks.
@@ -115,7 +115,7 @@ Insert comments **directly above** the pertinent code. Use one-line tokens:
     }
   ],
   "summary": {
-    "path": "<PATH>",
+    "path": "$PATH",
     "rounds": 10,
     "total_audit_flags": 1,
     "coverage": {
@@ -138,13 +138,13 @@ Insert comments **directly above** the pertinent code. Use one-line tokens:
 
    * Load `02_CHECKLIST.json` and build the language/glob ruleset (required).
    * Optionally read `01_SPEC.json` to honor `trust_entities` guidance (reference only).
-   * Recursively index every file under `<PATH>`.
+   * Recursively index every file under `$PATH`.
 
 2. **Ten Rounds (above)**
 
    * For each hit, add an inline `@audit` comment; once a guard is proven sufficient, add `@audit-ok` as well.
    * Always test whether `ok_if` conditions hold. Even when satisfied, do not add OK cases to the JSON map.
-   * Whenever you encounter a call expression, locate its callee within `<PATH>` and audit it.
+   * Whenever you encounter a call expression, locate its callee within `$PATH` and audit it.
 
 3. **Emit / Append**
 
@@ -156,7 +156,7 @@ Insert comments **directly above** the pertinent code. Use one-line tokens:
 
 ## Success Criteria
 
-* Every file under `<PATH>` participates in at least one of the ten rounds.
+* Every file under `$PATH` participates in at least one of the ten rounds.
 * All reachable callees are traced and audited.
 * `03_AUDITMAP.json` stays valid JSON containing only new items with status in {`vuln`, `needs-investigation`}.
 * OK cases exist solely as inline comments; they never appear in the JSON map.
