@@ -55,10 +55,9 @@ git remote add audit git@github.com:NyxFoundation/<audit-repo>.git
 
 監査対象レポジトリのルートディレクトリで以下を実行:
 ```
-git clone -b master git@github.com:NyxFoundation/security-agent.git
-git checkout -b audit
-rm -rf security-agent/.git
+git clone -b master git@github.com:NyxFoundation/security-agent.
 ./security-agent/setup.sh
+git checkout -b audit-<監査者名>
 ```
 
 監査リーダーは以下を実行(監査者はスキップ):
