@@ -14,7 +14,7 @@ Derive a property catalog from the latest project specification, translating nor
 # **Property Extraction Prompt**
 
 **Goal**
-Translate every normative behaviour captured in `security-agent/outputs/01_SPEC.json` and supporting architecture into actionable, self‑sufficient property tuples:
+Translate every normative behaviour captured in `security-agent/outputs/01_SPEC.json` and supporting architecture into actionable, self‑sufficient property tuples **with 100% coverage across every declared domain, flow, algorithm, and state machine**:
 
 ```
 { property_id, property, anti_property, state_predicate, enforcement_scope,
@@ -25,6 +25,8 @@ Translate every normative behaviour captured in `security-agent/outputs/01_SPEC.
 
 **Output (required file):** `security-agent/outputs/01_PROP.json`
 **Determinism:** Sort all top‑level arrays deterministically (see "Determinism & IDs").
+
+**Coverage mandate:** Continuously calculate coverage from `01_SPEC.json` while deriving properties and keep iterating until totals == covered for flows, algorithms, and state machines. Never emit the final JSON while any coverage dimension is <100%.
 
 ---
 
@@ -79,10 +81,11 @@ Translate every normative behaviour captured in `security-agent/outputs/01_SPEC.
 
 ## 3) Derivation Procedure
 
-1. **Enumerate Normative Behaviour**
+ 1. **Enumerate Normative Behaviour**
 
    * For every spec flow/algorithm/state‑machine, write a **positive** `property` (declarative invariant) and map it to spec identifiers (`spec_refs`: e.g., `FLOW-001`, `ALGO-COMMIT-VERIFY`).
    * Ensure **each domain** and each of its `user_flows / algorithms / state_machines` yields ≥1 property tuple.
+   * After drafting properties for a domain, recalculate coverage counts; if any spec entity lacks a property, continue deriving tuples before proceeding.
 
 2. **Dual Anti‑Property**
 
@@ -150,6 +153,8 @@ Emit a `coverage` object summarising what was covered and what is missing:
   ]
 }
 ```
+
+**Coverage enforcement:** Derive these counts directly from `security-agent/outputs/01_SPEC.json` on every run. If any `*_covered` value is less than its corresponding total, continue deriving properties and recomputing until all dimensions reach parity; never emit the final artifact while coverage is <100%.
 
 ---
 
@@ -256,7 +261,7 @@ Write `security-agent/outputs/01_PROP.json` as UTF‑8 **pure JSON** (no comment
 ## 6) Success Criteria (updated)
 
 * **Determinism:** Stable `property_id` generation and sorted output; re-runs do not reshuffle IDs.
-* **Coverage:** All domains/flows/algorithms/state‑machines covered; uncovered items listed under `coverage.gaps`.
+* **Coverage:** All domains/flows/algorithms/state‑machines must be fully covered (`coverage.summary.*_covered == *_total` and `coverage.gaps` empty); keep iterating until this holds.
 * **Testability:** Each property has both dynamic and static falsification with budgets and environment hints.
 * **Observability:** Signals, thresholds, and alert rules enable runtime detection.
 * **Parity:** Cross‑implementation vectors exist or are explicitly `pending-detail` with blockers.
