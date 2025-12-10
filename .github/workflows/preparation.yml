@@ -1,0 +1,113 @@
+name: Security Audit - Preparation (GitOps)
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 0 * * *' # Daily check (Uncomment in target branch)
+  # push:
+  #   branches: 
+  #     - 'audit/*' # (Uncomment in target branch) 
+
+jobs:
+  preparation:
+    runs-on: ubuntu-latest
+    env:
+      # --- CONFIGURATION (Override these in your branch) ---
+      TARGET_REPO: "NyxFoundation/security-agent"
+      TARGET_REF: "main"
+      TARGET_DIRECTORY: "."
+      CATEGORY: "ethereum-el"
+      PROJECT_NAME: "TargetProject"
+      REFERENCE_URLS: ""
+      # -----------------------------------------------------
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout Security Agent (Self)
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout Target Repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ env.TARGET_REPO }}
+          ref: ${{ env.TARGET_REF }}
+          path: target_workspace
+
+      - name: Get Target Commit Hash
+        id: target_info
+        working-directory: ./target_workspace
+        run: |
+          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run 01_spec
+        working-directory: ./target_workspace
+        run: claude -p "$(cat ../prompts/01_spec.md)" "TARGET_DIRECTORY=${{ env.TARGET_DIRECTORY }} CATEGORY=${{ env.CATEGORY }} PROJECT_NAME=${{ env.PROJECT_NAME }} REFERENCE_URLS=${{ env.REFERENCE_URLS }}"
+
+      - name: Run 01b_trustmodel
+        working-directory: ./target_workspace
+        run: claude -p "$(cat ../prompts/01b_trustmodel.md)"
+
+      - name: Run 01c_prop
+        working-directory: ./target_workspace
+        run: claude -p "$(cat ../prompts/01c_prop.md)"
+
+      - name: Run 02_checklist
+        working-directory: ./target_workspace
+        run: claude -p "$(cat ../prompts/02_checklist.md)"
+
+      - name: Prepare Snapshot Branch
+        id: snapshot
+        run: |
+          BASE_BRANCH="${GITHUB_REF_NAME}"
+          TARGET_NAME=$(echo "$TARGET_REPO" | cut -d'/' -f2)
+          RUN_ID="${{ steps.target_info.outputs.date }}_${{ steps.target_info.outputs.short_sha }}"
+          SNAPSHOT_BRANCH="prep-runs/${TARGET_NAME}/${RUN_ID}"
+          
+          echo "base_branch=${BASE_BRANCH}" >> $GITHUB_OUTPUT
+          echo "snapshot_branch=${SNAPSHOT_BRANCH}" >> $GITHUB_OUTPUT
+          
+          git config --global user.name "Security Agent Bot"
+          git config --global user.email "bot@nyxfoundation.org"
+
+          git checkout -b "$SNAPSHOT_BRANCH"
+
+          rm -rf outputs/
+          mkdir -p outputs/
+          cp -r target_workspace/outputs/* outputs/ 2>/dev/null || echo "No outputs found to copy"
+
+      - name: Commit and Push Snapshot
+        run: |
+          git add outputs/
+          if ! git diff --staged --quiet; then
+            git commit -m "prep: snapshot for $TARGET_REPO @ ${{ steps.target_info.outputs.short_sha }}"
+            git push origin "${{ steps.snapshot.outputs.snapshot_branch }}"
+          else
+            echo "No changes found. Skipping PR."
+            echo "skip_pr=true" >> $GITHUB_ENV
+          fi
+
+      - name: Create Pull Request
+        if: env.skip_pr != 'true'
+        run: |
+          gh pr create \
+            --base "${{ steps.snapshot.outputs.base_branch }}" \
+            --head "${{ steps.snapshot.outputs.snapshot_branch }}" \
+            --title "Preparation Report: $TARGET_REPO (${{ steps.target_info.outputs.short_sha }})" \
+            --body "Automated preparation artifacts for $TARGET_REPO commit ${{ steps.target_info.outputs.short_sha }}." \
+            || echo "PR may already exist."

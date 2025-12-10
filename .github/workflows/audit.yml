@@ -1,0 +1,127 @@
+name: Security Audit - Execution (GitOps)
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 0 * * *' # Daily check (Uncomment in target branch)
+  # push:
+  #   branches: 
+  #     - 'audit/*' # Trigger when config is updated in these branches (Uncomment in target branch)
+
+jobs:
+  audit_gitops:
+    runs-on: ubuntu-latest
+    env:
+      # --- CONFIGURATION (Override these in your branch) ---
+      TARGET_REPO: "NyxFoundation/security-agent" # Default (to be overridden)
+      TARGET_REF: "main"                          # Default (HEAD of default branch)
+      TARGET_DIRECTORIES: '["."]'
+      # -----------------------------------------------------
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Built-in token is sufficient for self-repo PRs
+
+    steps:
+      - name: Checkout Security Agent (Self)
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Needed for branch creation
+
+      - name: Setup Configuration (Env Override)
+        # This step allows setting env vars dynamically if needed, 
+        # or we just rely on the hardcoded `env` block above which users edit.
+        run: |
+          echo "Target Repo: $TARGET_REPO"
+          echo "Current Branch: $GITHUB_REF_NAME"
+
+      - name: Checkout Target Repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ env.TARGET_REPO }}
+          ref: ${{ env.TARGET_REF }}
+          path: target_workspace
+
+      - name: Get Target Commit Hash
+        id: target_info
+        working-directory: ./target_workspace
+        run: |
+          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run 03_auditmap
+        working-directory: ./target_workspace
+        # We process directories based on JSON input.
+        # Since we can't easily use matrix strategy with dynamic env vars in GitOps mode without complex setup,
+        # we will iterate within the script or assume single root for now.
+        # For simplicity in this template, we audit "." (root).
+        run: |
+          # If TARGET_DIRECTORIES is a JSON string, we might need parsing. 
+          # For now, let's just pass "." as the PATH if it's simple.
+          claude -p "$(cat ../prompts/03_auditmap.md)" "PATH=."
+
+      - name: Prepare Snapshot Branch
+        id: snapshot
+        run: |
+          # Define branch names
+          BASE_BRANCH="${GITHUB_REF_NAME}"
+          TARGET_NAME=$(echo "$TARGET_REPO" | cut -d'/' -f2) # e.g. go-ethereum
+          RUN_ID="${{ steps.target_info.outputs.date }}_${{ steps.target_info.outputs.short_sha }}"
+          SNAPSHOT_BRANCH="runs/${TARGET_NAME}/${RUN_ID}"
+          
+          echo "base_branch=${BASE_BRANCH}" >> $GITHUB_OUTPUT
+          echo "snapshot_branch=${SNAPSHOT_BRANCH}" >> $GITHUB_OUTPUT
+          
+          # Configure Git
+          git config --global user.name "Security Agent Bot"
+          git config --global user.email "bot@nyxfoundation.org"
+
+          # checkout new branch from current base
+          git checkout -b "$SNAPSHOT_BRANCH"
+
+          # Copy outputs from target_workspace to local outputs/
+          # First, clean existing outputs to ensure we capture deletions/changes
+          rm -rf outputs/
+          mkdir -p outputs/
+          cp -r target_workspace/outputs/* outputs/ 2>/dev/null || echo "No outputs found to copy"
+
+      - name: Commit and Push Snapshot
+        run: |
+          git add outputs/
+          if ! git diff --staged --quiet; then
+            git commit -m "audit: snapshot for $TARGET_REPO @ ${{ steps.target_info.outputs.short_sha }}"
+            git push origin "${{ steps.snapshot.outputs.snapshot_branch }}"
+          else
+            echo "No changes found. Skipping PR."
+            echo "skip_pr=true" >> $GITHUB_ENV
+          fi
+
+      - name: Create Pull Request
+        if: env.skip_pr != 'true'
+        run: |
+          gh pr create \
+            --base "${{ steps.snapshot.outputs.base_branch }}" \
+            --head "${{ steps.snapshot.outputs.snapshot_branch }}" \
+            --title "Audit Report: $TARGET_REPO (${{ steps.target_info.outputs.short_sha }})" \
+            --body "Automated audit report for $TARGET_REPO commit ${{ steps.target_info.outputs.short_sha }}." \
+            || echo "PR may already exist."
+
+  review:
+    needs: audit_gitops
+    # Review job could be similar, or integrated into the main job. 
+    # For GitOps, running sequentially in one job is easier to manage context.
+    # Let's skip separate review job for this template to keep it simple, 
+    # or the user can add it back if they want the 04_review step.
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Review step placeholder"
