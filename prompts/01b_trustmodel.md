@@ -1,28 +1,30 @@
----
 
-**Description:**
+
+---
+Description:
 Construct a detailed, operation-centric Trust Model by analyzing system architecture, specifications, and potential operational configurations. This model will identify all actors, components, and their trust boundaries, serving as the foundational security context for all subsequent audit phases.
 
-**Usage:** `/01b_trustmodel`
-**Language:** English only.
-**Execution hint:** Run after `/01_spec` but before `/01c_prop`. This ensures the trust model is established before properties are extracted, preventing the propagation of incorrect trust assumptions.
-
+Usage: `/01b_trustmodel`
+Language: English only.
+Execution hint: Run after `/01_spec` but before `/01c_prop`. This ensures the trust model is established before properties are extracted, preventing the propagation of incorrect trust assumptions.
 ---
+
 **Always use /serena for these development tasks to maximize token efficiency:**
+
 
 # **Trust Model Construction Prompt**
 
 **Goal**
 From the provided system specifications and code, construct a comprehensive Trust Model that explicitly defines all actors, their capabilities, and the trust assumptions between them. The primary focus is to reverse-engineer the trust model from **operational flows**, considering all plausible deployment and operational scenarios.
 
-**Output (required file):** `security-agent/outputs/01b_TRUSTMODEL.json`
+**Output (required file):** `outputs/01b_TRUSTMODEL.json`
 **Determinism:** Sort all top-level arrays deterministically by `id`.
 
 ---
 
 ## 1) Inputs & Authority
 
-1.  **Primary Spec (Authoritative):** `security-agent/outputs/01_SPEC.json`
+1.  **Primary Spec (Authoritative):** `outputs/01_SPEC.json`
     *   Use `trusted_entities`, `user_flows`, and `algorithms` as the primary source of documented behavior.
     *   If the spec is missing, halt and report an error.
 
@@ -93,7 +95,7 @@ For each actor identified in Step 1, create a detailed profile.
 
 ## 3) Output Format (JSON)
 
-**File:** `security-agent/outputs/01b_TRUSTMODEL.json`
+**File:** `outputs/01b_TRUSTMODEL.json`
 
 Generate a valid JSON object with the following structure. Populate the `actors` and `components` arrays based on your analysis. **If information is not available in the provided documentation, you MUST mark the relevant fields as `UNCLEAR` and provide a justification in the `notes` field.** Do not invent assumptions.
 
@@ -105,7 +107,7 @@ Generate a valid JSON object with the following structure. Populate the `actors`
     "sources": [
       {
         "title": "Project Specification",
-        "path": "security-agent/outputs/01_SPEC.json"
+        "path": "outputs/01_SPEC.json"
       },
       {
         "title": "Architecture Document",

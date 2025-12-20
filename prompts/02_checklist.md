@@ -1,13 +1,11 @@
----
-
-**Description:**
-Generate a high-fidelity, context-aware audit checklist from a property catalog. This process translates properties into concrete, actionable checks, rigorously filtering for scope and reachability based on an established trust model. The goal is to create targeted, effective checks that focus on verifying mitigations for unreachable attack paths and validating the correct implementation of cryptographic guarantees, thereby minimizing false positives.
-
-**Usage:** `/02_checklist`
-**Language:** English only.
-**Execution hint:** Run after `/01c_prop`. This is the definitive checklist generation step.
 
 ---
+Description: Generate a high-fidelity, context-aware audit checklist from a property catalog. This process translates properties into concrete, actionable checks, rigorously filtering for scope and reachability based on an established trust model. The goal is to create targeted, effective checks that focus on verifying mitigations for unreachable attack paths and validating the correct implementation of cryptographic guarantees, thereby minimizing false positives.
+Usage: `/02_checklist`
+Language: English only.
+Execution hint: Run after `/01c_prop`. This is the definitive checklist generation step.
+---
+
 **Always use /serena for these development tasks to maximize token efficiency:**
 
 # **Advanced Checklist Creation Prompt (v3)**
@@ -15,24 +13,23 @@ Generate a high-fidelity, context-aware audit checklist from a property catalog.
 **Goal**
 Translate every **in-scope** property from the property catalog (`01c_PROP.json`) into a concrete, context-aware checklist item. The checklist must be grounded in the trust model, focusing on verifying mitigations and validating cryptographic guarantees rather than chasing unreachable attack paths.
 
-**Output (required file):** `security-agent/outputs/02_CHECKLIST.json`
+**Output (required file):** `outputs/02_CHECKLIST.json`
 
 ---
 
 ## 1) Inputs & Precedence
 
-1.  **Property Catalog (Authoritative):** `security-agent/outputs/01c_PROP.json`
+1.  **Property Catalog (Authoritative):** `outputs/01c_PROP.json`
     *   **This is your primary source of truth.** If missing, halt and report an error.
     *   **CRITICAL:** Only generate checklist items for properties where `status` is `"in_scope"`.
     *   Inherit all fields, especially `property_id`, `trust_scope`, `reachability`, `cryptographic_guarantee`, and `data_flow`.
 
-2.  **Trust Model (Required Context):** `security-agent/outputs/01b_TRUSTMODEL.json`
+2.  **Trust Model (Required Context):** `outputs/01b_TRUSTMODEL.json`
     *   Use this to understand the context behind `trust_scope` and why certain actors are considered trusted or untrusted.
 
-3.  **Specification (Supporting):** `security-agent/outputs/01_SPEC.json`
-    *   Use for high-level understanding of flows and algorithms.
 
-4.  **Historical Signals (Optional):** `security-agent/outputs/01_SIMILAR_ISSUES.json`, `security-agent/outputs/01_PAST_REPORTS/*`
+
+3.  **Historical Signals (Optional):** `outputs/01_SIMILAR_ISSUES.json`, `outputs/01_PAST_REPORTS/*`
     *   Use for attack patterns and heuristics **only if the property is reachable**.
 
 ---
@@ -97,7 +94,7 @@ For each **in-scope** property from `01c_PROP.json`, apply the following logic t
 
 ## 4) Output Format (JSON)
 
-**File:** `security-agent/outputs/02_CHECKLIST.json`
+**File:** `outputs/02_CHECKLIST.json`
 
 Generate a valid JSON object. Ensure you **only create checks for in-scope properties** and that every check is intelligently designed based on the rich context provided by `01c_PROP.json`.
 
@@ -109,11 +106,11 @@ Generate a valid JSON object. Ensure you **only create checks for in-scope prope
     "sources": [
         {
             "title": "Property Catalog",
-            "path": "security-agent/outputs/01c_PROP.json"
+            "path": "outputs/01c_PROP.json"
         },
         {
             "title": "Trust Model",
-            "path": "security-agent/outputs/01b_TRUSTMODEL.json"
+            "path": "outputs/01b_TRUSTMODEL.json"
         }
     ],
     "coverage_summary": {
@@ -164,7 +161,7 @@ Generate a valid JSON object. Ensure you **only create checks for in-scope prope
 
 After generating all checklist items, create a `coverage` object in the output JSON. This object will track which properties have been covered.
 
-*   **Input:** `security-agent/outputs/01c_PROP.json` (for the list of `in_scope` properties)
+*   **Input:** `outputs/01c_PROP.json` (for the list of `in_scope` properties)
 *   **Logic:**
     1.  Create a master list of all `property_id`s from the catalog where `status` is `"in_scope"`.
     2.  For each generated checklist item, check its `property_id` field.
