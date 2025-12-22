@@ -6,11 +6,18 @@ An automated security analysis system using LLMs for comprehensive Bug Bounty re
 
 Before using this agent locally, please verify you have the following tools installed/configured:
 
-- **Claude Code** (or compatible LLM CLI)
+- **Claude Code** (Currently, only this is supported)
 - **[Serena MCP](https://github.com/oraios/serena)** (for web crawling and research)
 - **Web Search** API (or MCP capability)
 
 ## Getting Started
+
+Please Install Claude Code CLI if you haven't already.
+
+```bash
+npm install -g @anthropic-ai/claude-code
+claude # and login with your Anthropic account
+```
 
 First, clone the repository and checkout the target branch.
 
