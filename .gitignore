@@ -213,6 +213,7 @@ logs/
 .pytest_cache/
 .coverage
 .tox/
+target_workspace/
 
 # Documentation builds
 docs/_build/
