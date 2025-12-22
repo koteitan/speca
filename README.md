@@ -50,6 +50,8 @@ Edit `scripts/run_preparation.sh` to configure variables, then run it.
 ./scripts/run_preparation.sh
 ```
 
+![Local Preparation](assets/local_preparation.png)
+
 #### Step 4: Audit Phase
 Edit `scripts/run_audit.sh` if needed, then run it.
 ```bash

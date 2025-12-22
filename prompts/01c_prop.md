@@ -1,205 +1,86 @@
 
 ---
-Description: Derive a high-fidelity, context-aware property catalog from the system specification and the trust model. This prompt translates normative behaviors into `{property, anti_property}` tuples, rigorously filtering out-of-scope items and explicitly grounding each property in the established trust model to prevent false positives.
+Description: Generate a catalog of security properties by analyzing paths and transitions within the Program Graph. This involves defining properties on graph states and edges and performing formal reachability analysis.
 Usage: `/01c_prop`
 Language: English only.
-Execution hint: Run after `/01_spec` and `/01b_trustmodel`. This is the definitive property generation step.
+Execution hint: Run after `/01b_trustmodel`.
 ---
-
 **Always use /serena for these development tasks to maximize token efficiency:**
 
-# **Advanced Property Extraction Prompt (v3)**
+# **Security Property Catalog Generation Prompt**
 
 **Goal**
-Translate every normative behavior from the specification into actionable, trust-model-aware property tuples. This process involves a rigorous 6-step validation to ensure every property is in-scope, contextually relevant, and directly traceable to the system's architecture and trust boundaries.
+From the Program Graph (`01_SPEC.json`) and Trust Model (`01b_TRUSTMODEL.json`), generate a catalog of formal security properties. Each property will be defined in terms of the graph's nodes and edges, and its reachability will be determined by analyzing paths through the graph.
 
 **Output (required file):** `outputs/01c_PROP.json`
-**Determinism:** Sort all top-level arrays deterministically by `id`.
 
 ---
 
-## 1) Inputs & Authority
+## 1) Inputs
 
-1.  **Trust Model (Authoritative):** `outputs/01b_TRUSTMODEL.json`
-    *   **This is your primary source of truth for trust assumptions.**
-    *   If missing, halt and report an error.
-    *   Inherit `actors`, `components`, `trust_level`, `capabilities_if_malicious`, and `mitigations`.
-
-2.  **Specification (Supporting):** `outputs/01_SPEC.json`
-    *   Use `user_flows` and `algorithms` to understand intended behavior.
-    *   If the spec contradicts the trust model, **the trust model takes precedence.**
-
-3.  **Bounty/Audit Scope (Filter):** `outputs/01_BOUNTY_GUIDELINE.md` (if it exists)
-    *   Use the `Out of Scope` section to filter out irrelevant properties early.
+1.  **System Specification (Authoritative):** `outputs/01_SPEC.json`
+2.  **Trust Model (Authoritative):** `outputs/01b_TRUSTMODEL.json`
 
 ---
 
-## 2) The 6-Step Property Validation Gauntlet
+## 2) Property Generation & Analysis Logic
 
-For every potential property derived from the specification, you **MUST** run it through this 6-step gauntlet. If a property fails any of these checks, it should either be discarded or marked as `out_of_scope` with a clear reason.
+For each major behavior represented by a path in the program graph, generate one or more security properties.
 
-### **Step 1: Is it explicitly Out of Scope?**
-*   **Check:** Does the property fall under any category listed in `01_BOUNTY_GUIDELINE.md`'s `Out of Scope` section?
-*   **Action:** If yes, create a property tuple but mark it: `"status": "out_of_scope"` and `"out_of_scope_reason": "Listed in bounty guidelines (e.g., trusted setup)"`. Do not proceed further.
-*   **Example:** A property related to the security of the trusted setup ceremony.
+### **Task 2.1: Define the Property in Terms of the Graph**
 
-### **Step 2: Is it an Operational or a Code-Level Issue?**
-*   **Check:** Does exploiting this property require compromising the environment (e.g., server access, private keys) rather than interacting with the code's public interface?
-*   **Action:** If operational, mark it as `"category": "operational"` and `"status": "out_of_scope"`.
-*   **Example:** An attacker with root access to the indexer server can halt the service.
+*   `property`: A formal statement about the graph. This can be an **invariance** (a property of a `node`/`state`) or a **transition property** (a property of an `edge`).
+    *   *Invariant Example:* "The node `STATE-EL-REQUEST-VALIDATED` can only be reached if the path to it includes the edge `EDGE-VALIDATION-SUCCESS`."
+    *   *Transition Example:* "The data `DATA-JWT-REQUEST` transferred across the edge `EDGE-CL-SENDS-REQUEST` must be cryptographically signed."
+*   `anti_property`: The formal negation of the property.
+    *   *Invariant Example:* "A path exists to `STATE-EL-REQUEST-VALIDATED` that does not include the edge `EDGE-VALIDATION-SUCCESS`."
+    *   *Transition Example:* "An attacker can cause unsigned data to be transferred across the edge `EDGE-CL-SENDS-REQUEST`."
 
-### **Step 3: Is it a Feature or a Bug?**
-*   **Check:** Is this behavior described as intended in the `01_SPEC.json`?
-*   **Action:** If it's a feature, do not create a property for it being a vulnerability.
-*   **Example:** A contract owner having the ability to upgrade the contract is a feature, not a bug.
+### **Task 2.2: Perform Formal Reachability Analysis**
 
-### **Step 4: Does it require a Privileged Role?**
-*   **Check:** Can this `anti_property` only be realized by an actor with a privileged role (e.g., `Owner`, `Admin`, `Deployer`) as defined in `01b_TRUSTMODEL.json`?
-*   **Action:** If yes, mark `"requires_privileged_role": true` and `"status": "out_of_scope"`.
-*   **Example:** A contract owner pausing the contract.
+This is the core formal analysis task.
 
-### **Step 5: Is it protected by a Cryptographic Guarantee?**
-*   **Check:** Is the state transition or data integrity protected by a cryptographic primitive (e.g., ZK proof, digital signature, hash commitment)?
-*   **Action:** If yes, explicitly state this in the `cryptographic_guarantee` field. Do not create properties that assume the cryptography is broken unless the goal is to test the implementation of the cryptography itself.
-*   **Example:** A property assuming a user can create a valid withdrawal proof without a valid burn event. This is prevented by the ZK proof system.
+1.  **Identify the Target State/Edge:** This is the state/edge the `anti_property` is trying to achieve/violate.
+2.  **Identify the Attacker:** An `UNTRUSTED` or `SEMI_TRUSTED` actor.
+3.  **Analyze Paths:** Can the attacker, starting from a node they control, construct a path through the graph to the target state/edge that violates the property?
+4.  **Consult Boundary Edges:** Use the `boundary_edges` from `01b_TRUSTMODEL.json`. An attacker's most likely path will involve manipulating the data (`data_flows_across`) on one of these edges.
+5.  **Determine `reachability`:**
+    *   `REACHABLE`: A path exists that an untrusted actor can force, leading to the `anti_property` state.
+    *   `UNREACHABLE`: All paths to the desired state are provably blocked by a trusted `Action` node (e.g., a validation action) that has no outgoing edges leading to a success state for invalid inputs.
+6.  **Justify the Analysis (`reachability_rationale`):** Provide a formal argument based on the graph structure. "The anti-property is unreachable because all paths from the untrusted node `STATE-CL-PREPARE-REQUEST` to the target `STATE-EL-REQUEST-VALIDATED` must pass through the `ACTION-EL-VALIDATE-JWT` node. The definition of this action node specifies it has two outgoing edges: `EDGE-VALIDATION-SUCCESS` and `EDGE-VALIDATION-FAILURE`. An invalid input provably leads to the `STATE-EL-REQUEST-REJECTED` node, making the target state unreachable for an attacker."
 
-### **Step 6: Is it protected by a different layer?**
-*   **Check:** Is this property checked or enforced in a different system layer (e.g., a smart contract value being constrained by a ZK circuit)?
-*   **Action:** If yes, document this in the `enforcement_scope`. A property might be valid but have its risk lowered because of cross-layer protection.
-*   **Example:** A value overflow in a smart contract might be impossible because the value is proven to be in a smaller range by a ZK circuit.
+### **Task 2.3: Link to Graph Elements**
+
+*   `graph_elements`: An array of `id`s for the nodes and edges from `01_SPEC.json` that are relevant to this property. This makes the property directly traceable to the formal model.
 
 ---
 
-## 3) Advanced Property Derivation
-
-After a potential property survives the gauntlet, create a full property tuple with the following advanced fields:
-
-*   **`property_id`**: `PROP-<DOMAIN>-<SLUG>-<H4>`
-*   **`property`**: Declarative invariant (what should always be true).
-*   **`anti_property`**: Attacker-centric failure mode.
-*   **`trust_scope` (Inherited)**: **MUST** be inherited directly from the `trust_level` of the relevant actor in `01b_TRUSTMODEL.json`. If the trust model is `UNCLEAR`, this field must also be `UNCLEAR`.
-*   **`enforcement_scope`**: Where the property is enforced (e.g., `contract:Verifier.sol`, `circuit:withdraw`, `off-chain:indexer`).
-*   **`data_flow`**: A concise description of the data's lifecycle relevant to this property. 
-    *   *Example:* "Root is generated by the on-chain `proveTransferRoot` function (which verifies a proof), stored in `provedTransferRoots`, and then relayed to the Hub."
-*   **`reachability`**: Analysis of whether the `anti_property` is actually reachable in a real-world scenario.
-    *   *Example:* `"UNREACHABLE: The Hub only accepts roots from a trusted Verifier contract, which in turn only creates roots after successful proof verification. An arbitrary root injection is not possible."`
-*   **`cryptographic_guarantee`**: The specific cryptographic mechanism that protects this property.
-    *   *Example:* `"Nova Proof Verification"`
-*   **`operational_prerequisite`**: Any operational setup required for this property to hold.
-    *   *Example:* `"A valid and secure trusted setup for the Groth16 parameters."`
-*   **`status`**: `"in_scope"`, `"out_of_scope"`, `"needs_clarification"`.
-*   **`out_of_scope_reason`**: Justification if `status` is `out_of_scope`.
-*   **`notes`**: Any additional context, including references to the trust model.
-    *   *Example:* `"This property's trust scope is set to Untrusted, as it relates to the Indexer, which is defined as a permissionless and untrusted actor in 01b_TRUSTMODEL.json."`
-
----
-
-## 4) Output Format (JSON)
+## 3) Required Output Format (JSON)
 
 **File:** `outputs/01c_PROP.json`
 
-Generate a valid JSON object. Ensure every property has passed through the 6-step validation gauntlet and is explicitly linked to the trust model.
-
 ```json
 {
-  "metadata": {
-    "project_name": "zERC20", // From 01_SPEC.json
-    "prop_generated_at": "2025-10-29T10:00:00Z",
-    "sources": [
-      {
-        "title": "Trust Model",
-        "path": "outputs/01b_TRUSTMODEL.json"
-      },
-      {
-        "title": "Project Specification",
-        "path": "outputs/01_SPEC.json"
-      },
-      {
-        "title": "Bounty Guidelines",
-        "path": "outputs/01_BOUNTY_GUIDELINE.md"
-      }
-    ]
-  },
+  "metadata": { /* ... */ },
   "properties": [
     {
-      "property_id": "PROP-SMART-CONTRACT-ROOT-INTEGRITY-A4B1",
-      "property": "The Hub contract only accepts transfer roots that have been cryptographically verified by a registered Verifier contract.",
-      "anti_property": "An attacker can inject an arbitrary or unverified transfer root into the Hub contract.",
-      "trust_scope": "Untrusted", // Inherited from the trust level of the message sender (e.g., any off-chain relayer)
-      "enforcement_scope": ["contract:Hub.sol#_lzReceive", "contract:Verifier.sol#relayTransferRoot"],
-      "data_flow": "A root is verified in Verifier.sol -> stored in provedTransferRoots -> relayed to Hub.sol via LayerZero -> Hub.sol verifies the sender is a registered Verifier.",
-      "reachability": "UNREACHABLE. The anti_property is not reachable because Hub.sol's `_lzReceive` function validates that the message sender is a known Verifier, and the Verifier only relays roots that have passed ZK proof verification.",
-      "cryptographic_guarantee": "Nova Proof Verification in Verifier.sol",
-      "operational_prerequisite": null,
-      "requires_privileged_role": false,
+      "property_id": "PROP-GRAPH-AUTH-PATH-INTEGRITY",
+      "property": "The state STATE-EL-REQUEST-VALIDATED is only reachable via a path that includes the edge EDGE-VALIDATION-SUCCESS.",
+      "anti_property": "A path exists from an untrusted node to STATE-EL-REQUEST-VALIDATED that bypasses the EDGE-VALIDATION-SUCCESS edge.",
+      "graph_elements": [
+        "STATE-EL-REQUEST-VALIDATED",
+        "ACTION-EL-VALIDATE-JWT",
+        "EDGE-VALIDATION-SUCCESS",
+        "EDGE-VALIDATION-FAILURE"
+      ],
       "status": "in_scope",
-      "out_of_scope_reason": null,
-      "notes": "This property directly addresses the false positive F-002. The key mitigation is the combination of ZK proof verification and LayerZero's trusted remote sender validation."
-    },
-    {
-      "property_id": "PROP-OPERATIONAL-TRUSTED-SETUP-C3D2",
-      "property": "The Groth16 parameters are generated via a secure multi-party computation ceremony.",
-      "anti_property": "An attacker can generate malicious Groth16 parameters, compromising the soundness of the proof system.",
-      "trust_scope": "Trusted", // The deployer/ceremony organizers
-      "enforcement_scope": ["operational:setup_ceremony"],
-      "data_flow": null,
-      "reachability": "REACHABLE but out of scope for a code audit.",
-      "cryptographic_guarantee": null,
-      "operational_prerequisite": "Execution of a secure MPC ceremony.",
-      "requires_privileged_role": true, // Requires being a participant in the setup
-      "status": "out_of_scope",
-      "out_of_scope_reason": "Listed in bounty guidelines (trusted setup) and is an operational issue, not a code-level vulnerability.",
-      "notes": "This addresses the false positives F-008, F-009, F-012. The security of the code assumes the operational prerequisite of a secure setup."
+      
+      "reachability": "UNREACHABLE",
+      "reachability_rationale": "This property is proven to be unreachable by the graph structure. All paths originating from untrusted actors must pass through ACTION-EL-VALIDATE-JWT. The definition of this action node ensures that only valid inputs can lead to the EDGE-VALIDATION-SUCCESS transition. Therefore, no path exists for an attacker to reach the target state illicitly.",
+      
+      "cryptographic_guarantee": "HS256 JWT Validation",
+      "notes": "The security of this property is contingent on the correct implementation of the ACTION-EL-VALIDATE-JWT node. While unreachable in the formal model, the implementation of this action is the focus of the subsequent checklist."
     }
   ]
-}
-```
-
-
----
-
-## 5) Coverage & Validation Loop
-
-**Goal:** Ensure that **every** normative behavior from the specification is mapped to at least one property, whether `in_scope` or `out_of_scope`.
-
-### Step 1: Generate Coverage Index
-
-After generating all properties, create a `coverage` object in the output JSON. This object will track which parts of the specification have been covered.
-
-*   **Input:** `outputs/01_SPEC.json` (for `domains`, `user_flows`, `algorithms`)
-*   **Logic:**
-    1.  Create a master list of all normative items from the spec (e.g., `FLOW-001`, `ALGO-COMMIT-VERIFY`).
-    2.  For each generated property, check its `spec_refs` field.
-    3.  Mark the corresponding normative items from the master list as `covered`.
-
-### Step 2: Identify and Report Gaps
-
-*   **Logic:** Any item in the master list that is not marked as `covered` is a **gap**.
-*   **Output:** Populate the `coverage.gaps` array with any items that were not mapped to a property.
-
-### Step 3: Iterative Refinement (The Loop)
-
-*   **CRITICAL RULE:** If the `coverage.gaps` array is **not empty**, you must **re-run the entire property generation process** with a specific focus on the items listed in the `gaps` array.
-*   **Process:**
-    1.  Read the `gaps` array from the previous run.
-    2.  For each gap, re-evaluate the specification and generate a new property tuple.
-    3.  Run this new property through the 6-Step Validation Gauntlet.
-    4.  Append the new property to the `properties` array.
-    5.  Repeat from Step 1 (Generate Coverage Index).
-*   **Termination:** The process is complete only when the `coverage.gaps` array is **empty**.
-
-### Example `coverage` object in `01c_PROP.json`:
-
-```json
-{
-  // ... metadata and properties ...
-  "coverage": {
-    "summary": {
-      "spec_items_total": 15,
-      "properties_generated": 15,
-      "coverage_percentage": 100.0
-    },
-    "gaps": [] // This MUST be empty for the task to be considered complete.
-  }
 }
 ```
