@@ -63,7 +63,10 @@ Your primary task is to translate the system's user flows and processes into a f
 *   **Goal:** Model complex logic that is abstracted away in the main graph (e.g., EVM execution details, specific EIP logic).
 *   **Action:** If `sub_graph_id` was used in any node, define the corresponding sub-graph here.
     *   **Scope:** Specifically focus on logic relevant to the provided `KEYWORDS` or EIPs (e.g., `PUSH0`, `SELFDESTRUCT`).
-    *   **Prioritization Note:** When deciding which EIPs to model as sub-graphs, prioritize those with the highest security impact. Good candidates are EIPs that: a) introduce new opcodes, b) significantly alter state transition logic, c) affect consensus rules, or d) have known security advisories associated with them.
+    *   **Completeness Mandate:** You MUST broaden your scope to include **ALL** significant EIPs identified in the documentation that introduce new execution logic (e.g., new opcodes, precompiles, state changes).
+    *   **Handling Constraints:** If you identify many EIPs (e.g., > 5) and cannot model them all in detail within this response due to length limits:
+        1.  Start by modeling the top 3-5 most critical ones as full `sub_graphs`.
+        2.  **CRITICAL:** List the remaining EIPs (IDs and brief titles) in a new top-level field `pending_sub_graphs` in the JSON output. This serves as a formal request for a follow-up analysis.
     *   **Structure:** Same as the main `program_graph` (nodes and edges).
     *   **Nodes:** Should represent low-level operations (e.g., `ACTION-EVM-DECODE-OPCODE`, `STATE-EVM-STACK-OVERFLOW`).
 
@@ -184,6 +187,14 @@ Generate a valid JSON object with the following graph-based structure.
           "data_involved": []
          }
       ]
+    }
+  ],
+  "pending_sub_graphs": [
+    {
+      "id": "EIP-3860",
+      "title": "Limit Initcode Size",
+      "source": "https://eips.ethereum.org/EIPS/eip-3860",
+      "reason": "New state validation rule not yet modeled due to length constraints."
     }
   ]
 }

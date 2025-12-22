@@ -32,11 +32,16 @@ For each **in-scope** property from `01c_PROP.json`, generate checklist items th
 
 ### **Core Logic: From Formal Model to Implementation Audit**
 
-The previous step (`01c_prop`) established the *logical* security of the system based on the graph model. This step verifies that the *code* actually matches the model.
+The previous step (`01c_prop`) established the *logical* security of the system based on the graph model. This step verifies that the *code* actually matches the model. You must perform the following two tasks for EVERY property.
 
-1.  **For each property, identify the critical graph elements:** Look at the `graph_elements` array and the `reachability_rationale`.
-2.  **Generate checks for critical `Action` nodes:** If the rationale relies on an `Action` node (e.g., `ACTION-EL-VALIDATE-JWT`) to enforce security, create a check to audit the implementation of that action.
-3.  **Generate checks for critical `Edge` transitions:** If the rationale relies on data being passed securely across an `edge` (especially a `boundary_edge`), create a check to audit the code that handles that specific data transition.
+#### **Task 1: Generate Node-Based Checks**
+1.  **Identify critical Action nodes:** Look at the `graph_elements` array and the `reachability_rationale`.
+2.  **Generate checks:** If the rationale relies on an `Action` node (e.g., `ACTION-EL-VALIDATE-JWT`) to enforce security, create a check to audit the implementation of that action.
+
+#### **Task 2: Generate Transition-Focused Checks**
+1.  **Mandatory Edge Checks:** In addition to node-based checks, you **MUST** generate at least one dedicated check for **every EDGE element** listed in the property's `graph_elements`.
+2.  **Title Convention:** The title of this check should be "Verify Transition Integrity for [Edge ID]".
+3.  **Goal:** The goal is to test for race conditions, data tampering, or state inconsistencies that can occur *between* two correct states or actions.
 
 ### **How to Design Each Checklist Item**
 

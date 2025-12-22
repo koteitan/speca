@@ -29,19 +29,22 @@ For each major behavior represented by a path in the program graph, generate one
 
 **CRITICAL: Sub-Graph Analysis:** Your analysis must be recursive. After analyzing the main `program_graph`, you MUST iterate through each graph defined in the `sub_graphs` array and apply the exact same property generation and reachability analysis logic to the nodes and edges within each sub-graph.
 
-### **Task 2.1: Define the Property in Terms of the Graph**
+### **Task 2.1: Generate Properties for Each Boundary Edge**
+
+*   For **each and every** `boundary_edge` defined in the `TRUSTMODEL` input, you **MUST** generate at least one property.
+*   The primary goal of this property is to formally state that the transition across this trust boundary is secure.
+*   This task is **mandatory** and has the highest priority. Ensure 100% coverage.
+
+### **Task 2.2: Define the Property in Terms of the Graph**
 
 *   `property`: A formal statement about the graph. This can be an **invariance** (a property of a `node`/`state`) or a **transition property** (a property of an `edge`).
     *   *Invariant Example:* "The node `STATE-EL-REQUEST-VALIDATED` can only be reached if the path to it includes the edge `EDGE-VALIDATION-SUCCESS`."
     *   *Transition Example:* "The data `DATA-JWT-REQUEST` transferred across the edge `EDGE-CL-SENDS-REQUEST` must be cryptographically signed."
-*   **CRITICAL:** You MUST define at least one property for EVERY boundary edge identified in `01b_TRUSTMODEL.json`. Do not leave any trust boundary unverified.
 *   `anti_property`: The formal negation of the property.
     *   *Invariant Example:* "A path exists to `STATE-EL-REQUEST-VALIDATED` that does not include the edge `EDGE-VALIDATION-SUCCESS`."
     *   *Transition Example:* "An attacker can cause unsigned data to be transferred across the edge `EDGE-CL-SENDS-REQUEST`."
 
-### **Task 2.2: Perform Formal Reachability Analysis**
-
-### **Task 2.2: Perform Formal Reachability Analysis**
+### **Task 2.3: Perform Formal Reachability Analysis**
 
 This is the core formal analysis task.
 
@@ -54,7 +57,7 @@ This is the core formal analysis task.
 
 **Justify the Analysis (`reachability_rationale`):** Provide a formal argument based on the graph structure. "The anti-property is unreachable because all paths from the untrusted node `STATE-CL-PREPARE-REQUEST` to the target `STATE-EL-REQUEST-VALIDATED` must pass through the `ACTION-EL-VALIDATE-JWT` node. The definition of this action node specifies it has two outgoing edges: `EDGE-VALIDATION-SUCCESS` and `EDGE-VALIDATION-FAILURE`. An invalid input provably leads to the `STATE-EL-REQUEST-REJECTED` node, making the target state unreachable for an attacker."
 
-### **Task 2.3: Link to Graph Elements**
+### **Task 2.4: Link to Graph Elements**
 
 *   `graph_elements`: An array of `id`s for the nodes and edges from `01_SPEC.json` that are relevant to this property. This makes the property directly traceable to the formal model.
 

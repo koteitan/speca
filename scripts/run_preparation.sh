@@ -76,6 +76,7 @@ run_step() {
 
 # Run steps
 run_step "01_spec.md" "01_SPEC.json"
+run_step "01a_specretry.md" "01_SPEC.json"
 run_step "01b_trustmodel.md" "01b_TRUSTMODEL.json"
 run_step "01c_prop.md" "01c_PROP.json"
 run_step "02_checklist.md" "02_CHECKLIST.json"
