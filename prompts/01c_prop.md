@@ -1,6 +1,6 @@
 
 ---
-Description: Generate a catalog of security properties by analyzing paths and transitions within the Program Graph. This involves defining properties on graph states and edges and performing formal reachability analysis.
+Description: Generate a comprehensive catalog of security properties with 100% coverage of all nodes and edges in the Program Graph. Each graph element must have at least one associated property. This involves defining properties on graph states and edges and performing formal reachability analysis.
 Usage: `/01c_prop`
 Language: English only.
 Execution hint: Run after `/01b_trustmodel`.
@@ -10,7 +10,7 @@ Execution hint: Run after `/01b_trustmodel`.
 # **Security Property Catalog Generation Prompt**
 
 **Goal**
-From the Program Graph (`01_SPEC.json`) and Trust Model (`01b_TRUSTMODEL.json`), generate a catalog of formal security properties. Each property will be defined in terms of the graph's nodes and edges, and its reachability will be determined by analyzing paths through the graph.
+From the Program Graph (`01_SPEC.json`) and Trust Model (`01b_TRUSTMODEL.json`), generate a **comprehensive catalog of formal security properties with 100% coverage**. You MUST generate at least one property for **every node** and **every edge** in the graph. Each property will be defined in terms of the graph's nodes and edges, and its reachability will be determined by analyzing paths through the graph. No graph element may remain without an associated security property.
 
 **Output (required file):** `outputs/01c_PROP.json`
 
@@ -25,15 +25,41 @@ From the Program Graph (`01_SPEC.json`) and Trust Model (`01b_TRUSTMODEL.json`),
 
 ## 2) Property Generation & Analysis Logic
 
-For each major behavior represented by a path in the program graph, generate one or more security properties.
+Generate security properties for **every element** in the program graph. The goal is 100% coverage - every node and every edge must have at least one associated property.
 
 **CRITICAL: Sub-Graph Analysis:** Your analysis must be recursive. After analyzing the main `program_graph`, you MUST iterate through each graph defined in the `sub_graphs` array and apply the exact same property generation and reachability analysis logic to the nodes and edges within each sub-graph.
 
-### **Task 2.1: Generate Properties for Each Boundary Edge**
+### **Task 2.1: Generate Properties for ALL Nodes and Edges (Mandatory Full Coverage)**
 
-*   For **each and every** `boundary_edge` defined in the `TRUSTMODEL` input, you **MUST** generate at least one property.
-*   The primary goal of this property is to formally state that the transition across this trust boundary is secure.
-*   This task is **mandatory** and has the highest priority. Ensure 100% coverage.
+**CRITICAL: 100% Coverage Requirement.** You **MUST** generate at least one property for **every single node** and **every single edge** in the Program Graph. No element may be left without a corresponding property.
+
+#### **2.1.1: Node Coverage**
+*   For **each node** in the `program_graph.nodes` array (and all `sub_graphs`), generate at least one property.
+*   Property types for nodes:
+    *   **State Invariants:** What conditions must hold when this state is reached?
+    *   **Reachability Constraints:** What preconditions (prior nodes/edges) must be satisfied to reach this state?
+    *   **Data Integrity:** What data integrity guarantees apply to data associated with this node?
+    *   **Actor Authorization:** Is the actor associated with this node authorized for the actions it performs?
+
+#### **2.1.2: Edge Coverage**
+*   For **each edge** in the `program_graph.edges` array (and all `sub_graphs`), generate at least one property.
+*   Property types for edges:
+    *   **Transition Security:** Is the transition secure? Is authentication/authorization required?
+    *   **Data-in-Transit Protection:** Is data transferred across this edge protected (encrypted, signed)?
+    *   **Input Validation:** Is input validated before this transition occurs?
+    *   **Control Flow Integrity:** Can this edge only be traversed under legitimate conditions?
+
+#### **2.1.3: Boundary Edge Priority**
+*   For **each `boundary_edge`** defined in the `TRUSTMODEL` input, you **MUST** generate **additional high-priority properties**.
+*   These properties must formally state that the transition across the trust boundary is secure.
+*   Boundary edges require more rigorous analysis than internal edges.
+
+**Verification Checklist (MANDATORY):**
+Before finalizing output, verify:
+- [ ] Total node properties ≥ Total nodes in graph
+- [ ] Total edge properties ≥ Total edges in graph
+- [ ] All boundary edges have at least one property
+- [ ] No orphan elements (every ID in graph_elements references a valid node/edge)
 
 ### **Task 2.2: Define the Property in Terms of the Graph**
 
@@ -70,9 +96,25 @@ This is the core formal analysis task.
 ```json
 {
   "metadata": { /* ... */ },
+  "coverage_summary": {
+    "total_nodes_in_graph": 10,
+    "total_edges_in_graph": 15,
+    "total_boundary_edges": 3,
+    "nodes_with_properties": 10,
+    "edges_with_properties": 15,
+    "boundary_edges_with_properties": 3,
+    "node_coverage_percent": 100,
+    "edge_coverage_percent": 100,
+    "uncovered_elements": []
+  },
   "properties": [
     {
       "property_id": "PROP-GRAPH-AUTH-PATH-INTEGRITY",
+      "covers": {
+        "primary_element": "STATE-EL-REQUEST-VALIDATED",
+        "element_type": "node",
+        "is_boundary_edge": false
+      },
       "property": "The state STATE-EL-REQUEST-VALIDATED is only reachable via a path that includes the edge EDGE-VALIDATION-SUCCESS.",
       "anti_property": "A path exists from an untrusted node to STATE-EL-REQUEST-VALIDATED that bypasses the EDGE-VALIDATION-SUCCESS edge.",
       "graph_elements": [
@@ -82,12 +124,28 @@ This is the core formal analysis task.
         "EDGE-VALIDATION-FAILURE"
       ],
       "status": "in_scope",
-      
+
       "reachability": "UNREACHABLE",
       "reachability_rationale": "This property is proven to be unreachable by the graph structure. All paths originating from untrusted actors must pass through ACTION-EL-VALIDATE-JWT. The definition of this action node ensures that only valid inputs can lead to the EDGE-VALIDATION-SUCCESS transition. Therefore, no path exists for an attacker to reach the target state illicitly.",
-      
+
       "cryptographic_guarantee": "HS256 JWT Validation",
       "notes": "The security of this property is contingent on the correct implementation of the ACTION-EL-VALIDATE-JWT node. While unreachable in the formal model, the implementation of this action is the focus of the subsequent checklist."
+    },
+    {
+      "property_id": "PROP-EDGE-CL-SENDS-REQUEST-INTEGRITY",
+      "covers": {
+        "primary_element": "EDGE-CL-SENDS-REQUEST",
+        "element_type": "edge",
+        "is_boundary_edge": true
+      },
+      "property": "Data transferred across EDGE-CL-SENDS-REQUEST must be cryptographically signed with a valid JWT.",
+      "anti_property": "An attacker can cause unsigned or malformed data to be accepted across EDGE-CL-SENDS-REQUEST.",
+      "graph_elements": ["EDGE-CL-SENDS-REQUEST", "DATA-JWT-REQUEST"],
+      "status": "in_scope",
+      "reachability": "UNREACHABLE",
+      "reachability_rationale": "The edge definition mandates JWT signing. The receiving node ACTION-EL-VALIDATE-JWT rejects any unsigned payload.",
+      "cryptographic_guarantee": "HS256 JWT Signing",
+      "notes": "Boundary edge property - higher priority."
     }
   ]
 }
