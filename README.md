@@ -26,8 +26,8 @@ git checkout -b audit/geth
 Simply edit the configuration variables in the start scripts and run them.
 
 1. clone the target repository in `target_workspace` folder: `git clone git:github.com/ethereum/go-ethereum.git target_workspace`.
-2.  **Preparation**: Edit `run_local.sh`, then run `./run_local.sh`.
-3.  **Audit**: Edit `run_local_audit.sh`, then run `./run_local_audit.sh`.
+2.  **Preparation**: Edit `scripts/run_preparation.sh`, then run `./scripts/run_preparation.sh`.
+3.  **Audit**: Edit `scripts/run_audit.sh`, then run `./scripts/run_audit.sh`.
 
 Then you can find the results in `/outputs`.
 

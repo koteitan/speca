@@ -13,7 +13,7 @@ mkdir -p "$LOG_DIR"
 # Check prerequisites
 if [ ! -f "outputs/02_CHECKLIST.json" ]; then
     echo "❌ Error: outputs/02_CHECKLIST.json not found."
-    echo "   Please run ./run_local.sh (Preparation Phase) first."
+    echo "   Please run ./scripts/run_preparation.sh (Preparation Phase) first."
     exit 1
 fi
 
