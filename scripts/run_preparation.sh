@@ -4,10 +4,8 @@ set -e
 # Configuration (match preparation.yml)
 export TARGET_REPO="ethereum/go-ethereum"
 export TARGET_REF="master"
-export TARGET_DIRECTORY="."
-export CATEGORY="ethereum-el"
-export PROJECT_NAME="Geth (go-ethereum)"
-export REFERENCE_URLS="https://ethereum.github.io/execution-specs/src/,https://geth.ethereum.org/docs"
+export KEYWORDS="geth,ethereum client,execution specs,EIP"
+export SPEC_URLS="https://ethereum.github.io/execution-specs/src/,https://geth.ethereum.org/docs"
 
 # Permissions to allow non-interactive file writes
 export CLAUDE_CODE_PERMISSIONS="bypassPermissions"
@@ -52,7 +50,7 @@ run_step() {
     # Output format set to json for parsing usage
     START_TIME=$(date +%s)
     if [ "$PROMPT_FILE" == "01_spec.md" ]; then
-        claude --dangerously-skip-permissions --agent serena --output-format json -p "$PROMPT_CONTENT TARGET_DIRECTORY=$TARGET_DIRECTORY CATEGORY=$CATEGORY PROJECT_NAME=\"$PROJECT_NAME\" REFERENCE_URLS=\"$REFERENCE_URLS\"" > "../$LOG_FILE"
+        claude --dangerously-skip-permissions --agent serena --output-format json -p "$PROMPT_CONTENT KEYWORDS=\"$KEYWORDS\" SPEC_URLS=\"$SPEC_URLS\"" > "../$LOG_FILE"
     else
         claude --dangerously-skip-permissions --agent serena --output-format json -p "$PROMPT_CONTENT" > "../$LOG_FILE"
     fi

@@ -20,10 +20,8 @@ jobs:
       # --- CONFIGURATION (Override these in your branch) ---
       TARGET_REPO: "ethereum/go-ethereum"
       TARGET_REF: "master"
-      TARGET_DIRECTORY: "."
-      CATEGORY: "ethereum-el"
-      PROJECT_NAME: "Geth (go-ethereum)"
-      REFERENCE_URLS:  "https://ethereum.github.io/execution-specs/src/,https://geth.ethereum.org/docs"
+      KEYWORDS: 'geth,ethereum client,execution specs,EIP'
+      SPEC_URLS: 'https://ethereum.github.io/execution-specs/src/,https://geth.ethereum.org/docs'
       # -----------------------------------------------------
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -65,7 +63,7 @@ jobs:
       - name: Run 01_spec
         working-directory: ./target_workspace
         run: |
-          claude --dangerously-skip-permissions --agent serena -p "$(cat ../prompts/01_spec.md) TARGET_DIRECTORY=${{ env.TARGET_DIRECTORY }} CATEGORY=${{ env.CATEGORY }} PROJECT_NAME=${{ env.PROJECT_NAME }} REFERENCE_URLS=${{ env.REFERENCE_URLS }}"
+          claude --dangerously-skip-permissions --agent serena -p "$(cat ../prompts/01_spec.md) KEYWORDS=${{ env.KEYWORDS }} SPEC_URLS=${{ env.SPEC_URLS }}"
           test -f outputs/01_SPEC.json || exit 1
 
 
