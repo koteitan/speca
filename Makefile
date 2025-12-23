@@ -223,21 +223,21 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 	N=$$((N + 1)); \
 	echo "⭐ Running 03_auditmap.md (iteration $$N)..."; \
 	START_TIME=$$(date +%s); \
-	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/03_auditmap.md)" > $(LOG_DIR)/03_auditmap_$$N.json; \
+	cd $(WORKDIR) && claude $(CLAUDE_FLAGS) -p "$$(cat ../prompts/03_auditmap.md)" > ../$(LOG_DIR)/03_auditmap_$$N.json; \
 	END_TIME=$$(date +%s); \
 	DURATION=$$((END_TIME - START_TIME)); \
-	INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/03_auditmap_$$N.json | head -1 | cut -d: -f2); \
-	OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/03_auditmap_$$N.json | head -1 | cut -d: -f2); \
-	COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/03_auditmap_$$N.json | head -1 | cut -d: -f2); \
+	INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' ../$(LOG_DIR)/03_auditmap_$$N.json | head -1 | cut -d: -f2); \
+	OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' ../$(LOG_DIR)/03_auditmap_$$N.json | head -1 | cut -d: -f2); \
+	COST=$$(grep -o '"total_cost_usd":[0-9.]*' ../$(LOG_DIR)/03_auditmap_$$N.json | head -1 | cut -d: -f2); \
 	if [ -f "outputs/03_AUDITMAP_PARTIAL_$$N.json" ]; then \
-		cp outputs/03_AUDITMAP_PARTIAL_$$N.json $(OUTPUT_DIR)/; \
+		cp outputs/03_AUDITMAP_PARTIAL_$$N.json ../$(OUTPUT_DIR)/; \
 		echo "✅ Finished 03_auditmap.md iter $$N (Time: $${DURATION}s | Tokens: In=$$INPUT_TOKENS, Out=$$OUTPUT_TOKENS | Cost: \$$$$COST)"; \
 	else \
 		echo "⚠️  No new partial auditmap generated in iteration $$N (Time: $${DURATION}s | Tokens: In=$$INPUT_TOKENS, Out=$$OUTPUT_TOKENS | Cost: \$$$$COST)"; \
 	fi; \
-	cp outputs/03_STATE.json $(OUTPUT_DIR)/ 2>/dev/null || true; \
-	if [ -f "$(OUTPUT_DIR)/03_STATE.json" ]; then \
-		REMAINING=$$(grep -o '"remaining":[0-9]*' $(OUTPUT_DIR)/03_STATE.json | cut -d: -f2); \
+	cp outputs/03_STATE.json ../$(OUTPUT_DIR)/ 2>/dev/null || true; \
+	if [ -f "../$(OUTPUT_DIR)/03_STATE.json" ]; then \
+		REMAINING=$$(grep -o '"remaining":[0-9]*' ../$(OUTPUT_DIR)/03_STATE.json | cut -d: -f2); \
 		if [ "$$REMAINING" -gt 0 ] 2>/dev/null; then \
 			echo "📋 $$REMAINING items remaining. Run 'make 03' again."; \
 		else \
@@ -249,13 +249,14 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 04: | 03
 	@echo "⭐ Running 04_review.md..."; \
 	START_TIME=$$(date +%s); \
-	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/04_review.md)" > $(LOG_DIR)/04_review.json; \
+	cd $(WORKDIR) && claude $(CLAUDE_FLAGS) -p "$$(cat ../prompts/04_review.md)" > ../$(LOG_DIR)/04_review.json; \
 	END_TIME=$$(date +%s); \
 	DURATION=$$((END_TIME - START_TIME)); \
 	if [ -f "outputs/03_AUDITMAP.json" ]; then \
-		INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/04_review.json | head -1 | cut -d: -f2); \
-		OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/04_review.json | head -1 | cut -d: -f2); \
-		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/04_review.json | head -1 | cut -d: -f2); \
+		cp outputs/03_AUDITMAP.json ../$(OUTPUT_DIR)/; \
+		INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' ../$(LOG_DIR)/04_review.json | head -1 | cut -d: -f2); \
+		OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' ../$(LOG_DIR)/04_review.json | head -1 | cut -d: -f2); \
+		COST=$$(grep -o '"total_cost_usd":[0-9.]*' ../$(LOG_DIR)/04_review.json | head -1 | cut -d: -f2); \
 		echo "✅ Finished 04_review.md (Time: $${DURATION}s | Tokens: In=$$INPUT_TOKENS, Out=$$OUTPUT_TOKENS | Cost: \$$$$COST)"; \
 	else \
 		echo "❌ Error: 03_AUDITMAP.json missing after review"; exit 1; \
