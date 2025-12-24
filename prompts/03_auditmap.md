@@ -1,6 +1,6 @@
 
 ---
-Description: This prompt aims to audit a codebase for potential vulnerabilities using a checklist of formal predicates. It extends the Attack Vector Analysis framework to address false positive issues by introducing confidence levels, refined classifications, mandatory counterexample construction, and fixed output logic.
+Description: Comprehensive static audit with vulnerability discovery using formal predicates, attack vector analysis, mandatory counterexample construction, and robust batch processing.
 Usage: `/03_auditmap`
 Language: English only.
 ---
@@ -26,13 +26,19 @@ interface Predicate {
 
 ## Attack Vector Analysis (MANDATORY THINKING FRAMEWORK)
 
-**FOR EVERY CHECKLIST ITEM, YOU MUST ANALYZE THE CODE THROUGH THE LENS OF THESE ATTACK VECTORS.**
+**FOR EVERY CHECKLIST ITEM, YOU MUST ANALYZE THE CODE THROUGH ALL FIVE ATTACK VECTORS.**
 
-1.  **Input Validation Bypass**: Can trusted or untrusted external inputs (RPC, P2P, CL) reach sensitive logic without proper, strict validation? Look for missing checks for size, range, type, or format. Assume inputs are malicious.
-2.  **State Transition Violation**: Can a critical action be performed without the system being in the correct prerequisite state? (e.g., processing a block before syncing is complete). Look for missing state checks.
-3.  **Resource Exhaustion (DoS)**: Can a seemingly valid input trigger an unexpectedly expensive operation (computation, memory, storage)? Can this be repeated to degrade or halt the service? Look for loops with unbounded iterations or large data allocations based on input.
-4.  **Faulty Error Handling**: If an error occurs, does the system fail safely? Or can it lead to a corrupted state, an information leak, or an incorrect return value that downstream components might misinterpret?
-5.  **Race Conditions & Concurrency**: Could multiple, simultaneous operations on shared data lead to an inconsistent or insecure state? Look for shared maps, slices, or state variables that are accessed without proper locking.
+**DO NOT SKIP ANY VECTOR. EACH VECTOR MUST BE EXPLICITLY ANALYZED.**
+
+1.  **Input Validation Bypass**: Can trusted or untrusted external inputs (RPC, P2P, CL) reach sensitive logic without proper, strict validation? Look for missing checks for size, range, type, or format. Assume inputs are malicious. Consider: boundary values, type confusion, encoding issues, malformed data.
+
+2.  **State Transition Violation**: Can a critical action be performed without the system being in the correct prerequisite state? (e.g., processing a block before syncing is complete). Look for missing state checks. Consider: TOCTOU (Time-of-Check-Time-of-Use), reentrancy, out-of-order execution.
+
+3.  **Resource Exhaustion (DoS)**: Can a seemingly valid input trigger an unexpectedly expensive operation (computation, memory, storage)? Can this be repeated to degrade or halt the service? Look for loops with unbounded iterations or large data allocations based on input. Consider: algorithmic complexity attacks, memory bombs, disk exhaustion.
+
+4.  **Faulty Error Handling**: If an error occurs, does the system fail safely? Or can it lead to a corrupted state, an information leak, or an incorrect return value that downstream components might misinterpret? Consider: panic recovery, error propagation, partial state updates, information disclosure in error messages.
+
+5.  **Race Conditions & Concurrency**: Could multiple, simultaneous operations on shared data lead to an inconsistent or insecure state? Look for shared maps, slices, or state variables that are accessed without proper locking. Consider: read-modify-write races, double-checked locking, channel races.
 
 ---
 
@@ -47,7 +53,7 @@ Each finding must be classified into ONE of these categories:
 
 **Decision Criteria:**
 
-- Use `potential-vulnerability` ONLY if you can construct a plausible counterexample (attack scenario)
+- Use `potential-vulnerability` ONLY if you can construct a plausible counterexample (attack scenario) AND cannot find a definitive guard
 - Use `code-quality-issue` if the code is safe but has inconsistencies or poor patterns
 - Use `needs-verification` if static analysis is insufficient (e.g., complex state machines, cryptographic implementations)
 - Use `audit-gap` if the issue is about observability, not exploitability
@@ -62,16 +68,28 @@ Each finding must include a confidence level:
 - **Medium**: Moderate evidence, attack path requires specific conditions
 - **Low**: Weak evidence, attack path is theoretical or requires multiple unlikely conditions
 
+**IMPORTANT**: If confidence is Low for a `potential-vulnerability`, reconsider classifying it as `needs-verification` instead.
+
 ---
 
 ## Counterexample Construction (MANDATORY)
 
-**For every item classified as `potential-vulnerability`, you MUST construct a concrete counterexample.**
+**For every item, you MUST attempt to construct a concrete counterexample.**
 
 A counterexample must include:
-1.  **Preconditions**: What state must the system be in?
-2.  **Attack Sequence**: What specific inputs or operations trigger the issue?
-3.  **Expected Outcome**: What bad thing happens?
+1.  **Preconditions**: What state must the system be in? Be specific.
+2.  **Attack Sequence**: What specific inputs or operations trigger the issue? Provide step-by-step actions.
+3.  **Expected Outcome**: What bad thing happens? Quantify the impact if possible.
+
+**Minimum Requirements for Counterexample Attempts:**
+
+You MUST try at least the following types of counterexamples:
+
+- **Boundary values**: MaxUint, MinInt, zero, empty strings, null pointers
+- **Type confusion**: Unexpected types, malformed data structures
+- **Timing attacks**: TOCTOU, race conditions, reentrancy
+- **Combination attacks**: Multiple operations in sequence or parallel
+- **Edge cases**: Off-by-one, overflow/underflow, uninitialized state
 
 **Example:**
 ```
@@ -84,16 +102,39 @@ Counterexample:
 3. Expected Outcome: Attacker withdraws more than balance, contract drained
 ```
 
-**If you cannot construct a plausible counterexample, DO NOT classify as `potential-vulnerability`.**
+**If you cannot construct a plausible counterexample after trying all types above, classify as PASS (verified_items).**
+
+---
+
+## Guard/Invariant Evaluation (STRICT CRITERIA)
+
+When evaluating guards, you MUST verify:
+
+1. **Implementation correctness**: Does the guard actually work as intended?
+2. **Completeness**: Does the guard cover all attack paths?
+3. **Bypass resistance**: Can the guard be circumvented?
+4. **Error handling**: What happens if the guard fails?
+
+**A guard is "STRONG" ONLY if:**
+- It is mathematically or logically impossible to bypass
+- It has been verified in the actual implementation (not just assumed)
+- It handles all error cases correctly
+- It cannot be disabled or circumvented
+
+**DO NOT classify a guard as STRONG just because it exists.**
 
 ---
 
 ## Autonomous, Iterative Execution Doctrine
 
+**CRITICAL: BATCH SIZE IS STRICTLY LIMITED TO 20 ITEMS PER RUN**
+
 1.  **Automatic Input Discovery (Run 1 Only):** Scan `outputs/` for `02[ab]_*.json`, merge them, and create the initial queue.
-2.  **State-Driven Batch Processing (All Runs):** Process a batch of 20 items from `outputs/03_STATE.json`.
+2.  **State-Driven Batch Processing (All Runs):** Process **EXACTLY 20 ITEMS** (or remaining items if fewer than 20) from `outputs/03_STATE.json`.
 3.  **Strict Output Formatting:** Use `audit_items` (for findings) and `verified_items` (for passes). **DO NOT** use `annotations`.
 4.  **Robust State Update:** The state file **MUST** only be updated **AFTER** the partial output file has been successfully written.
+
+**ENFORCEMENT: You MUST stop processing after 20 items, even if more items remain in the queue.**
 
 ---
 
@@ -131,7 +172,8 @@ Counterexample:
       },
       "evidence": {
         "phase1_static": "Loop at line 123 iterates over user-controlled array",
-        "phase2_verification": "No length check before loop, no gas metering inside loop"
+        "phase2_counterexample_attempts": "Tried: boundary (0, MaxInt), combination (nested calls), edge case (uninitialized)",
+        "phase3_guard_search": "No length check before loop, no gas metering inside loop"
       }
     }
   ],
@@ -142,7 +184,9 @@ Counterexample:
       "evidence": {
         "source_file": "...",
         "line_range": "...",
-        "guard_identified": "require(amount <= balance) at line 45 prevents underflow",
+        "counterexample_attempts": "Tried: overflow (MaxUint), underflow (0), TOCTOU (concurrent access)",
+        "guard_identified": "require(amount <= balance) at line 45 prevents underflow. Guard verified in implementation: SubBalance() returns error on underflow.",
+        "guard_strength": "STRONG - mathematically impossible to bypass",
         "analysis": "..."
       }
     }
@@ -164,6 +208,7 @@ Counterexample:
 - `confidence`: MUST be "High", "Medium", or "Low"
 - `classification`: MUST be one of the 4 categories
 - `counterexample`: MUST be present for `potential-vulnerability` classification
+- `counterexample_attempts`: MUST be present for ALL items (audit_items AND verified_items)
 
 ---
 
@@ -182,51 +227,79 @@ Counterexample:
 3. **If it DOES exist:**
    - Load `outputs/03_STATE.json`
    - Read the `unprocessed_checklist_ids` array
-4. Extract the first **20 items** (or remaining items if fewer than 20) as your `current_batch`
+   - **If `unprocessed_checklist_ids` is empty:**
+     - Output a completion message
+     - **EXIT IMMEDIATELY** (do not proceed to Step 2)
+4. **Extract EXACTLY the first 20 items** (or remaining items if fewer than 20) as your `current_batch`
+   - Use array slicing: `current_batch = unprocessed_checklist_ids[:20]`
+   - **DO NOT process more than 20 items**
+   - **DO NOT process all items at once**
 5. Calculate `run_number` from existing PARTIAL files or state metadata
 
-### **Step 2: Execute Three-Phase Analysis**
+### **Step 2: Execute Five-Phase Analysis**
 
-For each `check_id` in your `current_batch`:
+For each `check_id` in your `current_batch` (EXACTLY 20 items or fewer):
 
-**Phase 1: Static Analysis**
+**Phase 1: Static Analysis (ALL 5 ATTACK VECTORS)**
 1. Map the predicate to specific code locations
-2. Perform static detection of the property
-3. Analyze data flow
-4. Analyze call graph
+2. **FOR EACH OF THE 5 ATTACK VECTORS:**
+   - Analyze the code through that vector's lens
+   - Document findings or lack thereof
+   - **DO NOT skip any vector**
+3. Perform data flow analysis
+4. Perform call graph analysis
 
-**Phase 2: Counterexample Construction (NEW)**
-1. **Attempt to construct a concrete counterexample**
-   - Define preconditions
-   - Define attack sequence
-   - Define expected outcome
-2. If a plausible counterexample can be constructed, proceed to Phase 3
-3. If no plausible counterexample can be constructed, classify as PASS
+**Phase 2: Counterexample Construction (MANDATORY)**
+1. **Attempt to construct concrete counterexamples for ALL attack vectors**
+   - Boundary values (MaxUint, 0, empty, null)
+   - Type confusion (unexpected types, malformed data)
+   - Timing attacks (TOCTOU, reentrancy)
+   - Combination attacks (multiple operations)
+   - Edge cases (off-by-one, overflow, uninitialized)
+2. **Document ALL attempts** (successful or not)
+3. If at least one plausible counterexample can be constructed, proceed to Phase 3
+4. If NO plausible counterexample can be constructed after trying all types, classify as PASS
 
-**Phase 3: Guard/Invariant Search**
-1. Search for guards that would prevent the counterexample
-2. Search for invariants that make the counterexample impossible
-3. If definitive guards exist → PASS
-4. If no definitive guards exist → Finding (with appropriate classification)
+**Phase 3: Guard/Invariant Search (STRICT EVALUATION)**
+1. Search for guards that would prevent each counterexample
+2. **For each guard found:**
+   - Verify its implementation (not just its existence)
+   - Check completeness (does it cover all paths?)
+   - Test bypass resistance (can it be circumvented?)
+   - Verify error handling (what if it fails?)
+3. Classify guard strength:
+   - **STRONG**: Mathematically/logically impossible to bypass, verified in implementation
+   - **MODERATE**: Effective but has edge cases or assumptions
+   - **WEAK**: Easily bypassed or incomplete
+4. If definitive STRONG guards exist for all counterexamples → PASS
+5. If no definitive guards exist or guards are WEAK/MODERATE → Finding (proceed to Phase 4)
 
 **Phase 4: Classification Decision**
-1. If counterexample exists AND no guards → `potential-vulnerability`
+1. If counterexample exists AND no STRONG guards → `potential-vulnerability`
 2. If code has issues but no exploitability → `code-quality-issue`
 3. If static analysis is insufficient → `needs-verification`
 4. If issue is observability-related → `audit-gap`
-5. If guards exist or no counterexample → PASS
+5. If STRONG guards exist or no counterexample → PASS
 
 **Phase 5: Confidence Assessment**
 1. Evaluate the strength of evidence
 2. Assign confidence level (High/Medium/Low)
+3. If Low confidence for `potential-vulnerability`, reconsider as `needs-verification`
 
 ### **Step 3: Write Output File (DO THIS FIRST)**
 
 **THIS STEP MUST HAPPEN BEFORE STEP 4**
 
 1. Construct the complete JSON output object
-2. **Write this JSON to `outputs/03_AUDITMAP_PARTIAL_<RUN_NUMBER>.json`**
-3. Verify the file was written successfully
+2. Verify that:
+   - All 20 items (or fewer if last batch) are included
+   - Each item is in either `audit_items` or `verified_items` (not both, not neither)
+   - All `potential-vulnerability` items have concrete counterexamples
+   - All items have `counterexample_attempts` documented
+   - No "Unknown" values in any field
+   - Summary counts match the actual items
+3. **Write this JSON to `outputs/03_AUDITMAP_PARTIAL_<RUN_NUMBER>.json`**
+4. Verify the file was written successfully (check file size > 0)
 
 ### **Step 4: Update State File (DO THIS LAST)**
 
@@ -234,8 +307,20 @@ For each `check_id` in your `current_batch`:
 
 1. Load the current `outputs/03_STATE.json`
 2. Remove all items in `current_batch` from `unprocessed_checklist_ids`
-3. Update metadata
-4. **Overwrite `outputs/03_STATE.json` with the updated state**
+3. Add all items in `current_batch` to `processed_checklist_ids`
+4. Update metadata:
+   - `last_updated`: current timestamp
+   - `last_completed_partial`: current run_number
+5. **Overwrite `outputs/03_STATE.json` with the updated state**
+6. Verify the file was written successfully
+
+### **Step 5: Completion Check**
+
+1. If `unprocessed_checklist_ids` is now empty:
+   - Output: "All items processed. Audit complete."
+2. If `unprocessed_checklist_ids` still has items:
+   - Output: "Batch complete. X items remaining. Run again to continue."
+3. **EXIT** (do not continue to next batch in the same run)
 
 ---
 
@@ -244,15 +329,24 @@ For each `check_id` in your `current_batch`:
 ```
 For each checklist item:
 
-1. Can I construct a plausible counterexample?
+1. Analyze through ALL 5 attack vectors (mandatory)
+   
+2. Attempt to construct counterexamples for each vector:
+   - Boundary values
+   - Type confusion
+   - Timing attacks
+   - Combination attacks
+   - Edge cases
+   
+3. Can I construct at least one plausible counterexample?
    ├─ NO → Search for positive evidence of safety
-   │        ├─ Found → PASS (verified_items)
-   │        └─ Not Found → PASS with note (verified_items)
+   │        ├─ Found → PASS (verified_items) with documented attempts
+   │        └─ Not Found → PASS with note (verified_items) with documented attempts
    │
-   └─ YES → Search for guards/invariants
-            ├─ Definitive guard found → PASS (verified_items)
+   └─ YES → Search for guards/invariants (STRICT evaluation)
+            ├─ STRONG guard found (verified, complete, bypass-resistant) → PASS (verified_items)
             │
-            └─ No definitive guard → Classify the finding:
+            └─ No STRONG guard → Classify the finding:
                 ├─ Exploitable? → potential-vulnerability
                 ├─ Code quality only? → code-quality-issue
                 ├─ Need dynamic test? → needs-verification
@@ -267,31 +361,40 @@ For each checklist item:
 - MUST have a concrete counterexample with all three components
 - MUST have High or Medium confidence (Low confidence should be `needs-verification`)
 - MUST reference specific code locations
-- MUST explain why no guard exists
+- MUST explain why no STRONG guard exists
+- MUST document all counterexample attempts
 
 ### For `audit_items` with `code-quality-issue`:
 - MUST explain the code quality problem
 - MUST explain why it's not exploitable
 - SHOULD suggest improvement
+- MUST document counterexample attempts (to prove non-exploitability)
 
 ### For `audit_items` with `needs-verification`:
 - MUST explain why static analysis is insufficient
 - MUST suggest what type of verification is needed (dynamic testing, formal proof, manual review)
+- MUST document counterexample attempts (to show what couldn't be verified)
 
 ### For `verified_items`:
 - MUST identify the specific guard or invariant
+- MUST verify the guard's implementation (not just existence)
 - MUST explain why the counterexample is impossible
+- MUST document all counterexample attempts (to show thoroughness)
 
 ---
 
 ## Self-Check Before Completion
 
 Before finishing each run, verify:
-- [ ] All 20 items in `current_batch` have been processed
+- [ ] Processed EXACTLY 20 items (or remaining items if fewer than 20)
+- [ ] Did NOT process more than 20 items
+- [ ] All 5 attack vectors analyzed for each item
+- [ ] All items have documented counterexample attempts
 - [ ] Each item is in either `audit_items` or `verified_items` (not both, not neither)
 - [ ] All `potential-vulnerability` items have concrete counterexamples
 - [ ] All items have valid `attack_vector`, `severity`, `confidence`, and `classification`
 - [ ] No "Unknown" values in any field
+- [ ] All guards have been verified (not just assumed)
 - [ ] Output file `03_AUDITMAP_PARTIAL_<N>.json` has been written
 - [ ] State file `03_STATE.json` has been updated AFTER output file
 - [ ] Summary counts match the actual items
@@ -300,7 +403,7 @@ Before finishing each run, verify:
 
 ## Examples
 
-### Example 1: Potential Vulnerability
+### Example 1: Potential Vulnerability (with documented attempts)
 
 ```json
 {
@@ -324,34 +427,33 @@ Before finishing each run, verify:
     "expected_outcome": "Complete drainage of contract balance"
   },
   "evidence": {
-    "phase1_static": "External call at line 45, balance update at line 48",
-    "phase2_verification": "No reentrancy guard, no checks-effects-interactions pattern"
+    "phase1_static": "External call at line 45, balance update at line 48. All 5 attack vectors analyzed.",
+    "phase2_counterexample_attempts": "Tried: reentrancy (successful), TOCTOU (successful), overflow (N/A), boundary (N/A), combination (successful - reentrancy + gas manipulation)",
+    "phase3_guard_search": "No reentrancy guard found. No checks-effects-interactions pattern. Mutex not used. Guard strength: NONE"
   }
 }
 ```
 
-### Example 2: Code Quality Issue
+### Example 2: Verified Item (with documented attempts)
 
 ```json
 {
-  "check_id": "CHECK-GAS-PATTERN-001",
-  "file": "core/vm/interpreter.go",
-  "line": 200,
-  "classification": "code-quality-issue",
-  "summary": "Inconsistent gas handling: direct subtraction vs UseGas method",
-  "attack_vector": "Faulty Error Handling",
-  "severity": "Low",
-  "confidence": "High",
-  "counterexample": null,
+  "check_id": "CHECK-UNDERFLOW-001",
+  "classification": "PASS",
   "evidence": {
-    "phase1_static": "Line 200 uses direct subtraction, line 179 uses UseGas()",
-    "phase2_verification": "Both patterns are functionally safe but inconsistent. Direct subtraction bypasses tracing hooks in non-debug mode."
-  },
-  "recommendation": "Standardize on one pattern or document why both are needed"
+    "source_file": "contracts/Token.sol",
+    "line_range": "45-50",
+    "counterexample_attempts": "Tried: underflow (amount > balance), overflow (MaxUint), TOCTOU (concurrent transfer), reentrancy (transfer in callback), combination (multiple transfers)",
+    "guard_identified": "require(balance >= amount) at line 47 prevents underflow. Verified in implementation: SafeMath.sub() reverts on underflow.",
+    "guard_strength": "STRONG - mathematically impossible to bypass. Solidity 0.8+ has built-in overflow protection.",
+    "guard_completeness": "Covers all paths. No way to bypass the check.",
+    "guard_error_handling": "Reverts transaction on failure, no partial state update.",
+    "analysis": "All 5 attack vectors analyzed. No exploitable path found."
+  }
 }
 ```
 
-### Example 3: Needs Verification
+### Example 3: Needs Verification (with documented attempts)
 
 ```json
 {
@@ -367,28 +469,16 @@ Before finishing each run, verify:
     "preconditions": "Attacker crafts malformed BLS signature",
     "attack_sequence": [
       "1. Attacker submits signature with invalid point encoding",
-      "2. Verification may accept invalid signature due to edge case",
+      "2. Verification may accept invalid signature due to edge case in point decompression",
       "3. Invalid block accepted"
     ],
     "expected_outcome": "Consensus failure or invalid state acceptance"
   },
   "evidence": {
-    "phase1_static": "Complex cryptographic implementation at line 156",
-    "phase2_verification": "Static analysis cannot verify cryptographic correctness. Requires: (1) Formal verification of implementation against spec, (2) Fuzzing with invalid inputs, (3) Test vectors from EIP"
-  },
-  "verification_required": "Formal proof or extensive fuzzing"
+    "phase1_static": "Complex cryptographic implementation at line 156. All 5 attack vectors analyzed.",
+    "phase2_counterexample_attempts": "Tried: invalid encoding (possible), boundary values (possible), type confusion (possible), malformed data (possible). Cannot verify correctness statically.",
+    "phase3_guard_search": "Input validation exists but cannot verify cryptographic correctness through static analysis.",
+    "verification_required": "Formal proof or extensive fuzzing. Requires: (1) Formal verification of implementation against spec, (2) Fuzzing with invalid inputs, (3) Test vectors from EIP"
+  }
 }
 ```
-
----
-
-## Notes on Improvement
-
-This improved version addresses the key issues:
-
-1. **Reduces False Positives**: Mandatory counterexample construction ensures findings are concrete
-2. **Better Classification**: Four categories instead of binary, reducing ambiguity
-3. **Confidence Levels**: Allows expressing uncertainty without rejecting findings
-4. **Code Quality Separation**: Distinguishes security issues from maintainability issues
-5. **Clearer Criteria**: Decision tree and examples guide consistent classification
-6. **Fixed Output Bug**: State file updated after output file to prevent data loss
