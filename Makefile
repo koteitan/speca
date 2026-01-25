@@ -14,14 +14,13 @@ export CLAUDE_CODE_MAX_OUTPUT_TOKENS := 100000
 # Claude configuration
 CLAUDE_FLAGS ?= --dangerously-skip-permissions --agent serena --output-format json
 
-# Iteration counts
-EXTRACT_ITERATIONS ?= 10
-CHECKLIST_ITERATIONS ?= 10
+# Max iteration counts (safety limit)
+MAX_ITERATIONS ?= 100
 
 .PHONY: all preparation audit init init-prep \
         01a 01b 01b-loop 01c 01d 01e \
         02a 02b 02b-loop 02c 02s \
-        03 04 clean help
+        03 03-loop 04 04-loop clean help
 
 # Default target: run full pipeline
 all: preparation audit
@@ -31,7 +30,7 @@ all: preparation audit
 preparation: 02b-loop
 	@echo "🎉 Preparation phase completed! Check $(OUTPUT_DIR)/"
 
-audit: 04
+audit: 04-loop
 	@echo "🎉 Audit phase completed! Check $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json"
 
 # ------------------------------------------------------
@@ -50,7 +49,7 @@ help:
 	@echo "  init-prep  - Setup output directories (no git repo required)"
 	@echo "  01a        - Discovery & Queuing (01a_crawl.md → 01a_STATE.json)"
 	@echo "  01b        - Extraction (01b_extract.md) - Single run, processes one URL"
-	@echo "  01b-loop   - Extraction (01b_extract.md) - Run $(EXTRACT_ITERATIONS) times"
+	@echo "  01b-loop   - Extraction (01b_extract.md) - Run until work_queue is empty"
 	@echo "  01c        - Integration (01c_integrate.md → 01_SPEC.json)"
 	@echo "  01d        - Trust Model (01d_trustmodel.md → 01d_TRUSTMODEL.json)"
 	@echo "  01e        - Properties (01e_prop.md → 01e_PROP.json)"
@@ -58,23 +57,24 @@ help:
 	@echo "Checklist Steps (02a-02s):"
 	@echo "  02a        - Checklist Boundaries (02a_checklist.md → 02a_CHECKLIST_BOUNDARIES.json)"
 	@echo "  02b        - Checklist Remaining (02b_checklistrem.md) - Single run"
-	@echo "  02b-loop   - Checklist Remaining (02b_checklistrem.md) - Run $(CHECKLIST_ITERATIONS) times"
+	@echo "  02b-loop   - Checklist Remaining (02b_checklistrem.md) - Run until all properties processed"
 	@echo "  02c        - Checklist Merge (02c_checklistmerge.md → 02_CHECKLIST.json) [OPTIONAL]"
 	@echo "  02s        - Review & Validate (02s_review.md → 02s_REVIEW_REPORT.json)"
 	@echo ""
 	@echo "Audit Steps:"
-	@echo "  init   - Setup directories and check target workspace (git repo required)"
-	@echo "  03     - Static Audit Map (03_auditmap.md) - Run iteratively"
-	@echo "  04     - Audit Review (04_review.md) - Run iteratively"
+	@echo "  init     - Setup directories and check target workspace (git repo required)"
+	@echo "  03       - Static Audit Map (03_auditmap.md) - Single run"
+	@echo "  03-loop  - Static Audit Map (03_auditmap.md) - Run until all items processed"
+	@echo "  04       - Audit Review (04_review.md) - Single run"
+	@echo "  04-loop  - Audit Review (04_review.md) - Run until all items reviewed"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  clean  - Remove generated outputs"
 	@echo ""
 	@echo "Configuration Variables:"
-	@echo "  EXTRACT_ITERATIONS   - Number of 01b extractions (default: 10)"
-	@echo "  CHECKLIST_ITERATIONS - Number of 02b iterations (default: 10)"
+	@echo "  MAX_ITERATIONS - Safety limit for loop iterations (default: 100)"
 	@echo ""
-	@echo "Example: make preparation EXTRACT_ITERATIONS=20 CHECKLIST_ITERATIONS=15"
+	@echo "Example: make preparation MAX_ITERATIONS=50"
 
 # Init for audit phase (requires git repo)
 init:
@@ -141,26 +141,27 @@ $(OUTPUT_DIR)/01a_STATE.json: prompts/01a_crawl.md | init-prep
 	SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
 	echo "✅ Finished 01b_extract.md (Time: $${DURATION}s | Subgraphs: $$SUBGRAPH_COUNT | Cost: \$$$$COST)"
 
-# Step 01b-loop: Extraction (Multiple runs)
+# Step 01b-loop: Extraction (run until work_queue is empty)
 01b-loop: | 01a
-	@echo "🔄 Running 01b_extract.md $(EXTRACT_ITERATIONS) times..."
-	@for i in $$(seq 1 $(EXTRACT_ITERATIONS)); do \
-		echo "⭐ Running 01b_extract.md (iteration $$i/$(EXTRACT_ITERATIONS))..."; \
-		START_TIME=$$(date +%s); \
-		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01b_extract.md)" > $(LOG_DIR)/01b_extract_$$i.json; \
-		END_TIME=$$(date +%s); \
-		DURATION=$$((END_TIME - START_TIME)); \
-		INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/01b_extract_$$i.json | head -1 | cut -d: -f2); \
-		OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/01b_extract_$$i.json | head -1 | cut -d: -f2); \
-		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01b_extract_$$i.json | head -1 | cut -d: -f2); \
-		echo "✅ Finished 01b_extract.md iter $$i (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+	@echo "🔄 Running 01b_extract.md until work_queue is empty..."
+	@i=0; \
+	while [ $$i -lt $(MAX_ITERATIONS) ]; do \
 		if [ -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
-			REMAINING=$$(grep -o '"work_queue":\[[^]]*\]' $(OUTPUT_DIR)/01a_STATE.json | tr ',' '\n' | grep -c '"http' || echo "0"); \
+			REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/01a_STATE.json')); print(len(d.get('work_queue', [])))" 2>/dev/null || echo "0"); \
 			if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
 				echo "🎉 Work queue empty. Extraction complete."; \
 				break; \
 			fi; \
+			echo "📋 $$REMAINING URLs remaining in work_queue"; \
 		fi; \
+		i=$$((i + 1)); \
+		echo "⭐ Running 01b_extract.md (iteration $$i)..."; \
+		START_TIME=$$(date +%s); \
+		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01b_extract.md)" > $(LOG_DIR)/01b_extract_$$i.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01b_extract_$$i.json | head -1 | cut -d: -f2); \
+		echo "✅ Finished 01b_extract.md iter $$i (Time: $${DURATION}s | Cost: \$$$$COST)"; \
 	done
 	@SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
 	echo "✅ Extraction complete. Total subgraphs: $$SUBGRAPH_COUNT"
@@ -283,19 +284,27 @@ $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json: prompts/02a_checklist.md | 02s
 		fi; \
 	fi
 
-# Step 02b-loop: Checklist Remaining (Multiple runs)
+# Step 02b-loop: Checklist Remaining (run until unprocessed_property_ids is empty)
 02b-loop: | 02a
-	@echo "🔄 Running 02b_checklistrem.md $(CHECKLIST_ITERATIONS) times..."
-	@for i in $$(seq 1 $(CHECKLIST_ITERATIONS)); do \
+	@echo "🔄 Running 02b_checklistrem.md until all properties are processed..."
+	@i=0; \
+	while [ $$i -lt $(MAX_ITERATIONS) ]; do \
+		if [ -f "$(OUTPUT_DIR)/02b_STATE.json" ]; then \
+			REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/02b_STATE.json')); print(len(d.get('unprocessed_property_ids', [])))" 2>/dev/null || echo "0"); \
+			if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
+				echo "🎉 All properties processed!"; \
+				break; \
+			fi; \
+			echo "📋 $$REMAINING properties remaining"; \
+		fi; \
+		i=$$((i + 1)); \
 		N=$$(ls $(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_*.json 2>/dev/null | wc -l); \
 		N=$$((N + 1)); \
-		echo "⭐ Running 02b_checklistrem.md (iteration $$i/$(CHECKLIST_ITERATIONS), partial $$N)..."; \
+		echo "⭐ Running 02b_checklistrem.md (iteration $$i, partial $$N)..."; \
 		START_TIME=$$(date +%s); \
 		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02b_checklistrem.md)" > $(LOG_DIR)/02b_checklistrem_$$N.json; \
 		END_TIME=$$(date +%s); \
 		DURATION=$$((END_TIME - START_TIME)); \
-		INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/02b_checklistrem_$$N.json | head -1 | cut -d: -f2); \
-		OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/02b_checklistrem_$$N.json | head -1 | cut -d: -f2); \
 		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/02b_checklistrem_$$N.json | head -1 | cut -d: -f2); \
 		if [ -f "$(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_$$N.json" ]; then \
 			echo "✅ Finished 02b_checklistrem.md iter $$i (Time: $${DURATION}s | Cost: \$$$$COST)"; \
@@ -303,7 +312,7 @@ $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json: prompts/02a_checklist.md | 02s
 			echo "⚠️  No new partial checklist generated in iteration $$i (Time: $${DURATION}s | Cost: \$$$$COST)"; \
 		fi; \
 	done
-	@echo "✅ Completed all $(CHECKLIST_ITERATIONS) checklist iterations"
+	@echo "✅ Checklist generation complete"
 
 # Step 02c: Checklist Merge (Optional)
 02c: $(OUTPUT_DIR)/02_CHECKLIST.json
@@ -326,7 +335,7 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 # Audit Steps
 # ------------------------------------------------------
 
-# Step 03: Audit Map (Iterative)
+# Step 03: Audit Map (Single run)
 03: | $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json
 	@N=$$(ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json 2>/dev/null | wc -l); \
 	N=$$((N + 1)); \
@@ -335,8 +344,6 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 	cd $(WORKDIR) && claude $(CLAUDE_FLAGS) -p "$$(cat ../prompts/03_auditmap.md)" > ../$(LOG_DIR)/03_auditmap_$$N.json; \
 	END_TIME=$$(date +%s); \
 	DURATION=$$((END_TIME - START_TIME)); \
-	INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' ../$(LOG_DIR)/03_auditmap_$$N.json | head -1 | cut -d: -f2); \
-	OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' ../$(LOG_DIR)/03_auditmap_$$N.json | head -1 | cut -d: -f2); \
 	COST=$$(grep -o '"total_cost_usd":[0-9.]*' ../$(LOG_DIR)/03_auditmap_$$N.json | head -1 | cut -d: -f2); \
 	if [ -f "outputs/03_AUDITMAP_PARTIAL_$$N.json" ]; then \
 		cp outputs/03_AUDITMAP_PARTIAL_$$N.json ../$(OUTPUT_DIR)/; \
@@ -346,15 +353,47 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 	fi; \
 	cp outputs/03_STATE.json ../$(OUTPUT_DIR)/ 2>/dev/null || true; \
 	if [ -f "../$(OUTPUT_DIR)/03_STATE.json" ]; then \
-		REMAINING=$$(grep -o '"remaining":[0-9]*' ../$(OUTPUT_DIR)/03_STATE.json | cut -d: -f2); \
+		REMAINING=$$(python3 -c "import json; d=json.load(open('../$(OUTPUT_DIR)/03_STATE.json')); print(len(d.get('unprocessed_checklist_ids', [])))" 2>/dev/null || echo "0"); \
 		if [ "$$REMAINING" -gt 0 ] 2>/dev/null; then \
-			echo "📋 $$REMAINING items remaining. Run 'make 03' again."; \
+			echo "📋 $$REMAINING items remaining. Run 'make 03' again or use 'make 03-loop'."; \
 		else \
 			echo "🎉 All items processed! Ready for 'make 04'."; \
 		fi; \
 	fi
 
-# Step 04: Review (Iterative)
+# Step 03-loop: Audit Map (run until unprocessed_checklist_ids is empty)
+03-loop: | $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json init
+	@echo "🔄 Running 03_auditmap.md until all checklist items are processed..."
+	@i=0; \
+	while [ $$i -lt $(MAX_ITERATIONS) ]; do \
+		if [ -f "$(OUTPUT_DIR)/03_STATE.json" ]; then \
+			REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/03_STATE.json')); print(len(d.get('unprocessed_checklist_ids', [])))" 2>/dev/null || echo "0"); \
+			if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
+				echo "🎉 All checklist items processed!"; \
+				break; \
+			fi; \
+			echo "📋 $$REMAINING checklist items remaining"; \
+		fi; \
+		i=$$((i + 1)); \
+		N=$$(ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json 2>/dev/null | wc -l); \
+		N=$$((N + 1)); \
+		echo "⭐ Running 03_auditmap.md (iteration $$i, partial $$N)..."; \
+		START_TIME=$$(date +%s); \
+		cd $(WORKDIR) && claude $(CLAUDE_FLAGS) -p "$$(cat ../prompts/03_auditmap.md)" > ../$(LOG_DIR)/03_auditmap_$$N.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		COST=$$(grep -o '"total_cost_usd":[0-9.]*' ../$(LOG_DIR)/03_auditmap_$$N.json | head -1 | cut -d: -f2); \
+		if [ -f "outputs/03_AUDITMAP_PARTIAL_$$N.json" ]; then \
+			cp outputs/03_AUDITMAP_PARTIAL_$$N.json ../$(OUTPUT_DIR)/; \
+			echo "✅ Finished 03_auditmap.md iter $$i (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		else \
+			echo "⚠️  No new partial auditmap generated in iteration $$i (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		fi; \
+		cp outputs/03_STATE.json ../$(OUTPUT_DIR)/ 2>/dev/null || true; \
+	done
+	@echo "✅ Audit map generation complete"
+
+# Step 04: Review (Single run)
 04: | init
 	@if ! ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
 		echo "❌ Error: No 03_AUDITMAP_PARTIAL_*.json files found. Run 'make 03' first."; exit 1; \
@@ -366,8 +405,6 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 	cd $(WORKDIR) && claude $(CLAUDE_FLAGS) -p "$$(cat ../prompts/04_review.md)" > ../$(LOG_DIR)/04_review_$$N.json; \
 	END_TIME=$$(date +%s); \
 	DURATION=$$((END_TIME - START_TIME)); \
-	INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' ../$(LOG_DIR)/04_review_$$N.json | head -1 | cut -d: -f2); \
-	OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' ../$(LOG_DIR)/04_review_$$N.json | head -1 | cut -d: -f2); \
 	COST=$$(grep -o '"total_cost_usd":[0-9.]*' ../$(LOG_DIR)/04_review_$$N.json | head -1 | cut -d: -f2); \
 	if [ -f "outputs/04_REVIEW_PARTIAL_$$N.json" ]; then \
 		cp outputs/04_REVIEW_PARTIAL_$$N.json ../$(OUTPUT_DIR)/; \
@@ -377,10 +414,42 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 	fi; \
 	cp outputs/04_STATE.json ../$(OUTPUT_DIR)/ 2>/dev/null || true; \
 	if [ -f "../$(OUTPUT_DIR)/04_STATE.json" ]; then \
-		REMAINING=$$(grep -o '"remaining":[0-9]*' ../$(OUTPUT_DIR)/04_STATE.json | cut -d: -f2); \
+		REMAINING=$$(python3 -c "import json; d=json.load(open('../$(OUTPUT_DIR)/04_STATE.json')); print(len(d.get('unprocessed_audit_items', [])))" 2>/dev/null || echo "0"); \
 		if [ "$$REMAINING" -gt 0 ] 2>/dev/null; then \
-			echo "📋 $$REMAINING items remaining. Run 'make 04' again."; \
+			echo "📋 $$REMAINING items remaining. Run 'make 04' again or use 'make 04-loop'."; \
 		else \
 			echo "🎉 All items reviewed! Audit complete."; \
 		fi; \
 	fi
+
+# Step 04-loop: Review (run until unprocessed_audit_items is empty)
+04-loop: | 03-loop
+	@echo "🔄 Running 04_review.md until all audit items are reviewed..."
+	@i=0; \
+	while [ $$i -lt $(MAX_ITERATIONS) ]; do \
+		if [ -f "$(OUTPUT_DIR)/04_STATE.json" ]; then \
+			REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/04_STATE.json')); print(len(d.get('unprocessed_audit_items', [])))" 2>/dev/null || echo "0"); \
+			if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
+				echo "🎉 All audit items reviewed!"; \
+				break; \
+			fi; \
+			echo "📋 $$REMAINING audit items remaining"; \
+		fi; \
+		i=$$((i + 1)); \
+		N=$$(ls $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json 2>/dev/null | wc -l); \
+		N=$$((N + 1)); \
+		echo "⭐ Running 04_review.md (iteration $$i, partial $$N)..."; \
+		START_TIME=$$(date +%s); \
+		cd $(WORKDIR) && claude $(CLAUDE_FLAGS) -p "$$(cat ../prompts/04_review.md)" > ../$(LOG_DIR)/04_review_$$N.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		COST=$$(grep -o '"total_cost_usd":[0-9.]*' ../$(LOG_DIR)/04_review_$$N.json | head -1 | cut -d: -f2); \
+		if [ -f "outputs/04_REVIEW_PARTIAL_$$N.json" ]; then \
+			cp outputs/04_REVIEW_PARTIAL_$$N.json ../$(OUTPUT_DIR)/; \
+			echo "✅ Finished 04_review.md iter $$i (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		else \
+			echo "⚠️  No new partial review generated in iteration $$i (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		fi; \
+		cp outputs/04_STATE.json ../$(OUTPUT_DIR)/ 2>/dev/null || true; \
+	done
+	@echo "✅ Audit review complete"

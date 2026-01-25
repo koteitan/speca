@@ -13,16 +13,11 @@ on:
         required: true
         type: string
         default: 'https://ethereum.github.io/execution-specs/src/,https://geth.ethereum.org/docs'
-      extract_iterations:
-        description: 'Number of extraction iterations (01b)'
+      max_iterations:
+        description: 'Safety limit for loop iterations (default: 100)'
         required: false
         type: number
-        default: 10
-      checklist_iterations:
-        description: 'Number of checklist iterations (02b)'
-        required: false
-        type: number
-        default: 10
+        default: 100
       create_pr:
         description: 'Create Pull Request (if unchecked, push directly to current branch)'
         required: false
@@ -71,8 +66,7 @@ jobs:
           make preparation \
             KEYWORDS="${{ env.KEYWORDS }}" \
             SPEC_URLS="${{ env.SPEC_URLS }}" \
-            EXTRACT_ITERATIONS=${{ inputs.extract_iterations }} \
-            CHECKLIST_ITERATIONS=${{ inputs.checklist_iterations }}
+            MAX_ITERATIONS=${{ inputs.max_iterations }}
 
       - name: Prepare Git Configuration
         id: git_config
@@ -98,8 +92,7 @@ jobs:
 
           Keywords: ${{ env.KEYWORDS }}
           Spec URLs: ${{ env.SPEC_URLS }}
-          Extract Iterations: ${{ inputs.extract_iterations }}
-          Checklist Iterations: ${{ inputs.checklist_iterations }}
+          Max Iterations: ${{ inputs.max_iterations }}
           Run ID: ${{ github.run_id }}
           EOF
           )"
@@ -123,13 +116,14 @@ jobs:
 
           **Keywords:** ${{ env.KEYWORDS }}
           **Spec URLs:** ${{ env.SPEC_URLS }}
-          **Spec Retry Iterations:** ${{ inputs.spec_retry_iterations }}
-          **Checklist Iterations:** ${{ inputs.checklist_iterations }}
+          **Max Iterations:** ${{ inputs.max_iterations }}
+
+          Loops run until state queues are empty (work_queue, unprocessed_property_ids).
 
           ### Generated Outputs
           - `outputs/01_SPEC.json` - Specification extraction
-          - `outputs/01b_TRUSTMODEL.json` - Trust model
-          - `outputs/01c_PROP.json` - Properties
+          - `outputs/01d_TRUSTMODEL.json` - Trust model
+          - `outputs/01e_PROP.json` - Properties
           - `outputs/02a_CHECKLIST_BOUNDARIES.json` - Checklist boundaries
           - `outputs/02b_CHECKLIST_PARTIAL_*.json` - Checklist partials
 
@@ -150,8 +144,7 @@ jobs:
 
           Keywords: ${{ env.KEYWORDS }}
           Spec URLs: ${{ env.SPEC_URLS }}
-          Extract Iterations: ${{ inputs.extract_iterations }}
-          Checklist Iterations: ${{ inputs.checklist_iterations }}
+          Max Iterations: ${{ inputs.max_iterations }}
           Run ID: ${{ github.run_id }}
           EOF
           )"
