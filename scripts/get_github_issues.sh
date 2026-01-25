@@ -10,7 +10,7 @@ Options:
   --keywords list     Comma or space separated keywords; defaults to "fulu"
 
 Notes:
-  - Append results to security-agent/outputs/01_SIMILAR_ISSUES.json for reuse in /03_auditmap prompts.
+  - Append results to security-agent/outputs/00_SIMILAR_ISSUES.json for reuse in /03_auditmap prompts.
 USAGE
 }
 
@@ -231,7 +231,7 @@ if [ -z "$keywords_terms" ]; then
   keywords_terms="fulu"
 fi
 
-out_file="security-agent/outputs/01_SIMILAR_ISSUES.json"
+out_file="security-agent/outputs/00_SIMILAR_ISSUES.json"
 mkdir -p "$(dirname "$out_file")"
 
 workspace=$(mktemp -d)
