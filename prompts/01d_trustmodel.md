@@ -5,6 +5,7 @@ Usage: `/01d_trustmodel`
 Language: English only.
 Execution hint: Run after `/01c_integrate`. This provides the trust context for property generation.
 ---
+**Always use /serena for development tasks to keep the workflow efficient.**
 
 # **Trust Model Generation Prompt**
 

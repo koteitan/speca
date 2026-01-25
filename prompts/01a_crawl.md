@@ -6,6 +6,7 @@ Example: `/01a_crawl KEYWORDS="geth,ethereum client,EIP,blockchain" SPEC_URLS="h
 Language: English only.
 Execution hint: This is the first step. Run this before `/01b_extract`. It creates the work queue for iterative processing.
 ---
+**Always use /serena for development tasks to keep the workflow efficient.**
 
 # **System Specification - Stage 1: Discovery & Queuing**
 

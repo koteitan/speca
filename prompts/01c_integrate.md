@@ -1,15 +1,16 @@
 
 ---
-Description: Integrate all individually extracted sub-graph files into a single, cohesive, and complete system specification. This final stage consolidates all distributed knowledge into the authoritative 01_SPEC.json file.
+Description: Integrate all individually extracted sub-graph files into a single, cohesive, and complete system specification. This final stage consolidates all distributed knowledge into the authoritative 01_SPEC.json file and verifies its internal consistency.
 Usage: `/01c_integrate`
 Language: English only.
-Execution hint: Run after `/01b_extract` has completed (i.e., the work queue is empty). This produces the final specification.
+Execution hint: Run after `/01b_extract` has completed. This produces the final specification.
 ---
+**Always use /serena for development tasks to keep the workflow efficient.**
 
-# **System Specification - Stage 3: Integration**
+# **System Specification - Stage 3: Integration & Verification**
 
 **Goal**
-Integrate all the individually extracted `sub_graph` files into a single, cohesive, and complete system specification. This final stage consolidates all the distributed knowledge into the authoritative `01_SPEC.json` file.
+Integrate all sub-graph files into a single specification, and then **verify the internal consistency of the final output**, ensuring all metadata is accurate.
 
 **Output (required file):** `outputs/01_SPEC.json`
 
@@ -21,37 +22,33 @@ Integrate all the individually extracted `sub_graph` files into a single, cohesi
 
 ---
 
-## 2) Integration Logic
+## 2) Integration & Verification Logic
 
-### **Task 2.1: Consolidate Graphs**
+### **Task 2.1: Consolidate Graphs, Ambiguities, and Assumptions**
 
-1.  Initialize a new, empty `program_graph` with `nodes` and `edges` arrays.
-2.  Iterate through every `spec_*.json` file in the `01b_SUBGRAPHS` directory.
-3.  For each file:
-    a.  **Merge Nodes:** Add all nodes from the `sub_graph.nodes` array to the main `program_graph.nodes` array. You **MUST** handle ID conflicts. If two different specs define a node with the same ID, they should be merged if they are semantically identical, or one should be renamed if they are different. Add a note about the merge in the node's description.
-    b.  **Merge Edges:** Add all edges from the `sub_graph.edges` array to the main `program_graph.edges` array. Ensure `source` and `target` IDs are consistent with the final, merged node list.
+1.  Initialize a new, empty `program_graph`.
+2.  Initialize empty `ambiguities` and `implicit_assumptions` arrays.
+3.  Iterate through every `spec_*.json` file in the `01b_SUBGRAPHS` directory.
+4.  For each file:
+    a.  Merge nodes and edges into the main `program_graph`, handling ID conflicts by merging or renaming as appropriate.
+    b.  Append all `ambiguities` and `implicit_assumptions`, adding the `source_url` to each for traceability.
 
-### **Task 2.2: Consolidate Ambiguities and Assumptions**
+### **Task 2.2: Define System Boundaries**
 
-1.  Initialize empty `ambiguities` and `implicit_assumptions` arrays.
-2.  Iterate through every `spec_*.json` file.
-3.  Append all items from the file's `ambiguities` and `implicit_assumptions` arrays into the main arrays.
-4.  Add the `source_url` to each item for traceability.
+1.  Based on the complete graph, define the `system_under_audit` and `external_entities` objects.
 
-### **Task 2.3: Define System Boundaries**
+### **Task 2.3: CRITICAL - Self-Verification and Metadata Calculation**
 
-1.  Based on the complete graph, define the `system_under_audit` object. This is the core system being analyzed.
-2.  Identify all `external_entities` that interact with the system. These are the sources of input and sinks of output.
+**This is the most important step. Do not estimate. You MUST calculate these values from the final, integrated data structure.**
+
+1.  **Calculate `total_nodes`:** Count the exact number of unique nodes in the final `program_graph.nodes` array.
+2.  **Calculate `total_edges`:** Count the exact number of unique edges in the final `program_graph.edges` array.
+3.  **Calculate `source_specs_count`:** Count the number of `spec_*.json` files that were processed.
 
 ### **Task 2.4: Finalize the Specification**
 
-1.  Assemble the final `01_SPEC.json` file, including:
-    *   `metadata`
-    *   `system_under_audit`
-    *   `external_entities`
-    *   `ambiguities`
-    *   `implicit_assumptions`
-    *   `program_graph`
+1.  Assemble the final `01_SPEC.json` file.
+2.  Populate the `metadata` object using the **exact values calculated in Task 2.3**.
 
 ---
 
@@ -62,47 +59,11 @@ Integrate all the individually extracted `sub_graph` files into a single, cohesi
 ```json
 {
   "metadata": {
-    "generated_at": "2025-01-16T14:00:00Z",
-    "source_specs_count": 152,
-    "total_nodes": 261,
-    "total_edges": 294
+    "generated_at": "(current timestamp)",
+    "source_specs_count": "(calculated count)",
+    "total_nodes": "(calculated count)",
+    "total_edges": "(calculated count)"
   },
-  "system_under_audit": {
-    "id": "SYSTEM-EL-CLIENT",
-    "name": "Execution Client (EL)",
-    "internal_components": [
-      { "id": "COMP-ENGINE-API", "name": "Engine API Handler" },
-      { "id": "COMP-EVM", "name": "EVM Interpreter" }
-    ]
-  },
-  "external_entities": [
-    { "id": "EXT-CL", "name": "Consensus Client", "description": "..." },
-    { "id": "EXT-USER", "name": "End User", "description": "..." }
-  ],
-  "ambiguities": [
-    {
-      "id": "AMB-EIP4844-01",
-      "source_url": "https://eips.ethereum.org/EIPS/eip-4844",
-      "type": "Semantic",
-      "text": "The term 'valid blob' is used without a precise definition.",
-      "resolution_strategy": "..."
-    }
-  ],
-  "implicit_assumptions": [
-    {
-      "id": "ASSUM-EIP4844-01",
-      "source_url": "https://eips.ethereum.org/EIPS/eip-4844",
-      "type": "Attacker Capability",
-      "description": "...",
-      "impact_if_false": "..."
-    }
-  ],
-  "program_graph": {
-    "id": "GRAPH-EL-INTEGRATED",
-    "title": "Integrated Execution Layer Behavior Model",
-    "nodes": [ /* All nodes from all sub-graphs, de-duplicated */ ],
-    "edges": [ /* All edges from all sub-graphs */ ]
-  },
-  "sub_graphs": []
+  // ... other fields ...
 }
 ```

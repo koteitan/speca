@@ -1,44 +1,43 @@
 
 ---
-Description: Review and validate the outputs from Stages 01a through 01e. Apply Chain of Thought, Tree of Thoughts, and Reflexion techniques to ensure completeness, consistency, and correctness of the formal model.
+Description: Perform a multi-phase review of the generated artifacts using advanced prompting techniques. This includes a critical self-verification step to ensure data consistency before analysis.
 Usage: `/02s_review`
 Language: English only.
-Execution hint: Run after `/01e_prop`. This is a quality gate before proceeding to checklist generation.
+Execution hint: This is the final step of the preparation phase. It validates all prior outputs.
 ---
+**Always use /serena for these development tasks to maximize token efficiency:**
 
-# **Preparation Phase Review Prompt (Enhanced with Prompt Engineering)**
+# **Comprehensive Artifact Review Prompt**
 
 **Goal**
-Review and validate the outputs from Stages 01a through 01e. This prompt applies advanced prompt engineering techniques—**Chain of Thought (CoT)**, **Tree of Thoughts (ToT)**, and **Reflexion**—to ensure the formal model is complete, consistent, and correct before proceeding to the audit phase.
+Perform a multi-phase review of all generated artifacts (`SPEC`, `TRUSTMODEL`, `PROP`). This review MUST begin with a **critical self-verification** of data consistency.
 
 **Output (required file):** `outputs/02s_REVIEW_REPORT.json`
 
 ---
 
-## 1) Inputs
+## **Phase 0: CRITICAL - Pre-computation & Self-Verification**
 
-1.  **System Specification:** `outputs/01_SPEC.json`
-2.  **Trust Model:** `outputs/01d_TRUSTMODEL.json`
-3.  **Property Catalog:** `outputs/01e_PROP.json`
+**This phase must be completed before any other analysis.**
+
+1.  **Verify `01e_PROP.json` Coverage:**
+    *   Read the `coverage_summary` from `01e_PROP.json`.
+    *   Check the `coverage_ok` flag.
+    *   **If `coverage_ok` is `false`:** Your `overall_verdict` MUST be `FAIL`. State that the review cannot proceed due to incomplete property coverage and list the contents of `uncovered_elements`. **Do not proceed to other phases.**
+
+2.  **Verify `01_SPEC.json` Metadata:**
+    *   Count the actual number of nodes and edges in `program_graph`.
+    *   Compare these counts to the `total_nodes` and `total_edges` in the `metadata`.
+    *   **If they do not match:** Your `overall_verdict` MUST be `FAIL`. State that the review cannot proceed due to inconsistent metadata in `01_SPEC.json`. **Do not proceed to other phases.**
+
+3.  **Verify `01e_PROP.json` Metadata:**
+    *   Count the actual number of properties in the `properties` array.
+    *   Compare this to `total_properties` in the `metadata`.
+    *   **If they do not match:** Your `overall_verdict` MUST be `FAIL`. State that the review cannot proceed due to inconsistent metadata in `01e_PROP.json`. **Do not proceed to other phases.**
+
+**If all checks in Phase 0 pass, proceed to the subsequent review phases.**
 
 ---
-
-## 2) Reviewer Mindset (Meta-Prompting)
-
-You are a **skeptical senior security analyst**. Your role is to find flaws, inconsistencies, and gaps in the formal model. Adopt the following mindset:
-
-| Principle | Description |
-|-----------|-------------|
-| **Zero Trust Thinking** | Do not assume any part of the model is correct. Verify everything. |
-| **Adversarial Thinking** | Consider how an attacker might exploit gaps or ambiguities in the model. |
-| **Root Cause Pursuit** | When you find an issue, trace it back to its source (which stage, which input). |
-| **Burden of Proof** | The model is guilty until proven innocent. Document evidence for every "PASS" verdict. |
-
----
-
-## 3) Review Phases (Chain of Thought Structure)
-
-Each phase follows a **Thought → Action → Reflection** structure.
 
 ### **Phase 1: Specification Completeness Review**
 
@@ -86,51 +85,22 @@ Each phase follows a **Thought → Action → Reflection** structure.
 
 ---
 
-## 4) Required Output Format (JSON)
+## Required Output Format (JSON)
 
 **File:** `outputs/02s_REVIEW_REPORT.json`
 
 ```json
 {
-  "metadata": {
-    "reviewed_at": "2025-01-16T17:00:00Z",
-    "reviewer_mindset": "Skeptical Senior Security Analyst"
+  "metadata": { /* ... */ },
+  "overall_verdict": "(PASS / FAIL / PASS_WITH_OBSERVATIONS)",
+  "phase_0_verification": {
+      "verdict": "(PASS / FAIL)",
+      "checks": [
+          {"check": "Property Coverage", "status": "(PASS / FAIL)", "details": "..."},
+          {"check": "SPEC Metadata Consistency", "status": "(PASS / FAIL)", "details": "..."},
+          {"check": "PROP Metadata Consistency", "status": "(PASS / FAIL)", "details": "..."}
+      ]
   },
-  "overall_verdict": "PASS_WITH_OBSERVATIONS",
-  "phases": [
-    {
-      "phase_id": 1,
-      "title": "Specification Completeness Review",
-      "thought_process": "I need to verify that all relevant specifications are covered...",
-      "findings": [
-        {
-          "type": "OBSERVATION",
-          "description": "EIP-7702 is mentioned in EIP-4844 but not found in processed URLs.",
-          "severity": "LOW",
-          "recommendation": "Consider adding EIP-7702 to the specification crawl."
-        }
-      ],
-      "self_reflection": "The specification appears largely complete, but there may be minor gaps in newer EIPs.",
-      "verdict": "PASS_WITH_OBSERVATIONS"
-    }
-  ],
-  "adversarial_scenarios_tested": [
-    {
-      "scenario_id": "ADV-01",
-      "boundary_edge": "EDGE-USER-SUBMIT-TX",
-      "attack_hypothesis": "Malformed RLP encoding in transaction data.",
-      "path_traced": ["STATE-TX-RECEIVED", "ACTION-DECODE-TX", "STATE-TX-INVALID"],
-      "property_coverage": "PROP-BOUNDARY-TX-VALIDATION covers this scenario.",
-      "result": "COVERED"
-    }
-  ],
-  "summary": {
-    "total_issues": 3,
-    "critical": 0,
-    "high": 0,
-    "medium": 1,
-    "low": 2,
-    "ready_for_next_phase": true
-  }
+  "phases": [ /* ... review phases, only if Phase 0 passed ... */ ]
 }
 ```

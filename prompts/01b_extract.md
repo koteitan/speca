@@ -5,6 +5,7 @@ Usage: `/01b_extract`
 Language: English only.
 Execution hint: Run after `/01a_crawl`. Run this multiple times until the work queue is empty.
 ---
+**Always use /serena for development tasks to keep the workflow efficient.**
 
 # **System Specification - Stage 2: Extraction (Iterative)**
 
