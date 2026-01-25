@@ -25,11 +25,49 @@ Generate a comprehensive catalog of formal security properties with **100% cover
 
 ## 2) Property Generation & Verification Logic
 
-### **Task 2.1: Generate Properties**
+### **Mindset: Adversarial & Comprehensive**
 
-1.  **Boundary Edge Priority:** Generate multiple, high-priority properties for each `boundary_edge`.
-2.  **Ambiguity and Assumption Coverage:** Generate a property for each `ambiguity` and `implicit_assumption`.
-3.  **Internal Element Coverage:** Generate at least one property for all other nodes and edges.
+Think like an attacker. For every state, action, and data flow, ask: "How could this be abused?" Your goal is to create properties that, if formally verified, would prove the system is resilient to these abuses.
+
+### **Task 2.1: Generate Properties by Type and Priority**
+
+#### **Priority 1: Boundary Edge Properties (Input Validation)**
+
+For each `boundary_edge` in `01d_TRUSTMODEL.json`, generate multiple, high-priority properties. These are the most critical properties.
+
+*   **Property Type:** `Pre-condition`
+*   **Focus:** Validate every field of the incoming `data_flows_across`.
+*   **Example:** For a `boundary_edge` where a transaction is received:
+    *   **Good Property 1 (Format):** "The `gas_limit` field must be a valid unsigned 64-bit integer."
+    *   **Good Property 2 (Range):** "The `gas_limit` must be greater than the intrinsic gas cost of the transaction."
+    *   **Good Property 3 (Cryptographic):** "The transaction's ECDSA signature (v, r, s) must be valid and correspond to the `sender` address."
+
+#### **Priority 2: Ambiguity & Assumption Properties**
+
+For each `ambiguity` and `implicit_assumption` in `01_SPEC.json`, generate a corresponding property.
+
+*   **Property Type:** `Invariant` or `Pre-condition`
+*   **Focus:** Formalize the assumption or the chosen resolution strategy.
+*   **Example:** For an assumption `ASSUM-EIP4844-01` ("An attacker cannot create a valid blob transaction without paying gas fees."):
+    *   **Good Property:** "For any `ACTION-PROCESS-BLOB-TX`, the associated `STATE-ACCOUNT-BALANCE` of the sender must be greater than or equal to the calculated `blob_gas_fee`."
+
+#### **Priority 3: Internal State Transition Properties**
+
+For internal edges (especially those originating from an `Action` node), generate properties that define correct state transitions.
+
+*   **Property Type:** `Post-condition`
+*   **Focus:** Define what must be true after an action completes.
+*   **Example:** For an edge `ACTION-EXECUTE-TX` -> `STATE-TX-COMPLETE`:
+    *   **Good Property:** "After `ACTION-EXECUTE-TX` completes, the `nonce` of the sender's account state must be incremented by one."
+
+#### **Priority 4: General Invariants**
+
+Generate properties that must hold true for all states.
+
+*   **Property Type:** `Invariant`
+*   **Focus:** System-wide safety and consistency rules.
+*   **Example:**
+    *   **Good Property:** "The total supply of Ether in the system must never decrease, except through the burning mechanism defined in EIP-1559."
 
 ### **Task 2.2: CRITICAL - Coverage Verification**
 
@@ -37,7 +75,7 @@ Generate a comprehensive catalog of formal security properties with **100% cover
 
 1.  Create a set of all node IDs from `01_SPEC.json`.
 2.  Create a set of all edge IDs from `01_SPEC.json`.
-3.  Create a set of all node and edge IDs covered by the properties you just generated.
+3.  Create a set of all node and edge IDs covered by the `graph_elements` field in the properties you just generated.
 4.  **Calculate `nodes_uncovered`:** The set of spec nodes minus the set of covered nodes.
 5.  **Calculate `edges_uncovered`:** The set of spec edges minus the set of covered edges.
 
@@ -59,8 +97,7 @@ Generate a comprehensive catalog of formal security properties with **100% cover
 {
   "metadata": {
     "generated_at": "(current timestamp)",
-    "total_properties": "(calculated count)",
-    // ... other calculated metadata ...
+    "total_properties": "(calculated count)"
   },
   "coverage_summary": {
     "total_nodes": "(calculated count)",
@@ -74,6 +111,18 @@ Generate a comprehensive catalog of formal security properties with **100% cover
         "edges": [ /* list of uncovered edge IDs, if any */ ]
     }
   },
-  "properties": [ /* ... */ ]
+  "properties": [
+    {
+      "id": "PROP-TX-001",
+      "title": "Transaction Signature Validity",
+      "description": "The ECDSA signature of any submitted transaction must be cryptographically valid and correspond to the derived sender address.",
+      "type": "Pre-condition",
+      "priority": "CRITICAL",
+      "is_boundary_check": true,
+      "graph_elements": ["EDGE-USER-SUBMIT-TX"],
+      "related_assumption_id": null,
+      "related_ambiguity_id": null
+    }
+  ]
 }
 ```
