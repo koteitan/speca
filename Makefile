@@ -18,7 +18,7 @@ CLAUDE_FLAGS ?= --dangerously-skip-permissions --agent serena --output-format js
 SPEC_RETRY_ITERATIONS ?= 10
 CHECKLIST_ITERATIONS ?= 10
 
-.PHONY: all preparation audit init init-prep 01 01a 01a-loop 01b 01c 02a 02b 02b-loop 02c 03 04 clean help
+.PHONY: all preparation audit init init-prep 01 01a 01a-loop 01b 01c 02a 02b 02b-loop 02c 02s 03 04 clean help
 
 # Default target: run full pipeline
 all: preparation audit
@@ -94,6 +94,7 @@ help:
 	@echo "  02b      - Checklist Remaining (02b_checklistrem.md) - Single run"
 	@echo "  02b-loop - Checklist Remaining (02b_checklistrem.md) - Run $(CHECKLIST_ITERATIONS) times"
 	@echo "  02c      - Checklist Merge (02c_checklistmerge.md → 02_CHECKLIST.json) [SKIPPED]"
+	@echo "  02s      - Review & Validate Preparation Outputs (02s_review.md → 02s_REVIEW_REPORT.json)"
 	@echo ""
 	@echo "Audit Steps:"
 	@echo "  init  - Setup directories and check target workspace (git repo required)"
@@ -263,6 +264,29 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 		echo "✅ Finished 02c_checklistmerge.md (Time: $${DURATION}s | Tokens: In=$$INPUT_TOKENS, Out=$$OUTPUT_TOKENS | Cost: \$$$$COST)"; \
 	else \
 		echo "❌ Error: 02_CHECKLIST.json not generated"; exit 1; \
+	fi
+
+# Step 02s: Review and Validate Preparation Outputs
+02s: $(OUTPUT_DIR)/02s_REVIEW_REPORT.json
+$(OUTPUT_DIR)/02s_REVIEW_REPORT.json: prompts/02s_review.md | init-prep
+	@echo "⭐ Running 02s_review.md (Preparation Review)..."; \
+	START_TIME=$$(date +%s); \
+	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02s_review.md)" > $(LOG_DIR)/02s_review.json; \
+	END_TIME=$$(date +%s); \
+	DURATION=$$((END_TIME - START_TIME)); \
+	INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/02s_review.json | head -1 | cut -d: -f2); \
+	OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/02s_review.json | head -1 | cut -d: -f2); \
+	COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/02s_review.json | head -1 | cut -d: -f2); \
+	if [ -f "$(OUTPUT_DIR)/02s_REVIEW_REPORT.json" ]; then \
+		echo "✅ Finished 02s_review.md (Time: $${DURATION}s | Tokens: In=$$INPUT_TOKENS, Out=$$OUTPUT_TOKENS | Cost: \$$$$COST)"; \
+		QUALITY=$$(grep -o '"preparation_quality":"[^"]*"' $(OUTPUT_DIR)/02s_REVIEW_REPORT.json | cut -d'"' -f4); \
+		if [ "$$QUALITY" = "NEEDS_RERUN" ]; then \
+			echo "⚠️  Review found issues. Check 02s_REVIEW_REPORT.json and consider rerunning 02b."; \
+		else \
+			echo "🎉 Preparation quality: PASS. Ready for audit phase."; \
+		fi; \
+	else \
+		echo "⚠️  Review report not generated (Time: $${DURATION}s | Tokens: In=$$INPUT_TOKENS, Out=$$OUTPUT_TOKENS | Cost: \$$$$COST)"; \
 	fi
 
 # ------------------------------------------------------
