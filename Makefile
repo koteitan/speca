@@ -14,14 +14,62 @@ export CLAUDE_CODE_MAX_OUTPUT_TOKENS := 100000
 # Claude configuration
 CLAUDE_FLAGS ?= --dangerously-skip-permissions --agent serena --output-format json
 
-.PHONY: all preparation audit init 01 01a 01b 01c 02a 02b 02c 03 04 clean help
+# Iteration counts
+SPEC_RETRY_ITERATIONS ?= 10
+CHECKLIST_ITERATIONS ?= 10
+
+.PHONY: all preparation audit init 01 01a 01a-loop 01b 01c 02a 02b 02b-loop 02c 03 04 clean help
 
 # Default target: run full pipeline
 all: preparation audit
 
 # Phase targets (matching scripts)
-preparation: 02a
+# preparation: 01 → 01a (10x) → 01b → 01c → 02a → 02b (10x)
+preparation: 02b-loop
 	@echo "🎉 Preparation phase completed! Check $(OUTPUT_DIR)/"
+
+# Loop target for 01a: run spec retry 10 times
+01a-loop: | 01
+	@echo "🔄 Running 01a_specretry.md $(SPEC_RETRY_ITERATIONS) times..."
+	@for i in $$(seq 1 $(SPEC_RETRY_ITERATIONS)); do \
+		echo "⭐ Running 01a_specretry.md (iteration $$i/$(SPEC_RETRY_ITERATIONS))..."; \
+		START_TIME=$$(date +%s); \
+		cd $(WORKDIR) && claude $(CLAUDE_FLAGS) -p "$$(cat ../prompts/01a_specretry.md)" > ../$(LOG_DIR)/01a_specretry_$$i.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		if [ -f "outputs/01_SPEC.json" ]; then \
+			cp outputs/01_SPEC.json ../$(OUTPUT_DIR)/; \
+			INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' ../$(LOG_DIR)/01a_specretry_$$i.json | head -1 | cut -d: -f2); \
+			OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' ../$(LOG_DIR)/01a_specretry_$$i.json | head -1 | cut -d: -f2); \
+			COST=$$(grep -o '"total_cost_usd":[0-9.]*' ../$(LOG_DIR)/01a_specretry_$$i.json | head -1 | cut -d: -f2); \
+			echo "✅ Finished 01a_specretry.md iter $$i (Time: $${DURATION}s | Tokens: In=$$INPUT_TOKENS, Out=$$OUTPUT_TOKENS | Cost: \$$$$COST)"; \
+		fi; \
+	done
+	@echo "✅ Completed all $(SPEC_RETRY_ITERATIONS) spec retry iterations"
+
+# Loop target for 02b: run checklist remaining 10 times
+02b-loop: | 02a
+	@echo "🔄 Running 02b_checklistrem.md $(CHECKLIST_ITERATIONS) times..."
+	@for i in $$(seq 1 $(CHECKLIST_ITERATIONS)); do \
+		N=$$(ls $(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_*.json 2>/dev/null | wc -l); \
+		N=$$((N + 1)); \
+		echo "⭐ Running 02b_checklistrem.md (iteration $$i/$(CHECKLIST_ITERATIONS), partial $$N)..."; \
+		START_TIME=$$(date +%s); \
+		cd $(WORKDIR) && claude $(CLAUDE_FLAGS) -p "$$(cat ../prompts/02b_checklistrem.md)" > ../$(LOG_DIR)/02b_checklistrem_$$N.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' ../$(LOG_DIR)/02b_checklistrem_$$N.json | head -1 | cut -d: -f2); \
+		OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' ../$(LOG_DIR)/02b_checklistrem_$$N.json | head -1 | cut -d: -f2); \
+		COST=$$(grep -o '"total_cost_usd":[0-9.]*' ../$(LOG_DIR)/02b_checklistrem_$$N.json | head -1 | cut -d: -f2); \
+		if [ -f "$(WORKDIR)/outputs/02b_CHECKLIST_PARTIAL_$$N.json" ]; then \
+			cp $(WORKDIR)/outputs/02b_CHECKLIST_PARTIAL_$$N.json $(OUTPUT_DIR)/; \
+			echo "✅ Finished 02b_checklistrem.md iter $$i (Time: $${DURATION}s | Tokens: In=$$INPUT_TOKENS, Out=$$OUTPUT_TOKENS | Cost: \$$$$COST)"; \
+		else \
+			echo "⚠️  No new partial checklist generated in iteration $$i (Time: $${DURATION}s | Tokens: In=$$INPUT_TOKENS, Out=$$OUTPUT_TOKENS | Cost: \$$$$COST)"; \
+		fi; \
+		cp $(WORKDIR)/outputs/02b_STATE.json $(OUTPUT_DIR)/ 2>/dev/null || true; \
+	done
+	@echo "✅ Completed all $(CHECKLIST_ITERATIONS) checklist iterations"
 
 audit: 04
 	@echo "🎉 Audit phase completed! Check $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json"
@@ -35,18 +83,20 @@ help:
 	@echo ""
 	@echo "Phase Targets:"
 	@echo "  all         - Run full pipeline (preparation + audit)"
-	@echo "  preparation - Run preparation phase (01 → 01a → 01b → 01c → 02a)"
+	@echo "  preparation - Run preparation phase (01 → 01a x10 → 01b → 01c → 02a → 02b x10)"
 	@echo "  audit       - Run audit phase (03 → 04)"
 	@echo ""
 	@echo "Preparation Steps:"
-	@echo "  init  - Setup directories and check workspace"
-	@echo "  01    - Specification Extraction (01_spec.md → 01_SPEC.json)"
-	@echo "  01a   - Specification Retry (01a_specretry.md → 01_SPEC.json)"
-	@echo "  01b   - Trust Model Generation (01b_trustmodel.md → 01b_TRUSTMODEL.json)"
-	@echo "  01c   - Property Extraction (01c_prop.md → 01c_PROP.json)"
-	@echo "  02a   - Checklist Boundaries (02a_checklist.md → 02a_CHECKLIST_BOUNDARIES.json)"
-	@echo "  02b   - Checklist Remaining (02b_checklistrem.md) - Run iteratively, generates _<N>.json"
-	@echo "  02c   - Checklist Merge (02c_checklistmerge.md → 02_CHECKLIST.json) [SKIPPED]"
+	@echo "  init     - Setup directories and check workspace"
+	@echo "  01       - Specification Extraction (01_spec.md → 01_SPEC.json)"
+	@echo "  01a      - Specification Retry (01a_specretry.md) - Single run"
+	@echo "  01a-loop - Specification Retry (01a_specretry.md) - Run $(SPEC_RETRY_ITERATIONS) times"
+	@echo "  01b      - Trust Model Generation (01b_trustmodel.md → 01b_TRUSTMODEL.json)"
+	@echo "  01c      - Property Extraction (01c_prop.md → 01c_PROP.json)"
+	@echo "  02a      - Checklist Boundaries (02a_checklist.md → 02a_CHECKLIST_BOUNDARIES.json)"
+	@echo "  02b      - Checklist Remaining (02b_checklistrem.md) - Single run"
+	@echo "  02b-loop - Checklist Remaining (02b_checklistrem.md) - Run $(CHECKLIST_ITERATIONS) times"
+	@echo "  02c      - Checklist Merge (02c_checklistmerge.md → 02_CHECKLIST.json) [SKIPPED]"
 	@echo ""
 	@echo "Audit Steps:"
 	@echo "  03    - Static Audit Map (03_auditmap.md) - Run iteratively, generates _PARTIAL_<N>.json"
@@ -54,6 +104,12 @@ help:
 	@echo ""
 	@echo "Utilities:"
 	@echo "  clean - Remove generated outputs"
+	@echo ""
+	@echo "Configuration Variables:"
+	@echo "  SPEC_RETRY_ITERATIONS  - Number of 01a retries (default: 10)"
+	@echo "  CHECKLIST_ITERATIONS   - Number of 02b iterations (default: 10)"
+	@echo ""
+	@echo "Example: make preparation SPEC_RETRY_ITERATIONS=5 CHECKLIST_ITERATIONS=20"
 
 init:
 	@echo "Initializing workspace..."
@@ -113,7 +169,7 @@ $(OUTPUT_DIR)/01_SPEC.json: prompts/01_spec.md | init
 
 # Step 01b: Trust Model
 01b: $(OUTPUT_DIR)/01b_TRUSTMODEL.json
-$(OUTPUT_DIR)/01b_TRUSTMODEL.json: prompts/01b_trustmodel.md | 01
+$(OUTPUT_DIR)/01b_TRUSTMODEL.json: prompts/01b_trustmodel.md | 01a-loop
 	@echo "⭐ Running 01b_trustmodel.md..."; \
 	START_TIME=$$(date +%s); \
 	cd $(WORKDIR) && claude $(CLAUDE_FLAGS) -p "$$(cat ../prompts/01b_trustmodel.md)" > ../$(LOG_DIR)/01b_trustmodel.json; \

@@ -201,7 +201,6 @@ parameter.local.py
 
 # Log files
 *.log
-logs/
 
 # Backup files
 *.bak
