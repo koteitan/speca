@@ -219,8 +219,8 @@ clean:
 	@if [ -f "$(OUTPUT_DIR)/02s_REVIEW_REPORT.json" ]; then \
 		echo "⏭️  Skipping 02s: $(OUTPUT_DIR)/02s_REVIEW_REPORT.json already exists"; \
 	else \
-		if [ ! -f "$(OUTPUT_DIR)/01e_PROP.json" ]; then \
-			echo "❌ Error: $(OUTPUT_DIR)/01e_PROP.json not found. Run 01e first."; exit 1; \
+		if ! ls $(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then \
+			echo "❌ Error: No 02b_CHECKLIST_PARTIAL_*.json files found. Run 02b first."; exit 1; \
 		fi; \
 		echo "⭐ Running 02s_review.md (Preparation Review)..."; \
 		START_TIME=$$(date +%s); \
@@ -243,8 +243,8 @@ clean:
 	@if [ -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
 		echo "⏭️  Skipping 02a: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json already exists"; \
 	else \
-		if [ ! -f "$(OUTPUT_DIR)/02s_REVIEW_REPORT.json" ]; then \
-			echo "❌ Error: $(OUTPUT_DIR)/02s_REVIEW_REPORT.json not found. Run 02s first."; exit 1; \
+		if [ ! -f "$(OUTPUT_DIR)/01e_PROP.json" ]; then \
+			echo "❌ Error: $(OUTPUT_DIR)/01e_PROP.json not found. Run 01e first."; exit 1; \
 		fi; \
 		echo "⭐ Running 02a_checklist.md (Checklist Boundaries)..."; \
 		START_TIME=$$(date +%s); \

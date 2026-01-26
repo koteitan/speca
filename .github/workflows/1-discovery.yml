@@ -1,10 +1,10 @@
-name: "Prep 01: Specification Extraction"
+name: "1. Discovery (01a)"
 
 on:
   workflow_dispatch:
     inputs:
       keywords:
-        description: 'Keywords for specification extraction (comma-separated)'
+        description: 'Keywords (comma-separated)'
         required: true
         type: string
         default: 'geth,ethereum client,execution specs,EIP'
@@ -13,16 +13,6 @@ on:
         required: true
         type: string
         default: 'https://ethereum.github.io/execution-specs/src/,https://geth.ethereum.org/docs'
-      max_iterations:
-        description: 'Safety limit for loop iterations'
-        required: false
-        type: number
-        default: 100
-      workers:
-        description: 'Number of parallel workers'
-        required: false
-        type: number
-        default: 4
       branch:
         description: 'Branch to use (leave empty to create new)'
         required: false
@@ -33,7 +23,7 @@ permissions:
   contents: write
 
 jobs:
-  spec-extraction:
+  discovery:
     runs-on: self-hosted
 
     env:
@@ -69,10 +59,8 @@ jobs:
             BRANCH="prep-runs/${RUN_ID}"
             git checkout -b "${BRANCH}"
             echo "branch=${BRANCH}" >> $GITHUB_OUTPUT
-            echo "Created new branch: ${BRANCH}"
           else
             echo "branch=${{ inputs.branch }}" >> $GITHUB_OUTPUT
-            echo "Using existing branch: ${{ inputs.branch }}"
           fi
 
       - name: "Step 01a: Discovery & Queuing"
@@ -81,55 +69,26 @@ jobs:
             KEYWORDS="${{ env.KEYWORDS }}" \
             SPEC_URLS="${{ env.SPEC_URLS }}"
 
-      - name: "Step 01b: Extraction (Parallel)"
-        run: |
-          make 01b-parallel \
-            WORKERS=${{ inputs.workers }} \
-            MAX_ITERATIONS=${{ inputs.max_iterations }}
-
-      - name: "Step 01c: Integration"
-        run: make 01c
-
-      - name: "Step 01d: Trust Model"
-        run: make 01d
-
-      - name: "Step 01e: Properties"
-        run: make 01e
-
       - name: Push Results
         if: always()
         run: |
           git add outputs/ ':!outputs/logs/'
-
           if ! git diff --staged --quiet; then
-            # JSON changes exist, include logs too
             git add outputs/logs/
-            git commit -m "$(cat <<'EOF'
-          prep(01): specification extraction complete
-
-          Keywords: ${{ env.KEYWORDS }}
-          Workers: ${{ inputs.workers }}
-          EOF
-          )"
-
+            git commit -m "01a: discovery complete"
             git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
             git push origin "${{ steps.git_config.outputs.branch }}" --force-with-lease
-            echo "Pushed to branch: ${{ steps.git_config.outputs.branch }}"
-          else
-            echo "No changes to commit"
           fi
 
-      - name: Output Branch Name
+      - name: Summary
         run: |
-          echo "## Branch for next step" >> $GITHUB_STEP_SUMMARY
-          echo "\`${{ steps.git_config.outputs.branch }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Run **Prep 02: Checklist Generation** with this branch name." >> $GITHUB_STEP_SUMMARY
+          echo "## Next: Run **2. Extraction**" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: \`${{ steps.git_config.outputs.branch }}\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Logs
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: prep-01-logs-${{ github.run_id }}
+          name: step-1-logs-${{ github.run_id }}
           path: outputs/logs/
           retention-days: 7
