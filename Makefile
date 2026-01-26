@@ -125,21 +125,23 @@ clean:
 # ------------------------------------------------------
 
 # Step 01a: Discovery & Queuing
-01a: $(OUTPUT_DIR)/01a_STATE.json
-$(OUTPUT_DIR)/01a_STATE.json: prompts/01a_crawl.md | init-prep
-	@echo "⭐ Running 01a_crawl.md (Discovery & Queuing)..."; \
-	START_TIME=$$(date +%s); \
-	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01a_crawl.md) KEYWORDS=$(KEYWORDS) SPEC_URLS=$(SPEC_URLS)" > $(LOG_DIR)/01a_crawl.json; \
-	END_TIME=$$(date +%s); \
-	DURATION=$$((END_TIME - START_TIME)); \
-	if [ -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
-		INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/01a_crawl.json | head -1 | cut -d: -f2); \
-		OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/01a_crawl.json | head -1 | cut -d: -f2); \
-		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01a_crawl.json | head -1 | cut -d: -f2); \
-		QUEUE_SIZE=$$(grep -o '"work_queue":\[[^]]*\]' $(OUTPUT_DIR)/01a_STATE.json | tr ',' '\n' | wc -l); \
-		echo "✅ Finished 01a_crawl.md (Time: $${DURATION}s | URLs queued: ~$$QUEUE_SIZE | Cost: \$$$$COST)"; \
+01a:
+	@mkdir -p $(LOG_DIR) $(OUTPUT_DIR)
+	@if [ -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
+		echo "⏭️  Skipping 01a: $(OUTPUT_DIR)/01a_STATE.json already exists"; \
 	else \
-		echo "❌ Error: 01a_STATE.json not generated"; exit 1; \
+		echo "⭐ Running 01a_crawl.md (Discovery & Queuing)..."; \
+		START_TIME=$$(date +%s); \
+		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01a_crawl.md) KEYWORDS=$(KEYWORDS) SPEC_URLS=$(SPEC_URLS)" > $(LOG_DIR)/01a_crawl.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		if [ -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
+			COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01a_crawl.json | head -1 | cut -d: -f2); \
+			QUEUE_SIZE=$$(grep -o '"work_queue":\[[^]]*\]' $(OUTPUT_DIR)/01a_STATE.json | tr ',' '\n' | wc -l); \
+			echo "✅ Finished 01a_crawl.md (Time: $${DURATION}s | URLs queued: ~$$QUEUE_SIZE | Cost: \$$$$COST)"; \
+		else \
+			echo "❌ Error: 01a_STATE.json not generated"; exit 1; \
+		fi; \
 	fi
 
 # Step 01b: Extraction (Single run)
@@ -189,63 +191,66 @@ $(OUTPUT_DIR)/01a_STATE.json: prompts/01a_crawl.md | init-prep
 	echo "✅ Parallel extraction complete. Total subgraphs: $$SUBGRAPH_COUNT"
 
 # Step 01c: Integration
-01c: $(OUTPUT_DIR)/01_SPEC.json
-$(OUTPUT_DIR)/01_SPEC.json: prompts/01c_integrate.md
-	@if [ ! -d "$(OUTPUT_DIR)/01b_SUBGRAPHS" ] || [ -z "$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null)" ]; then \
-		echo "❌ Error: No subgraphs found in $(OUTPUT_DIR)/01b_SUBGRAPHS/. Run 01b-loop or 01b-parallel first."; exit 1; \
-	fi
-	@echo "⭐ Running 01c_integrate.md (Integration)..."; \
-	START_TIME=$$(date +%s); \
-	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01c_integrate.md)" > $(LOG_DIR)/01c_integrate.json; \
-	END_TIME=$$(date +%s); \
-	DURATION=$$((END_TIME - START_TIME)); \
-	if [ -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
-		INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/01c_integrate.json | head -1 | cut -d: -f2); \
-		OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/01c_integrate.json | head -1 | cut -d: -f2); \
-		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01c_integrate.json | head -1 | cut -d: -f2); \
-		echo "✅ Finished 01c_integrate.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+01c:
+	@if [ -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
+		echo "⏭️  Skipping 01c: $(OUTPUT_DIR)/01_SPEC.json already exists"; \
 	else \
-		echo "❌ Error: 01_SPEC.json not generated"; exit 1; \
+		if [ ! -d "$(OUTPUT_DIR)/01b_SUBGRAPHS" ] || [ -z "$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null)" ]; then \
+			echo "❌ Error: No subgraphs found in $(OUTPUT_DIR)/01b_SUBGRAPHS/. Run 01b-loop or 01b-parallel first."; exit 1; \
+		fi; \
+		echo "⭐ Running 01c_integrate.md (Integration)..."; \
+		START_TIME=$$(date +%s); \
+		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01c_integrate.md)" > $(LOG_DIR)/01c_integrate.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		if [ -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
+			COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01c_integrate.json | head -1 | cut -d: -f2); \
+			echo "✅ Finished 01c_integrate.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		else \
+			echo "❌ Error: 01_SPEC.json not generated"; exit 1; \
+		fi; \
 	fi
 
 # Step 01d: Trust Model
-01d: $(OUTPUT_DIR)/01d_TRUSTMODEL.json
-$(OUTPUT_DIR)/01d_TRUSTMODEL.json: prompts/01d_trustmodel.md
-	@if [ ! -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
-		echo "❌ Error: $(OUTPUT_DIR)/01_SPEC.json not found. Run 01c first."; exit 1; \
-	fi
-	@echo "⭐ Running 01d_trustmodel.md (Trust Model)..."; \
-	START_TIME=$$(date +%s); \
-	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01d_trustmodel.md)" > $(LOG_DIR)/01d_trustmodel.json; \
-	END_TIME=$$(date +%s); \
-	DURATION=$$((END_TIME - START_TIME)); \
-	if [ -f "$(OUTPUT_DIR)/01d_TRUSTMODEL.json" ]; then \
-		INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/01d_trustmodel.json | head -1 | cut -d: -f2); \
-		OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/01d_trustmodel.json | head -1 | cut -d: -f2); \
-		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01d_trustmodel.json | head -1 | cut -d: -f2); \
-		echo "✅ Finished 01d_trustmodel.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+01d:
+	@if [ -f "$(OUTPUT_DIR)/01d_TRUSTMODEL.json" ]; then \
+		echo "⏭️  Skipping 01d: $(OUTPUT_DIR)/01d_TRUSTMODEL.json already exists"; \
 	else \
-		echo "❌ Error: 01d_TRUSTMODEL.json not generated"; exit 1; \
+		if [ ! -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
+			echo "❌ Error: $(OUTPUT_DIR)/01_SPEC.json not found. Run 01c first."; exit 1; \
+		fi; \
+		echo "⭐ Running 01d_trustmodel.md (Trust Model)..."; \
+		START_TIME=$$(date +%s); \
+		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01d_trustmodel.md)" > $(LOG_DIR)/01d_trustmodel.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		if [ -f "$(OUTPUT_DIR)/01d_TRUSTMODEL.json" ]; then \
+			COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01d_trustmodel.json | head -1 | cut -d: -f2); \
+			echo "✅ Finished 01d_trustmodel.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		else \
+			echo "❌ Error: 01d_TRUSTMODEL.json not generated"; exit 1; \
+		fi; \
 	fi
 
 # Step 01e: Properties
-01e: $(OUTPUT_DIR)/01e_PROP.json
-$(OUTPUT_DIR)/01e_PROP.json: prompts/01e_prop.md
-	@if [ ! -f "$(OUTPUT_DIR)/01d_TRUSTMODEL.json" ]; then \
-		echo "❌ Error: $(OUTPUT_DIR)/01d_TRUSTMODEL.json not found. Run 01d first."; exit 1; \
-	fi
-	@echo "⭐ Running 01e_prop.md (Properties)..."; \
-	START_TIME=$$(date +%s); \
-	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01e_prop.md)" > $(LOG_DIR)/01e_prop.json; \
-	END_TIME=$$(date +%s); \
-	DURATION=$$((END_TIME - START_TIME)); \
-	if [ -f "$(OUTPUT_DIR)/01e_PROP.json" ]; then \
-		INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/01e_prop.json | head -1 | cut -d: -f2); \
-		OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/01e_prop.json | head -1 | cut -d: -f2); \
-		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01e_prop.json | head -1 | cut -d: -f2); \
-		echo "✅ Finished 01e_prop.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+01e:
+	@if [ -f "$(OUTPUT_DIR)/01e_PROP.json" ]; then \
+		echo "⏭️  Skipping 01e: $(OUTPUT_DIR)/01e_PROP.json already exists"; \
 	else \
-		echo "❌ Error: 01e_PROP.json not generated"; exit 1; \
+		if [ ! -f "$(OUTPUT_DIR)/01d_TRUSTMODEL.json" ]; then \
+			echo "❌ Error: $(OUTPUT_DIR)/01d_TRUSTMODEL.json not found. Run 01d first."; exit 1; \
+		fi; \
+		echo "⭐ Running 01e_prop.md (Properties)..."; \
+		START_TIME=$$(date +%s); \
+		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01e_prop.md)" > $(LOG_DIR)/01e_prop.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		if [ -f "$(OUTPUT_DIR)/01e_PROP.json" ]; then \
+			COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01e_prop.json | head -1 | cut -d: -f2); \
+			echo "✅ Finished 01e_prop.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		else \
+			echo "❌ Error: 01e_PROP.json not generated"; exit 1; \
+		fi; \
 	fi
 
 # ------------------------------------------------------
@@ -253,46 +258,48 @@ $(OUTPUT_DIR)/01e_PROP.json: prompts/01e_prop.md
 # ------------------------------------------------------
 
 # Step 02s: Review & Validate Preparation Outputs
-02s: $(OUTPUT_DIR)/02s_REVIEW_REPORT.json
-$(OUTPUT_DIR)/02s_REVIEW_REPORT.json: prompts/02s_review.md
-	@if [ ! -f "$(OUTPUT_DIR)/01e_PROP.json" ]; then \
-		echo "❌ Error: $(OUTPUT_DIR)/01e_PROP.json not found. Run 01e first."; exit 1; \
-	fi
-	@echo "⭐ Running 02s_review.md (Preparation Review)..."; \
-	START_TIME=$$(date +%s); \
-	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02s_review.md)" > $(LOG_DIR)/02s_review.json; \
-	END_TIME=$$(date +%s); \
-	DURATION=$$((END_TIME - START_TIME)); \
-	INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/02s_review.json | head -1 | cut -d: -f2); \
-	OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/02s_review.json | head -1 | cut -d: -f2); \
-	COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/02s_review.json | head -1 | cut -d: -f2); \
-	if [ -f "$(OUTPUT_DIR)/02s_REVIEW_REPORT.json" ]; then \
-		echo "✅ Finished 02s_review.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
-		VERDICT=$$(grep -o '"overall_verdict":"[^"]*"' $(OUTPUT_DIR)/02s_REVIEW_REPORT.json | cut -d'"' -f4); \
-		ISSUES=$$(grep -o '"total_issues":[0-9]*' $(OUTPUT_DIR)/02s_REVIEW_REPORT.json | cut -d: -f2); \
-		echo "📊 Review: $$VERDICT ($$ISSUES issues)"; \
+02s:
+	@if [ -f "$(OUTPUT_DIR)/02s_REVIEW_REPORT.json" ]; then \
+		echo "⏭️  Skipping 02s: $(OUTPUT_DIR)/02s_REVIEW_REPORT.json already exists"; \
 	else \
-		echo "⚠️  Review report not generated (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		if [ ! -f "$(OUTPUT_DIR)/01e_PROP.json" ]; then \
+			echo "❌ Error: $(OUTPUT_DIR)/01e_PROP.json not found. Run 01e first."; exit 1; \
+		fi; \
+		echo "⭐ Running 02s_review.md (Preparation Review)..."; \
+		START_TIME=$$(date +%s); \
+		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02s_review.md)" > $(LOG_DIR)/02s_review.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/02s_review.json | head -1 | cut -d: -f2); \
+		if [ -f "$(OUTPUT_DIR)/02s_REVIEW_REPORT.json" ]; then \
+			echo "✅ Finished 02s_review.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+			VERDICT=$$(grep -o '"overall_verdict":"[^"]*"' $(OUTPUT_DIR)/02s_REVIEW_REPORT.json | cut -d'"' -f4); \
+			ISSUES=$$(grep -o '"total_issues":[0-9]*' $(OUTPUT_DIR)/02s_REVIEW_REPORT.json | cut -d: -f2); \
+			echo "📊 Review: $$VERDICT ($$ISSUES issues)"; \
+		else \
+			echo "⚠️  Review report not generated (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		fi; \
 	fi
 
 # Step 02a: Checklist Boundaries
-02a: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json
-$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json: prompts/02a_checklist.md
-	@if [ ! -f "$(OUTPUT_DIR)/02s_REVIEW_REPORT.json" ]; then \
-		echo "❌ Error: $(OUTPUT_DIR)/02s_REVIEW_REPORT.json not found. Run 02s first."; exit 1; \
-	fi
-	@echo "⭐ Running 02a_checklist.md (Checklist Boundaries)..."; \
-	START_TIME=$$(date +%s); \
-	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02a_checklist.md)" > $(LOG_DIR)/02a_checklist.json; \
-	END_TIME=$$(date +%s); \
-	DURATION=$$((END_TIME - START_TIME)); \
-	if [ -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
-		INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/02a_checklist.json | head -1 | cut -d: -f2); \
-		OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/02a_checklist.json | head -1 | cut -d: -f2); \
-		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/02a_checklist.json | head -1 | cut -d: -f2); \
-		echo "✅ Finished 02a_checklist.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+02a:
+	@if [ -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
+		echo "⏭️  Skipping 02a: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json already exists"; \
 	else \
-		echo "❌ Error: 02a_CHECKLIST_BOUNDARIES.json not generated"; exit 1; \
+		if [ ! -f "$(OUTPUT_DIR)/02s_REVIEW_REPORT.json" ]; then \
+			echo "❌ Error: $(OUTPUT_DIR)/02s_REVIEW_REPORT.json not found. Run 02s first."; exit 1; \
+		fi; \
+		echo "⭐ Running 02a_checklist.md (Checklist Boundaries)..."; \
+		START_TIME=$$(date +%s); \
+		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02a_checklist.md)" > $(LOG_DIR)/02a_checklist.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		if [ -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
+			COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/02a_checklist.json | head -1 | cut -d: -f2); \
+			echo "✅ Finished 02a_checklist.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		else \
+			echo "❌ Error: 02a_CHECKLIST_BOUNDARIES.json not generated"; exit 1; \
+		fi; \
 	fi
 
 # Step 02b: Checklist Remaining (Single run)
@@ -367,23 +374,24 @@ $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json: prompts/02a_checklist.md
 	@echo "✅ Parallel checklist generation complete"
 
 # Step 02c: Checklist Merge (Optional)
-02c: $(OUTPUT_DIR)/02_CHECKLIST.json
-$(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md
-	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
-		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
-	fi
-	@echo "⭐ Running 02c_checklistmerge.md (Checklist Merge)..."; \
-	START_TIME=$$(date +%s); \
-	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02c_checklistmerge.md)" > $(LOG_DIR)/02c_checklistmerge.json; \
-	END_TIME=$$(date +%s); \
-	DURATION=$$((END_TIME - START_TIME)); \
-	if [ -f "$(OUTPUT_DIR)/02_CHECKLIST.json" ]; then \
-		INPUT_TOKENS=$$(grep -o '"input_tokens":[0-9]*' $(LOG_DIR)/02c_checklistmerge.json | head -1 | cut -d: -f2); \
-		OUTPUT_TOKENS=$$(grep -o '"output_tokens":[0-9]*' $(LOG_DIR)/02c_checklistmerge.json | head -1 | cut -d: -f2); \
-		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/02c_checklistmerge.json | head -1 | cut -d: -f2); \
-		echo "✅ Finished 02c_checklistmerge.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+02c:
+	@if [ -f "$(OUTPUT_DIR)/02_CHECKLIST.json" ]; then \
+		echo "⏭️  Skipping 02c: $(OUTPUT_DIR)/02_CHECKLIST.json already exists"; \
 	else \
-		echo "❌ Error: 02_CHECKLIST.json not generated"; exit 1; \
+		if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
+			echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+		fi; \
+		echo "⭐ Running 02c_checklistmerge.md (Checklist Merge)..."; \
+		START_TIME=$$(date +%s); \
+		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02c_checklistmerge.md)" > $(LOG_DIR)/02c_checklistmerge.json; \
+		END_TIME=$$(date +%s); \
+		DURATION=$$((END_TIME - START_TIME)); \
+		if [ -f "$(OUTPUT_DIR)/02_CHECKLIST.json" ]; then \
+			COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/02c_checklistmerge.json | head -1 | cut -d: -f2); \
+			echo "✅ Finished 02c_checklistmerge.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		else \
+			echo "❌ Error: 02_CHECKLIST.json not generated"; exit 1; \
+		fi; \
 	fi
 
 # ------------------------------------------------------
