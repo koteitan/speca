@@ -196,14 +196,15 @@ clean:
 01b-parallel:
 	@if [ ! -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
 		echo "❌ Error: $(OUTPUT_DIR)/01a_STATE.json not found. Run 01a first."; exit 1; \
+	fi; \
+	if [ -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
+		echo "⏭️  Skipping 01b-parallel: 01_SPEC.json exists"; \
+	else \
+		echo "🚀 Running 01b_extract.md in parallel with $(WORKERS) workers..."; \
+		python3 scripts/run_parallel.py --phase 01b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
+		echo "✅ Parallel extraction complete. Total subgraphs: $$SUBGRAPH_COUNT"; \
 	fi
-	@if [ -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
-		echo "⏭️  Skipping 01b-parallel: 01_SPEC.json exists"; exit 0; \
-	fi
-	@echo "🚀 Running 01b_extract.md in parallel with $(WORKERS) workers..."
-	@python3 scripts/run_parallel.py --phase 01b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS)
-	@SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
-	echo "✅ Parallel extraction complete. Total subgraphs: $$SUBGRAPH_COUNT"
 
 # Step 01c: Integration
 01c:
@@ -388,13 +389,14 @@ clean:
 02b-parallel:
 	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
 		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+	fi; \
+	if ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 02b-parallel: 03_AUDITMAP_PARTIAL_*.json exists"; \
+	else \
+		echo "🚀 Running 02b_checklistrem.md in parallel with $(WORKERS) workers..."; \
+		python3 scripts/run_parallel.py --phase 02b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		echo "✅ Parallel checklist generation complete"; \
 	fi
-	@if ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
-		echo "⏭️  Skipping 02b-parallel: 03_AUDITMAP_PARTIAL_*.json exists"; exit 0; \
-	fi
-	@echo "🚀 Running 02b_checklistrem.md in parallel with $(WORKERS) workers..."
-	@python3 scripts/run_parallel.py --phase 02b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS)
-	@echo "✅ Parallel checklist generation complete"
 
 # Step 02c: Checklist Merge (Optional)
 02c:
@@ -497,16 +499,17 @@ clean:
 03-parallel:
 	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
 		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
-	fi
-	@if [ ! -d "$(WORKDIR)/.git" ]; then \
+	fi; \
+	if [ ! -d "$(WORKDIR)/.git" ]; then \
 		echo "❌ Error: $(WORKDIR) is not a git repo. Please clone target repo first."; exit 1; \
+	fi; \
+	if ls $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 03-parallel: 04_REVIEW_PARTIAL_*.json exists"; \
+	else \
+		echo "🚀 Running 03_auditmap.md in parallel with $(WORKERS) workers..."; \
+		python3 scripts/run_parallel.py --phase 03 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		echo "✅ Parallel audit map generation complete"; \
 	fi
-	@if ls $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json >/dev/null 2>&1; then \
-		echo "⏭️  Skipping 03-parallel: 04_REVIEW_PARTIAL_*.json exists"; exit 0; \
-	fi
-	@echo "🚀 Running 03_auditmap.md in parallel with $(WORKERS) workers..."
-	@python3 scripts/run_parallel.py --phase 03 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS)
-	@echo "✅ Parallel audit map generation complete"
 
 # Step 04: Review (Single run)
 04:
@@ -590,21 +593,24 @@ clean:
 04-parallel:
 	@if [ ! -d "$(WORKDIR)/.git" ]; then \
 		echo "❌ Error: $(WORKDIR) is not a git repo. Please clone target repo first."; exit 1; \
-	fi
-	@if ! ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
+	fi; \
+	if ! ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
 		echo "❌ Error: No 03_AUDITMAP_PARTIAL_*.json files found. Run 03-loop or 03-parallel first."; exit 1; \
-	fi
-	@if [ -f "$(OUTPUT_DIR)/04_STATE.json" ]; then \
+	fi; \
+	SHOULD_SKIP=false; \
+	if [ -f "$(OUTPUT_DIR)/04_STATE.json" ]; then \
 		REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/04_STATE.json')); print(len(d.get('unprocessed_audit_items', [])))" 2>/dev/null || echo "0"); \
 		if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
 			PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json 2>/dev/null | wc -l); \
 			echo "⏭️  Skipping 04-parallel: all audit items reviewed ($$PARTIAL_COUNT partial files exist)"; \
-			exit 0; \
+			SHOULD_SKIP=true; \
 		fi; \
+	fi; \
+	if [ "$$SHOULD_SKIP" = "false" ]; then \
+		echo "🚀 Running 04_review.md in parallel with $(WORKERS) workers..."; \
+		python3 scripts/run_parallel.py --phase 04 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		echo "✅ Parallel audit review complete"; \
 	fi
-	@echo "🚀 Running 04_review.md in parallel with $(WORKERS) workers..."
-	@python3 scripts/run_parallel.py --phase 04 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS)
-	@echo "✅ Parallel audit review complete"
 
 # ------------------------------------------------------
 # Full Parallel Pipeline
