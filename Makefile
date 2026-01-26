@@ -20,6 +20,7 @@ MAX_ITERATIONS ?= 100
 # Parallel execution configuration
 WORKERS ?= 4
 SKIP_SPLIT ?=
+FORCE_EXECUTE ?=
 
 .PHONY: all preparation audit init init-prep \
         01a 01b-parallel 01c-parallel 01d-parallel 01e-parallel \
@@ -138,9 +139,9 @@ clean:
 	@if [ ! -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
 		echo "❌ Error: $(OUTPUT_DIR)/01a_STATE.json not found. Run 01a first."; exit 1; \
 	fi; \
-	if ls $(OUTPUT_DIR)/01b_SUBGRAPHS/spec_*.json >/dev/null 2>&1; then \
+	if [ -z "$(FORCE_EXECUTE)" ] && ls $(OUTPUT_DIR)/01b_SUBGRAPHS/spec_*.json >/dev/null 2>&1; then \
 		SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/spec_*.json 2>/dev/null | wc -l); \
-		echo "⏭️  Skipping 01b-parallel: $$SUBGRAPH_COUNT subgraphs already exist"; \
+		echo "⏭️  Skipping 01b-parallel: $$SUBGRAPH_COUNT subgraphs already exist (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 01b extraction in parallel with $(WORKERS) workers..."; \
 		python3 scripts/run_parallel.py --phase 01b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
@@ -153,8 +154,8 @@ clean:
 	@if [ ! -d "$(OUTPUT_DIR)/01b_SUBGRAPHS" ] || [ -z "$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null)" ]; then \
 		echo "❌ Error: No subgraphs found. Run 01b-parallel first."; exit 1; \
 	fi; \
-	if ls $(OUTPUT_DIR)/01d_TRUSTMODEL_PARTIAL_*.json >/dev/null 2>&1; then \
-		echo "⏭️  Skipping 01c-parallel: trust model partials exist (verification done)"; \
+	if [ -z "$(FORCE_EXECUTE)" ] && ls $(OUTPUT_DIR)/01d_TRUSTMODEL_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 01c-parallel: trust model partials exist (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 01c verification in parallel with $(WORKERS) workers..."; \
 		python3 scripts/run_parallel.py --phase 01c --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
@@ -166,8 +167,8 @@ clean:
 	@if [ ! -d "$(OUTPUT_DIR)/01b_SUBGRAPHS" ] || [ -z "$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null)" ]; then \
 		echo "❌ Error: No subgraphs found. Run 01b-parallel first."; exit 1; \
 	fi; \
-	if ls $(OUTPUT_DIR)/01e_PROP_PARTIAL_*.json >/dev/null 2>&1; then \
-		echo "⏭️  Skipping 01d-parallel: property partials exist"; \
+	if [ -z "$(FORCE_EXECUTE)" ] && ls $(OUTPUT_DIR)/01e_PROP_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 01d-parallel: property partials exist (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 01d trust model in parallel with $(WORKERS) workers..."; \
 		python3 scripts/run_parallel.py --phase 01d --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
@@ -180,8 +181,8 @@ clean:
 	@if ! ls $(OUTPUT_DIR)/01d_TRUSTMODEL_PARTIAL_*.json >/dev/null 2>&1; then \
 		echo "❌ Error: No trust model partials found. Run 01d-parallel first."; exit 1; \
 	fi; \
-	if ls $(OUTPUT_DIR)/02a_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then \
-		echo "⏭️  Skipping 01e-parallel: checklist partials exist"; \
+	if [ -z "$(FORCE_EXECUTE)" ] && ls $(OUTPUT_DIR)/02a_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 01e-parallel: checklist partials exist (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 01e properties in parallel with $(WORKERS) workers..."; \
 		python3 scripts/run_parallel.py --phase 01e --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
@@ -222,8 +223,8 @@ clean:
 	@if ! ls $(OUTPUT_DIR)/01e_PROP_PARTIAL_*.json >/dev/null 2>&1; then \
 		echo "❌ Error: No property partials found. Run 01e-parallel first."; exit 1; \
 	fi; \
-	if ls $(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then \
-		echo "⏭️  Skipping 02a-parallel: 02b checklist partials exist"; \
+	if [ -z "$(FORCE_EXECUTE)" ] && ls $(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 02a-parallel: 02b checklist partials exist (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 02a checklist boundaries in parallel with $(WORKERS) workers..."; \
 		python3 scripts/run_parallel.py --phase 02a --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
@@ -236,8 +237,8 @@ clean:
 	@if ! ls $(OUTPUT_DIR)/02a_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then \
 		echo "❌ Error: No 02a checklist partials found. Run 02a-parallel first."; exit 1; \
 	fi; \
-	if ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
-		echo "⏭️  Skipping 02b-parallel: 03_AUDITMAP_PARTIAL_*.json exists"; \
+	if [ -z "$(FORCE_EXECUTE)" ] && ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 02b-parallel: 03_AUDITMAP_PARTIAL_*.json exists (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 02b checklist remaining in parallel with $(WORKERS) workers..."; \
 		python3 scripts/run_parallel.py --phase 02b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
@@ -278,8 +279,8 @@ clean:
 	if [ ! -d "$(WORKDIR)/.git" ]; then \
 		echo "❌ Error: $(WORKDIR) is not a git repo. Please clone target repo first."; exit 1; \
 	fi; \
-	if ls $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json >/dev/null 2>&1; then \
-		echo "⏭️  Skipping 03-parallel: 04_REVIEW_PARTIAL_*.json exists"; \
+	if [ -z "$(FORCE_EXECUTE)" ] && ls $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 03-parallel: 04_REVIEW_PARTIAL_*.json exists (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 03_auditmap.md in parallel with $(WORKERS) workers..."; \
 		python3 scripts/run_parallel.py --phase 03 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
@@ -295,11 +296,11 @@ clean:
 		echo "❌ Error: No 03_AUDITMAP_PARTIAL_*.json files found. Run 03-parallel first."; exit 1; \
 	fi; \
 	SHOULD_SKIP=false; \
-	if [ -f "$(OUTPUT_DIR)/04_STATE.json" ]; then \
+	if [ -z "$(FORCE_EXECUTE)" ] && [ -f "$(OUTPUT_DIR)/04_STATE.json" ]; then \
 		REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/04_STATE.json')); print(len(d.get('unprocessed_audit_items', [])))" 2>/dev/null || echo "0"); \
 		if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
 			PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json 2>/dev/null | wc -l); \
-			echo "⏭️  Skipping 04-parallel: all audit items reviewed ($$PARTIAL_COUNT partial files exist)"; \
+			echo "⏭️  Skipping 04-parallel: all audit items reviewed ($$PARTIAL_COUNT partial files exist, use FORCE_EXECUTE=1 to override)"; \
 			SHOULD_SKIP=true; \
 		fi; \
 	fi; \

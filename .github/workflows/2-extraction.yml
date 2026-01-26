@@ -22,6 +22,11 @@ on:
         required: false
         type: boolean
         default: false
+      force_execute:
+        description: 'Force execute (ignore skip conditions)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -63,10 +68,10 @@ jobs:
           git config --global user.email "bot@nyxfoundation.org"
 
       - name: "Step 01b: Extraction (Parallel)"
-        run: make 01b-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }} ${{ inputs.skip_split && 'SKIP_SPLIT=1' || '' }}
+        run: make 01b-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }} ${{ inputs.skip_split && 'SKIP_SPLIT=1' || '' }} ${{ inputs.force_execute && 'FORCE_EXECUTE=1' || '' }}
 
       - name: "Step 01c: Verification (Parallel)"
-        run: make 01c-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }} ${{ inputs.skip_split && 'SKIP_SPLIT=1' || '' }}
+        run: make 01c-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }} ${{ inputs.skip_split && 'SKIP_SPLIT=1' || '' }} ${{ inputs.force_execute && 'FORCE_EXECUTE=1' || '' }}
 
       - name: Push Results
         if: always()
