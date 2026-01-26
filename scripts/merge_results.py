@@ -70,7 +70,10 @@ def get_nested(data: dict, key_path: str) -> Any:
 
 
 def merge_01b(pattern: str, output_path: str) -> None:
-    """Merge 01b subgraphs into integrated specification."""
+    """Merge 01b subgraphs into integrated specification.
+
+    Supports both old format (single sub_graph) and new format (sub_graphs array).
+    """
     files = sorted(glob.glob(pattern))
 
     if not files:
@@ -85,6 +88,8 @@ def merge_01b(pattern: str, output_path: str) -> None:
     all_ambiguities = []
     all_assumptions = []
     source_urls = []
+    all_aspects = set()
+    total_subgraphs = 0
 
     seen_node_ids = set()
     seen_edge_ids = set()
@@ -94,28 +99,36 @@ def merge_01b(pattern: str, output_path: str) -> None:
         data = load_json(filepath)
         source_urls.append(data.get("source_url", filepath))
 
-        sub_graph = data.get("sub_graph", {})
+        sub_graphs = data.get("sub_graphs", [])
 
-        # Merge nodes (deduplicate by ID)
-        for node in sub_graph.get("nodes", []):
-            node_id = node.get("id")
-            if node_id and node_id not in seen_node_ids:
-                all_nodes.append(node)
-                seen_node_ids.add(node_id)
+        for sub_graph in sub_graphs:
+            total_subgraphs += 1
 
-        # Merge edges (deduplicate by ID)
-        for edge in sub_graph.get("edges", []):
-            edge_id = edge.get("id")
-            if edge_id and edge_id not in seen_edge_ids:
-                all_edges.append(edge)
-                seen_edge_ids.add(edge_id)
+            # Track aspects
+            aspect = sub_graph.get("aspect")
+            if aspect:
+                all_aspects.add(aspect)
 
-        # Merge external entities (deduplicate by ID)
-        for entity in sub_graph.get("external_entities", []):
-            entity_id = entity.get("id")
-            if entity_id and entity_id not in seen_entity_ids:
-                all_external_entities.append(entity)
-                seen_entity_ids.add(entity_id)
+            # Merge nodes (deduplicate by ID)
+            for node in sub_graph.get("nodes", []):
+                node_id = node.get("id")
+                if node_id and node_id not in seen_node_ids:
+                    all_nodes.append(node)
+                    seen_node_ids.add(node_id)
+
+            # Merge edges (deduplicate by ID)
+            for edge in sub_graph.get("edges", []):
+                edge_id = edge.get("id")
+                if edge_id and edge_id not in seen_edge_ids:
+                    all_edges.append(edge)
+                    seen_edge_ids.add(edge_id)
+
+            # Merge external entities (deduplicate by ID)
+            for entity in sub_graph.get("external_entities", []):
+                entity_id = entity.get("id")
+                if entity_id and entity_id not in seen_entity_ids:
+                    all_external_entities.append(entity)
+                    seen_entity_ids.add(entity_id)
 
         # Merge ambiguities and assumptions (keep all)
         all_ambiguities.extend(data.get("ambiguities", []))
@@ -126,6 +139,8 @@ def merge_01b(pattern: str, output_path: str) -> None:
         "metadata": {
             "generated_at": datetime.utcnow().isoformat() + "Z",
             "source_count": len(files),
+            "total_subgraphs": total_subgraphs,
+            "aspects_covered": sorted(all_aspects),
             "source_urls": source_urls,
         },
         "integrated_graph": {
@@ -143,11 +158,13 @@ def merge_01b(pattern: str, output_path: str) -> None:
             "total_external_entities": len(all_external_entities),
             "total_ambiguities": len(all_ambiguities),
             "total_assumptions": len(all_assumptions),
+            "total_subgraphs": total_subgraphs,
+            "aspects_count": len(all_aspects),
         },
     }
 
     save_json(output_path, merged)
-    print(f"Merged {len(all_nodes)} nodes, {len(all_edges)} edges from {len(files)} files")
+    print(f"Merged {len(all_nodes)} nodes, {len(all_edges)} edges from {total_subgraphs} subgraphs ({len(files)} files)")
 
 
 def merge_simple(pattern: str, merge_key: str, output_path: str) -> None:
