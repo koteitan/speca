@@ -145,7 +145,10 @@ clean:
 	fi
 
 # Step 01b: Extraction (Single run)
-01b: | 01a
+01b:
+	@if [ ! -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/01a_STATE.json not found. Run 01a first."; exit 1; \
+	fi
 	@echo "⭐ Running 01b_extract.md (Extraction)..."; \
 	START_TIME=$$(date +%s); \
 	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01b_extract.md)" > $(LOG_DIR)/01b_extract_$$(date +%s).json; \
@@ -159,36 +162,52 @@ clean:
 	echo "✅ Finished 01b_extract.md (Time: $${DURATION}s | Subgraphs: $$SUBGRAPH_COUNT | Cost: \$$$$COST)"
 
 # Step 01b-loop: Extraction (run until work_queue is empty)
-01b-loop: | 01a
-	@echo "🔄 Running 01b_extract.md until work_queue is empty..."
-	@i=0; \
-	while [ $$i -lt $(MAX_ITERATIONS) ]; do \
-		if [ -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
+01b-loop:
+	@if [ ! -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/01a_STATE.json not found. Run 01a first."; exit 1; \
+	fi
+	@REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/01a_STATE.json')); print(len(d.get('work_queue', [])))" 2>/dev/null || echo "0"); \
+	if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
+		SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
+		echo "⏭️  Skipping 01b-loop: work_queue is empty ($$SUBGRAPH_COUNT subgraphs exist)"; \
+	else \
+		echo "🔄 Running 01b_extract.md until work_queue is empty..."; \
+		i=0; \
+		while [ $$i -lt $(MAX_ITERATIONS) ]; do \
 			REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/01a_STATE.json')); print(len(d.get('work_queue', [])))" 2>/dev/null || echo "0"); \
 			if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
 				echo "🎉 Work queue empty. Extraction complete."; \
 				break; \
 			fi; \
 			echo "📋 $$REMAINING URLs remaining in work_queue"; \
-		fi; \
-		i=$$((i + 1)); \
-		echo "⭐ Running 01b_extract.md (iteration $$i)..."; \
-		START_TIME=$$(date +%s); \
-		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01b_extract.md)" > $(LOG_DIR)/01b_extract_$$i.json; \
-		END_TIME=$$(date +%s); \
-		DURATION=$$((END_TIME - START_TIME)); \
-		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01b_extract_$$i.json | head -1 | cut -d: -f2); \
-		echo "✅ Finished 01b_extract.md iter $$i (Time: $${DURATION}s | Cost: \$$$$COST)"; \
-	done
-	@SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
-	echo "✅ Extraction complete. Total subgraphs: $$SUBGRAPH_COUNT"
+			i=$$((i + 1)); \
+			echo "⭐ Running 01b_extract.md (iteration $$i)..."; \
+			START_TIME=$$(date +%s); \
+			claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01b_extract.md)" > $(LOG_DIR)/01b_extract_$$i.json; \
+			END_TIME=$$(date +%s); \
+			DURATION=$$((END_TIME - START_TIME)); \
+			COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01b_extract_$$i.json | head -1 | cut -d: -f2); \
+			echo "✅ Finished 01b_extract.md iter $$i (Time: $${DURATION}s | Cost: \$$$$COST)"; \
+		done; \
+		SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
+		echo "✅ Extraction complete. Total subgraphs: $$SUBGRAPH_COUNT"; \
+	fi
 
 # Step 01b-parallel: Parallel extraction using multiple workers
-01b-parallel: | 01a
-	@echo "🚀 Running 01b_extract.md in parallel with $(WORKERS) workers..."
-	@python3 scripts/run_parallel.py --phase 01b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS)
-	@SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
-	echo "✅ Parallel extraction complete. Total subgraphs: $$SUBGRAPH_COUNT"
+01b-parallel:
+	@if [ ! -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/01a_STATE.json not found. Run 01a first."; exit 1; \
+	fi
+	@REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/01a_STATE.json')); print(len(d.get('work_queue', [])))" 2>/dev/null || echo "0"); \
+	if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
+		SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
+		echo "⏭️  Skipping 01b-parallel: work_queue is empty ($$SUBGRAPH_COUNT subgraphs exist)"; \
+	else \
+		echo "🚀 Running 01b_extract.md in parallel with $(WORKERS) workers..."; \
+		python3 scripts/run_parallel.py --phase 01b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
+		echo "✅ Parallel extraction complete. Total subgraphs: $$SUBGRAPH_COUNT"; \
+	fi
 
 # Step 01c: Integration
 01c:
@@ -336,6 +355,14 @@ clean:
 	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
 		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
 	fi
+	@if [ -f "$(OUTPUT_DIR)/02b_STATE.json" ]; then \
+		REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/02b_STATE.json')); print(len(d.get('unprocessed_property_ids', [])))" 2>/dev/null || echo "0"); \
+		if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
+			PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_*.json 2>/dev/null | wc -l); \
+			echo "⏭️  Skipping 02b-loop: all properties processed ($$PARTIAL_COUNT partial files exist)"; \
+			exit 0; \
+		fi; \
+	fi
 	@echo "🔄 Running 02b_checklistrem.md until all properties are processed..."
 	@i=0; \
 	while [ $$i -lt $(MAX_ITERATIONS) ]; do \
@@ -368,6 +395,14 @@ clean:
 02b-parallel:
 	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
 		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+	fi
+	@if [ -f "$(OUTPUT_DIR)/02b_STATE.json" ]; then \
+		REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/02b_STATE.json')); print(len(d.get('unprocessed_property_ids', [])))" 2>/dev/null || echo "0"); \
+		if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
+			PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_*.json 2>/dev/null | wc -l); \
+			echo "⏭️  Skipping 02b-parallel: all properties processed ($$PARTIAL_COUNT partial files exist)"; \
+			exit 0; \
+		fi; \
 	fi
 	@echo "🚀 Running 02b_checklistrem.md in parallel with $(WORKERS) workers..."
 	@python3 scripts/run_parallel.py --phase 02b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS)
@@ -435,6 +470,14 @@ clean:
 	@if [ ! -d "$(WORKDIR)/.git" ]; then \
 		echo "❌ Error: $(WORKDIR) is not a git repo. Please clone target repo first."; exit 1; \
 	fi
+	@if [ -f "$(OUTPUT_DIR)/03_STATE.json" ]; then \
+		REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/03_STATE.json')); print(len(d.get('unprocessed_checklist_ids', [])))" 2>/dev/null || echo "0"); \
+		if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
+			PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json 2>/dev/null | wc -l); \
+			echo "⏭️  Skipping 03-loop: all checklist items processed ($$PARTIAL_COUNT partial files exist)"; \
+			exit 0; \
+		fi; \
+	fi
 	@echo "🔄 Running 03_auditmap.md until all checklist items are processed..."
 	@i=0; \
 	while [ $$i -lt $(MAX_ITERATIONS) ]; do \
@@ -472,6 +515,14 @@ clean:
 	fi
 	@if [ ! -d "$(WORKDIR)/.git" ]; then \
 		echo "❌ Error: $(WORKDIR) is not a git repo. Please clone target repo first."; exit 1; \
+	fi
+	@if [ -f "$(OUTPUT_DIR)/03_STATE.json" ]; then \
+		REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/03_STATE.json')); print(len(d.get('unprocessed_checklist_ids', [])))" 2>/dev/null || echo "0"); \
+		if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
+			PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json 2>/dev/null | wc -l); \
+			echo "⏭️  Skipping 03-parallel: all checklist items processed ($$PARTIAL_COUNT partial files exist)"; \
+			exit 0; \
+		fi; \
 	fi
 	@echo "🚀 Running 03_auditmap.md in parallel with $(WORKERS) workers..."
 	@python3 scripts/run_parallel.py --phase 03 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS)
@@ -517,6 +568,14 @@ clean:
 	@if ! ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
 		echo "❌ Error: No 03_AUDITMAP_PARTIAL_*.json files found. Run 03-loop or 03-parallel first."; exit 1; \
 	fi
+	@if [ -f "$(OUTPUT_DIR)/04_STATE.json" ]; then \
+		REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/04_STATE.json')); print(len(d.get('unprocessed_audit_items', [])))" 2>/dev/null || echo "0"); \
+		if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
+			PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json 2>/dev/null | wc -l); \
+			echo "⏭️  Skipping 04-loop: all audit items reviewed ($$PARTIAL_COUNT partial files exist)"; \
+			exit 0; \
+		fi; \
+	fi
 	@echo "🔄 Running 04_review.md until all audit items are reviewed..."
 	@i=0; \
 	while [ $$i -lt $(MAX_ITERATIONS) ]; do \
@@ -554,6 +613,14 @@ clean:
 	fi
 	@if ! ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
 		echo "❌ Error: No 03_AUDITMAP_PARTIAL_*.json files found. Run 03-loop or 03-parallel first."; exit 1; \
+	fi
+	@if [ -f "$(OUTPUT_DIR)/04_STATE.json" ]; then \
+		REMAINING=$$(python3 -c "import json; d=json.load(open('$(OUTPUT_DIR)/04_STATE.json')); print(len(d.get('unprocessed_audit_items', [])))" 2>/dev/null || echo "0"); \
+		if [ "$$REMAINING" -eq 0 ] 2>/dev/null; then \
+			PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json 2>/dev/null | wc -l); \
+			echo "⏭️  Skipping 04-parallel: all audit items reviewed ($$PARTIAL_COUNT partial files exist)"; \
+			exit 0; \
+		fi; \
 	fi
 	@echo "🚀 Running 04_review.md in parallel with $(WORKERS) workers..."
 	@python3 scripts/run_parallel.py --phase 04 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS)
