@@ -190,7 +190,10 @@ $(OUTPUT_DIR)/01a_STATE.json: prompts/01a_crawl.md | init-prep
 
 # Step 01c: Integration
 01c: $(OUTPUT_DIR)/01_SPEC.json
-$(OUTPUT_DIR)/01_SPEC.json: prompts/01c_integrate.md | 01b-loop
+$(OUTPUT_DIR)/01_SPEC.json: prompts/01c_integrate.md
+	@if [ ! -d "$(OUTPUT_DIR)/01b_SUBGRAPHS" ] || [ -z "$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null)" ]; then \
+		echo "❌ Error: No subgraphs found in $(OUTPUT_DIR)/01b_SUBGRAPHS/. Run 01b-loop or 01b-parallel first."; exit 1; \
+	fi
 	@echo "⭐ Running 01c_integrate.md (Integration)..."; \
 	START_TIME=$$(date +%s); \
 	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01c_integrate.md)" > $(LOG_DIR)/01c_integrate.json; \
@@ -207,7 +210,10 @@ $(OUTPUT_DIR)/01_SPEC.json: prompts/01c_integrate.md | 01b-loop
 
 # Step 01d: Trust Model
 01d: $(OUTPUT_DIR)/01d_TRUSTMODEL.json
-$(OUTPUT_DIR)/01d_TRUSTMODEL.json: prompts/01d_trustmodel.md | 01c
+$(OUTPUT_DIR)/01d_TRUSTMODEL.json: prompts/01d_trustmodel.md
+	@if [ ! -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/01_SPEC.json not found. Run 01c first."; exit 1; \
+	fi
 	@echo "⭐ Running 01d_trustmodel.md (Trust Model)..."; \
 	START_TIME=$$(date +%s); \
 	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01d_trustmodel.md)" > $(LOG_DIR)/01d_trustmodel.json; \
@@ -224,7 +230,10 @@ $(OUTPUT_DIR)/01d_TRUSTMODEL.json: prompts/01d_trustmodel.md | 01c
 
 # Step 01e: Properties
 01e: $(OUTPUT_DIR)/01e_PROP.json
-$(OUTPUT_DIR)/01e_PROP.json: prompts/01e_prop.md | 01d
+$(OUTPUT_DIR)/01e_PROP.json: prompts/01e_prop.md
+	@if [ ! -f "$(OUTPUT_DIR)/01d_TRUSTMODEL.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/01d_TRUSTMODEL.json not found. Run 01d first."; exit 1; \
+	fi
 	@echo "⭐ Running 01e_prop.md (Properties)..."; \
 	START_TIME=$$(date +%s); \
 	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01e_prop.md)" > $(LOG_DIR)/01e_prop.json; \
@@ -245,7 +254,10 @@ $(OUTPUT_DIR)/01e_PROP.json: prompts/01e_prop.md | 01d
 
 # Step 02s: Review & Validate Preparation Outputs
 02s: $(OUTPUT_DIR)/02s_REVIEW_REPORT.json
-$(OUTPUT_DIR)/02s_REVIEW_REPORT.json: prompts/02s_review.md | 01e
+$(OUTPUT_DIR)/02s_REVIEW_REPORT.json: prompts/02s_review.md
+	@if [ ! -f "$(OUTPUT_DIR)/01e_PROP.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/01e_PROP.json not found. Run 01e first."; exit 1; \
+	fi
 	@echo "⭐ Running 02s_review.md (Preparation Review)..."; \
 	START_TIME=$$(date +%s); \
 	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02s_review.md)" > $(LOG_DIR)/02s_review.json; \
@@ -265,7 +277,10 @@ $(OUTPUT_DIR)/02s_REVIEW_REPORT.json: prompts/02s_review.md | 01e
 
 # Step 02a: Checklist Boundaries
 02a: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json
-$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json: prompts/02a_checklist.md | 02s
+$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json: prompts/02a_checklist.md
+	@if [ ! -f "$(OUTPUT_DIR)/02s_REVIEW_REPORT.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/02s_REVIEW_REPORT.json not found. Run 02s first."; exit 1; \
+	fi
 	@echo "⭐ Running 02a_checklist.md (Checklist Boundaries)..."; \
 	START_TIME=$$(date +%s); \
 	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02a_checklist.md)" > $(LOG_DIR)/02a_checklist.json; \
@@ -281,7 +296,10 @@ $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json: prompts/02a_checklist.md | 02s
 	fi
 
 # Step 02b: Checklist Remaining (Single run)
-02b: | 02a
+02b:
+	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+	fi
 	@N=$$(ls $(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_*.json 2>/dev/null | wc -l); \
 	N=$$((N + 1)); \
 	echo "⭐ Running 02b_checklistrem.md (iteration $$N)..."; \
@@ -307,7 +325,10 @@ $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json: prompts/02a_checklist.md | 02s
 	fi
 
 # Step 02b-loop: Checklist Remaining (run until unprocessed_property_ids is empty)
-02b-loop: | 02a
+02b-loop:
+	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+	fi
 	@echo "🔄 Running 02b_checklistrem.md until all properties are processed..."
 	@i=0; \
 	while [ $$i -lt $(MAX_ITERATIONS) ]; do \
@@ -337,14 +358,20 @@ $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json: prompts/02a_checklist.md | 02s
 	@echo "✅ Checklist generation complete"
 
 # Step 02b-parallel: Parallel checklist generation using multiple workers
-02b-parallel: | 02a
+02b-parallel:
+	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+	fi
 	@echo "🚀 Running 02b_checklistrem.md in parallel with $(WORKERS) workers..."
 	@python3 scripts/run_parallel.py --phase 02b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS)
 	@echo "✅ Parallel checklist generation complete"
 
 # Step 02c: Checklist Merge (Optional)
 02c: $(OUTPUT_DIR)/02_CHECKLIST.json
-$(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
+$(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md
+	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+	fi
 	@echo "⭐ Running 02c_checklistmerge.md (Checklist Merge)..."; \
 	START_TIME=$$(date +%s); \
 	claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02c_checklistmerge.md)" > $(LOG_DIR)/02c_checklistmerge.json; \
@@ -364,7 +391,10 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 # ------------------------------------------------------
 
 # Step 03: Audit Map (Single run)
-03: | $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json
+03:
+	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+	fi
 	@N=$$(ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json 2>/dev/null | wc -l); \
 	N=$$((N + 1)); \
 	echo "⭐ Running 03_auditmap.md (iteration $$N)..."; \
@@ -390,7 +420,13 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 	fi
 
 # Step 03-loop: Audit Map (run until unprocessed_checklist_ids is empty)
-03-loop: | $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json init
+03-loop:
+	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+	fi
+	@if [ ! -d "$(WORKDIR)/.git" ]; then \
+		echo "❌ Error: $(WORKDIR) is not a git repo. Please clone target repo first."; exit 1; \
+	fi
 	@echo "🔄 Running 03_auditmap.md until all checklist items are processed..."
 	@i=0; \
 	while [ $$i -lt $(MAX_ITERATIONS) ]; do \
@@ -422,13 +458,22 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 	@echo "✅ Audit map generation complete"
 
 # Step 03-parallel: Parallel audit map using multiple workers
-03-parallel: | $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json init
+03-parallel:
+	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
+		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+	fi
+	@if [ ! -d "$(WORKDIR)/.git" ]; then \
+		echo "❌ Error: $(WORKDIR) is not a git repo. Please clone target repo first."; exit 1; \
+	fi
 	@echo "🚀 Running 03_auditmap.md in parallel with $(WORKERS) workers..."
 	@python3 scripts/run_parallel.py --phase 03 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS)
 	@echo "✅ Parallel audit map generation complete"
 
 # Step 04: Review (Single run)
-04: | init
+04:
+	@if [ ! -d "$(WORKDIR)/.git" ]; then \
+		echo "❌ Error: $(WORKDIR) is not a git repo. Please clone target repo first."; exit 1; \
+	fi
 	@if ! ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
 		echo "❌ Error: No 03_AUDITMAP_PARTIAL_*.json files found. Run 'make 03' first."; exit 1; \
 	fi; \
@@ -457,7 +502,13 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 	fi
 
 # Step 04-loop: Review (run until unprocessed_audit_items is empty)
-04-loop: | 03-loop
+04-loop:
+	@if [ ! -d "$(WORKDIR)/.git" ]; then \
+		echo "❌ Error: $(WORKDIR) is not a git repo. Please clone target repo first."; exit 1; \
+	fi
+	@if ! ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "❌ Error: No 03_AUDITMAP_PARTIAL_*.json files found. Run 03-loop or 03-parallel first."; exit 1; \
+	fi
 	@echo "🔄 Running 04_review.md until all audit items are reviewed..."
 	@i=0; \
 	while [ $$i -lt $(MAX_ITERATIONS) ]; do \
@@ -489,7 +540,13 @@ $(OUTPUT_DIR)/02_CHECKLIST.json: prompts/02c_checklistmerge.md | 02a
 	@echo "✅ Audit review complete"
 
 # Step 04-parallel: Parallel audit review using multiple workers
-04-parallel: | 03-loop
+04-parallel:
+	@if [ ! -d "$(WORKDIR)/.git" ]; then \
+		echo "❌ Error: $(WORKDIR) is not a git repo. Please clone target repo first."; exit 1; \
+	fi
+	@if ! ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "❌ Error: No 03_AUDITMAP_PARTIAL_*.json files found. Run 03-loop or 03-parallel first."; exit 1; \
+	fi
 	@echo "🚀 Running 04_review.md in parallel with $(WORKERS) workers..."
 	@python3 scripts/run_parallel.py --phase 04 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS)
 	@echo "✅ Parallel audit review complete"
