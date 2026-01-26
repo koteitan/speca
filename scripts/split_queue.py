@@ -24,18 +24,48 @@ PHASE_CONFIG = {
         "queue_key": "work_queue",
         "output_prefix": "outputs/01b_QUEUE",
     },
+    "01c": {
+        # Queue is list of subgraph files
+        "output_prefix": "outputs/01c_QUEUE",
+        "init_from_glob_files": {
+            "pattern": "outputs/01b_SUBGRAPHS/spec_*.json",
+        },
+    },
+    "01d": {
+        # Queue is list of subgraph files
+        "output_prefix": "outputs/01d_QUEUE",
+        "init_from_glob_files": {
+            "pattern": "outputs/01b_SUBGRAPHS/spec_*.json",
+        },
+    },
+    "01e": {
+        # Queue is list of subgraph files
+        "output_prefix": "outputs/01e_QUEUE",
+        "init_from_glob_files": {
+            "pattern": "outputs/01b_SUBGRAPHS/spec_*.json",
+        },
+    },
+    "02a": {
+        # Queue is list of 01e property partial files
+        "output_prefix": "outputs/02a_QUEUE",
+        "init_from_glob_files": {
+            "pattern": "outputs/01e_PROP_PARTIAL_*.json",
+        },
+    },
     "02b": {
         "state_file": "outputs/02b_STATE.json",
         "queue_key": "unprocessed_property_ids",
         "output_prefix": "outputs/02b_QUEUE",
-        # For 02b, we need to initialize from 01e_PROP.json and 02a on first run
-        "init_from": {
-            "all_items": "outputs/01e_PROP.json",
-            "all_items_key": "properties",
-            "all_items_id_key": "id",
-            "exclude": "outputs/02a_CHECKLIST_BOUNDARIES.json",
-            "exclude_key": "checklist",
-            "exclude_id_key": "property_id",
+        # For 02b, we need to initialize from 01e partials and 02a on first run
+        "init_from_glob": {
+            "pattern": "outputs/01e_PROP_PARTIAL_*.json",
+            "item_key": "properties",
+            "id_key": "id",
+        },
+        "exclude_from": {
+            "pattern": "outputs/02a_CHECKLIST_PARTIAL_*.json",
+            "item_key": "checklist",
+            "id_key": "property_id",
         },
     },
     "03": {
@@ -44,8 +74,7 @@ PHASE_CONFIG = {
         "output_prefix": "outputs/03_QUEUE",
         # For 03, we need to initialize from 02a and 02b files
         "init_from_glob": {
-            "pattern": "outputs/02*.json",
-            "exclude_patterns": ["02s_", "02b_STATE"],
+            "pattern": "outputs/02*_CHECKLIST_PARTIAL_*.json",
             "item_key": "checklist",
             "id_key": "id",
         },
@@ -85,20 +114,40 @@ def save_json(path: str, data: dict[str, Any]) -> None:
 
 def get_items_from_state(config: dict[str, Any]) -> list[str]:
     """Get the list of items to process from state file."""
-    state_file = config["state_file"]
-    queue_key = config["queue_key"]
+    # For file-based queues (01c, 01d, 01e, 02a), just get file list
+    if "init_from_glob_files" in config:
+        items = init_from_glob_files(config["init_from_glob_files"])
+        return items
 
-    state = load_json(state_file)
-    if state and queue_key in state:
-        return state[queue_key]
+    state_file = config.get("state_file")
+    queue_key = config.get("queue_key")
+
+    if state_file and queue_key:
+        state = load_json(state_file)
+        if state and queue_key in state:
+            return state[queue_key]
 
     # State file doesn't exist or is empty - need to initialize
     if "init_from" in config:
         return init_from_files(config["init_from"])
     elif "init_from_glob" in config:
-        return init_from_glob(config["init_from_glob"])
+        items = init_from_glob(config["init_from_glob"])
+        # Handle exclusions if specified
+        if "exclude_from" in config:
+            exclude_ids = set(init_from_glob(config["exclude_from"]))
+            items = [i for i in items if i not in exclude_ids]
+        return items
 
     return []
+
+
+def init_from_glob_files(init_config: dict[str, Any]) -> list[str]:
+    """Initialize queue from glob pattern returning file paths (for 01c, 01d, 01e, 02a)."""
+    import glob
+
+    pattern = init_config["pattern"]
+    files = sorted(glob.glob(pattern))
+    return files
 
 
 def init_from_files(init_config: dict[str, Any]) -> list[str]:
@@ -166,7 +215,7 @@ def main():
         "--phase",
         required=True,
         choices=list(PHASE_CONFIG.keys()),
-        help="Phase to split (01b, 02b, 03, 04)",
+        help="Phase to split (01b, 01c, 01d, 01e, 02a, 02b, 03, 04)",
     )
     parser.add_argument(
         "--workers",

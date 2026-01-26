@@ -7,6 +7,16 @@ on:
         description: 'Branch from Step 2'
         required: true
         type: string
+      workers:
+        description: 'Number of parallel workers'
+        required: false
+        type: number
+        default: 4
+      max_iterations:
+        description: 'Max iterations'
+        required: false
+        type: number
+        default: 100
 
 permissions:
   contents: write
@@ -29,8 +39,8 @@ jobs:
 
       - name: Verify Prerequisites
         run: |
-          if [ ! -f "outputs/01_SPEC.json" ]; then
-            echo "Missing: outputs/01_SPEC.json - Run Step 2 first"
+          if [ ! -d "outputs/01b_SUBGRAPHS" ] || [ -z "$(ls outputs/01b_SUBGRAPHS/*.json 2>/dev/null)" ]; then
+            echo "Missing: outputs/01b_SUBGRAPHS/*.json - Run Step 2 first"
             exit 1
           fi
 
@@ -47,11 +57,11 @@ jobs:
           git config --global user.name "Security Agent Bot"
           git config --global user.email "bot@nyxfoundation.org"
 
-      - name: "Step 01d: Trust Model"
-        run: make 01d
+      - name: "Step 01d: Trust Model (Parallel)"
+        run: make 01d-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }}
 
-      - name: "Step 01e: Properties"
-        run: make 01e
+      - name: "Step 01e: Properties (Parallel)"
+        run: make 01e-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }}
 
       - name: Push Results
         if: always()

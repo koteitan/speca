@@ -7,6 +7,16 @@ on:
         description: 'Branch from Step 3'
         required: true
         type: string
+      workers:
+        description: 'Number of parallel workers'
+        required: false
+        type: number
+        default: 4
+      max_iterations:
+        description: 'Max iterations'
+        required: false
+        type: number
+        default: 100
 
 permissions:
   contents: write
@@ -29,8 +39,8 @@ jobs:
 
       - name: Verify Prerequisites
         run: |
-          if [ ! -f "outputs/01e_PROP.json" ]; then
-            echo "Missing: outputs/01e_PROP.json - Run Step 3 first"
+          if [ -z "$(ls outputs/01e_PROP_PARTIAL_*.json 2>/dev/null)" ]; then
+            echo "Missing: outputs/01e_PROP_PARTIAL_*.json - Run Step 3 first"
             exit 1
           fi
 
@@ -47,8 +57,8 @@ jobs:
           git config --global user.name "Security Agent Bot"
           git config --global user.email "bot@nyxfoundation.org"
 
-      - name: "Step 02a: Checklist Boundaries"
-        run: make 02a
+      - name: "Step 02a: Checklist Boundaries (Parallel)"
+        run: make 02a-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }}
 
       - name: Push Results
         if: always()

@@ -60,8 +60,8 @@ jobs:
       - name: "Step 01b: Extraction (Parallel)"
         run: make 01b-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }}
 
-      - name: "Step 01c: Integration"
-        run: make 01c
+      - name: "Step 01c: Verification (Parallel)"
+        run: make 01c-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }}
 
       - name: Push Results
         if: always()

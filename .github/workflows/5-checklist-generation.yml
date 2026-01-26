@@ -39,8 +39,8 @@ jobs:
 
       - name: Verify Prerequisites
         run: |
-          if [ ! -f "outputs/02a_CHECKLIST_BOUNDARIES.json" ]; then
-            echo "Missing: outputs/02a_CHECKLIST_BOUNDARIES.json - Run Step 4 first"
+          if [ -z "$(ls outputs/02a_CHECKLIST_PARTIAL_*.json 2>/dev/null)" ]; then
+            echo "Missing: outputs/02a_CHECKLIST_PARTIAL_*.json - Run Step 4 first"
             exit 1
           fi
 

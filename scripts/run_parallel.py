@@ -122,12 +122,16 @@ def run_merge(phase: str, output_file: str) -> bool:
     return True
 
 
-# Output file mapping
+# Output file mapping (None = no merge needed, partials are the output)
 OUTPUT_FILES = {
-    "01b": "outputs/01_SPEC.json",
-    "02b": "outputs/02b_CHECKLIST_MERGED.json",
-    "03": "outputs/03_AUDITMAP_MERGED.json",
-    "04": "outputs/04_REVIEW_MERGED.json",
+    "01b": None,  # No merge - subgraphs are kept separate
+    "01c": None,  # No merge - verified subgraphs
+    "01d": None,  # No merge - trust model partials
+    "01e": None,  # No merge - property partials
+    "02a": None,  # No merge - checklist partials
+    "02b": None,  # No merge - checklist partials
+    "03": None,   # No merge - audit map partials
+    "04": None,   # No merge - review partials
 }
 
 
@@ -138,7 +142,7 @@ def main():
     parser.add_argument(
         "--phase",
         required=True,
-        choices=["01b", "02b", "03", "04"],
+        choices=["01b", "01c", "01d", "01e", "02a", "02b", "03", "04"],
         help="Phase to run",
     )
     parser.add_argument(
@@ -188,14 +192,14 @@ def main():
         print("WARNING: Some workers failed", file=sys.stderr)
         # Continue to merge anyway
 
-    # Step 3: Merge results
-    if not args.skip_merge:
-        output_file = args.output or OUTPUT_FILES[args.phase]
+    # Step 3: Merge results (if configured)
+    output_file = args.output or OUTPUT_FILES.get(args.phase)
+    if output_file and not args.skip_merge:
         if not run_merge(args.phase, output_file):
             print("ERROR: Result merging failed", file=sys.stderr)
             sys.exit(1)
     else:
-        print("\nSkipping merge (--skip-merge)")
+        print("\nSkipping merge (no merge configured or --skip-merge)")
 
     total_time = time.time() - start_time
     print(f"\n{'='*60}")

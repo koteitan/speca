@@ -21,8 +21,8 @@ MAX_ITERATIONS ?= 100
 WORKERS ?= 4
 
 .PHONY: all preparation audit init init-prep \
-        01a 01b-parallel 01c 01d 01e \
-        02a 02b-parallel 02c 02s \
+        01a 01b-parallel 01c-parallel 01d-parallel 01e-parallel \
+        02a-parallel 02b-parallel 02c 02s \
         03-parallel 04-parallel \
         clean help
 
@@ -46,38 +46,38 @@ help:
 	@echo ""
 	@echo "Phase Targets:"
 	@echo "  all          - Run full pipeline (preparation + audit)"
-	@echo "  preparation  - Run preparation phase (parallel workers)"
-	@echo "  audit        - Run audit phase (parallel workers)"
+	@echo "  preparation  - Run preparation phase (all parallel)"
+	@echo "  audit        - Run audit phase (all parallel)"
 	@echo ""
-	@echo "Specification Steps (01a-01e):"
-	@echo "  init-prep    - Setup output directories (no git repo required)"
-	@echo "  01a          - Discovery & Queuing (01a_crawl.md → 01a_STATE.json)"
-	@echo "  01b-parallel - Extraction with parallel workers"
-	@echo "  01c          - Integration (01c_integrate.md → 01_SPEC.json)"
-	@echo "  01d          - Trust Model (01d_trustmodel.md → 01d_TRUSTMODEL.json)"
-	@echo "  01e          - Properties (01e_prop.md → 01e_PROP.json)"
+	@echo "Specification Steps (01a-01e) - All Parallel:"
+	@echo "  init-prep    - Setup output directories"
+	@echo "  01a          - Discovery & Queuing"
+	@echo "  01b-parallel - Extraction (subgraphs)"
+	@echo "  01c-parallel - Verification (validate subgraphs)"
+	@echo "  01d-parallel - Trust Model (partials)"
+	@echo "  01e-parallel - Properties (partials)"
 	@echo ""
-	@echo "Checklist Steps (02a-02s):"
-	@echo "  02s          - Review & Validate (02s_review.md)"
-	@echo "  02a          - Checklist Boundaries (02a_checklist.md)"
-	@echo "  02b-parallel - Checklist Remaining with parallel workers"
-	@echo "  02c          - Checklist Merge (02c_checklistmerge.md) [OPTIONAL]"
+	@echo "Checklist Steps (02a-02s) - All Parallel:"
+	@echo "  02a-parallel - Checklist Boundaries (partials)"
+	@echo "  02b-parallel - Checklist Remaining (partials)"
+	@echo "  02s          - Review & Validate"
+	@echo "  02c          - Checklist Merge [OPTIONAL]"
 	@echo ""
-	@echo "Audit Steps:"
-	@echo "  init         - Setup directories and check target workspace"
-	@echo "  03-parallel  - Static Audit Map with parallel workers"
-	@echo "  04-parallel  - Audit Review with parallel workers"
+	@echo "Audit Steps - All Parallel:"
+	@echo "  init         - Setup target workspace"
+	@echo "  03-parallel  - Audit Map (partials)"
+	@echo "  04-parallel  - Audit Review (partials)"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  clean  - Remove generated outputs"
 	@echo ""
-	@echo "Configuration Variables:"
-	@echo "  MAX_ITERATIONS - Safety limit for loop iterations (default: 100)"
-	@echo "  WORKERS        - Number of parallel workers (default: 4)"
+	@echo "Configuration:"
+	@echo "  WORKERS        - Parallel workers (default: 4)"
+	@echo "  MAX_ITERATIONS - Safety limit (default: 100)"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make preparation WORKERS=8"
-	@echo "  make audit WORKERS=4 MAX_ITERATIONS=100"
+	@echo "  make 01b-parallel WORKERS=8"
+	@echo "  make preparation WORKERS=4"
 
 # Init for audit phase (requires git repo)
 init:
@@ -133,81 +133,59 @@ clean:
 	fi
 
 # Step 01b-parallel: Parallel extraction using multiple workers
-# Skip if: 01_SPEC.json exists
 01b-parallel:
 	@if [ ! -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
 		echo "❌ Error: $(OUTPUT_DIR)/01a_STATE.json not found. Run 01a first."; exit 1; \
 	fi; \
-	if [ -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
-		echo "⏭️  Skipping 01b-parallel: 01_SPEC.json exists"; \
+	if ls $(OUTPUT_DIR)/01b_SUBGRAPHS/spec_*.json >/dev/null 2>&1; then \
+		SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/spec_*.json 2>/dev/null | wc -l); \
+		echo "⏭️  Skipping 01b-parallel: $$SUBGRAPH_COUNT subgraphs already exist"; \
 	else \
-		echo "🚀 Running 01b_extract.md in parallel with $(WORKERS) workers..."; \
+		echo "🚀 Running 01b extraction in parallel with $(WORKERS) workers..."; \
 		python3 scripts/run_parallel.py --phase 01b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
 		SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
 		echo "✅ Parallel extraction complete. Total subgraphs: $$SUBGRAPH_COUNT"; \
 	fi
 
-# Step 01c: Integration
-01c:
-	@if [ -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
-		echo "⏭️  Skipping 01c: $(OUTPUT_DIR)/01_SPEC.json already exists"; \
+# Step 01c-parallel: Parallel subgraph verification
+01c-parallel:
+	@if [ ! -d "$(OUTPUT_DIR)/01b_SUBGRAPHS" ] || [ -z "$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null)" ]; then \
+		echo "❌ Error: No subgraphs found. Run 01b-parallel first."; exit 1; \
+	fi; \
+	if ls $(OUTPUT_DIR)/01d_TRUSTMODEL_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 01c-parallel: trust model partials exist (verification done)"; \
 	else \
-		if [ ! -d "$(OUTPUT_DIR)/01b_SUBGRAPHS" ] || [ -z "$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null)" ]; then \
-			echo "❌ Error: No subgraphs found in $(OUTPUT_DIR)/01b_SUBGRAPHS/. Run 01b-parallel first."; exit 1; \
-		fi; \
-		echo "⭐ Running 01c_integrate.md (Integration)..."; \
-		START_TIME=$$(date +%s); \
-		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01c_integrate.md)" > $(LOG_DIR)/01c_integrate.json; \
-		END_TIME=$$(date +%s); \
-		DURATION=$$((END_TIME - START_TIME)); \
-		if [ -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
-			COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01c_integrate.json | head -1 | cut -d: -f2); \
-			echo "✅ Finished 01c_integrate.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
-		else \
-			echo "❌ Error: 01_SPEC.json not generated"; exit 1; \
-		fi; \
+		echo "🚀 Running 01c verification in parallel with $(WORKERS) workers..."; \
+		python3 scripts/run_parallel.py --phase 01c --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		echo "✅ Parallel verification complete"; \
 	fi
 
-# Step 01d: Trust Model
-01d:
-	@if [ -f "$(OUTPUT_DIR)/01d_TRUSTMODEL.json" ]; then \
-		echo "⏭️  Skipping 01d: $(OUTPUT_DIR)/01d_TRUSTMODEL.json already exists"; \
+# Step 01d-parallel: Parallel trust model generation
+01d-parallel:
+	@if [ ! -d "$(OUTPUT_DIR)/01b_SUBGRAPHS" ] || [ -z "$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null)" ]; then \
+		echo "❌ Error: No subgraphs found. Run 01b-parallel first."; exit 1; \
+	fi; \
+	if ls $(OUTPUT_DIR)/01e_PROP_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 01d-parallel: property partials exist"; \
 	else \
-		if [ ! -f "$(OUTPUT_DIR)/01_SPEC.json" ]; then \
-			echo "❌ Error: $(OUTPUT_DIR)/01_SPEC.json not found. Run 01c first."; exit 1; \
-		fi; \
-		echo "⭐ Running 01d_trustmodel.md (Trust Model)..."; \
-		START_TIME=$$(date +%s); \
-		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01d_trustmodel.md)" > $(LOG_DIR)/01d_trustmodel.json; \
-		END_TIME=$$(date +%s); \
-		DURATION=$$((END_TIME - START_TIME)); \
-		if [ -f "$(OUTPUT_DIR)/01d_TRUSTMODEL.json" ]; then \
-			COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01d_trustmodel.json | head -1 | cut -d: -f2); \
-			echo "✅ Finished 01d_trustmodel.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
-		else \
-			echo "❌ Error: 01d_TRUSTMODEL.json not generated"; exit 1; \
-		fi; \
+		echo "🚀 Running 01d trust model in parallel with $(WORKERS) workers..."; \
+		python3 scripts/run_parallel.py --phase 01d --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/01d_TRUSTMODEL_PARTIAL_*.json 2>/dev/null | wc -l); \
+		echo "✅ Parallel trust model complete. Partials: $$PARTIAL_COUNT"; \
 	fi
 
-# Step 01e: Properties
-01e:
-	@if [ -f "$(OUTPUT_DIR)/01e_PROP.json" ]; then \
-		echo "⏭️  Skipping 01e: $(OUTPUT_DIR)/01e_PROP.json already exists"; \
+# Step 01e-parallel: Parallel property generation
+01e-parallel:
+	@if ! ls $(OUTPUT_DIR)/01d_TRUSTMODEL_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "❌ Error: No trust model partials found. Run 01d-parallel first."; exit 1; \
+	fi; \
+	if ls $(OUTPUT_DIR)/02a_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 01e-parallel: checklist partials exist"; \
 	else \
-		if [ ! -f "$(OUTPUT_DIR)/01d_TRUSTMODEL.json" ]; then \
-			echo "❌ Error: $(OUTPUT_DIR)/01d_TRUSTMODEL.json not found. Run 01d first."; exit 1; \
-		fi; \
-		echo "⭐ Running 01e_prop.md (Properties)..."; \
-		START_TIME=$$(date +%s); \
-		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/01e_prop.md)" > $(LOG_DIR)/01e_prop.json; \
-		END_TIME=$$(date +%s); \
-		DURATION=$$((END_TIME - START_TIME)); \
-		if [ -f "$(OUTPUT_DIR)/01e_PROP.json" ]; then \
-			COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/01e_prop.json | head -1 | cut -d: -f2); \
-			echo "✅ Finished 01e_prop.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
-		else \
-			echo "❌ Error: 01e_PROP.json not generated"; exit 1; \
-		fi; \
+		echo "🚀 Running 01e properties in parallel with $(WORKERS) workers..."; \
+		python3 scripts/run_parallel.py --phase 01e --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/01e_PROP_PARTIAL_*.json 2>/dev/null | wc -l); \
+		echo "✅ Parallel property generation complete. Partials: $$PARTIAL_COUNT"; \
 	fi
 
 # ------------------------------------------------------
@@ -238,39 +216,32 @@ clean:
 		fi; \
 	fi
 
-# Step 02a: Checklist Boundaries
-02a:
-	@if [ -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
-		echo "⏭️  Skipping 02a: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json already exists"; \
+# Step 02a-parallel: Parallel checklist boundary generation
+02a-parallel:
+	@if ! ls $(OUTPUT_DIR)/01e_PROP_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "❌ Error: No property partials found. Run 01e-parallel first."; exit 1; \
+	fi; \
+	if ls $(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "⏭️  Skipping 02a-parallel: 02b checklist partials exist"; \
 	else \
-		if [ ! -f "$(OUTPUT_DIR)/01e_PROP.json" ]; then \
-			echo "❌ Error: $(OUTPUT_DIR)/01e_PROP.json not found. Run 01e first."; exit 1; \
-		fi; \
-		echo "⭐ Running 02a_checklist.md (Checklist Boundaries)..."; \
-		START_TIME=$$(date +%s); \
-		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02a_checklist.md)" > $(LOG_DIR)/02a_checklist.json; \
-		END_TIME=$$(date +%s); \
-		DURATION=$$((END_TIME - START_TIME)); \
-		if [ -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
-			COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/02a_checklist.json | head -1 | cut -d: -f2); \
-			echo "✅ Finished 02a_checklist.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
-		else \
-			echo "❌ Error: 02a_CHECKLIST_BOUNDARIES.json not generated"; exit 1; \
-		fi; \
+		echo "🚀 Running 02a checklist boundaries in parallel with $(WORKERS) workers..."; \
+		python3 scripts/run_parallel.py --phase 02a --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/02a_CHECKLIST_PARTIAL_*.json 2>/dev/null | wc -l); \
+		echo "✅ Parallel boundary checklist complete. Partials: $$PARTIAL_COUNT"; \
 	fi
 
-# Step 02b-parallel: Parallel checklist generation using multiple workers
-# Skip if: 03_AUDITMAP_PARTIAL_*.json exists
+# Step 02b-parallel: Parallel checklist generation for remaining properties
 02b-parallel:
-	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
-		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+	@if ! ls $(OUTPUT_DIR)/02a_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "❌ Error: No 02a checklist partials found. Run 02a-parallel first."; exit 1; \
 	fi; \
 	if ls $(OUTPUT_DIR)/03_AUDITMAP_PARTIAL_*.json >/dev/null 2>&1; then \
 		echo "⏭️  Skipping 02b-parallel: 03_AUDITMAP_PARTIAL_*.json exists"; \
 	else \
-		echo "🚀 Running 02b_checklistrem.md in parallel with $(WORKERS) workers..."; \
+		echo "🚀 Running 02b checklist remaining in parallel with $(WORKERS) workers..."; \
 		python3 scripts/run_parallel.py --phase 02b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
-		echo "✅ Parallel checklist generation complete"; \
+		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_*.json 2>/dev/null | wc -l); \
+		echo "✅ Parallel checklist generation complete. Partials: $$PARTIAL_COUNT"; \
 	fi
 
 # Step 02c: Checklist Merge (Optional)
@@ -299,10 +270,9 @@ clean:
 # ------------------------------------------------------
 
 # Step 03-parallel: Parallel audit map using multiple workers
-# Skip if: 04_REVIEW_PARTIAL_*.json exists
 03-parallel:
-	@if [ ! -f "$(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json" ]; then \
-		echo "❌ Error: $(OUTPUT_DIR)/02a_CHECKLIST_BOUNDARIES.json not found. Run 02a first."; exit 1; \
+	@if ! ls $(OUTPUT_DIR)/02*_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then \
+		echo "❌ Error: No checklist partials found. Run 02a-parallel and 02b-parallel first."; exit 1; \
 	fi; \
 	if [ ! -d "$(WORKDIR)/.git" ]; then \
 		echo "❌ Error: $(WORKDIR) is not a git repo. Please clone target repo first."; exit 1; \

@@ -28,6 +28,30 @@ PHASE_CONFIG = {
         "log_prefix": "outputs/logs/01b_extract_w{worker_id}",
         "workdir": None,
     },
+    "01c": {
+        "queue_file": "outputs/01c_QUEUE_{worker_id}.json",
+        "prompt_file": "prompts/01c_verify_worker.md",
+        "log_prefix": "outputs/logs/01c_verify_w{worker_id}",
+        "workdir": None,
+    },
+    "01d": {
+        "queue_file": "outputs/01d_QUEUE_{worker_id}.json",
+        "prompt_file": "prompts/01d_trustmodel_worker.md",
+        "log_prefix": "outputs/logs/01d_trustmodel_w{worker_id}",
+        "workdir": None,
+    },
+    "01e": {
+        "queue_file": "outputs/01e_QUEUE_{worker_id}.json",
+        "prompt_file": "prompts/01e_prop_worker.md",
+        "log_prefix": "outputs/logs/01e_prop_w{worker_id}",
+        "workdir": None,
+    },
+    "02a": {
+        "queue_file": "outputs/02a_QUEUE_{worker_id}.json",
+        "prompt_file": "prompts/02a_checklist_worker.md",
+        "log_prefix": "outputs/logs/02a_checklist_w{worker_id}",
+        "workdir": None,
+    },
     "02b": {
         "queue_file": "outputs/02b_QUEUE_{worker_id}.json",
         "prompt_file": "prompts/02b_checklistrem_worker.md",
@@ -146,7 +170,7 @@ def main():
         "--phase",
         required=True,
         choices=list(PHASE_CONFIG.keys()),
-        help="Phase to run (01b, 02b, 03, 04)",
+        help="Phase to run (01b, 01c, 01d, 01e, 02a, 02b, 03, 04)",
     )
     parser.add_argument(
         "--worker-id",
