@@ -104,12 +104,14 @@ jobs:
             MAX_ITERATIONS=${{ inputs.max_iterations }}
 
       - name: Copy Outputs Back
+        if: always()
         run: |
           cp -r target_workspace/outputs/03_*.json outputs/ 2>/dev/null || true
           mkdir -p outputs/logs
           cp -r target_workspace/outputs/logs/03_*.json outputs/logs/ 2>/dev/null || true
 
       - name: Push Results
+        if: always()
         run: |
           git add outputs/
 

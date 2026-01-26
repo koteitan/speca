@@ -97,6 +97,7 @@ jobs:
         run: make 01e
 
       - name: Push Results
+        if: always()
         run: |
           git add outputs/
 

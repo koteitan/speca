@@ -82,6 +82,7 @@ jobs:
             MAX_ITERATIONS=${{ inputs.max_iterations }}
 
       - name: Push Results
+        if: always()
         run: |
           git add outputs/
 
