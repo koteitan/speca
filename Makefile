@@ -19,6 +19,7 @@ MAX_ITERATIONS ?= 100
 
 # Parallel execution configuration
 WORKERS ?= 4
+SKIP_SPLIT ?=
 
 .PHONY: all preparation audit init init-prep \
         01a 01b-parallel 01c-parallel 01d-parallel 01e-parallel \
@@ -142,7 +143,7 @@ clean:
 		echo "⏭️  Skipping 01b-parallel: $$SUBGRAPH_COUNT subgraphs already exist"; \
 	else \
 		echo "🚀 Running 01b extraction in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 01b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		python3 scripts/run_parallel.py --phase 01b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
 		SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
 		echo "✅ Parallel extraction complete. Total subgraphs: $$SUBGRAPH_COUNT"; \
 	fi
@@ -156,7 +157,7 @@ clean:
 		echo "⏭️  Skipping 01c-parallel: trust model partials exist (verification done)"; \
 	else \
 		echo "🚀 Running 01c verification in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 01c --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		python3 scripts/run_parallel.py --phase 01c --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
 		echo "✅ Parallel verification complete"; \
 	fi
 
@@ -169,7 +170,7 @@ clean:
 		echo "⏭️  Skipping 01d-parallel: property partials exist"; \
 	else \
 		echo "🚀 Running 01d trust model in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 01d --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		python3 scripts/run_parallel.py --phase 01d --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
 		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/01d_TRUSTMODEL_PARTIAL_*.json 2>/dev/null | wc -l); \
 		echo "✅ Parallel trust model complete. Partials: $$PARTIAL_COUNT"; \
 	fi
@@ -183,7 +184,7 @@ clean:
 		echo "⏭️  Skipping 01e-parallel: checklist partials exist"; \
 	else \
 		echo "🚀 Running 01e properties in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 01e --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		python3 scripts/run_parallel.py --phase 01e --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
 		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/01e_PROP_PARTIAL_*.json 2>/dev/null | wc -l); \
 		echo "✅ Parallel property generation complete. Partials: $$PARTIAL_COUNT"; \
 	fi
@@ -225,7 +226,7 @@ clean:
 		echo "⏭️  Skipping 02a-parallel: 02b checklist partials exist"; \
 	else \
 		echo "🚀 Running 02a checklist boundaries in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 02a --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		python3 scripts/run_parallel.py --phase 02a --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
 		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/02a_CHECKLIST_PARTIAL_*.json 2>/dev/null | wc -l); \
 		echo "✅ Parallel boundary checklist complete. Partials: $$PARTIAL_COUNT"; \
 	fi
@@ -239,7 +240,7 @@ clean:
 		echo "⏭️  Skipping 02b-parallel: 03_AUDITMAP_PARTIAL_*.json exists"; \
 	else \
 		echo "🚀 Running 02b checklist remaining in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 02b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		python3 scripts/run_parallel.py --phase 02b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
 		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/02b_CHECKLIST_PARTIAL_*.json 2>/dev/null | wc -l); \
 		echo "✅ Parallel checklist generation complete. Partials: $$PARTIAL_COUNT"; \
 	fi
@@ -281,7 +282,7 @@ clean:
 		echo "⏭️  Skipping 03-parallel: 04_REVIEW_PARTIAL_*.json exists"; \
 	else \
 		echo "🚀 Running 03_auditmap.md in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 03 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		python3 scripts/run_parallel.py --phase 03 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
 		echo "✅ Parallel audit map generation complete"; \
 	fi
 
@@ -304,7 +305,7 @@ clean:
 	fi; \
 	if [ "$$SHOULD_SKIP" = "false" ]; then \
 		echo "🚀 Running 04_review.md in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 04 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS); \
+		python3 scripts/run_parallel.py --phase 04 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
 		echo "✅ Parallel audit review complete"; \
 	fi
 

@@ -17,6 +17,11 @@ on:
         required: false
         type: number
         default: 100
+      skip_split:
+        description: 'Skip queue split (resume from existing queue)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -58,10 +63,10 @@ jobs:
           git config --global user.email "bot@nyxfoundation.org"
 
       - name: "Step 01b: Extraction (Parallel)"
-        run: make 01b-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }}
+        run: make 01b-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }} ${{ inputs.skip_split && 'SKIP_SPLIT=1' || '' }}
 
       - name: "Step 01c: Verification (Parallel)"
-        run: make 01c-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }}
+        run: make 01c-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }} ${{ inputs.skip_split && 'SKIP_SPLIT=1' || '' }}
 
       - name: Push Results
         if: always()
