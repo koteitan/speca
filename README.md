@@ -126,7 +126,7 @@ Use the workflow files under `.github/workflows/` and configure inputs via **wor
 Defaults live in the YAML files (e.g., `1-discovery.yml` for `KEYWORDS` and `SPEC_URLS`).
 
 #### Step 2: Push Changes
-Push your changes to your `audit/*` branch to trigger the pipeline.
+Trigger workflows manually via GitHub Actions (workflow_dispatch). If you use an `audit/*` branch, you can still run workflows from that branch, but pushes are no longer required to start the pipeline.
 ```bash
 git push origin audit/geth
 ```
