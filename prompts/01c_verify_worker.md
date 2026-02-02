@@ -1,8 +1,8 @@
 
 ---
 Description: [PARALLEL WORKER] Verify and fix subgraph files for internal consistency. Check node/edge references, ID uniqueness, and graph connectivity.
-Usage: `/01c_verify_worker WORKER_ID=... QUEUE_FILE=...`
-Example: `/01c_verify_worker WORKER_ID=0 QUEUE_FILE=outputs/01c_QUEUE_0.json`
+Usage: `/01c_verify_worker WORKER_ID=... QUEUE_FILE=... [TIMESTAMP=...] [ITERATION=...]`
+Example: `/01c_verify_worker WORKER_ID=0 QUEUE_FILE=outputs/01c_QUEUE_0.json TIMESTAMP=1700000000 ITERATION=1`
 Language: English only.
 Execution hint: This is a worker prompt for parallel execution. Called by run_worker.py.
 ---
@@ -17,8 +17,10 @@ Process subgraph files from your assigned worker queue. For each subgraph file, 
 
 - **`WORKER_ID`**: The numeric ID of this worker (0, 1, 2, ...)
 - **`QUEUE_FILE`**: Path to this worker's queue file (e.g., `outputs/01c_QUEUE_0.json`)
+- **`TIMESTAMP`**: Unix timestamp for this iteration (used in output naming)
+- **`ITERATION`**: The current iteration number for this worker
 
-**Output:** Verified/fixed subgraph files (overwritten in place).
+**Output:** Verified/fixed subgraph files (overwritten in place) plus a timestamped copy.
 
 ---
 
@@ -91,6 +93,7 @@ For each sub-graph in `sub_graphs`:
 }
 ```
 3. Overwrite the original file with the verified version
+4. Also write a timestamped copy to `outputs/01b_SUBGRAPHS/spec_<hash>_verified_{TIMESTAMP}_{ITERATION}.json`
 
 ### **Task 2.3: Update Worker Queue**
 
@@ -101,7 +104,7 @@ For each sub-graph in `sub_graphs`:
 
 ## 3) Required Output Format
 
-**Updated Subgraph File:** (same path, overwritten)
+**Updated Subgraph File:** (same path, overwritten) plus timestamped copy
 ```json
 {
   "source_url": "https://...",

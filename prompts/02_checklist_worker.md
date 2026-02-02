@@ -1,8 +1,8 @@
 
 ---
 Description: [UNIFIED PARALLEL WORKER] Generate checklist items for all property types (boundary and internal).
-Usage: `/02_checklist_worker WORKER_ID=... QUEUE_FILE=...`
-Example: `/02_checklist_worker WORKER_ID=0 QUEUE_FILE=outputs/02_QUEUE_0.json`
+Usage: `/02_checklist_worker WORKER_ID=... QUEUE_FILE=... [TIMESTAMP=...] [ITERATION=...]`
+Example: `/02_checklist_worker WORKER_ID=0 QUEUE_FILE=outputs/02_QUEUE_0.json TIMESTAMP=1700000000 ITERATION=1`
 Language: English only.
 Execution hint: This is a unified worker prompt for parallel execution. Called by run_worker.py.
 ---
@@ -17,10 +17,10 @@ Generate audit checklist items for properties assigned to this worker's queue. P
 
 - **`WORKER_ID`**: The numeric ID of this worker (0, 1, 2, ...)
 - **`QUEUE_FILE`**: Path to this worker's queue file (e.g., `outputs/02_QUEUE_0.json`)
+- **`TIMESTAMP`**: Unix timestamp for this iteration (used in output naming)
 - **`ITERATION`**: The current iteration number for this worker
-- **`OUTPUT_FILE`**: Full output path for this iteration (unique per run)
 
-**Output:** `{OUTPUT_FILE}`
+**Output:** `outputs/02_CHECKLIST_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json`
 
 ---
 
@@ -88,14 +88,14 @@ Generate audit checklist items for properties assigned to this worker's queue. P
 
 ### **Task 2.3: Write Outputs**
 
-1.  **Generate Partial Checklist:** Create `{OUTPUT_FILE}` containing all checks generated for the batch.
+1.  **Generate Partial Checklist:** Create `outputs/02_CHECKLIST_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json` containing all checks generated for the batch.
 2.  **Update Worker Queue:** Add all processed `property_id`s from the batch to the `processed` array and overwrite `QUEUE_FILE`.
 
 ---
 
 ## 3) Required Output Format (JSON)
 
-**Partial Checklist:** `{OUTPUT_FILE}` (set `metadata.batch` to `ITERATION`)
+**Partial Checklist:** `outputs/02_CHECKLIST_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json` (set `metadata.batch` to `ITERATION`)
 
 ```json
 {

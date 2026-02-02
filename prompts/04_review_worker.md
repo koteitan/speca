@@ -1,8 +1,8 @@
 
 ---
 Description: [PARALLEL WORKER] Rigorous, neutral formal review of audit findings from a worker-specific queue.
-Usage: `/04_review_worker WORKER_ID=... QUEUE_FILE=...`
-Example: `/04_review_worker WORKER_ID=0 QUEUE_FILE=outputs/04_QUEUE_0.json`
+Usage: `/04_review_worker WORKER_ID=... QUEUE_FILE=... [TIMESTAMP=...] [ITERATION=...]`
+Example: `/04_review_worker WORKER_ID=0 QUEUE_FILE=outputs/04_QUEUE_0.json TIMESTAMP=1700000000 ITERATION=1`
 Language: English only.
 Execution hint: This is a worker prompt for parallel execution. Called by run_worker.py.
 ---
@@ -17,6 +17,8 @@ This is **parallel worker `WORKER_ID`**. You have a dedicated queue file that on
 
 - **`WORKER_ID`**: The numeric ID of this worker (0, 1, 2, ...)
 - **`QUEUE_FILE`**: Path to this worker's queue file (e.g., `outputs/04_QUEUE_0.json`)
+- **`TIMESTAMP`**: Unix timestamp for this iteration (used in output naming)
+- **`ITERATION`**: The current iteration number for this worker
 
 ---
 
@@ -192,8 +194,8 @@ For each `item` in your `current_batch`:
 **THIS STEP MUST HAPPEN BEFORE UPDATING THE QUEUE FILE**
 
 1. **Generate Partial Review:**
-   * Count existing `04_REVIEW_PARTIAL_W{WORKER_ID}_*.json` files + 1
-   * Create `outputs/04_REVIEW_PARTIAL_W{WORKER_ID}_{BATCH}.json`
+   * Create `outputs/04_REVIEW_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json`
+   * Set `metadata.batch_number` to `ITERATION`
    * Verify that all items in batch have been reviewed
    * Verify verdict counts in metadata match actual items
 
@@ -206,7 +208,7 @@ For each `item` in your `current_batch`:
 
 ## Output Format
 
-**Partial Review:** `outputs/04_REVIEW_PARTIAL_W{WORKER_ID}_{BATCH}.json`
+**Partial Review:** `outputs/04_REVIEW_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json`
 ```json
 {
   "metadata": {

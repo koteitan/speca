@@ -1,8 +1,8 @@
 
 ---
 Description: [PARALLEL WORKER] Generate security properties for subgraph files. Create formal properties covering nodes, edges, and trust boundaries.
-Usage: `/01e_prop_worker WORKER_ID=... QUEUE_FILE=... [BATCH_SIZE=...]`
-Example: `/01e_prop_worker WORKER_ID=0 QUEUE_FILE=outputs/01e_QUEUE_0.json BATCH_SIZE=5`
+Usage: `/01e_prop_worker WORKER_ID=... QUEUE_FILE=... [BATCH_SIZE=...] [TIMESTAMP=...] [ITERATION=...]`
+Example: `/01e_prop_worker WORKER_ID=0 QUEUE_FILE=outputs/01e_QUEUE_0.json BATCH_SIZE=5 TIMESTAMP=1700000000 ITERATION=1`
 Language: English only.
 Execution hint: This is a worker prompt for parallel execution. Called by run_worker.py.
 ---
@@ -17,10 +17,12 @@ Process subgraph files from your assigned worker queue. For each subgraph, gener
 - **`WORKER_ID`**: The numeric ID of this worker (0, 1, 2, ...)
 - **`QUEUE_FILE`**: Path to this worker's queue file (e.g., `outputs/01e_QUEUE_0.json`)
 - **`BATCH_SIZE` (optional)**: Max number of files to process this iteration (set dynamically by `run_worker.py`)
+- **`TIMESTAMP`**: Unix timestamp for this iteration (used in output naming)
+- **`ITERATION`**: The current iteration number for this worker
 
 **Additional Input:** Trust model partials from `outputs/01d_TRUSTMODEL_PARTIAL_*.json`
 
-**Output:** `outputs/01e_PROP_PARTIAL_W{WORKER_ID}_{N}.json`
+**Output:** `outputs/01e_PROP_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json`
 
 ---
 
@@ -149,7 +151,8 @@ Report coverage in metadata.
 ### **Task 2.4: Write Outputs**
 
 1. **Generate Partial Properties:**
-   - Create `outputs/01e_PROP_PARTIAL_W{WORKER_ID}_{BATCH}.json`
+   - Create `outputs/01e_PROP_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json`
+   - Set `metadata.batch` to `ITERATION`
    - Ensure `metadata.source_files` lists **all files in this batch**
 
 2. **Update Worker Queue:**
@@ -160,7 +163,7 @@ Report coverage in metadata.
 
 ## 3) Required Output Format (JSON)
 
-**Partial Properties:** `outputs/01e_PROP_PARTIAL_W{WORKER_ID}_{BATCH}.json`
+**Partial Properties:** `outputs/01e_PROP_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json`
 
 ```json
 {

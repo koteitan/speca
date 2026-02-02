@@ -1,8 +1,8 @@
 
 ---
 Description: [PARALLEL WORKER] Process 5 URLs per iteration from a worker-specific queue. Extract MULTIPLE sub-graphs representing different aspects of the RUNTIME BEHAVIOR of the systems described in the specifications, identify ambiguities, and list implicit assumptions.
-Usage: `/01b_extract_worker WORKER_ID=... QUEUE_FILE=...`
-Example: `/01b_extract_worker WORKER_ID=0 QUEUE_FILE=outputs/01b_QUEUE_0.json`
+Usage: `/01b_extract_worker WORKER_ID=... QUEUE_FILE=... [TIMESTAMP=...] [ITERATION=...]`
+Example: `/01b_extract_worker WORKER_ID=0 QUEUE_FILE=outputs/01b_QUEUE_0.json TIMESTAMP=1700000000 ITERATION=1`
 Language: English only.
 Execution hint: This is a worker prompt for parallel execution. Called by run_worker.py.
 ---
@@ -19,6 +19,8 @@ This is **parallel worker `WORKER_ID`**. You have a dedicated queue file that on
 
 - **`WORKER_ID`**: The numeric ID of this worker (0, 1, 2, ...)
 - **`QUEUE_FILE`**: Path to this worker's queue file (e.g., `outputs/01b_QUEUE_0.json`)
+- **`TIMESTAMP`**: Unix timestamp for this iteration (used in output naming)
+- **`ITERATION`**: The current iteration number for this worker
 
 ## ⚠️ CRITICAL: Extract Multiple Aspects Per Specification
 
@@ -73,7 +75,7 @@ Before extracting nodes and edges, answer these questions:
 - **Prefer States for Conditions:** `STATE-TX-RECEIVED`, `STATE-BLOCK-PENDING`, `STATE-SYNC-COMPLETE`
 
 **Output (required files):**
-1.  `outputs/01b_SUBGRAPHS/spec_<hash>.json`: Multiple sub-graphs extracted from the processed URL.
+1.  `outputs/01b_SUBGRAPHS/spec_<hash>_{TIMESTAMP}_{ITERATION}.json`: Multiple sub-graphs extracted from the processed URL.
 2.  Worker queue file: Updated with processed URLs.
 
 ---
@@ -163,7 +165,7 @@ First, scan the specification and identify which aspects are covered:
 
 1.  **Create Sub-Graph File:**
     *   Generate a unique hash for the URL (e.g., SHA1 of the URL string).
-    *   Create a file `outputs/01b_SUBGRAPHS/spec_<hash>.json`.
+    *   Create a file `outputs/01b_SUBGRAPHS/spec_<hash>_{TIMESTAMP}_{ITERATION}.json`.
     *   This file contains the `source_url`, `worker_id`, the extracted `sub_graphs` array (multiple sub-graphs), `ambiguities`, and `implicit_assumptions`.
 
 **After processing ALL URLs in the batch:**
@@ -179,7 +181,7 @@ First, scan the specification and identify which aspects are covered:
 
 ## 3) Required Output Format (JSON)
 
-**Sub-Graph File:** `outputs/01b_SUBGRAPHS/spec_<hash>.json`
+**Sub-Graph File:** `outputs/01b_SUBGRAPHS/spec_<hash>_{TIMESTAMP}_{ITERATION}.json`
 ```json
 {
   "source_url": "https://eips.ethereum.org/EIPS/eip-4844",

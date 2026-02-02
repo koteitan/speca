@@ -1,8 +1,8 @@
 
 ---
 Description: [PARALLEL WORKER] Comprehensive static audit with vulnerability discovery using formal predicates, attack vector analysis, mandatory counterexample construction, and robust batch processing.
-Usage: `/03_auditmap_worker WORKER_ID=... QUEUE_FILE=...`
-Example: `/03_auditmap_worker WORKER_ID=0 QUEUE_FILE=outputs/03_QUEUE_0.json`
+Usage: `/03_auditmap_worker WORKER_ID=... QUEUE_FILE=... [TIMESTAMP=...] [ITERATION=...]`
+Example: `/03_auditmap_worker WORKER_ID=0 QUEUE_FILE=outputs/03_QUEUE_0.json TIMESTAMP=1700000000 ITERATION=1`
 Language: English only.
 Execution hint: This is a worker prompt for parallel execution. Called by run_worker.py.
 ---
@@ -17,6 +17,8 @@ This is **parallel worker `WORKER_ID`**. You have a dedicated queue file that on
 
 - **`WORKER_ID`**: The numeric ID of this worker (0, 1, 2, ...)
 - **`QUEUE_FILE`**: Path to this worker's queue file (e.g., `outputs/03_QUEUE_0.json`)
+- **`TIMESTAMP`**: Unix timestamp for this iteration (used in output naming)
+- **`ITERATION`**: The current iteration number for this worker
 
 **The Predicate:**
 
@@ -200,8 +202,8 @@ For each `check_id` in your `current_batch` (EXACTLY 20 items or fewer):
 **THIS STEP MUST HAPPEN BEFORE UPDATING THE QUEUE FILE**
 
 1. **Generate Partial Audit Map:**
-   * Count existing `03_AUDITMAP_PARTIAL_W{WORKER_ID}_*.json` files + 1
-   * Create `outputs/03_AUDITMAP_PARTIAL_W{WORKER_ID}_{BATCH}.json`
+   * Create `outputs/03_AUDITMAP_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json`
+   * Set `metadata.batch_number` to `ITERATION`
    * Verify that:
      - All items in batch are included
      - Each item is in either `audit_items` or `verified_items` (not both, not neither)
@@ -219,7 +221,7 @@ For each `check_id` in your `current_batch` (EXACTLY 20 items or fewer):
 
 ## Output Format
 
-**Partial Audit Map:** `outputs/03_AUDITMAP_PARTIAL_W{WORKER_ID}_{BATCH}.json`
+**Partial Audit Map:** `outputs/03_AUDITMAP_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json`
 ```json
 {
   "metadata": {

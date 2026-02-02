@@ -1,8 +1,8 @@
 
 ---
 Description: [PARALLEL WORKER] Generate trust model for subgraph files. Assign trust levels to external entities and identify trust boundary edges.
-Usage: `/01d_trustmodel_worker WORKER_ID=... QUEUE_FILE=...`
-Example: `/01d_trustmodel_worker WORKER_ID=0 QUEUE_FILE=outputs/01d_QUEUE_0.json`
+Usage: `/01d_trustmodel_worker WORKER_ID=... QUEUE_FILE=... [TIMESTAMP=...] [ITERATION=...]`
+Example: `/01d_trustmodel_worker WORKER_ID=0 QUEUE_FILE=outputs/01d_QUEUE_0.json TIMESTAMP=1700000000 ITERATION=1`
 Language: English only.
 Execution hint: This is a worker prompt for parallel execution. Called by run_worker.py.
 ---
@@ -68,8 +68,10 @@ Process subgraph files from your assigned worker queue. For each subgraph, ident
 
 - **`WORKER_ID`**: The numeric ID of this worker (0, 1, 2, ...)
 - **`QUEUE_FILE`**: Path to this worker's queue file (e.g., `outputs/01d_QUEUE_0.json`)
+- **`TIMESTAMP`**: Unix timestamp for this iteration (used in output naming)
+- **`ITERATION`**: The current iteration number for this worker
 
-**Output:** `outputs/01d_TRUSTMODEL_PARTIAL_W{WORKER_ID}_{N}.json`
+**Output:** `outputs/01d_TRUSTMODEL_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json`
 
 ---
 
@@ -150,8 +152,8 @@ Report any coverage gaps.
 ### **Task 3.3: Write Outputs**
 
 1. **Generate Partial Trust Model:**
-   - Determine batch number: count existing `01d_TRUSTMODEL_PARTIAL_W{WORKER_ID}_*.json` files + 1
-   - Create `outputs/01d_TRUSTMODEL_PARTIAL_W{WORKER_ID}_{BATCH}.json`
+   - Create `outputs/01d_TRUSTMODEL_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json`
+   - Set `metadata.batch` to `ITERATION`
 
 2. **Update Worker Queue:**
    - Add processed file paths to `processed` array
@@ -161,7 +163,7 @@ Report any coverage gaps.
 
 ## 4) Required Output Format (JSON)
 
-**Partial Trust Model:** `outputs/01d_TRUSTMODEL_PARTIAL_W{WORKER_ID}_{BATCH}.json`
+**Partial Trust Model:** `outputs/01d_TRUSTMODEL_PARTIAL_W{WORKER_ID}_{TIMESTAMP}_{ITERATION}.json`
 
 ```json
 {

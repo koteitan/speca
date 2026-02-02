@@ -160,6 +160,12 @@ def run_claude(
     extra_args = f"WORKER_ID={worker_id} QUEUE_FILE={queue_file}"
     if batch_size is not None:
         extra_args += f" BATCH_SIZE={batch_size}"
+    if "OUTPUT_FILE" in env_vars:
+        extra_args += f" OUTPUT_FILE={env_vars['OUTPUT_FILE']}"
+    if "ITERATION" in env_vars:
+        extra_args += f" ITERATION={env_vars['ITERATION']}"
+    if "TIMESTAMP" in env_vars:
+        extra_args += f" TIMESTAMP={env_vars['TIMESTAMP']}"
     prompt_content = f"{prompt_content}\n\n{extra_args}"
 
     # Build the command
@@ -323,13 +329,14 @@ def main():
             continue
 
         timestamp = int(time.time())
+        env_vars["ITERATION"] = str(iteration)
+        env_vars["TIMESTAMP"] = str(timestamp)
         log_file = f"{log_prefix}_{timestamp}_{iteration}.json"
         if args.phase == "02":
             output_file = (
                 f"outputs/02_CHECKLIST_PARTIAL_W{args.worker_id}_{timestamp}_{iteration}.json"
             )
             env_vars["OUTPUT_FILE"] = output_file
-            env_vars["ITERATION"] = str(iteration)
         batch_size = args.batch_size
         if batch_size is None and args.phase in ("01e", "02"):
             max_bytes = config.get("max_batch_bytes", 160 * 1024)
