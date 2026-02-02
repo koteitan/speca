@@ -3,20 +3,29 @@ name: "03. Audit Map"
 on:
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'Branch from 02s'
-        required: true
-        type: string
       target_repo:
         description: 'Target repository'
         required: true
-        type: string
-        default: 'ethereum/go-ethereum'
-      target_ref:
-        description: 'Target ref (branch/tag/commit)'
+        type: choice
+        options:
+          - ethereum/go-ethereum
+          - paradigmxyz/reth
+          - NethermindEth/nethermind
+          - Consensys/teku
+          - hyperledger/besu
+          - erigontech/erigon
+          - status-im/nimbus-eth2
+          - sigp/lighthouse
+          - ChainSafe/lodestar
+          - grandinetech/grandine
+          - OffchainLabs/prysm
+      target_ref_type:
+        description: 'Target ref selection'
         required: true
-        type: string
-        default: 'master'
+        type: choice
+        options:
+          - latest_default_branch
+          - fusaka-audit
       workers:
         description: 'Number of parallel workers'
         required: false
@@ -36,17 +45,32 @@ jobs:
     runs-on: self-hosted
 
     env:
-      TARGET_REPO: ${{ inputs.target_repo }}
-      TARGET_REF: ${{ inputs.target_ref }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CLAUDE_CODE_PERMISSIONS: bypassPermissions
       CLAUDE_CODE_MAX_OUTPUT_TOKENS: 100000
 
     steps:
+      - name: Resolve Inputs
+        id: resolve_inputs
+        env:
+          TARGET_REPO_INPUT: ${{ inputs.target_repo }}
+          TARGET_REF_TYPE: ${{ inputs.target_ref_type }}
+        run: |
+          set -euo pipefail
+          TARGET_REPO="${TARGET_REPO_INPUT}"
+          if [ "${TARGET_REF_TYPE}" = "fusaka-audit" ]; then
+            TARGET_MODE="asof_20250915"
+          else
+            TARGET_MODE="default"
+          fi
+
+          echo "TARGET_REPO=${TARGET_REPO}" >> "$GITHUB_ENV"
+          echo "TARGET_MODE=${TARGET_MODE}" >> "$GITHUB_ENV"
+          echo "checkout_ref=" >> "$GITHUB_OUTPUT"
       - name: Checkout Branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
 
       - name: Verify Prerequisites
@@ -59,15 +83,57 @@ jobs:
       - name: Checkout Target Repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.target_repo }}
-          ref: ${{ inputs.target_ref }}
+          repository: ${{ env.TARGET_REPO }}
+          ref: ${{ steps.resolve_inputs.outputs.checkout_ref }}
+          fetch-depth: 0
           path: target_workspace
 
-      - name: Get Target Info
+      - name: Resolve Target Ref
         id: target_info
         working-directory: ./target_workspace
         run: |
-          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          set -euo pipefail
+
+          default_branch="$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')"
+          target_ref_label=""
+
+          if [ "${TARGET_MODE}" = "asof_20250915" ]; then
+            asof_commit="$(git rev-list -n1 --before="2025-09-15T23:59:59Z" "origin/${default_branch}")"
+            if [ -z "${asof_commit}" ]; then
+              echo "No commit found before 2025-09-15 on ${default_branch}."
+              exit 1
+            fi
+            git checkout "${asof_commit}"
+            target_ref_label="fusaka-audit (as of 2025-09-15, ${default_branch})"
+          elif [ "${TARGET_MODE}" = "default" ]; then
+            target_ref_label="default branch (${default_branch})"
+          else
+            target_ref_label="manual (default branch ${default_branch})"
+          fi
+
+          echo "default_branch=${default_branch}" >> "$GITHUB_OUTPUT"
+          echo "full_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "target_ref_label=${target_ref_label}" >> "$GITHUB_OUTPUT"
+          echo "repo_name=$(basename "${TARGET_REPO}")" >> "$GITHUB_OUTPUT"
+
+      - name: Create Audit Branch
+        id: audit_branch
+        run: |
+          set -euo pipefail
+          repo_name="${{ steps.target_info.outputs.repo_name }}"
+          ref_type="${{ inputs.target_ref_type }}"
+          commit_version="${{ steps.target_info.outputs.short_sha }}"
+          branch_name="audit_${repo_name}_${ref_type}_${commit_version}"
+          branch_name="$(echo "${branch_name}" | tr '/ ' '__')"
+          git fetch origin "${branch_name}" || true
+          if git show-ref --verify --quiet "refs/remotes/origin/${branch_name}"; then
+            git checkout "${branch_name}"
+            git pull --rebase origin "${branch_name}"
+          else
+            git checkout -b "${branch_name}"
+          fi
+          echo "branch_name=${branch_name}" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -76,6 +142,16 @@ jobs:
 
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
+
+      - name: Get Claude Version
+        id: claude_version
+        run: |
+          set -euo pipefail
+          if command -v claude >/dev/null 2>&1; then
+            echo "version=$(claude --version)" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=claude-not-found" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Prepare Git
         run: |
@@ -104,16 +180,21 @@ jobs:
           git add outputs/ ':!outputs/logs/'
           if ! git diff --staged --quiet; then
             git add outputs/logs/
-            git commit -m "03: audit map for ${{ inputs.target_repo }}@${{ steps.target_info.outputs.short_sha }}"
+            git commit -m "03: audit map for ${{ env.TARGET_REPO }}@${{ steps.target_info.outputs.short_sha }}"
             git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-            git push origin "${{ inputs.branch }}" --force-with-lease
+            git push origin "${{ steps.audit_branch.outputs.branch_name }}" --force-with-lease
           fi
 
       - name: Summary
         run: |
           echo "## Next: Run **04. Audit Review**" >> $GITHUB_STEP_SUMMARY
-          echo "Branch: \`${{ inputs.branch }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "Target: \`${{ inputs.target_repo }}@${{ steps.target_info.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Base branch: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Audit branch: \`${{ steps.audit_branch.outputs.branch_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Target repo: \`${{ env.TARGET_REPO }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Target ref: \`${{ steps.target_info.outputs.target_ref_label }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Target commit: \`${{ steps.target_info.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Target commit (full): \`${{ steps.target_info.outputs.full_sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Claude: \`${{ steps.claude_version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Logs
         uses: actions/upload-artifact@v4
