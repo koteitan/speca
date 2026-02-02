@@ -47,16 +47,10 @@ PHASE_CONFIG = {
         "workdir": None,
         "max_batch_bytes": 160 * 1024,
     },
-    "02a": {
-        "queue_file": "outputs/02a_QUEUE_{worker_id}.json",
-        "prompt_file": "prompts/02a_checklist_worker.md",
-        "log_prefix": "outputs/logs/02a_checklist_w{worker_id}",
-        "workdir": None,
-    },
-    "02b": {
-        "queue_file": "outputs/02b_QUEUE_{worker_id}.json",
-        "prompt_file": "prompts/02b_checklistrem_worker.md",
-        "log_prefix": "outputs/logs/02b_checklistrem_w{worker_id}",
+    "02": {
+        "queue_file": "outputs/02_QUEUE_{worker_id}.json",
+        "prompt_file": "prompts/02_checklist_worker.md",
+        "log_prefix": "outputs/logs/02_checklist_w{worker_id}",
         "workdir": None,
     },
     "03": {
@@ -91,7 +85,10 @@ def get_remaining_count(queue_file: str) -> int:
     try:
         data = load_json(queue_file)
         items = data.get("items", [])
-        processed = data.get("processed", [])
+        processed = set(data.get("processed", []))
+        if items and isinstance(items[0], dict) and "property_id" in items[0]:
+            remaining = [item for item in items if item.get("property_id") not in processed]
+            return len(remaining)
         return len(items) - len(processed)
     except FileNotFoundError:
         return 0
@@ -241,7 +238,7 @@ def main():
         "--phase",
         required=True,
         choices=list(PHASE_CONFIG.keys()),
-        help="Phase to run (01b, 01c, 01d, 01e, 02a, 02b, 03, 04)",
+        help="Phase to run (01b, 01c, 01d, 01e, 02, 03, 04)",
     )
     parser.add_argument(
         "--worker-id",

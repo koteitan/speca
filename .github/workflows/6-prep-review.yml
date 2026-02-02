@@ -29,8 +29,8 @@ jobs:
 
       - name: Verify Prerequisites
         run: |
-          if ! ls outputs/02b_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then
-            echo "Missing: outputs/02b_CHECKLIST_PARTIAL_*.json - Run Step 5 first"
+          if ! ls outputs/02_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then
+            echo "Missing: outputs/02_CHECKLIST_PARTIAL_*.json - Run Step 4 first"
             exit 1
           fi
 

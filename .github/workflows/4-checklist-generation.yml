@@ -1,10 +1,10 @@
-name: "5. Checklist Generation (02b)"
+name: "4. Checklist Generation (02)"
 
 on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch from Step 4'
+        description: 'Branch from Step 3'
         required: true
         type: string
       workers:
@@ -49,8 +49,8 @@ jobs:
 
       - name: Verify Prerequisites
         run: |
-          if [ -z "$(ls outputs/02a_CHECKLIST_PARTIAL_*.json 2>/dev/null)" ]; then
-            echo "Missing: outputs/02a_CHECKLIST_PARTIAL_*.json - Run Step 4 first"
+          if [ -z "$(ls outputs/01e_PROP_PARTIAL_*.json 2>/dev/null)" ]; then
+            echo "Missing: outputs/01e_PROP_PARTIAL_*.json - Run Step 3 first"
             exit 1
           fi
 
@@ -67,8 +67,8 @@ jobs:
           git config --global user.name "Security Agent Bot"
           git config --global user.email "bot@nyxfoundation.org"
 
-      - name: "Step 02b: Checklist Generation (Parallel)"
-        run: make 02b-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }} ${{ inputs.skip_split && 'SKIP_SPLIT=1' || '' }} ${{ inputs.force_execute && 'FORCE_EXECUTE=1' || '' }}
+      - name: "Step 02: Unified Checklist Generation (Parallel)"
+        run: make 02-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }} ${{ inputs.skip_split && 'SKIP_SPLIT=1' || '' }} ${{ inputs.force_execute && 'FORCE_EXECUTE=1' || '' }}
 
       - name: Push Results
         if: always()
@@ -76,7 +76,7 @@ jobs:
           git add outputs/ ':!outputs/logs/'
           if ! git diff --staged --quiet; then
             git add outputs/logs/
-            git commit -m "02b: checklist generation"
+            git commit -m "02: unified checklist generation"
             git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
             git push origin "${{ inputs.branch }}" --force-with-lease
           fi
@@ -90,6 +90,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: step-5-logs-${{ github.run_id }}
+          name: step-4-logs-${{ github.run_id }}
           path: outputs/logs/
           retention-days: 7
