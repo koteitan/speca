@@ -10,7 +10,11 @@ on:
       dataset:
         description: "Dataset to evaluate"
         required: true
-        type: string
+        type: choice
+        options:
+          - primevul
+          - cvefixes
+          - vul4j
         default: "primevul"
       tools:
         description: "Tools to run (all | semgrep | codeql | comma-separated list)"
@@ -183,12 +187,8 @@ jobs:
               --timeout "${{ inputs.tool_timeout }}"
 
       - name: Run CodeQL
-        if: steps.tool_select.outputs.run_codeql == 'true'
+        if: steps.tool_select.outputs.run_codeql == 'true' && inputs.codeql_command != ''
         run: |
-          if [ -z "${{ inputs.codeql_command }}" ]; then
-            echo "codeql_command is required when codeql is selected."
-            exit 1
-          fi
           if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "${RESULTS_DIR}/codeql_results.jsonl" ]; then
             echo "CodeQL results already exist. Use force_execute to re-run."
             exit 0
@@ -201,12 +201,8 @@ jobs:
             --shell
 
       - name: Run Security Agent
-        if: steps.tool_select.outputs.run_security_agent == 'true'
+        if: steps.tool_select.outputs.run_security_agent == 'true' && inputs.security_agent_command != ''
         run: |
-          if [ -z "${{ inputs.security_agent_command }}" ]; then
-            echo "security_agent_command is required when security agent is selected."
-            exit 1
-          fi
           if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "${RESULTS_DIR}/security_agent_results.jsonl" ]; then
             echo "Security agent results already exist. Use force_execute to re-run."
             exit 0
@@ -220,12 +216,8 @@ jobs:
             --shell
 
       - name: Run LLM Baseline
-        if: steps.tool_select.outputs.run_llm == 'true'
+        if: steps.tool_select.outputs.run_llm == 'true' && inputs.llm_command != ''
         run: |
-          if [ -z "${{ inputs.llm_command }}" ]; then
-            echo "llm_command is required when llm baseline is selected."
-            exit 1
-          fi
           if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "${RESULTS_DIR}/llm_baseline_results.jsonl" ]; then
             echo "LLM baseline results already exist. Use force_execute to re-run."
             exit 0
@@ -239,12 +231,8 @@ jobs:
             --shell
 
       - name: Run Static Baseline
-        if: steps.tool_select.outputs.run_static == 'true'
+        if: steps.tool_select.outputs.run_static == 'true' && inputs.static_command != ''
         run: |
-          if [ -z "${{ inputs.static_command }}" ]; then
-            echo "static_command is required when static baseline is selected."
-            exit 1
-          fi
           if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "${RESULTS_DIR}/static_baseline_results.jsonl" ]; then
             echo "Static baseline results already exist. Use force_execute to re-run."
             exit 0
