@@ -13,6 +13,7 @@ export CLAUDE_CODE_MAX_OUTPUT_TOKENS := 100000
 
 # Claude configuration
 CLAUDE_FLAGS ?= --dangerously-skip-permissions --agent serena --output-format json
+PYTHON_RUNNER ?= uv run python3
 
 # Max iteration counts (safety limit)
 MAX_ITERATIONS ?= 100
@@ -81,7 +82,6 @@ help:
 	@echo "Examples:"
 	@echo "  make 01b-parallel WORKERS=8"
 	@echo "  make preparation WORKERS=4"
-	@echo ""
 	@echo "Benchmark Targets:"
 	@echo "  benchmark-all      - Run setup, tools, and evaluation"
 	@echo "  benchmark-setup    - Download benchmark datasets"
@@ -268,7 +268,7 @@ clean:
 		echo "⏭️  Skipping 03-parallel: 04_REVIEW_PARTIAL_*.json exists (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 03 Audit Map Orchestrator..."; \
-		python3 scripts/03_run_audit_orchestrator.py; \
+		$(PYTHON_RUNNER) scripts/03_run_audit_orchestrator.py; \
 		echo "✅ Audit map generation complete."; \
 	fi
 
