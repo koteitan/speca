@@ -45,15 +45,6 @@ def estimate_tokens(text: str) -> int:
     return len(text) // 4
 
 
-def load_mcp_config_json() -> str | None:
-    settings = load_json(Path(".claude/settings.json")) or {}
-    mcp_servers = settings.get("mcpServers") or {}
-    if not isinstance(mcp_servers, dict) or not mcp_servers:
-        return None
-    return json.dumps({"mcpServers": mcp_servers})
-
-
-
 def build_property_to_subgraph_map_via_elements(
     property_files_pattern: str,
 ) -> dict[str, tuple[str | None, str]]:
@@ -164,7 +155,6 @@ class AuditOrchestratorAsync:
         self.all_checklist_items: Dict[str, Dict[str, Any]] = {}
         self.property_subgraph_map: Dict[str, Tuple[str | None, str]] = {}
         self._batch_counter = 0
-        self.mcp_config_json = load_mcp_config_json()
 
     def _load_all_checklist_items(self) -> None:
         import glob
@@ -342,10 +332,9 @@ class AuditOrchestratorAsync:
                 "--dangerously-skip-permissions",
                 "--output-format",
                 "json",
+                "-p",
+                prompt_content,
             ]
-            if self.mcp_config_json:
-                cmd.extend(["--mcp-config", self.mcp_config_json])
-            cmd.extend(["-p", prompt_content])
 
             env = os.environ.copy()
             env.update(
@@ -366,7 +355,7 @@ class AuditOrchestratorAsync:
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.STDOUT,
                 env=env,
-                cwd=None,
+                cwd=str(Path.cwd()),
             )
             try:
                 stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=3600)

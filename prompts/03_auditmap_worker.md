@@ -1,15 +1,14 @@
 
 ---
-Description: [WORKER] Invoke the formal-audit skill for a batch of items.
+Description: [WORKER] Invoke the formal-audit skill for a batch of items using MCP tools.
 Usage: `/03_auditmap_worker WORKER_ID=... QUEUE_FILE=... [TIMESTAMP=...] [ITERATION=...] [BATCH_SIZE=...] [OUTPUT_FILE=...]`
 Example: `/03_auditmap_worker WORKER_ID=0 QUEUE_FILE=outputs/03_QUEUE_0.json TIMESTAMP=1700000000 ITERATION=1 BATCH_SIZE=5 OUTPUT_FILE=outputs/03_AUDITMAP_PARTIAL_W0_1700000000_1.json`
 Language: English only.
-Execution hint: This worker prompt is invoked by the phase-03 async orchestrator.
+Execution hint: This worker prompt is invoked by the phase-03 async orchestrator with MCP tools enabled.
 ---
-**Use Serena MCP tools (find_symbol, insert_after_symbol, etc.) for efficient code navigation and editing.**
 
 <task>
-  <goal>Run a three-stage formal audit for each item in the batch using skills.</goal>
+  <goal>For each item in the batch, use MCP tools to resolve the code scope and then invoke the /formal-audit skill to perform a three-stage formal audit.</goal>
   <input type="file" id="queue">{{QUEUE_FILE}}</input>
   <output type="file" id="results">{{OUTPUT_FILE}}</output>
 
@@ -29,7 +28,7 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
     - **Checklist Item**: `item.checklist_item` (already resolved)
     - **Property File**: `outputs/01e_PROP_PARTIAL_*.json` (for property assertion)
     - **Subgraph**: `item.subgraph` (pre-extracted relevant subgraph, included in the item)
-    - **Tree-sitter MCP**: Use `get_symbols` and `run_query` to actively find code.
+    - **Tree-sitter MCP**: You **MUST** use `mcp__tree_sitter__get_symbols` and `mcp__tree_sitter__run_query` to find code. Direct file access for code resolution is **NOT PERMITTED**.
   </data_sources>
 
   <early_exit_conditions>
