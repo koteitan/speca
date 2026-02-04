@@ -267,9 +267,9 @@ clean:
 	if [ -z "$(FORCE_EXECUTE)" ] && ls $(OUTPUT_DIR)/04_REVIEW_PARTIAL_*.json >/dev/null 2>&1; then \
 		echo "⏭️  Skipping 03-parallel: 04_REVIEW_PARTIAL_*.json exists (use FORCE_EXECUTE=1 to override)"; \
 	else \
-		echo "🚀 Running 03_auditmap.md in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 03 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
-		echo "✅ Parallel audit map generation complete"; \
+		echo "🚀 Running 03 Audit Map Orchestrator..."; \
+		python3 scripts/03_run_audit_orchestrator.py; \
+		echo "✅ Audit map generation complete."; \
 	fi
 
 # Step 04-parallel: Parallel audit review using multiple workers
