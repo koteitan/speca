@@ -5,9 +5,9 @@ echo "Verifying and setting up MCP servers..."
 
 SERVERS=("tree_sitter" "serena" "semgrep")
 COMMANDS=(
-  "uv run --from git+https://github.com/wrale/mcp-server-tree-sitter mcp-server-tree-sitter"
-  "uv run --from git+https://github.com/oraios/serena serena"
-  "npx -y @semgrep/mcp-server"
+  "uvx mcp-server-tree-sitter"
+  "uvx --from git+https://github.com/oraios/serena serena start-mcp-server"
+  "uvx semgrep-mcp"
 )
 
 for i in "${!SERVERS[@]}"; do
