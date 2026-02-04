@@ -6,6 +6,9 @@ from __future__ import annotations
 import json
 import re
 from collections import Counter, defaultdict
+from math import comb
+import os
+import random
 from pathlib import Path
 from typing import Iterable
 
@@ -26,6 +29,9 @@ SPEC_KEYS = ("spec", "specification", "requirements", "rationale", "evidence", "
 EXAMPLE_LIMIT = 5
 SNIPPET_MAX_LINES = 14
 SNIPPET_MAX_CHARS = 900
+BOOTSTRAP_SAMPLES = 2000
+BOOTSTRAP_SEED = 42
+CI_LEVEL = 0.95
 
 
 def load_jsonl(path: Path) -> list[dict]:
@@ -185,6 +191,7 @@ def compute_confusion(predictions: dict[str, bool | None], ground_truth: dict[st
         "fp": fp,
         "tn": tn,
         "fn": fn,
+        "accuracy": (tp + tn) / scored if scored else 0.0,
         "precision": precision,
         "recall": recall,
         "f1": f1,
@@ -192,6 +199,101 @@ def compute_confusion(predictions: dict[str, bool | None], ground_truth: dict[st
         "skipped_missing_pred": skipped_missing_pred,
         "skipped_missing_gt": skipped_missing_gt,
     }
+
+
+def compute_confusion_subset(
+    predictions: dict[str, bool | None], ground_truth: dict[str, bool | None], case_ids: list[str]
+) -> dict:
+    tp = fp = tn = fn = 0
+    for case_id in case_ids:
+        label = ground_truth.get(case_id)
+        pred = predictions.get(case_id)
+        if label is None or pred is None:
+            continue
+        if label and pred:
+            tp += 1
+        elif label and not pred:
+            fn += 1
+        elif not label and pred:
+            fp += 1
+        else:
+            tn += 1
+    scored = tp + fp + tn + fn
+    precision = tp / (tp + fp) if (tp + fp) else 0.0
+    recall = tp / (tp + fn) if (tp + fn) else 0.0
+    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) else 0.0
+    return {
+        "tp": tp,
+        "fp": fp,
+        "tn": tn,
+        "fn": fn,
+        "accuracy": (tp + tn) / scored if scored else 0.0,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+    }
+
+
+def mcnemar_exact(b: int, c: int) -> float:
+    n = b + c
+    if n == 0:
+        return 1.0
+    k = min(b, c)
+    tail = 0.0
+    for i in range(k + 1):
+        tail += comb(n, i) * (0.5**n)
+    p = 2 * tail
+    return min(p, 1.0)
+
+
+def effect_size_cliffs_delta(b: int, c: int, n: int) -> tuple[float, str]:
+    if n == 0:
+        return 0.0, "none"
+    delta = (b - c) / n
+    magnitude = abs(delta)
+    if magnitude < 0.147:
+        label = "negligible"
+    elif magnitude < 0.33:
+        label = "small"
+    elif magnitude < 0.474:
+        label = "medium"
+    else:
+        label = "large"
+    return delta, label
+
+
+def bootstrap_metric_diffs(
+    tool_a: dict[str, bool | None],
+    tool_b: dict[str, bool | None],
+    ground_truth: dict[str, bool | None],
+    case_ids: list[str],
+    samples: int = BOOTSTRAP_SAMPLES,
+    seed: int = BOOTSTRAP_SEED,
+) -> dict:
+    rng = random.Random(seed)
+    diffs = {"accuracy": [], "precision": [], "recall": [], "f1": []}
+    if not case_ids:
+        return {k: {"mean": 0.0, "ci": [0.0, 0.0]} for k in diffs}
+
+    for _ in range(samples):
+        sampled = [case_ids[rng.randrange(len(case_ids))] for _ in range(len(case_ids))]
+        a_metrics = compute_confusion_subset(tool_a, ground_truth, sampled)
+        b_metrics = compute_confusion_subset(tool_b, ground_truth, sampled)
+        for key in diffs:
+            diffs[key].append(a_metrics[key] - b_metrics[key])
+
+    ci_low = (1 - CI_LEVEL) / 2
+    ci_high = 1 - ci_low
+    out: dict[str, dict] = {}
+    for key, values in diffs.items():
+        values.sort()
+        low_idx = int(ci_low * (len(values) - 1))
+        high_idx = int(ci_high * (len(values) - 1))
+        out[key] = {
+            "mean": sum(values) / len(values),
+            "ci": [values[low_idx], values[high_idx]],
+        }
+    return out
 
 
 def build_code_snippet(code: str | None) -> str | None:
@@ -411,6 +513,55 @@ def evaluate_primevul() -> dict:
     else:
         comparisons["unique_detections"] = {"security_agent_only": {"count": 0, "ids": [], "by_cwe": {}, "examples": []}}
 
+    # Pairwise statistics (security_agent vs baselines)
+    pairwise_stats: dict[str, dict] = {}
+    if tools_payload.get("security_agent", {}).get("status") == "ok":
+        for tool in predictions_by_tool:
+            if tool == "security_agent":
+                continue
+            if tools_payload.get(tool, {}).get("status") != "ok":
+                continue
+            eligible_cases = [
+                case_id
+                for case_id, label in ground_truth.items()
+                if label is not None
+                and predictions_by_tool["security_agent"].get(case_id) is not None
+                and predictions_by_tool[tool].get(case_id) is not None
+            ]
+            b = c = 0
+            for case_id in eligible_cases:
+                label = ground_truth[case_id]
+                a_pred = predictions_by_tool["security_agent"][case_id]
+                b_pred = predictions_by_tool[tool][case_id]
+                a_correct = a_pred == label
+                b_correct = b_pred == label
+                if a_correct and not b_correct:
+                    b += 1
+                elif not a_correct and b_correct:
+                    c += 1
+            n = len(eligible_cases)
+            p_value = mcnemar_exact(b, c)
+            delta, magnitude = effect_size_cliffs_delta(b, c, n)
+            diffs = bootstrap_metric_diffs(
+                predictions_by_tool["security_agent"],
+                predictions_by_tool[tool],
+                ground_truth,
+                eligible_cases,
+            )
+            pairwise_stats[tool] = {
+                "n": n,
+                "discordant": {"security_agent_only_correct": b, "baseline_only_correct": c},
+                "mcnemar_p": p_value,
+                "effect_size": {"cliffs_delta": delta, "magnitude": magnitude},
+                "metric_diffs": diffs,
+                "bootstrap": {
+                    "samples": BOOTSTRAP_SAMPLES,
+                    "ci_level": CI_LEVEL,
+                    "seed": BOOTSTRAP_SEED,
+                },
+            }
+    comparisons["pairwise_stats"] = pairwise_stats
+
     dataset_summary = {
         "name": "primevul",
         "path": str(dataset_path),
@@ -429,6 +580,14 @@ def evaluate_primevul() -> dict:
 def main() -> None:
     """Main evaluation function."""
     metrics = evaluate_primevul()
+    metadata_path = os.environ.get("BENCHMARK_METADATA_PATH", "")
+    if metadata_path:
+        path = Path(metadata_path)
+        if path.exists():
+            try:
+                metrics["run_metadata"] = json.loads(path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                metrics["run_metadata"] = {"error": "invalid_json", "path": str(path)}
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     with METRICS_OUTPUT_PATH.open("w", encoding="utf-8") as handle:
         json.dump(metrics, handle, indent=2)
