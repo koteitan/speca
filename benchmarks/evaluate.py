@@ -372,8 +372,21 @@ def evaluate_primevul() -> dict:
     security_agent_path = pick_existing(
         [
             RESULTS_DIR / "primevul" / "security_agent_results.json",
+            RESULTS_DIR / "primevul" / "security_agent_results.jsonl",
             RESULTS_DIR / "security_agent.jsonl",
             RESULTS_DIR / "security_agent_results.jsonl",
+        ]
+    )
+    llm_baseline_path = pick_existing(
+        [
+            RESULTS_DIR / "primevul" / "llm_baseline_results.jsonl",
+            RESULTS_DIR / "llm_baseline.jsonl",
+        ]
+    )
+    static_baseline_path = pick_existing(
+        [
+            RESULTS_DIR / "primevul" / "static_baseline_results.jsonl",
+            RESULTS_DIR / "static_baseline.jsonl",
         ]
     )
 
@@ -385,6 +398,8 @@ def evaluate_primevul() -> dict:
         "semgrep": ("json", semgrep_path, load_semgrep_results),
         "codeql": ("jsonl", codeql_path, load_jsonl_predictions),
         "security_agent": ("jsonl", security_agent_path, load_jsonl_predictions),
+        "llm_baseline": ("jsonl", llm_baseline_path, load_jsonl_predictions),
+        "static_baseline": ("jsonl", static_baseline_path, load_jsonl_predictions),
     }
 
     for tool, (_, path, loader) in tool_sources.items():
@@ -573,7 +588,21 @@ def evaluate_primevul() -> dict:
         "cwe_totals": dict(total_cwe_counts),
     }
 
-    metrics = {"dataset": dataset_summary, "tools": tools_payload, "comparisons": comparisons}
+    tool_metadata = {}
+    for tool in ("semgrep", "codeql", "security_agent", "llm_baseline", "static_baseline"):
+        meta_path = RESULTS_DIR / "primevul" / f"{tool}_metadata.json"
+        if meta_path.exists():
+            try:
+                tool_metadata[tool] = json.loads(meta_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                tool_metadata[tool] = {"error": "invalid_json", "path": str(meta_path)}
+
+    metrics = {
+        "dataset": dataset_summary,
+        "tools": tools_payload,
+        "comparisons": comparisons,
+        "tool_metadata": tool_metadata,
+    }
     return metrics
 
 

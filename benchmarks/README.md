@@ -57,6 +57,9 @@ Human label format
 Example label row
 {"branch":"branchA","item_id":"123","label":true,"notes":"confirmed bug"}
 
+Template
+- benchmarks/human_labels_template.jsonl
+
 Labeling guidance (recommended)
 - For new_only sampling: label "true" only if it is a real bug not already in the contest issues.
 - Use the audit item text/snippet + file/line to locate code context.
@@ -74,7 +77,7 @@ RQ2: PrimeVul Tool Comparison
 
 Method
 - Dataset: PrimeVul test paired JSONL (vulnerable vs clean pairs).
-- Tools: Semgrep, CodeQL, Security Agent runner.
+- Tools: Semgrep, CodeQL, Security Agent runner, optional LLM baseline, optional static baseline.
 - Output: confusion metrics, pairwise correctness, CWE coverage, unique detections.
 - Statistical comparison between Security Agent and baselines.
 
@@ -91,6 +94,9 @@ How to run (GitHub Actions)
    .github/workflows/benchmark-rq2-01-setup.yml
 2) Run tools:
    .github/workflows/benchmark-rq2-02-tools.yml
+   - tools: "all" or comma-separated (semgrep, codeql, security_agent, llm, static)
+   - security_agent_command / llm_command / static_command required when selecting those tools
+   - if tools=all, provide the command inputs for all non-automatic tools
 3) Evaluate:
    .github/workflows/benchmark-rq2-03-evaluate.yml
 
@@ -101,12 +107,15 @@ How to run (local)
    uv run python benchmarks/runners/run_semgrep.py
    uv run python benchmarks/runners/run_codeql.py --dataset ... --output ...
    uv run python benchmarks/runners/run_security_agent.py --command "..."
+   uv run python benchmarks/runners/run_llm_baseline.py --command "..."
+   uv run python benchmarks/runners/run_static_baseline.py --tool-name infer --command "..."
 3) Evaluate:
    uv run python benchmarks/evaluate.py
 
 Metadata capture
 - RQ1: pass --metadata /path/to/metadata.json to sherlock_compare.py
 - RQ2: set BENCHMARK_METADATA_PATH=/path/to/metadata.json when running evaluate.py
+- Tool runners: --version-command and --timeout are available for codeql/security_agent/llm/static runners
 
 Outputs
 - benchmarks/results/metrics.json

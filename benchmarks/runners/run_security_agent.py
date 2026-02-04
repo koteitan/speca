@@ -12,6 +12,7 @@ import json
 import shlex
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from benchmarks.bench_utils import (
@@ -27,6 +28,7 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_DATASET = ROOT_DIR / "benchmarks" / "data" / "primevul" / "primevul_test_paired.jsonl"
 DEFAULT_RESULTS = ROOT_DIR / "benchmarks" / "results" / "security_agent.jsonl"
 DEFAULT_TMP = ROOT_DIR / "benchmarks" / "tmp" / "security_agent"
+DEFAULT_METADATA = ROOT_DIR / "benchmarks" / "results" / "primevul" / "security_agent_metadata.json"
 
 
 def parse_args() -> argparse.Namespace:
@@ -34,6 +36,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
     parser.add_argument("--output", type=Path, default=DEFAULT_RESULTS)
     parser.add_argument("--tmp-dir", type=Path, default=DEFAULT_TMP)
+    parser.add_argument("--metadata", type=Path, default=DEFAULT_METADATA)
     parser.add_argument(
         "--command",
         default="",
@@ -42,6 +45,8 @@ def parse_args() -> argparse.Namespace:
             "{code_path}, {output_path}, {case_id}"
         ),
     )
+    parser.add_argument("--version-command", default="", help="Command to get tool/model version")
+    parser.add_argument("--timeout", type=int, default=0, help="Per-sample timeout in seconds (0 = no timeout)")
     parser.add_argument(
         "--shell",
         action="store_true",
@@ -51,12 +56,17 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def run_command(template: str, code_path: Path, output_path: Path, case_id: str, use_shell: bool) -> tuple[int, str]:
+def run_command(
+    template: str, code_path: Path, output_path: Path, case_id: str, use_shell: bool, timeout: int
+) -> tuple[int, str]:
     formatted = template.format(code_path=code_path, output_path=output_path, case_id=case_id)
-    if use_shell:
-        result = subprocess.run(formatted, shell=True, capture_output=True, text=True)
-    else:
-        result = subprocess.run(shlex.split(formatted), capture_output=True, text=True)
+    try:
+        if use_shell:
+            result = subprocess.run(formatted, shell=True, capture_output=True, text=True, timeout=timeout or None)
+        else:
+            result = subprocess.run(shlex.split(formatted), capture_output=True, text=True, timeout=timeout or None)
+    except subprocess.TimeoutExpired:
+        return 124, "timeout"
     stderr = result.stderr.strip()
     return result.returncode, stderr
 
@@ -81,6 +91,17 @@ def load_prediction(path: Path) -> tuple[bool | None, str | None]:
         if lowered in {"false", "0", "no", "clean", "non-vulnerable"}:
             return False, None
     return None, "prediction_missing_or_invalid"
+
+
+def resolve_version(command: str) -> str | None:
+    if not command:
+        return None
+    try:
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    except Exception:
+        return None
+    output = (result.stdout or result.stderr).strip()
+    return output or None
 
 
 def main() -> int:
@@ -116,7 +137,7 @@ def main() -> int:
         output_path = args.tmp_dir / f"{safe_id}.prediction.json"
 
         if args.command:
-            return_code, stderr = run_command(args.command, code_path, output_path, case_id, args.shell)
+            return_code, stderr = run_command(args.command, code_path, output_path, case_id, args.shell, args.timeout)
             prediction, error = load_prediction(output_path)
             if error:
                 results.append(
@@ -146,6 +167,18 @@ def main() -> int:
             )
 
     write_jsonl(args.output, results)
+    metadata = {
+        "tool": "security_agent",
+        "dataset": str(args.dataset),
+        "output": str(args.output),
+        "command": args.command,
+        "version": resolve_version(args.version_command),
+        "timeout_sec": args.timeout,
+        "limit": args.limit,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    args.metadata.parent.mkdir(parents=True, exist_ok=True)
+    args.metadata.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     print(f"Wrote {len(results)} security-agent results to {args.output}")
     return 0
 

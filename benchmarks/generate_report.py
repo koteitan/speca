@@ -90,6 +90,24 @@ def main() -> int:
         )
 
     lines.append("")
+    lines.append("## Tool Metadata")
+    lines.append("")
+    tool_metadata = data.get("tool_metadata", {})
+    if tool_metadata:
+        lines.append("| Tool | Version | Timeout | Limit |")
+        lines.append("| ---- | ------- | ------- | ----- |")
+        for tool, meta in tool_metadata.items():
+            lines.append(
+                "| {tool} | {version} | {timeout} | {limit} |".format(
+                    tool=tool,
+                    version=(meta.get("version") or "n/a").replace("\n", " "),
+                    timeout=meta.get("timeout_sec", "n/a"),
+                    limit=meta.get("limit", "n/a"),
+                )
+            )
+    else:
+        lines.append("- n/a")
+    lines.append("")
     lines.append("## Pairwise Correct")
     lines.append("")
     lines.append("## Pairwise Statistics (Security Agent vs Baselines)")

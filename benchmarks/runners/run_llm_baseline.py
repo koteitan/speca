@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Run CodeQL benchmark runner.
+"""Run an LLM baseline benchmark runner.
 
-This is a stub runner that expects an external command to produce predictions.
-Provide --command to integrate with a CodeQL workflow.
+This runner expects an external command to produce predictions per sample.
+The command must write a JSON file at {output_path} with:
+  - predicted_vulnerable: bool (required)
+  - confidence: float in [0,1] (optional)
 """
 
 from __future__ import annotations
@@ -26,13 +28,13 @@ from benchmarks.bench_utils import (
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_DATASET = ROOT_DIR / "benchmarks" / "data" / "primevul" / "primevul_test_paired.jsonl"
-DEFAULT_RESULTS = ROOT_DIR / "benchmarks" / "results" / "codeql.jsonl"
-DEFAULT_TMP = ROOT_DIR / "benchmarks" / "tmp" / "codeql"
-DEFAULT_METADATA = ROOT_DIR / "benchmarks" / "results" / "primevul" / "codeql_metadata.json"
+DEFAULT_RESULTS = ROOT_DIR / "benchmarks" / "results" / "llm_baseline.jsonl"
+DEFAULT_TMP = ROOT_DIR / "benchmarks" / "tmp" / "llm_baseline"
+DEFAULT_METADATA = ROOT_DIR / "benchmarks" / "results" / "primevul" / "llm_baseline_metadata.json"
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run CodeQL benchmark runner.")
+    parser = argparse.ArgumentParser(description="Run LLM baseline benchmark runner.")
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
     parser.add_argument("--output", type=Path, default=DEFAULT_RESULTS)
     parser.add_argument("--tmp-dir", type=Path, default=DEFAULT_TMP)
@@ -45,7 +47,7 @@ def parse_args() -> argparse.Namespace:
             "{code_path}, {output_path}, {case_id}"
         ),
     )
-    parser.add_argument("--version-command", default="", help="Command to get tool version")
+    parser.add_argument("--version-command", default="", help="Command to get tool/model version")
     parser.add_argument("--timeout", type=int, default=0, help="Per-sample timeout in seconds (0 = no timeout)")
     parser.add_argument(
         "--shell",
@@ -56,9 +58,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def run_command(
-    template: str, code_path: Path, output_path: Path, case_id: str, use_shell: bool, timeout: int
-) -> tuple[int, str]:
+def run_command(template: str, code_path: Path, output_path: Path, case_id: str, use_shell: bool, timeout: int) -> tuple[int, str]:
     formatted = template.format(code_path=code_path, output_path=output_path, case_id=case_id)
     try:
         if use_shell:
@@ -71,26 +71,36 @@ def run_command(
     return result.returncode, stderr
 
 
-def load_prediction(path: Path) -> tuple[bool | None, str | None]:
+def load_prediction(path: Path) -> tuple[bool | None, float | None, str | None]:
     if not path.exists():
-        return None, "missing_prediction_output"
+        return None, None, "missing_prediction_output"
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
-        return None, "prediction_json_parse_failed"
+        return None, None, "prediction_json_parse_failed"
 
     prediction = data.get("predicted_vulnerable")
     if isinstance(prediction, bool):
-        return prediction, None
-    if isinstance(prediction, (int, float)):
-        return bool(prediction), None
-    if isinstance(prediction, str):
+        normalized = prediction
+    elif isinstance(prediction, (int, float)):
+        normalized = bool(prediction)
+    elif isinstance(prediction, str):
         lowered = prediction.strip().lower()
         if lowered in {"true", "1", "yes", "vulnerable"}:
-            return True, None
-        if lowered in {"false", "0", "no", "clean", "non-vulnerable"}:
-            return False, None
-    return None, "prediction_missing_or_invalid"
+            normalized = True
+        elif lowered in {"false", "0", "no", "clean", "non-vulnerable"}:
+            normalized = False
+        else:
+            return None, None, "prediction_missing_or_invalid"
+    else:
+        return None, None, "prediction_missing_or_invalid"
+
+    confidence = data.get("confidence")
+    if isinstance(confidence, (int, float)):
+        confidence = max(0.0, min(1.0, float(confidence)))
+    else:
+        confidence = None
+    return normalized, confidence, None
 
 
 def resolve_version(command: str) -> str | None:
@@ -138,7 +148,7 @@ def main() -> int:
 
         if args.command:
             return_code, stderr = run_command(args.command, code_path, output_path, case_id, args.shell, args.timeout)
-            prediction, error = load_prediction(output_path)
+            prediction, confidence, error = load_prediction(output_path)
             if error:
                 results.append(
                     {
@@ -150,13 +160,14 @@ def main() -> int:
                     }
                 )
             else:
-                results.append(
-                    {
-                        "id": case_id,
-                        "predicted_vulnerable": prediction,
-                        "exit_code": return_code,
-                    }
-                )
+                row = {
+                    "id": case_id,
+                    "predicted_vulnerable": prediction,
+                    "exit_code": return_code,
+                }
+                if confidence is not None:
+                    row["confidence"] = confidence
+                results.append(row)
         else:
             results.append(
                 {
@@ -168,7 +179,7 @@ def main() -> int:
 
     write_jsonl(args.output, results)
     metadata = {
-        "tool": "codeql",
+        "tool": "llm_baseline",
         "dataset": str(args.dataset),
         "output": str(args.output),
         "command": args.command,
@@ -179,7 +190,7 @@ def main() -> int:
     }
     args.metadata.parent.mkdir(parents=True, exist_ok=True)
     args.metadata.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    print(f"Wrote {len(results)} CodeQL results to {args.output}")
+    print(f"Wrote {len(results)} LLM baseline results to {args.output}")
     return 0
 
 

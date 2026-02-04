@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Run CodeQL benchmark runner.
+"""Run a generic static analysis baseline runner.
 
-This is a stub runner that expects an external command to produce predictions.
-Provide --command to integrate with a CodeQL workflow.
+This runner expects an external command to produce predictions per sample.
+The command must write a JSON file at {output_path} with:
+  - predicted_vulnerable: bool (required)
 """
 
 from __future__ import annotations
@@ -26,17 +27,18 @@ from benchmarks.bench_utils import (
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_DATASET = ROOT_DIR / "benchmarks" / "data" / "primevul" / "primevul_test_paired.jsonl"
-DEFAULT_RESULTS = ROOT_DIR / "benchmarks" / "results" / "codeql.jsonl"
-DEFAULT_TMP = ROOT_DIR / "benchmarks" / "tmp" / "codeql"
-DEFAULT_METADATA = ROOT_DIR / "benchmarks" / "results" / "primevul" / "codeql_metadata.json"
+DEFAULT_RESULTS = ROOT_DIR / "benchmarks" / "results" / "static_baseline.jsonl"
+DEFAULT_TMP = ROOT_DIR / "benchmarks" / "tmp" / "static_baseline"
+DEFAULT_METADATA = ROOT_DIR / "benchmarks" / "results" / "primevul" / "static_baseline_metadata.json"
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run CodeQL benchmark runner.")
+    parser = argparse.ArgumentParser(description="Run static baseline benchmark runner.")
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
     parser.add_argument("--output", type=Path, default=DEFAULT_RESULTS)
     parser.add_argument("--tmp-dir", type=Path, default=DEFAULT_TMP)
     parser.add_argument("--metadata", type=Path, default=DEFAULT_METADATA)
+    parser.add_argument("--tool-name", type=str, default="static_baseline")
     parser.add_argument(
         "--command",
         default="",
@@ -56,9 +58,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def run_command(
-    template: str, code_path: Path, output_path: Path, case_id: str, use_shell: bool, timeout: int
-) -> tuple[int, str]:
+def run_command(template: str, code_path: Path, output_path: Path, case_id: str, use_shell: bool, timeout: int) -> tuple[int, str]:
     formatted = template.format(code_path=code_path, output_path=output_path, case_id=case_id)
     try:
         if use_shell:
@@ -168,7 +168,7 @@ def main() -> int:
 
     write_jsonl(args.output, results)
     metadata = {
-        "tool": "codeql",
+        "tool": args.tool_name,
         "dataset": str(args.dataset),
         "output": str(args.output),
         "command": args.command,
@@ -179,7 +179,7 @@ def main() -> int:
     }
     args.metadata.parent.mkdir(parents=True, exist_ok=True)
     args.metadata.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    print(f"Wrote {len(results)} CodeQL results to {args.output}")
+    print(f"Wrote {len(results)} static baseline results to {args.output}")
     return 0
 
 
