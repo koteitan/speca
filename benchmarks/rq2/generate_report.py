@@ -8,7 +8,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+ROOT_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_METRICS = ROOT_DIR / "benchmarks" / "results" / "metrics.json"
 DEFAULT_REPORT = ROOT_DIR / "benchmarks" / "results" / "report.md"
 

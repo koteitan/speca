@@ -11,6 +11,7 @@ Method
 - Matching: 3-stage matching (text similarity, token overlap, optional LLM adjudication).
 - Output: overlap vs new findings, per-branch summaries, matching details.
 - Optional: statistical comparison vs a baseline run, and human-label precision on sampled "new" findings.
+- Code: see `benchmarks/rq1/` (matchers, stats, evaluate). `benchmarks/rq1/cli.py` is the CLI wrapper.
 
 Core metrics
 - overlap_rate: fraction of audit items matched to known issues.
@@ -23,25 +24,25 @@ Core metrics
 
 How to run (local)
 1) Evaluate branches (optionally with LLM)
-   uv run python benchmarks/sherlock_compare.py \
+   uv run python benchmarks/rq1/cli.py \
      --branches "branchA,branchB" \
      --use-llm
 
 2) Compare against a baseline evaluation directory
-   uv run python benchmarks/sherlock_compare.py \
+   uv run python benchmarks/rq1/cli.py \
      --branches "branchA,branchB" \
      --use-llm \
      --baseline-results /path/to/baseline_results_dir
 
 3) Generate human-eval sample (default: new_only)
-   uv run python benchmarks/sherlock_compare.py \
+   uv run python benchmarks/rq1/cli.py \
      --branches "branchA,branchB" \
      --use-llm \
      --human-scope new_only \
      --human-sample-size 100
 
 4) Aggregate human labels (JSONL with branch, item_id, and label/is_bug/etc.)
-   uv run python benchmarks/sherlock_compare.py \
+   uv run python benchmarks/rq1/cli.py \
      --branches "branchA,branchB" \
      --use-llm \
      --human-scope new_only \
@@ -110,12 +111,49 @@ How to run (local)
    uv run python benchmarks/runners/run_llm_baseline.py --command "..."
    uv run python benchmarks/runners/run_static_baseline.py --tool-name infer --command "..."
 3) Evaluate:
-   uv run python benchmarks/evaluate.py
+   uv run python benchmarks/rq2/evaluate.py --dataset primevul
+
+Optional report:
+   uv run python benchmarks/rq2/generate_report.py --rq1-summary benchmarks/results/sherlock_ethereum_audit_contest/evaluation_summary.json
 
 Metadata capture
-- RQ1: pass --metadata /path/to/metadata.json to sherlock_compare.py
-- RQ2: set BENCHMARK_METADATA_PATH=/path/to/metadata.json when running evaluate.py
+- RQ1: pass --metadata /path/to/metadata.json to rq1/cli.py
+- RQ2: set BENCHMARK_METADATA_PATH=/path/to/metadata.json when running rq2/evaluate.py
 - Tool runners: --version-command and --timeout are available for codeql/security_agent/llm/static runners
+
+Additional datasets (distributed OSS + Java)
+- CVEfixes subset (distributed systems OSS):
+  - Requires a local CVEfixes SQLite DB.
+  - Build subset:
+    uv run python scripts/setup_cvefixes_subset.py \
+      --db /path/to/CVEfixes.db \
+      --output benchmarks/data/cvefixes/cvefixes_subset_paired.jsonl
+  - Optional: pass --repos to override the default distributed-OSS list.
+- Vul4J (Java):
+  - Export or prepare a JSONL with before/after code pairs.
+  - Convert:
+    uv run python scripts/setup_vul4j_from_jsonl.py \
+      --input /path/to/vul4j_export.jsonl \
+      --output benchmarks/data/vul4j/vul4j_paired.jsonl
+  - Evaluate:
+    uv run python benchmarks/rq2/evaluate.py --dataset vul4j
+
+Static baselines (paper-backed)
+- C/C++: Infer (TACAS/SV-COMP)
+  Example command template (per-sample):
+    infer run --quiet -- clang -c {code_path} && \
+      python benchmarks/runners/emit_prediction_from_infer.py \
+        --infer-json infer-out/report.json \
+        --output {output_path}
+- Java: SpotBugs (FindBugs successor; FindBugs was published at OOPSLA)
+  Example command template (per-sample):
+    spotbugs -textui -xml:withMessages -output spotbugs.xml {code_path} && \
+      python benchmarks/runners/emit_prediction_from_spotbugs.py \
+        --spotbugs-xml spotbugs.xml \
+        --output {output_path}
+
+Note: the above templates are placeholders; adapt to your tool output by setting
+predicted_vulnerable based on findings count.
 
 Outputs
 - benchmarks/results/metrics.json

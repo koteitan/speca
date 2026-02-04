@@ -4,28 +4,27 @@
 import argparse
 import json
 import subprocess
-from datetime import datetime, timezone
 from pathlib import Path
+
+from benchmarks.runners.base_runner import CommandSpec, write_metadata
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 DATA_DIR = ROOT_DIR / "benchmarks" / "data"
 RESULTS_DIR = ROOT_DIR / "benchmarks" / "results"
-METADATA_PATH = RESULTS_DIR / "primevul" / "semgrep_metadata.json"
-
-def resolve_version() -> str | None:
-    try:
-        result = subprocess.run(["semgrep", "--version"], capture_output=True, text=True)
-    except Exception:
-        return None
-    output = (result.stdout or result.stderr).strip()
-    return output or None
 
 
-def run_semgrep_on_primevul(timeout: int = 0):
-    """Run Semgrep on the PrimeVul dataset."""
-    print("--> Running Semgrep on PrimeVul...")
-    dataset_path = DATA_DIR / "primevul" / "primevul_test_paired.jsonl"
-    output_path = RESULTS_DIR / "primevul" / "semgrep_results.json"
+def default_output_path(dataset_path: Path) -> Path:
+    dataset_name = dataset_path.parent.name
+    return RESULTS_DIR / dataset_name / "semgrep_results.json"
+
+
+def default_metadata_path(dataset_path: Path) -> Path:
+    dataset_name = dataset_path.parent.name
+    return RESULTS_DIR / dataset_name / "semgrep_metadata.json"
+
+def run_semgrep_on_primevul(dataset_path: Path, output_path: Path, config: str, timeout: int = 0):
+    """Run Semgrep on the dataset."""
+    print(f"--> Running Semgrep on {dataset_path}...")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     results = []
@@ -40,10 +39,9 @@ def run_semgrep_on_primevul(timeout: int = 0):
             temp_file.write_text(code)
 
             # Run Semgrep
-            # Using a generic ruleset for broad coverage. This can be customized.
             try:
                 process = subprocess.run(
-                    ["semgrep", "--config", "p/c-audit", "--json", str(temp_file)],
+                    ["semgrep", "--config", config, "--json", str(temp_file)],
                     capture_output=True,
                     text=True,
                     timeout=timeout or None,
@@ -68,25 +66,38 @@ def run_semgrep_on_primevul(timeout: int = 0):
     with open(output_path, "w") as f:
         json.dump(results, f, indent=2)
     
-    metadata = {
-        "tool": "semgrep",
-        "dataset": str(dataset_path),
-        "output": str(output_path),
-        "config": "p/c-audit",
-        "version": resolve_version(),
-        "timeout_sec": timeout,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-    }
-    METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
-    METADATA_PATH.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    metadata_path = default_metadata_path(dataset_path)
+    write_metadata(
+        CommandSpec(
+            dataset=dataset_path,
+            output=output_path,
+            tmp_dir=Path("/tmp"),
+            command=f"semgrep --config {config}",
+            version_command="semgrep --version",
+            timeout=timeout,
+            use_shell=False,
+            limit=0,
+            tool_name="semgrep",
+            metadata=metadata_path,
+        ),
+        extra={"config": config},
+    )
     print(f"    Semgrep results saved to {output_path}")
 
 def main():
     """Main function to run all benchmarks."""
     parser = argparse.ArgumentParser(description="Run Semgrep benchmark runner.")
+    parser.add_argument(
+        "--dataset",
+        type=Path,
+        default=DATA_DIR / "primevul" / "primevul_test_paired.jsonl",
+    )
+    parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument("--config", type=str, default="p/c-audit")
     parser.add_argument("--timeout", type=int, default=0, help="Per-sample timeout in seconds (0 = no timeout)")
     args = parser.parse_args()
-    run_semgrep_on_primevul(timeout=args.timeout)
+    output_path = args.output or default_output_path(args.dataset)
+    run_semgrep_on_primevul(args.dataset, output_path, args.config, timeout=args.timeout)
     # Add other dataset runners here
 
 if __name__ == "__main__":

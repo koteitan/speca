@@ -5,16 +5,19 @@ from __future__ import annotations
 
 import json
 import re
+import argparse
 from collections import Counter, defaultdict
-from math import comb
 import os
-import random
 from pathlib import Path
 from typing import Iterable
 
 from benchmarks.bench_utils import extract_code, extract_id, extract_label, guess_extension, normalize_bool
+from benchmarks.datasets.registry import resolve_dataset_path
+from benchmarks.metrics.classification import compute_confusion
+from benchmarks.metrics.stats import bootstrap_metric_diffs, effect_size_cliffs_delta, mcnemar_exact
+from benchmarks.tools.registry import TOOL_REGISTRY, resolve_metadata_path, resolve_results_path
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+ROOT_DIR = Path(__file__).resolve().parents[2]
 RESULTS_DIR = ROOT_DIR / "benchmarks" / "results"
 DATA_DIR = ROOT_DIR / "benchmarks" / "data"
 EVALUATION_OUTPUT_PATH = RESULTS_DIR / "evaluation_summary.json"
@@ -44,15 +47,6 @@ def load_jsonl(path: Path) -> list[dict]:
                 continue
             data.append(json.loads(line))
     return data
-
-
-def iter_jsonl(path: Path) -> Iterable[dict]:
-    with path.open("r", encoding="utf-8") as handle:
-        for line in handle:
-            line = line.strip()
-            if not line:
-                continue
-            yield json.loads(line)
 
 
 def first_value(record: dict, keys: Iterable[str]) -> str | None:
@@ -114,186 +108,8 @@ def extract_pair_id(record: dict) -> str | None:
     return None
 
 
-def pick_existing(paths: Iterable[Path]) -> Path | None:
-    for path in paths:
-        if path.exists():
-            return path
-    return None
 
 
-def load_semgrep_results(path: Path) -> tuple[dict[str, bool | None], int, dict[str, dict]] | None:
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError):
-        return None
-    predictions: dict[str, bool | None] = {}
-    extras: dict[str, dict] = {}
-    for row in payload:
-        func_id = row.get("func_id") or row.get("id")
-        if func_id is None:
-            continue
-        findings = row.get("semgrep_findings") or []
-        predictions[str(func_id)] = bool(findings)
-        extras[str(func_id)] = {"findings_count": len(findings)}
-    return predictions, 0, extras
-
-
-def load_jsonl_predictions(path: Path) -> tuple[dict[str, bool | None], int, dict[str, dict]] | None:
-    try:
-        rows = list(iter_jsonl(path))
-    except FileNotFoundError:
-        return None
-    except json.JSONDecodeError:
-        return None
-    predictions: dict[str, bool | None] = {}
-    extras: dict[str, dict] = {}
-    error_count = 0
-    for row in rows:
-        func_id = row.get("id") or row.get("func_id") or row.get("sample_id")
-        if func_id is None:
-            continue
-        prediction = normalize_bool(row.get("predicted_vulnerable"))
-        predictions[str(func_id)] = prediction
-        if row.get("error"):
-            error_count += 1
-        extras[str(func_id)] = row
-    return predictions, error_count, extras
-
-
-def compute_confusion(predictions: dict[str, bool | None], ground_truth: dict[str, bool | None]) -> dict:
-    tp = fp = tn = fn = 0
-    skipped_missing_pred = 0
-    skipped_missing_gt = 0
-    for case_id, label in ground_truth.items():
-        if label is None:
-            skipped_missing_gt += 1
-            continue
-        pred = predictions.get(case_id)
-        if pred is None:
-            skipped_missing_pred += 1
-            continue
-        if label and pred:
-            tp += 1
-        elif label and not pred:
-            fn += 1
-        elif not label and pred:
-            fp += 1
-        else:
-            tn += 1
-    scored = tp + fp + tn + fn
-    total_gt = len([v for v in ground_truth.values() if v is not None])
-    coverage = scored / total_gt if total_gt else 0.0
-    precision = tp / (tp + fp) if (tp + fp) else 0.0
-    recall = tp / (tp + fn) if (tp + fn) else 0.0
-    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) else 0.0
-    return {
-        "tp": tp,
-        "fp": fp,
-        "tn": tn,
-        "fn": fn,
-        "accuracy": (tp + tn) / scored if scored else 0.0,
-        "precision": precision,
-        "recall": recall,
-        "f1": f1,
-        "coverage": coverage,
-        "skipped_missing_pred": skipped_missing_pred,
-        "skipped_missing_gt": skipped_missing_gt,
-    }
-
-
-def compute_confusion_subset(
-    predictions: dict[str, bool | None], ground_truth: dict[str, bool | None], case_ids: list[str]
-) -> dict:
-    tp = fp = tn = fn = 0
-    for case_id in case_ids:
-        label = ground_truth.get(case_id)
-        pred = predictions.get(case_id)
-        if label is None or pred is None:
-            continue
-        if label and pred:
-            tp += 1
-        elif label and not pred:
-            fn += 1
-        elif not label and pred:
-            fp += 1
-        else:
-            tn += 1
-    scored = tp + fp + tn + fn
-    precision = tp / (tp + fp) if (tp + fp) else 0.0
-    recall = tp / (tp + fn) if (tp + fn) else 0.0
-    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) else 0.0
-    return {
-        "tp": tp,
-        "fp": fp,
-        "tn": tn,
-        "fn": fn,
-        "accuracy": (tp + tn) / scored if scored else 0.0,
-        "precision": precision,
-        "recall": recall,
-        "f1": f1,
-    }
-
-
-def mcnemar_exact(b: int, c: int) -> float:
-    n = b + c
-    if n == 0:
-        return 1.0
-    k = min(b, c)
-    tail = 0.0
-    for i in range(k + 1):
-        tail += comb(n, i) * (0.5**n)
-    p = 2 * tail
-    return min(p, 1.0)
-
-
-def effect_size_cliffs_delta(b: int, c: int, n: int) -> tuple[float, str]:
-    if n == 0:
-        return 0.0, "none"
-    delta = (b - c) / n
-    magnitude = abs(delta)
-    if magnitude < 0.147:
-        label = "negligible"
-    elif magnitude < 0.33:
-        label = "small"
-    elif magnitude < 0.474:
-        label = "medium"
-    else:
-        label = "large"
-    return delta, label
-
-
-def bootstrap_metric_diffs(
-    tool_a: dict[str, bool | None],
-    tool_b: dict[str, bool | None],
-    ground_truth: dict[str, bool | None],
-    case_ids: list[str],
-    samples: int = BOOTSTRAP_SAMPLES,
-    seed: int = BOOTSTRAP_SEED,
-) -> dict:
-    rng = random.Random(seed)
-    diffs = {"accuracy": [], "precision": [], "recall": [], "f1": []}
-    if not case_ids:
-        return {k: {"mean": 0.0, "ci": [0.0, 0.0]} for k in diffs}
-
-    for _ in range(samples):
-        sampled = [case_ids[rng.randrange(len(case_ids))] for _ in range(len(case_ids))]
-        a_metrics = compute_confusion_subset(tool_a, ground_truth, sampled)
-        b_metrics = compute_confusion_subset(tool_b, ground_truth, sampled)
-        for key in diffs:
-            diffs[key].append(a_metrics[key] - b_metrics[key])
-
-    ci_low = (1 - CI_LEVEL) / 2
-    ci_high = 1 - ci_low
-    out: dict[str, dict] = {}
-    for key, values in diffs.items():
-        values.sort()
-        low_idx = int(ci_low * (len(values) - 1))
-        high_idx = int(ci_high * (len(values) - 1))
-        out[key] = {
-            "mean": sum(values) / len(values),
-            "ci": [values[low_idx], values[high_idx]],
-        }
-    return out
 
 
 def build_code_snippet(code: str | None) -> str | None:
@@ -323,14 +139,20 @@ def count_by_cwe(case_ids: Iterable[str], cwe_map: dict[str, list[str]]) -> Coun
     return counts
 
 
-def evaluate_primevul() -> dict:
-    """Evaluate tool performance on the PrimeVul dataset."""
-    print("--> Evaluating results for PrimeVul...")
-    dataset_path = DATA_DIR / "primevul" / "primevul_test_paired.jsonl"
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Evaluate benchmark results.")
+    parser.add_argument("--dataset", type=str, default="primevul")
+    parser.add_argument("--dataset-path", type=Path, default=None)
+    return parser.parse_args()
+
+
+def evaluate_dataset(dataset_name: str, dataset_path: Path) -> dict:
+    """Evaluate tool performance on a paired dataset."""
+    print(f"--> Evaluating results for {dataset_name}...")
     if not dataset_path.exists():
         print(f"    Dataset not found: {dataset_path}")
         return {
-            "dataset": {"name": "primevul", "path": str(dataset_path), "ground_truth_count": 0},
+            "dataset": {"name": dataset_name, "path": str(dataset_path), "ground_truth_count": 0},
             "tools": {},
             "comparisons": {},
         }
@@ -355,54 +177,16 @@ def evaluate_primevul() -> dict:
             for cwe in cwe_map.get(case_id, ["unknown"]):
                 total_cwe_counts[cwe] += 1
 
-    semgrep_path = pick_existing(
-        [
-            RESULTS_DIR / "primevul" / "semgrep_results.json",
-            RESULTS_DIR / "semgrep_results.json",
-            RESULTS_DIR / "semgrep.json",
-        ]
-    )
-    codeql_path = pick_existing(
-        [
-            RESULTS_DIR / "primevul" / "codeql_results.jsonl",
-            RESULTS_DIR / "codeql.jsonl",
-            RESULTS_DIR / "codeql_results.jsonl",
-        ]
-    )
-    security_agent_path = pick_existing(
-        [
-            RESULTS_DIR / "primevul" / "security_agent_results.json",
-            RESULTS_DIR / "primevul" / "security_agent_results.jsonl",
-            RESULTS_DIR / "security_agent.jsonl",
-            RESULTS_DIR / "security_agent_results.jsonl",
-        ]
-    )
-    llm_baseline_path = pick_existing(
-        [
-            RESULTS_DIR / "primevul" / "llm_baseline_results.jsonl",
-            RESULTS_DIR / "llm_baseline.jsonl",
-        ]
-    )
-    static_baseline_path = pick_existing(
-        [
-            RESULTS_DIR / "primevul" / "static_baseline_results.jsonl",
-            RESULTS_DIR / "static_baseline.jsonl",
-        ]
-    )
-
     tools_payload: dict[str, dict] = {}
     predictions_by_tool: dict[str, dict[str, bool | None]] = {}
     extras_by_tool: dict[str, dict[str, dict]] = {}
 
     tool_sources = {
-        "semgrep": ("json", semgrep_path, load_semgrep_results),
-        "codeql": ("jsonl", codeql_path, load_jsonl_predictions),
-        "security_agent": ("jsonl", security_agent_path, load_jsonl_predictions),
-        "llm_baseline": ("jsonl", llm_baseline_path, load_jsonl_predictions),
-        "static_baseline": ("jsonl", static_baseline_path, load_jsonl_predictions),
+        name: (resolve_results_path(spec, dataset_name, RESULTS_DIR), spec.loader)
+        for name, spec in TOOL_REGISTRY.items()
     }
 
-    for tool, (_, path, loader) in tool_sources.items():
+    for tool, (path, loader) in tool_sources.items():
         if path is None:
             tools_payload[tool] = {"status": "missing_results"}
             predictions_by_tool[tool] = {}
@@ -578,7 +362,7 @@ def evaluate_primevul() -> dict:
     comparisons["pairwise_stats"] = pairwise_stats
 
     dataset_summary = {
-        "name": "primevul",
+        "name": dataset_name,
         "path": str(dataset_path),
         "ground_truth_count": len([v for v in ground_truth.values() if v is not None]),
         "sample_count": len(ground_truth),
@@ -589,8 +373,8 @@ def evaluate_primevul() -> dict:
     }
 
     tool_metadata = {}
-    for tool in ("semgrep", "codeql", "security_agent", "llm_baseline", "static_baseline"):
-        meta_path = RESULTS_DIR / "primevul" / f"{tool}_metadata.json"
+    for tool, spec in TOOL_REGISTRY.items():
+        meta_path = resolve_metadata_path(spec, dataset_name, RESULTS_DIR)
         if meta_path.exists():
             try:
                 tool_metadata[tool] = json.loads(meta_path.read_text(encoding="utf-8"))
@@ -608,7 +392,9 @@ def evaluate_primevul() -> dict:
 
 def main() -> None:
     """Main evaluation function."""
-    metrics = evaluate_primevul()
+    args = parse_args()
+    dataset_path = resolve_dataset_path(args.dataset, args.dataset_path, DATA_DIR)
+    metrics = evaluate_dataset(args.dataset, dataset_path)
     metadata_path = os.environ.get("BENCHMARK_METADATA_PATH", "")
     if metadata_path:
         path = Path(metadata_path)

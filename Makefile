@@ -312,7 +312,7 @@ benchmark-run:
 
 benchmark-evaluate:
 	docker run --rm -v $(shell pwd):/app security-agent-benchmark \
-	    python3 /app/benchmarks/evaluate.py
+	    python3 /app/benchmarks/rq2/evaluate.py
 
 benchmark-report:
 	@echo "Benchmark report generation is not configured yet."

@@ -87,15 +87,36 @@ jobs:
 
       - name: Validate Dataset Selection
         run: |
-          if [ "${{ inputs.dataset }}" != "primevul" ]; then
-            echo "Only primevul is supported right now."
-            exit 1
-          fi
+          case "${{ inputs.dataset }}" in
+            primevul|cvefixes|vul4j)
+              echo "Dataset=${{ inputs.dataset }}"
+              ;;
+            *)
+              echo "Unsupported dataset: ${{ inputs.dataset }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Resolve Dataset Paths
+        run: |
+          case "${{ inputs.dataset }}" in
+            primevul)
+              DATASET_PATH="benchmarks/data/primevul/primevul_test_paired.jsonl"
+              ;;
+            cvefixes)
+              DATASET_PATH="benchmarks/data/cvefixes/cvefixes_subset_paired.jsonl"
+              ;;
+            vul4j)
+              DATASET_PATH="benchmarks/data/vul4j/vul4j_paired.jsonl"
+              ;;
+          esac
+          echo "DATASET_PATH=${DATASET_PATH}" >> $GITHUB_ENV
+          echo "RESULTS_DIR=benchmarks/results/${{ inputs.dataset }}" >> $GITHUB_ENV
 
       - name: Verify Dataset
         run: |
-          if [ ! -f "benchmarks/data/primevul/primevul_test_paired.jsonl" ]; then
-            echo "Dataset missing. Run benchmark-01-setup first."
+          if [ ! -f "${DATASET_PATH}" ]; then
+            echo "Dataset missing at ${DATASET_PATH}. Run benchmark-01-setup first."
             exit 1
           fi
 
@@ -151,12 +172,15 @@ jobs:
       - name: Run Semgrep
         if: steps.tool_select.outputs.run_semgrep == 'true'
         run: |
-          if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "benchmarks/results/primevul/semgrep_results.json" ]; then
+          if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "${RESULTS_DIR}/semgrep_results.json" ]; then
             echo "Semgrep results already exist. Use force_execute to re-run."
             exit 0
           fi
           docker run --rm -v "$PWD":/app security-agent-benchmark \
-            python3 /app/benchmarks/runners/run_semgrep.py --timeout "${{ inputs.tool_timeout }}"
+            python3 /app/benchmarks/runners/run_semgrep.py \
+              --dataset "/app/${DATASET_PATH}" \
+              --output "/app/${RESULTS_DIR}/semgrep_results.json" \
+              --timeout "${{ inputs.tool_timeout }}"
 
       - name: Run CodeQL
         if: steps.tool_select.outputs.run_codeql == 'true'
@@ -165,13 +189,13 @@ jobs:
             echo "codeql_command is required when codeql is selected."
             exit 1
           fi
-          if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "benchmarks/results/primevul/codeql_results.jsonl" ]; then
+          if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "${RESULTS_DIR}/codeql_results.jsonl" ]; then
             echo "CodeQL results already exist. Use force_execute to re-run."
             exit 0
           fi
           uv run python benchmarks/runners/run_codeql.py \
-            --dataset "benchmarks/data/primevul/primevul_test_paired.jsonl" \
-            --output "benchmarks/results/primevul/codeql_results.jsonl" \
+            --dataset "${DATASET_PATH}" \
+            --output "${RESULTS_DIR}/codeql_results.jsonl" \
             --command "${{ inputs.codeql_command }}" \
             --timeout "${{ inputs.tool_timeout }}" \
             --shell
@@ -183,13 +207,13 @@ jobs:
             echo "security_agent_command is required when security agent is selected."
             exit 1
           fi
-          if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "benchmarks/results/primevul/security_agent_results.jsonl" ]; then
+          if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "${RESULTS_DIR}/security_agent_results.jsonl" ]; then
             echo "Security agent results already exist. Use force_execute to re-run."
             exit 0
           fi
           uv run python benchmarks/runners/run_security_agent.py \
-            --dataset "benchmarks/data/primevul/primevul_test_paired.jsonl" \
-            --output "benchmarks/results/primevul/security_agent_results.jsonl" \
+            --dataset "${DATASET_PATH}" \
+            --output "${RESULTS_DIR}/security_agent_results.jsonl" \
             --command "${{ inputs.security_agent_command }}" \
             --version-command "${{ inputs.security_agent_version_command }}" \
             --timeout "${{ inputs.tool_timeout }}" \
@@ -202,13 +226,13 @@ jobs:
             echo "llm_command is required when llm baseline is selected."
             exit 1
           fi
-          if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "benchmarks/results/primevul/llm_baseline_results.jsonl" ]; then
+          if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "${RESULTS_DIR}/llm_baseline_results.jsonl" ]; then
             echo "LLM baseline results already exist. Use force_execute to re-run."
             exit 0
           fi
           uv run python benchmarks/runners/run_llm_baseline.py \
-            --dataset "benchmarks/data/primevul/primevul_test_paired.jsonl" \
-            --output "benchmarks/results/primevul/llm_baseline_results.jsonl" \
+            --dataset "${DATASET_PATH}" \
+            --output "${RESULTS_DIR}/llm_baseline_results.jsonl" \
             --command "${{ inputs.llm_command }}" \
             --version-command "${{ inputs.llm_version_command }}" \
             --timeout "${{ inputs.tool_timeout }}" \
@@ -221,13 +245,13 @@ jobs:
             echo "static_command is required when static baseline is selected."
             exit 1
           fi
-          if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "benchmarks/results/primevul/static_baseline_results.jsonl" ]; then
+          if [ "${{ inputs.force_execute }}" != "true" ] && [ -f "${RESULTS_DIR}/static_baseline_results.jsonl" ]; then
             echo "Static baseline results already exist. Use force_execute to re-run."
             exit 0
           fi
           uv run python benchmarks/runners/run_static_baseline.py \
-            --dataset "benchmarks/data/primevul/primevul_test_paired.jsonl" \
-            --output "benchmarks/results/primevul/static_baseline_results.jsonl" \
+            --dataset "${DATASET_PATH}" \
+            --output "${RESULTS_DIR}/static_baseline_results.jsonl" \
             --tool-name "${{ inputs.static_tool_name }}" \
             --command "${{ inputs.static_command }}" \
             --version-command "${{ inputs.static_version_command }}" \
