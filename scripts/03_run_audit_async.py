@@ -215,9 +215,15 @@ class AuditOrchestratorAsync:
         batches: List[List[Dict[str, Any]]] = []
         current_batch: List[Dict[str, Any]] = []
         current_batch_tokens = BASE_PROMPT_TOKENS
+        subgraph_cache: Dict[str, Dict[str, Any]] = {}
 
         for item in items:
-            item_json = json.dumps(item)
+            enriched_item = item.copy()
+            relevant_subgraph = self._get_relevant_subgraph(item, subgraph_cache)
+            if relevant_subgraph:
+                enriched_item["subgraph"] = relevant_subgraph
+
+            item_json = json.dumps(enriched_item)
             item_tokens = estimate_tokens(item_json)
 
             if current_batch and (current_batch_tokens + item_tokens > MAX_CONTEXT_TOKENS):
@@ -225,7 +231,7 @@ class AuditOrchestratorAsync:
                 current_batch = []
                 current_batch_tokens = BASE_PROMPT_TOKENS
 
-            current_batch.append(item)
+            current_batch.append(enriched_item)
             current_batch_tokens += item_tokens
 
         if current_batch:
@@ -278,6 +284,27 @@ class AuditOrchestratorAsync:
                 },
             },
         }
+
+    def _get_relevant_subgraph(
+        self,
+        item: Dict[str, Any],
+        subgraph_cache: Dict[str, Dict[str, Any]] | None = None,
+    ) -> Dict[str, Any] | None:
+        subgraph_file = item.get("subgraph_file")
+        subgraph_id = item.get("subgraph_id")
+        if not subgraph_file or not subgraph_id:
+            return None
+
+        if subgraph_cache is not None:
+            if subgraph_file not in subgraph_cache:
+                subgraph_cache[subgraph_file] = load_json(Path(subgraph_file)) or {}
+            sg_data = subgraph_cache[subgraph_file]
+        else:
+            sg_data = load_json(Path(subgraph_file)) or {}
+        for sg in sg_data.get("sub_graphs", []):
+            if sg.get("id") == subgraph_id:
+                return sg
+        return None
 
     async def _run_claude_cli(
         self,

@@ -28,7 +28,7 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
   <data_sources>
     - **Checklist Item**: `item.checklist_item` (already resolved)
     - **Property File**: `outputs/01e_PROP_PARTIAL_*.json` (for property assertion)
-    - **Subgraph File**: `outputs/01b_SUBGRAPHS/*.json` (for code mapping)
+    - **Subgraph**: `item.subgraph` (pre-extracted relevant subgraph, included in the item)
   </data_sources>
 
   <early_exit_conditions>
