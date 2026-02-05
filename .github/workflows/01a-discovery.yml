@@ -61,13 +61,13 @@ jobs:
           fi
 
       - name: Setup MCP Servers
-        run: make mcp-setup FILESYSTEM_DIRS="."
+        run: FILESYSTEM_DIRS="." bash scripts/setup_mcp.sh
 
       - name: Prepare Git & Branch
         id: git_config
         run: |
-          git config --global user.name "Security Agent Bot"
-          git config --global user.email "bot@nyxfoundation.org"
+          git config --local user.name "Security Agent Bot"
+          git config --local user.email "bot@nyxfoundation.org"
 
           if [ -z "${{ inputs.branch }}" ]; then
             RUN_ID=$(date +'%Y%m%d-%H%M%S')
@@ -80,10 +80,8 @@ jobs:
 
       - name: "Step 01a: Discovery & Queuing"
         run: |
-          make 01a \
-            KEYWORDS="${{ env.KEYWORDS }}" \
-            SPEC_URLS="${{ env.SPEC_URLS }}" \
-            APPEND_MODE="${{ env.APPEND_MODE }}"
+          uv run python3 scripts/run_phase.py --phase 01a \
+            ${{ inputs.append_mode == 'true' && '--force' || '' }}
 
       - name: Push Results
         if: always()
