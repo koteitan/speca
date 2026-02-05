@@ -92,7 +92,7 @@ make audit
 
 You can also run individual steps:
 ```bash
-make 01     # Specification Extraction
+make 01a     # Specification Extraction
 make 01b    # Trust Model Generation
 make 01c    # Property Extraction
 make 02-parallel    # Unified Checklist Generation (run iteratively)
@@ -117,7 +117,6 @@ Preparation workflow sequence (split Trust Model + Properties):
 4. `01d-trustmodel.yml`
 5. `01e-properties.yml`
 6. `02-checklist.yml`
-7. `02s-prep-review.yml`
 
 #### Step 1: Configure Workflows
 Use the workflow files under `.github/workflows/` and configure inputs via **workflow_dispatch**.  

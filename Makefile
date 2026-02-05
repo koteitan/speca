@@ -27,7 +27,7 @@ FORCE_EXECUTE ?=
 
 .PHONY: all preparation audit init init-prep \
         01a 01b-parallel 01c-parallel 01d-parallel 01e-parallel \
-        02-parallel 02s \
+        02-parallel \
         03-parallel 04-parallel \
         benchmark-all benchmark-setup benchmark-run benchmark-evaluate benchmark-report \
         clean help mcp-setup
@@ -36,8 +36,8 @@ FORCE_EXECUTE ?=
 all: preparation audit
 
 # Phase targets
-# preparation: 01a → 01b-parallel → 01c → 01d → 01e → 02-parallel → 02s
-preparation: 02s
+# preparation: 01a → 01b-parallel → 01c → 01d → 01e → 02-parallel
+preparation: 02-parallel
 	@echo "🎉 Preparation phase completed! Check $(OUTPUT_DIR)/"
 
 audit: 04-parallel
@@ -63,9 +63,8 @@ help:
 	@echo "  01d-parallel - Trust Model (partials)"
 	@echo "  01e-parallel - Properties (partials)"
 	@echo ""
-	@echo "Checklist Steps (02-02s) - All Parallel:"
+	@echo "Checklist Steps (02) - All Parallel:"
 	@echo "  02-parallel  - Unified Checklist Generation (partials)"
-	@echo "  02s          - Review & Validate"
 	@echo ""
 	@echo "Audit Steps - All Parallel:"
 	@echo "  init         - Setup target workspace"
@@ -216,7 +215,7 @@ mcp-setup:
 	fi
 
 # ------------------------------------------------------
-# Checklist Steps (02 - 02s)
+# Checklist Steps (02)
 # ------------------------------------------------------
 
 # Step 02-parallel: Unified checklist generation
@@ -232,31 +231,6 @@ mcp-setup:
 		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/02_CHECKLIST_PARTIAL_*.json 2>/dev/null | wc -l); \
 		echo "✅ Parallel checklist generation complete. Partials: $$PARTIAL_COUNT"; \
 	fi
-
-# Step 02s: Review & Validate Preparation Outputs
-02s: 02-parallel
-	@if [ -f "$(OUTPUT_DIR)/02s_REVIEW_REPORT.json" ]; then \
-		echo "⏭️  Skipping 02s: $(OUTPUT_DIR)/02s_REVIEW_REPORT.json already exists"; \
-	else \
-		if ! ls $(OUTPUT_DIR)/02_CHECKLIST_PARTIAL_*.json >/dev/null 2>&1; then \
-			echo "❌ Error: No 02_CHECKLIST_PARTIAL_*.json files found. Run 02-parallel first."; exit 1; \
-		fi; \
-		echo "⭐ Running 02s_review.md (Preparation Review)..."; \
-		START_TIME=$$(date +%s); \
-		claude $(CLAUDE_FLAGS) -p "$$(cat prompts/02s_review.md)" > $(LOG_DIR)/02s_review.json; \
-		END_TIME=$$(date +%s); \
-		DURATION=$$((END_TIME - START_TIME)); \
-		COST=$$(grep -o '"total_cost_usd":[0-9.]*' $(LOG_DIR)/02s_review.json | head -1 | cut -d: -f2); \
-		if [ -f "$(OUTPUT_DIR)/02s_REVIEW_REPORT.json" ]; then \
-			echo "✅ Finished 02s_review.md (Time: $${DURATION}s | Cost: \$$$$COST)"; \
-			VERDICT=$$(grep -o '"overall_verdict":"[^"]*"' $(OUTPUT_DIR)/02s_REVIEW_REPORT.json | cut -d'"' -f4); \
-			ISSUES=$$(grep -o '"total_issues":[0-9]*' $(OUTPUT_DIR)/02s_REVIEW_REPORT.json | cut -d: -f2); \
-			echo "📊 Review: $$VERDICT ($$ISSUES issues)"; \
-		else \
-			echo "⚠️  Review report not generated (Time: $${DURATION}s | Cost: \$$$$COST)"; \
-		fi; \
-	fi
-
 
 # ------------------------------------------------------
 # Audit Steps
