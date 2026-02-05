@@ -151,7 +151,7 @@ mcp-verify:
 			echo "   Mode: APPEND (merging with existing STATE)"; \
 		fi; \
 		TIMESTAMP=$$(date +'%Y%m%d-%H%M%S'); \
-		LOG_FILE="$(LOG_DIR)/01a_crawl_$${TIMESTAMP}.json"; \
+		LOG_FILE="$(LOG_DIR)/01a_crawl_$${TIMESTAMP}.jsonl"; \
 		START_TIME=$$(date +%s); \
 		claude --dangerously-skip-permissions --verbose --output-format stream-json -p "$$(cat prompts/01a_crawl.md) KEYWORDS=$(KEYWORDS) SPEC_URLS=$(SPEC_URLS) APPEND_MODE=$(APPEND_MODE) OUTPUT_FILE=$(OUTPUT_DIR)/01a_STATE.json" > "$${LOG_FILE}"; \
 		END_TIME=$$(date +%s); \
