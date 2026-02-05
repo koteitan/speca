@@ -26,7 +26,7 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
 
     2. **Process Each Item**: For each item in the batch, perform steps 2a-2e:
     
-       2a. **Resolve Code Scope**: Use Tree-sitter MCP tools (`mcp__tree_sitter__get_symbols` or `mcp__tree_sitter__run_query`) to find the relevant file path and line numbers based on `item.checklist_item.graph_element_under_test`. Extract this code as `code_excerpt`.
+       2a. **Resolve Code Scope**: Use Tree-sitter MCP tools (`mcp__tree_sitter__get_symbols` or `mcp__tree_sitter__run_query`) to find the relevant file path and line numbers based on `item.checklist_item.graph_element_under_test`. Use `mcp__filesystem__read_text_file` with `head`/`tail` parameters to extract only the relevant lines efficiently. Extract this code as `code_excerpt`.
        
        2b. **Check Skip Conditions**: If any of the following conditions are met:
            - `code_scope.file` is `N/A`, `SPECIFICATION-ONLY`, or missing
@@ -56,6 +56,7 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
     - **Property File**: `outputs/01e_PROP_PARTIAL_*.json` (for property assertion)
     - **Subgraph**: `item.subgraph` (pre-extracted relevant subgraph, included in the item)
     - **Tree-sitter MCP**: You **MUST** use `mcp__tree_sitter__get_symbols` and `mcp__tree_sitter__run_query` to find code. Direct file access for code resolution is **NOT PERMITTED**.
+    - **Filesystem MCP**: Use `mcp__filesystem__read_text_file` with `head`/`tail` for efficient partial reads after code scope is resolved. Use `mcp__filesystem__search_files` to find related code files.
   </data_sources>
 </task>
 

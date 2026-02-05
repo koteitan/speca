@@ -1,7 +1,7 @@
 ---
 name: formal-audit-phase3
 description: Perform Phase 3 (Invariant Proving + Scope Filtering) for a checklist item.
-allowed-tools: Read, Grep, Glob, Write
+allowed-tools: Read, Grep, Glob, Write, mcp__filesystem__read_text_file, mcp__filesystem__search_files
 context: fork
 ---
 

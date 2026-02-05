@@ -38,6 +38,7 @@ Execution hint: This worker prompt is invoked by the phase-01 async orchestrator
   <data_sources>
     - **Skill**: `/subgraph-extractor`
     - **Queue File**: Contains items with `url` and `local_path` to the downloaded spec document.
+    - **MCP Tools**: `mcp__filesystem__read_multiple_files` for batch reading specification files.
   </data_sources>
 </task>
 

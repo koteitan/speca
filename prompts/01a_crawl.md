@@ -25,6 +25,7 @@ Execution hint: This prompt invokes the spec-discovery skill.
 
   <data_sources>
     - **Skill**: `/spec-discovery`
+    - **MCP Tools**: `mcp__fetch__fetch` (primary, for static pages), browser tools (fallback, for JS-heavy pages)
   </data_sources>
 </task>
 

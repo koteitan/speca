@@ -1,7 +1,7 @@
 ---
 name: audit-reviewer
 description: Review and validate formal audit findings.
-allowed-tools: read, write
+allowed-tools: read, write, mcp__filesystem__read_multiple_files
 ---
 
 # SKILL: Audit Reviewer
@@ -38,7 +38,7 @@ A JSON object containing a list of items, where each item is an audit result fro
 
 For each audit finding, perform the following review process:
 
-1.  **Load Finding**: Read the `audit_result` for the item.
+1.  **Load Findings**: Use `mcp__filesystem__read_multiple_files` to batch-load all audit results for efficient processing. Fall back to individual `read` if batch read fails.
 2.  **Assess Validity**: Scrutinize the `audit_trail`. Is the logic sound? If a counterexample was found, is it plausible? Is this a genuine vulnerability or a false positive resulting from a misunderstanding of the code's intent or environment?
 3.  **Evaluate Severity**: Re-evaluate the severity. The automated analysis might classify something as `vulnerable`, but is it a `Critical` issue or merely a `Low` risk? Consider factors like exploitability, impact, and complexity.
 4.  **Determine Real-World Impact**: What is the realistic worst-case scenario if this vulnerability is exploited? Does it lead to loss of funds, data leakage, or denial of service? Be specific.

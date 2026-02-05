@@ -1,7 +1,7 @@
 ---
 name: trust-model-analyst
 description: Analyze trust boundaries and security assumptions from subgraphs.
-allowed-tools: read, write, grep
+allowed-tools: read, write, grep, mcp__filesystem__directory_tree, mcp__filesystem__search_files
 ---
 
 # SKILL: Trust Model Analyst
@@ -31,8 +31,10 @@ A JSON object containing a list of items, where each item is a file containing s
 ## Procedure
 
 1.  **Load Subgraphs**: Read the content of the `subgraph_file` for each item.
-2.  **Identify Actors**: From the descriptions and functions in the subgraphs, identify all actors that interact with the system (e.g., `User`, `Validator`, `Oracle`, `Admin`, `ExternalContract`).
-3.  **Map Trust Boundaries**: Determine the boundaries between these actors. A trust boundary exists wherever data or control passes from one actor to another with a different level of trust.
+2.  **Map Codebase Structure**: Use `mcp__filesystem__directory_tree` to understand the project layout and identify key directories (e.g., `contracts/`, `src/`, `lib/`).
+3.  **Identify Entry Points**: Use `mcp__filesystem__search_files` with patterns like `**/main.*`, `**/entry.*`, `**/router.*` to locate system entry points and external interfaces.
+4.  **Identify Actors**: From the descriptions, functions, and codebase structure, identify all actors that interact with the system (e.g., `User`, `Validator`, `Oracle`, `Admin`, `ExternalContract`).
+5.  **Map Trust Boundaries**: Determine the boundaries between these actors. A trust boundary exists wherever data or control passes from one actor to another with a different level of trust.
 4.  **Document Assumptions**: For each boundary, explicitly state the trust assumptions. For example: "We assume the Oracle provides accurate price data," or "We trust the Validator to not censor transactions."
 5.  **Apply STRIDE Model**: For each identified trust boundary and interaction, systematically analyze potential threats using the STRIDE framework:
     *   **Spoofing**: Can an actor illegitimately claim the identity of another?

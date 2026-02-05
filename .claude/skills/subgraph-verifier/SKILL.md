@@ -1,7 +1,7 @@
 ---
 name: subgraph-verifier
 description: Verify and validate extracted subgraphs for completeness and consistency.
-allowed-tools: read, write, grep
+allowed-tools: read, write, grep, mcp__filesystem__search_files, mcp__filesystem__read_text_file
 ---
 
 # SKILL: Subgraph Verifier
@@ -31,17 +31,19 @@ A JSON object containing a list of items, where each item is a file containing s
 ## Procedure
 
 1.  **Load Subgraph**: Read the content of the `subgraph_file`.
-2.  **Check for Completeness**:
+2.  **Cross-Reference Check**: Use `mcp__filesystem__search_files` to find related specification files and verify subgraph references against source documents.
+3.  **Check for Completeness**:
     *   Does every subgraph have a unique `id` and `name`?
     *   Does every function have defined pre/post-conditions, even if they are just "none"?
     *   Are all referenced invariants and data structures defined within the document?
-3.  **Check for Consistency**:
+4.  **Content Validation**: Use `mcp__filesystem__read_text_file` with `head`/`tail` parameters for efficient partial reads when verifying specific sections of large source files.
+5.  **Check for Consistency**:
     *   Do the types in function signatures match the defined data structures?
     *   Are the relationships between components logical? (e.g., a state transition should be linked to a function).
-4.  **Check for Clarity**:
+6.  **Check for Clarity**:
     *   Are the descriptions clear and unambiguous?
     *   Could any part of the subgraph be misinterpreted?
-5.  **Generate Verification Report**: For each subgraph, create a verification status. If issues are found, create a detailed report listing each issue.
+7.  **Generate Verification Report**: For each subgraph, create a verification status. If issues are found, create a detailed report listing each issue.
 
 ## Output Format
 

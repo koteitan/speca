@@ -1,7 +1,7 @@
 ---
 name: checklist-specialist
 description: Generate a security audit checklist from formal properties.
-allowed-tools: read, write
+allowed-tools: read, write, mcp__github__search_code, mcp__github__list_issues
 ---
 
 # SKILL: Checklist Specialist
@@ -34,11 +34,13 @@ A JSON object containing a list of items, where each item is a file containing f
 ## Procedure
 
 1.  **Load Properties**: Read the content of the `property_file` for each item.
-2.  **Translate Properties to Questions**: For each formal property, formulate a clear, yes/no question that an auditor can answer by inspecting the code. For example, the property `forall (user): user.balance >= 0` becomes the checklist item: "Does the system ensure that a user's balance can never become negative?"
-3.  **Assign Severity**: Based on the potential impact of a property violation, assign a severity level to each checklist item (`Critical`, `High`, `Medium`, `Low`, `Informational`). A violation of a core invariant is likely `Critical`.
-4.  **Map to Code**: Using the `covers` information in the property, identify the specific code locations (files, functions) that are relevant to verifying the checklist item. This is crucial for making the checklist actionable.
-5.  **Define Test Procedure**: For each item, provide a brief but clear procedure for how an auditor should test it. For example: "Review the `transfer` function and all calling functions to ensure there are no paths that could lead to an integer underflow on the balance subtraction."
-6.  **Assign IDs**: Assign a unique, sequential ID to each checklist item (e.g., `CHK-0001`, `CHK-0002`).
+2.  **Search Similar Patterns**: Use `mcp__github__search_code` to find similar vulnerability patterns or known-bad code patterns in public repositories. This informs checklist item severity and test procedures.
+3.  **Check Known Issues**: Use `mcp__github__list_issues` to check if similar issues have been reported in the target repository or related projects. Cross-reference with existing bug reports and audits.
+4.  **Translate Properties to Questions**: For each formal property, formulate a clear, yes/no question that an auditor can answer by inspecting the code. For example, the property `forall (user): user.balance >= 0` becomes the checklist item: "Does the system ensure that a user's balance can never become negative?"
+5.  **Assign Severity**: Based on the potential impact of a property violation and real-world patterns found via GitHub search, assign a severity level to each checklist item (`Critical`, `High`, `Medium`, `Low`, `Informational`). A violation of a core invariant is likely `Critical`.
+6.  **Map to Code**: Using the `covers` information in the property, identify the specific code locations (files, functions) that are relevant to verifying the checklist item. This is crucial for making the checklist actionable.
+7.  **Define Test Procedure**: For each item, provide a brief but clear procedure for how an auditor should test it. For example: "Review the `transfer` function and all calling functions to ensure there are no paths that could lead to an integer underflow on the balance subtraction."
+8.  **Assign IDs**: Assign a unique, sequential ID to each checklist item (e.g., `CHK-0001`, `CHK-0002`).
 
 ## Output Format
 

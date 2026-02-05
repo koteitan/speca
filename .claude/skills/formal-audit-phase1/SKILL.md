@@ -1,7 +1,7 @@
 ---
 name: formal-audit-phase1
 description: Perform Phase 1 (Abstract Interpretation) for a checklist item.
-allowed-tools: Read, Grep, Glob, Write
+allowed-tools: Read, Grep, Glob, Write, mcp__filesystem__read_text_file, mcp__filesystem__search_files
 context: fork
 ---
 
@@ -30,10 +30,11 @@ A JSON object representing a single audit item:
 ```
 
 ## Procedure
-1. Identify all variables within the Code Scope.
-2. For each variable, determine its abstract domain (ranges, sets, etc.).
-3. Trace how operations transform these abstract domains.
-4. Look for anomalies (overflow, null, unbounded growth).
+1. **Resolve Code Context**: Use `mcp__filesystem__read_text_file` with `head`/`tail` to extract only the relevant lines from large files. Use `mcp__filesystem__search_files` to find related files (callers, dependencies) that may affect the code scope.
+2. Identify all variables within the Code Scope.
+3. For each variable, determine its abstract domain (ranges, sets, etc.).
+4. Trace how operations transform these abstract domains.
+5. Look for anomalies (overflow, null, unbounded growth).
 
 ## Output Format
 Return a JSON object:

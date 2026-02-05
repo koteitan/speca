@@ -38,6 +38,7 @@ Execution hint: This worker prompt is invoked by the phase-04 async orchestrator
   <data_sources>
     - **Skill**: `/audit-reviewer`
     - **Queue File**: Contains items with the full audit result from Phase 03.
+    - **MCP Tools**: `mcp__filesystem__read_multiple_files` for batch loading audit results.
   </data_sources>
 </task>
 

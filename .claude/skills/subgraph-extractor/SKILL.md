@@ -1,7 +1,7 @@
 ---
 name: subgraph-extractor
 description: Extract structured subgraphs from specification documents.
-allowed-tools: read, write, mcp__tree_sitter__get_symbols, mcp__tree_sitter__run_query
+allowed-tools: read, write, mcp__filesystem__read_multiple_files, mcp__tree_sitter__get_symbols, mcp__tree_sitter__run_query
 ---
 
 # SKILL: Subgraph Extractor
@@ -31,7 +31,7 @@ A JSON object containing a list of items, where each item is a specification doc
 
 ## Procedure
 
-1.  **Read** the content of the `local_path` for each item.
+1.  **Batch Read**: Use `mcp__filesystem__read_multiple_files` to load all specification files from the batch simultaneously for efficiency. Fall back to individual `read` if batch read fails.
 2.  **Identify Sections**: Break down the document into logical sections based on headings (e.g., `## State Transition`, `### Token Transfer`).
 3.  **Extract Components**: Within each section, identify and extract the following components:
     *   **Invariants**: Statements of properties that must always be true.

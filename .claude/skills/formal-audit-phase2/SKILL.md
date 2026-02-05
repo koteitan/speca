@@ -1,7 +1,7 @@
 ---
 name: formal-audit-phase2
 description: Perform Phase 2 (Symbolic Execution + Reachability) for a checklist item.
-allowed-tools: Read, Grep, Glob, Write
+allowed-tools: Read, Grep, Glob, Write, mcp__filesystem__read_text_file, mcp__filesystem__search_files
 context: fork
 ---
 
@@ -27,12 +27,13 @@ A JSON object representing a single audit item plus Phase 1 output:
 ```
 
 ## Procedure
-1. Treat all inputs as symbolic variables.
-2. Traverse control flow and build path conditions.
-3. Attempt to find a satisfying assignment that violates the property.
-4. If found, provide a counterexample.
-5. Perform reachability analysis from attacker-controlled entry points.
-6. Classify exploitability: exploitable, defense-in-depth, internal-only, or unreachable.
+1. **Resolve Extended Context**: Use `mcp__filesystem__search_files` to find callers, callees, and related code paths. Use `mcp__filesystem__read_text_file` with `head`/`tail` for efficient partial reads of large files.
+2. Treat all inputs as symbolic variables.
+3. Traverse control flow and build path conditions.
+4. Attempt to find a satisfying assignment that violates the property.
+5. If found, provide a counterexample.
+6. Perform reachability analysis from attacker-controlled entry points.
+7. Classify exploitability: exploitable, defense-in-depth, internal-only, or unreachable.
 
 ## Output Format
 Return a JSON object:

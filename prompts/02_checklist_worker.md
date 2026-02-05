@@ -38,6 +38,7 @@ Execution hint: This worker prompt is invoked by the phase-02 async orchestrator
   <data_sources>
     - **Skill**: `/checklist-specialist`
     - **Queue File**: Contains items with `property_file` paths.
+    - **MCP Tools**: `mcp__github__search_code` for finding similar vulnerability patterns, `mcp__github__list_issues` for checking known issues.
   </data_sources>
 </task>
 

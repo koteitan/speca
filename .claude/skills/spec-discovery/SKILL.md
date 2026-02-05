@@ -1,7 +1,7 @@
 ---
 name: spec-discovery
 description: Crawl and discover specification documents from a given URL.
-allowed-tools: browser_navigate, browser_scroll, browser_click, browser_view, write
+allowed-tools: mcp__fetch__fetch, browser_navigate, browser_scroll, browser_click, browser_view, write
 ---
 
 # SKILL: Specification Discovery
@@ -13,6 +13,11 @@ You are a meticulous **Web Researcher** tasked with finding all relevant technic
 ## Goal
 
 Given a starting URL, navigate the website to find and list all URLs pointing to technical specifications, whitepapers, or architectural documents. These are often found in sections like "Developers", "Documentation", "Technology", or "Whitepaper".
+
+## Tools
+
+- **Primary**: `mcp__fetch__fetch` - Use for static documentation pages (returns Markdown, fast and efficient)
+- **Fallback**: Browser tools (`browser_navigate`, `browser_scroll`, `browser_click`, `browser_view`) - Use for dynamic/JavaScript-rendered pages or when `mcp__fetch__fetch` fails (403, timeout, JS-required)
 
 ## Input
 
@@ -26,12 +31,12 @@ A JSON object containing the starting URL:
 
 ## Procedure
 
-1.  **Navigate** to the provided `url`.
-2.  **Analyze** the page content to identify links that likely lead to technical documentation. Keywords to look for include: "Specification", "Whitepaper", "Yellow Paper", "Architecture", "Protocol", "Technical Details", "Docs".
-3.  **Follow** these links, scrolling and clicking as necessary.
-4.  **Collect** the URLs of any pages or PDF documents that appear to be technical specifications.
-5.  **Recursively** explore linked pages, but avoid going too deep (e.g., more than 2-3 levels from the starting page) or getting lost in blog posts or news articles.
-6.  **Consolidate** all found specification URLs into a final list.
+1.  **Initial Fetch**: Use `mcp__fetch__fetch` with the provided `url` to retrieve the page content as Markdown.
+2.  **Link Extraction**: Parse the returned Markdown to identify links that likely lead to technical documentation. Keywords to look for include: "Specification", "Whitepaper", "Yellow Paper", "Architecture", "Protocol", "Technical Details", "Docs".
+3.  **Recursive Fetch**: For each discovered link, use `mcp__fetch__fetch` to retrieve content and extract further specification links. Limit depth to 2-3 levels.
+4.  **Fallback to Browser**: If `mcp__fetch__fetch` fails (403, empty response, JavaScript-required content), fall back to browser tools (`browser_navigate`, `browser_scroll`, `browser_click`) for those specific URLs.
+5.  **Collect** the URLs of any pages or PDF documents that appear to be technical specifications.
+6.  **Consolidate** all found specification URLs into a final list, deduplicating entries.
 
 ## Output Format
 

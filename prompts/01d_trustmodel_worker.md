@@ -38,6 +38,7 @@ Execution hint: This worker prompt is invoked by the phase-01 async orchestrator
   <data_sources>
     - **Skill**: `/trust-model-analyst`
     - **Queue File**: Contains items with `subgraph_file` paths.
+    - **MCP Tools**: `mcp__filesystem__directory_tree` for codebase structure mapping, `mcp__filesystem__search_files` for entry point identification.
   </data_sources>
 </task>
 

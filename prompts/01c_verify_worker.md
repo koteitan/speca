@@ -38,6 +38,7 @@ Execution hint: This worker prompt is invoked by the phase-01 async orchestrator
   <data_sources>
     - **Skill**: `/subgraph-verifier`
     - **Queue File**: Contains items with `subgraph_file` paths.
+    - **MCP Tools**: `mcp__filesystem__search_files` for cross-referencing, `mcp__filesystem__read_text_file` for efficient partial reads.
   </data_sources>
 </task>
 
