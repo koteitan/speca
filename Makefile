@@ -7,6 +7,10 @@ WORKDIR ?= target_workspace
 OUTPUT_DIR ?= outputs
 LOG_DIR ?= outputs/logs
 
+# MCP configuration
+# Directories accessible to the filesystem MCP server (space-separated)
+FILESYSTEM_DIRS ?= . $(WORKDIR)
+
 # Claude environment
 export CLAUDE_CODE_PERMISSIONS := bypassPermissions
 export CLAUDE_CODE_MAX_OUTPUT_TOKENS := 100000
@@ -15,14 +19,9 @@ export CLAUDE_CODE_MAX_OUTPUT_TOKENS := 100000
 CLAUDE_FLAGS ?= --dangerously-skip-permissions --agent serena --output-format json
 PYTHON_RUNNER ?= uv run python3
 
-# Max iteration counts (safety limit)
-MAX_ITERATIONS ?= 100
-
 # Parallel execution configuration
 WORKERS ?= 4
-BATCH_SIZE ?= 10
 MAX_CONCURRENT ?= 64
-SKIP_SPLIT ?=
 FORCE_EXECUTE ?=
 
 .PHONY: all preparation audit init init-prep \
@@ -30,7 +29,7 @@ FORCE_EXECUTE ?=
         02-parallel \
         03-parallel 04-parallel \
         benchmark-all benchmark-setup benchmark-run benchmark-evaluate benchmark-report \
-        clean help mcp-setup
+        clean help mcp-setup mcp-verify
 
 # Default target: run full pipeline
 all: preparation audit
@@ -72,18 +71,21 @@ help:
 	@echo "  04-parallel  - Audit Review (partials)"
 	@echo ""
 	@echo "Utilities:"
-	@echo "  clean  - Remove generated outputs"
-	@echo "  mcp-setup - Register MCP servers for Claude"
+	@echo "  clean      - Remove generated outputs"
+	@echo "  mcp-setup  - Register MCP servers for Claude"
+	@echo "  mcp-verify - Check MCP server registration status"
 	@echo ""
 	@echo "Configuration:"
 	@echo "  WORKERS        - Parallel workers (default: 4)"
-	@echo "  MAX_CONCURRENT - Max concurrent Claude calls (default: 4)"
-	@echo "  MAX_ITERATIONS - Safety limit (default: 100)"
-	@echo "  BATCH_SIZE     - Items per iteration (default: 10)"
+	@echo "  MAX_CONCURRENT - Max concurrent Claude calls (default: 64)"
+	@echo "  FORCE_EXECUTE  - Set to 1 to bypass skip conditions"
+	@echo "  FILESYSTEM_DIRS - Directories for filesystem MCP (default: '. $(WORKDIR)')"
 	@echo ""
 	@echo "Examples:"
+	@echo "  make mcp-setup FILESYSTEM_DIRS='. target_workspace /tmp/audit'"
 	@echo "  make 01b-parallel WORKERS=8"
-	@echo "  make preparation WORKERS=4"
+	@echo "  make preparation WORKERS=4 MAX_CONCURRENT=16"
+	@echo ""
 	@echo "Benchmark Targets:"
 	@echo "  benchmark-all      - Run setup, tools, and evaluation"
 	@echo "  benchmark-setup    - Download benchmark datasets"
@@ -110,6 +112,8 @@ init-prep:
 	mkdir -p $(OUTPUT_DIR)
 	mkdir -p $(OUTPUT_DIR)/01b_SUBGRAPHS
 	@echo "Output directories ready"
+	@echo "Checking MCP servers..."
+	@bash scripts/setup_mcp.sh --verify || echo "  Run 'make mcp-setup' to register MCP servers."
 
 # Utilities
 clean:
@@ -121,13 +125,18 @@ clean:
 	@echo "✅ Clean completed"
 
 mcp-setup:
-	@bash scripts/setup_mcp.sh
+	@FILESYSTEM_DIRS="$(FILESYSTEM_DIRS)" bash scripts/setup_mcp.sh
+
+mcp-verify:
+	@bash scripts/setup_mcp.sh --verify
 
 # ------------------------------------------------------
 # Specification Steps (01a - 01e)
+# All parallel phases use scripts/run_phase.py (unified orchestrator)
+# Batching and iteration limits are configured in scripts/orchestrator/config.py
 # ------------------------------------------------------
 
-# Step 01a: Discovery & Queuing
+# Step 01a: Discovery & Queuing (single Claude invocation, not parallel)
 01a:
 	@mkdir -p $(LOG_DIR) $(OUTPUT_DIR)
 	@if [ "$(APPEND_MODE)" = "true" ] && [ ! -f "$(OUTPUT_DIR)/01a_STATE.json" ]; then \
@@ -168,7 +177,7 @@ mcp-setup:
 		echo "⏭️  Skipping 01b-parallel: $$SUBGRAPH_COUNT subgraphs already exist (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 01b extraction in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 01b --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
+		$(PYTHON_RUNNER) scripts/run_phase.py --phase 01b --workers $(WORKERS) --max-concurrent $(MAX_CONCURRENT); \
 		SUBGRAPH_COUNT=$$(ls $(OUTPUT_DIR)/01b_SUBGRAPHS/*.json 2>/dev/null | wc -l); \
 		echo "✅ Parallel extraction complete. Total subgraphs: $$SUBGRAPH_COUNT"; \
 	fi
@@ -182,7 +191,7 @@ mcp-setup:
 		echo "⏭️  Skipping 01c-parallel: trust model partials exist (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 01c verification in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 01c --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(BATCH_SIZE),--batch-size $(BATCH_SIZE),) $(if $(SKIP_SPLIT),--skip-split,); \
+		$(PYTHON_RUNNER) scripts/run_phase.py --phase 01c --workers $(WORKERS) --max-concurrent $(MAX_CONCURRENT); \
 		echo "✅ Parallel verification complete"; \
 	fi
 
@@ -195,7 +204,7 @@ mcp-setup:
 		echo "⏭️  Skipping 01d-parallel: property partials exist (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 01d trust model in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 01d --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(BATCH_SIZE),--batch-size $(BATCH_SIZE),) $(if $(SKIP_SPLIT),--skip-split,); \
+		$(PYTHON_RUNNER) scripts/run_phase.py --phase 01d --workers $(WORKERS) --max-concurrent $(MAX_CONCURRENT); \
 		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/01d_TRUSTMODEL_PARTIAL_*.json 2>/dev/null | wc -l); \
 		echo "✅ Parallel trust model complete. Partials: $$PARTIAL_COUNT"; \
 	fi
@@ -209,7 +218,7 @@ mcp-setup:
 		echo "⏭️  Skipping 01e-parallel: checklist partials exist (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 01e properties in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 01e --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(BATCH_SIZE),--batch-size $(BATCH_SIZE),) $(if $(SKIP_SPLIT),--skip-split,); \
+		$(PYTHON_RUNNER) scripts/run_phase.py --phase 01e --workers $(WORKERS) --max-concurrent $(MAX_CONCURRENT); \
 		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/01e_PROP_PARTIAL_*.json 2>/dev/null | wc -l); \
 		echo "✅ Parallel property generation complete. Partials: $$PARTIAL_COUNT"; \
 	fi
@@ -227,7 +236,7 @@ mcp-setup:
 		echo "⏭️  Skipping 02-parallel: 03_AUDITMAP_PARTIAL_*.json exists (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running unified checklist generation in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 02 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(BATCH_SIZE),--batch-size $(BATCH_SIZE),) $(if $(SKIP_SPLIT),--skip-split,); \
+		$(PYTHON_RUNNER) scripts/run_phase.py --phase 02 --workers $(WORKERS) --max-concurrent $(MAX_CONCURRENT); \
 		PARTIAL_COUNT=$$(ls $(OUTPUT_DIR)/02_CHECKLIST_PARTIAL_*.json 2>/dev/null | wc -l); \
 		echo "✅ Parallel checklist generation complete. Partials: $$PARTIAL_COUNT"; \
 	fi
@@ -248,7 +257,7 @@ mcp-setup:
 		echo "⏭️  Skipping 03-parallel: 04_REVIEW_PARTIAL_*.json exists (use FORCE_EXECUTE=1 to override)"; \
 	else \
 		echo "🚀 Running 03 Audit Map Async Orchestrator..."; \
-		$(PYTHON_RUNNER) scripts/03_run_audit_async.py --workers $(WORKERS) --max-concurrent $(MAX_CONCURRENT) && \
+		$(PYTHON_RUNNER) scripts/run_phase.py --phase 03 --workers $(WORKERS) --max-concurrent $(MAX_CONCURRENT) && \
 		echo "✅ Audit map generation complete."; \
 	fi
 
@@ -271,7 +280,7 @@ mcp-setup:
 	fi; \
 	if [ "$$SHOULD_SKIP" = "false" ]; then \
 		echo "🚀 Running 04_review.md in parallel with $(WORKERS) workers..."; \
-		python3 scripts/run_parallel.py --phase 04 --workers $(WORKERS) --max-iterations $(MAX_ITERATIONS) $(if $(SKIP_SPLIT),--skip-split,); \
+		$(PYTHON_RUNNER) scripts/run_phase.py --phase 04 --workers $(WORKERS) --max-concurrent $(MAX_CONCURRENT); \
 		echo "✅ Parallel audit review complete"; \
 	fi
 

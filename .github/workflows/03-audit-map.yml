@@ -31,11 +31,11 @@ on:
         required: false
         type: number
         default: 4
-      max_iterations:
-        description: 'Max iterations'
+      max_concurrent:
+        description: 'Max concurrent Claude calls'
         required: false
         type: number
-        default: 100
+        default: 64
       audit_scope:
         description: 'Audit scope (cl|el|both|auto)'
         required: false
@@ -95,7 +95,7 @@ jobs:
           set -e
           echo "Syncing scripts and prompts with remote branch..."
           git fetch --prune origin
-          git checkout origin/${{ github.ref_name }} -- scripts/ prompts/ Makefile .github/workflows/
+          git checkout origin/${{ github.ref_name }} -- scripts/ prompts/ Makefile .github/workflows/ .claude/
 
       - name: Verify Prerequisites
         run: |
@@ -205,7 +205,7 @@ jobs:
 
       - name: Setup MCP Servers
         id: mcp_setup
-        run: make mcp-setup
+        run: make mcp-setup FILESYSTEM_DIRS=". target_workspace"
       - name: Get Claude Version
         id: claude_version
         run: |
@@ -222,7 +222,7 @@ jobs:
           git config --global user.email "bot@nyxfoundation.org"
 
       - name: "Step 03: Audit Map"
-        run: make 03-parallel WORKERS=${{ inputs.workers }}
+        run: make 03-parallel WORKERS=${{ inputs.workers }} MAX_CONCURRENT=${{ inputs.max_concurrent }}
 
       - name: Save Target Info
         if: always()

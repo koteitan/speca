@@ -1,21 +1,87 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Verifying and setting up MCP servers..."
+# =============================================================================
+# MCP Server Setup Script
+# =============================================================================
+#
+# Registers Model Context Protocol (MCP) servers for the security audit agent.
+#
+# Usage:
+#   bash scripts/setup_mcp.sh                    # Register all servers
+#   bash scripts/setup_mcp.sh --verify           # Verify registered servers
+#   FILESYSTEM_DIRS=". target_workspace" bash scripts/setup_mcp.sh
+#
+# Environment Variables:
+#   FILESYSTEM_DIRS  - Space-separated directories for filesystem MCP (default: ".")
+#   GITHUB_TOKEN     - Required for github MCP server (GitHub API access)
+#
+# Phase-to-MCP-Server Mapping:
+#   Phase 01a (spec-discovery)        -> fetch (primary), browser (fallback)
+#   Phase 01b (subgraph-extractor)    -> filesystem, tree_sitter
+#   Phase 01c (subgraph-verifier)     -> filesystem
+#   Phase 01d (trust-model-analyst)   -> filesystem
+#   Phase 01e (property-generator)    -> (none)
+#   Phase 02  (checklist-specialist)  -> github
+#   Phase 03  (formal-audit-phase*)   -> tree_sitter, filesystem
+#   Phase 04  (audit-reviewer)        -> filesystem
+#
+# =============================================================================
+
+FILESYSTEM_DIRS="${FILESYSTEM_DIRS:-.}"
+
+# =============================================================================
+# Prerequisite Checks
+# =============================================================================
+
+check_prerequisites() {
+  local missing=()
+
+  if ! command -v claude >/dev/null 2>&1; then
+    echo "ERROR: 'claude' CLI is required but not found."
+    echo "  Install: https://docs.anthropic.com/en/docs/claude-code"
+    exit 1
+  fi
+
+  if ! command -v npx >/dev/null 2>&1; then
+    missing+=("npx (install Node.js: https://nodejs.org/)")
+  fi
+
+  if ! command -v uvx >/dev/null 2>&1; then
+    missing+=("uvx (install uv: https://docs.astral.sh/uv/)")
+  fi
+
+  if [ "${#missing[@]}" -gt 0 ]; then
+    echo "ERROR: Missing required tools:"
+    for tool in "${missing[@]}"; do
+      echo "  - ${tool}"
+    done
+    exit 1
+  fi
+
+  # Warn about optional environment variables
+  if [ -z "${GITHUB_TOKEN:-}" ]; then
+    echo "WARNING: GITHUB_TOKEN is not set."
+    echo "  The 'github' MCP server requires it for API access (Phase 02)."
+    echo "  Set it with: export GITHUB_TOKEN=ghp_..."
+    echo
+  fi
+}
 
 # =============================================================================
 # MCP Server Configuration
 # =============================================================================
-# Each MCP server is defined with its name and corresponding command.
-#
-# Current servers:
-#   - tree_sitter: Code parsing and symbol extraction (used by Phase 03, subgraph-extractor)
-#   - serena: Development workflow automation
-#   - semgrep: Static analysis and pattern matching for security vulnerabilities
-#   - filesystem: File system access for reading/writing audit artifacts
-#   - fetch: HTTP requests for fetching external specifications (used by Phase 01a)
-#   - github: GitHub API access for issue tracking and repository analysis
-# =============================================================================
+
+build_filesystem_args() {
+  local args=""
+  for dir in ${FILESYSTEM_DIRS}; do
+    # Resolve to absolute path
+    local abs_dir
+    abs_dir="$(cd "${dir}" 2>/dev/null && pwd)" || abs_dir="${dir}"
+    args="${args} ${abs_dir}"
+  done
+  echo "${args}"
+}
 
 SERVERS=(
   "tree_sitter"
@@ -26,25 +92,73 @@ SERVERS=(
   "github"
 )
 
+FS_ARGS=$(build_filesystem_args)
+
 COMMANDS=(
   "uvx mcp-server-tree-sitter"
   "uvx --from git+https://github.com/oraios/serena serena start-mcp-server"
   "uvx semgrep-mcp"
-  "npx -y @modelcontextprotocol/server-filesystem ."
+  "npx -y @modelcontextprotocol/server-filesystem${FS_ARGS}"
   "uvx mcp-server-fetch"
   "npx -y @modelcontextprotocol/server-github"
 )
 
-# Optional: Server descriptions for logging
 DESCRIPTIONS=(
-  "Code parsing and symbol extraction"
+  "Code parsing and symbol extraction (Phase 01b, 03)"
   "Development workflow automation"
   "Static analysis for security vulnerabilities"
-  "File system access for audit artifacts"
-  "HTTP fetch for external specifications"
-  "GitHub API for repository analysis"
+  "File system access for audit artifacts (Phase 01b-04)"
+  "HTTP fetch for external specifications (Phase 01a)"
+  "GitHub API for repository analysis (Phase 02)"
 )
 
+# =============================================================================
+# Verify Mode
+# =============================================================================
+
+verify_servers() {
+  echo "Verifying MCP server registration..."
+  echo
+
+  local registered
+  registered=$(claude mcp list 2>/dev/null || echo "")
+  local all_ok=true
+
+  for i in "${!SERVERS[@]}"; do
+    local name="${SERVERS[$i]}"
+    local desc="${DESCRIPTIONS[$i]}"
+    if echo "${registered}" | grep -q "${name}"; then
+      echo "  [OK] ${name}: ${desc}"
+    else
+      echo "  [MISSING] ${name}: ${desc}"
+      all_ok=false
+    fi
+  done
+
+  echo
+  if [ "${all_ok}" = true ]; then
+    echo "All MCP servers are registered."
+  else
+    echo "Some MCP servers are missing. Run 'make mcp-setup' to register them."
+    return 1
+  fi
+}
+
+if [ "${1:-}" = "--verify" ]; then
+  verify_servers
+  exit $?
+fi
+
+# =============================================================================
+# Registration
+# =============================================================================
+
+echo "Verifying and setting up MCP servers..."
+echo
+
+check_prerequisites
+
+echo "Filesystem MCP scope: ${FILESYSTEM_DIRS}"
 echo "Registering ${#SERVERS[@]} MCP servers..."
 echo
 

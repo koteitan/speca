@@ -12,11 +12,11 @@ on:
         required: false
         type: number
         default: 4
-      max_iterations:
-        description: 'Max iterations'
+      max_concurrent:
+        description: 'Max concurrent Claude calls'
         required: false
         type: number
-        default: 100
+        default: 64
 
 permissions:
   contents: write
@@ -42,7 +42,7 @@ jobs:
           set -e
           echo "Syncing scripts and prompts with remote branch..."
           git fetch --prune origin
-          git checkout origin/${{ github.ref_name }} -- scripts/ prompts/ Makefile .github/workflows/
+          git checkout origin/${{ github.ref_name }} -- scripts/ prompts/ Makefile .github/workflows/ .claude/
 
       - name: Merge Base Branch
         run: |
@@ -112,13 +112,17 @@ jobs:
           else
             npm install -g @anthropic-ai/claude-code
           fi
+
+      - name: Setup MCP Servers
+        run: make mcp-setup FILESYSTEM_DIRS=". target_workspace"
+
       - name: Prepare Git
         run: |
           git config --global user.name "Security Agent Bot"
           git config --global user.email "bot@nyxfoundation.org"
 
       - name: "Step 04: Audit Review (Parallel)"
-        run: make 04-parallel WORKERS=${{ inputs.workers }} MAX_ITERATIONS=${{ inputs.max_iterations }}
+        run: make 04-parallel WORKERS=${{ inputs.workers }} MAX_CONCURRENT=${{ inputs.max_concurrent }}
 
       - name: Push Results
         if: always()
