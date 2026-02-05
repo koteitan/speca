@@ -29,10 +29,11 @@ class PhaseConfig:
     depends_on: list[str] = field(default_factory=list)
     input_patterns: list[str] = field(default_factory=list)
     
-    # Batching configuration - ALL phases use token-based strategy
+    # Batching configuration
     batch_strategy: str = "token"
     max_context_tokens: int = 190_000
     base_prompt_tokens: int = 5_000
+    max_batch_size: int = 10
     
     # Execution configuration
     workdir: str | None = None
@@ -79,9 +80,8 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         output_pattern="outputs/01b_SUBGRAPHS/spec_*.json",
         depends_on=["01a"],
         input_patterns=["outputs/01a_STATE.json"],
-        batch_strategy="token",
-        max_context_tokens=190_000,
-        base_prompt_tokens=5_000,
+        batch_strategy="count",
+        max_batch_size=2,
         item_id_field="url",
         result_key="sub_graphs",
         output_prefix="SUBGRAPHS",
