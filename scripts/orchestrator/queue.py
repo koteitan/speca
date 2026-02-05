@@ -49,7 +49,7 @@ class QueueManager:
         
         if isinstance(data, dict):
             # Try common keys for item lists
-            for key in ["items", "found_specs", "work_queue", "sub_graphs", "trust_model",
+            for key in ["items", "found_specs", "work_queue", "specs", "sub_graphs", "trust_model",
                         "checklist", "checklist_items", "properties", "audit_items", "reviewed_items"]:
                 if key in data and isinstance(data[key], list):
                     items = []

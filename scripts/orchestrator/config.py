@@ -93,7 +93,7 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         max_batch_size=2,
         item_id_field="url",
         result_id_field="source_url",
-        result_key="sub_graphs",
+        result_key="specs",
         output_prefix="SUBGRAPHS",
         output_mode="directory",
     ),

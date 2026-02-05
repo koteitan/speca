@@ -1,7 +1,7 @@
 ---
 name: subgraph-extractor
 description: Extract program graphs from a single specification document following Nielson & Nielson's formal definition.
-allowed-tools: read, write, mcp__filesystem__read_multiple_files, mcp__filesystem__write_text_file, mcp__tree_sitter__get_symbols, mcp__tree_sitter__run_query
+allowed-tools: read, write, mcp__fetch__fetch, mcp__filesystem__write_text_file, mcp__tree_sitter__get_symbols, mcp__tree_sitter__run_query
 context: fork
 ---
 
@@ -26,13 +26,13 @@ The calling worker is responsible for batching and aggregation.
 ## Input
 
 The caller provides:
-- `url` — the source URL of the specification
-- `local_path` — path to the downloaded specification file
+- `url` — the source URL of the specification (always provided)
 - `output_dir` — directory where `.mmd` files should be written
+- `local_path` *(optional)* — path to a pre-downloaded copy of the specification
 
 ## Procedure
 
-1. **Read Specification**: Load the specification file at `local_path`.
+1. **Read Specification**: If `local_path` is provided and the file exists, read from it. Otherwise, fetch the content from `url` using `mcp__fetch__fetch`.
 
 2. **Identify Functional Units**: Break down the document into logical units:
    - Function definitions
@@ -58,6 +58,7 @@ The caller provides:
    ```
    {output_dir}/{spec_id}/{SG-ID}_{name}.mmd
    ```
+   Where `spec_id` is a short identifier derived from the specification (e.g., `EIP-7594`, `fulu-beacon-chain`).
 
 5. **Return Result**: Return the JSON structure described in Output Format below. Do **not** write `index.json` — the calling worker handles aggregation.
 
@@ -91,7 +92,9 @@ q1 --> q2 : x > 0       # WRONG: space before colon
 
 ## Output Format
 
-The skill returns one JSON object per invocation (one spec → one object):
+The skill returns one JSON object per invocation (one spec → one object).
+
+**Important**: `mermaid_file` paths are **relative to `output_dir`**, including the `spec_id` directory prefix.
 
 ```json
 {
@@ -101,7 +104,7 @@ The skill returns one JSON object per invocation (one spec → one object):
     {
       "id": "SG-001",
       "name": "get_blob_parameters",
-      "mermaid_file": "SG-001_get_blob_parameters.mmd",
+      "mermaid_file": "EIP-7892/SG-001_get_blob_parameters.mmd",
       "program_graph": {
         "Q": ["q_init", "q_iter", "q_check", "q_return", "q_final"],
         "q_init": "q_init",
@@ -182,7 +185,7 @@ function factorial(x):
     return y
 ```
 
-**Output (Mermaid)** - `factorial.mmd`:
+**Output (Mermaid)** - `examples/SG-factorial_factorial.mmd`:
 ```mermaid
 stateDiagram-v2
     direction TB
@@ -198,7 +201,7 @@ stateDiagram-v2
 {
   "id": "SG-factorial",
   "name": "factorial",
-  "mermaid_file": "SG-factorial_factorial.mmd",
+  "mermaid_file": "examples/SG-factorial_factorial.mmd",
   "program_graph": {
     "Q": ["q_init", "q1", "q2", "q3", "q_final"],
     "q_init": "q_init",

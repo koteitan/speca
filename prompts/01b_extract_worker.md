@@ -38,7 +38,7 @@ Execution hint: This worker prompt is invoked by the phase-01 async orchestrator
 
     2. **Process Each Item** (one SKILL call per URL):
        For each item in the batch:
-       a. **Invoke Skill**: Call `/subgraph-extractor` passing that item's `url`, `local_path`, and `output_dir` = <ref id="graphs"/>.
+       a. **Invoke Skill**: Call `/subgraph-extractor` passing that item's `url` and `output_dir` = <ref id="graphs"/>.
           The skill reads one specification, extracts multiple program graphs, writes `.mmd` files, and returns a JSON result.
        b. **Collect Result**: Append the skill's returned JSON object to the results array.
        c. **Handle Errors**: If the skill fails for an item, log the error and continue to the next item.
@@ -46,7 +46,7 @@ Execution hint: This worker prompt is invoked by the phase-01 async orchestrator
     3. **Write Index File**: After ALL items processed, write <ref id="index"/> by wrapping the collected results:
        ```json
        {
-         "sub_graphs": [
+         "specs": [
            { "source_url": "...", "title": "...", "sub_graphs": [...] },
            { "source_url": "...", "title": "...", "sub_graphs": [...] }
          ]
@@ -93,8 +93,8 @@ Execution hint: This worker prompt is invoked by the phase-01 async orchestrator
 
   <data_sources>
     - **Skill**: `/subgraph-extractor` (called once per URL)
-    - **Queue File**: Contains items with `url` and `local_path` to the downloaded spec document.
-    - **MCP Tools**: `mcp__filesystem__read_multiple_files`, `mcp__filesystem__write_text_file`
+    - **Queue File**: Contains items with `url` (the specification URL to fetch).
+    - **MCP Tools**: `mcp__fetch__fetch`, `mcp__filesystem__write_text_file`
   </data_sources>
 </task>
 
