@@ -32,6 +32,7 @@ jobs:
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CLAUDE_CODE_PERMISSIONS: bypassPermissions
       CLAUDE_CODE_MAX_OUTPUT_TOKENS: 100000
 
@@ -71,8 +72,6 @@ jobs:
 
       - name: Setup MCP Servers
         run: make mcp-setup FILESYSTEM_DIRS="."
-        env:
-          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare Git
         run: |

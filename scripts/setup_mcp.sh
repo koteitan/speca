@@ -59,12 +59,17 @@ check_prerequisites() {
     exit 1
   fi
 
-  # Warn about optional environment variables
-  if [ -z "${GITHUB_TOKEN:-}" ]; then
-    echo "WARNING: GITHUB_TOKEN is not set."
-    echo "  The 'github' MCP server requires it for API access (Phase 02)."
-    echo "  Set it with: export GITHUB_TOKEN=ghp_..."
+  # Resolve GitHub token from available env vars
+  RESOLVED_GH_TOKEN="${GITHUB_PERSONAL_ACCESS_TOKEN:-${GH_TOKEN:-${GITHUB_TOKEN:-}}}"
+  if [ -z "${RESOLVED_GH_TOKEN}" ]; then
+    echo "WARNING: No GitHub token found."
+    echo "  The 'github' MCP server requires GITHUB_PERSONAL_ACCESS_TOKEN for API access."
+    echo "  Checked: GITHUB_PERSONAL_ACCESS_TOKEN, GH_TOKEN, GITHUB_TOKEN"
+    echo "  Set one of them: export GH_TOKEN=ghp_..."
     echo
+  else
+    export GITHUB_PERSONAL_ACCESS_TOKEN="${RESOLVED_GH_TOKEN}"
+    echo "GitHub token resolved (for github MCP server)."
   fi
 }
 
@@ -175,7 +180,12 @@ for i in "${!SERVERS[@]}"; do
   fi
 
   echo "  → Registering..."
-  if ! ADD_OUTPUT=$(claude mcp add --scope project --transport stdio "${SERVER_NAME}" -- ${SERVER_COMMAND} 2>&1); then
+  # Build env flags for servers that need tokens
+  ENV_FLAGS=""
+  if [ "${SERVER_NAME}" = "github" ] && [ -n "${GITHUB_PERSONAL_ACCESS_TOKEN:-}" ]; then
+    ENV_FLAGS="--env GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_PERSONAL_ACCESS_TOKEN}"
+  fi
+  if ! ADD_OUTPUT=$(claude mcp add --scope project --transport stdio ${ENV_FLAGS} "${SERVER_NAME}" -- ${SERVER_COMMAND} 2>&1); then
     if echo "${ADD_OUTPUT}" | grep -qi "already exists"; then
       echo "  ✓ Already exists; skipping."
     else

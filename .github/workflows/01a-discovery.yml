@@ -36,6 +36,7 @@ jobs:
       SPEC_URLS: ${{ inputs.spec_urls }}
       APPEND_MODE: ${{ inputs.append_mode }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CLAUDE_CODE_PERMISSIONS: bypassPermissions
       CLAUDE_CODE_MAX_OUTPUT_TOKENS: 100000
 
