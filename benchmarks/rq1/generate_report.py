@@ -29,8 +29,8 @@ def fmt_seconds(value: float | int | None) -> str:
 def build_branch_env_table(summary: dict, collection: dict) -> list[str]:
     manifests = {entry.get("branch"): entry for entry in collection.get("branches", [])}
     lines = [
-        "| Branch | Commit | Phase 03 Runtime | Tokens (in/out/total) | Files |",
-        "| --- | --- | --- | --- | --- |",
+        "| Branch | Commit | Phase 03 Runtime | Tokens (in/out/total) | Num Turns | Files |",
+        "| --- | --- | --- | --- | --- | --- |",
     ]
     for branch in summary.get("branches", {}).keys():
         manifest = manifests.get(branch, {})
@@ -38,6 +38,8 @@ def build_branch_env_table(summary: dict, collection: dict) -> list[str]:
         commit = target_info.get("target_commit_short") or manifest.get("commit_short") or manifest.get("commit") or "n/a"
         timing = manifest.get("phase_log_timing") or {}
         runtime = fmt_seconds(timing.get("estimated_total_seconds"))
+        num_turns = timing.get("num_turns")
+        num_turns_cell = str(num_turns) if isinstance(num_turns, (int, float)) else "n/a"
         tokens = timing.get("tokens") or {}
         token_in = tokens.get("input_tokens") or tokens.get("prompt_tokens") or 0
         token_out = tokens.get("output_tokens") or tokens.get("completion_tokens") or 0
@@ -45,7 +47,7 @@ def build_branch_env_table(summary: dict, collection: dict) -> list[str]:
         token_total = tokens.get("total_tokens") or (token_in + token_out + token_cache)
         token_cell = f"{token_in}/{token_out}/{token_total}" if token_total else "n/a"
         files = str(len(manifest.get("files", []))) if manifest else "n/a"
-        lines.append(f"| {branch} | {commit} | {runtime} | {token_cell} | {files} |")
+        lines.append(f"| {branch} | {commit} | {runtime} | {token_cell} | {num_turns_cell} | {files} |")
     return lines
 
 

@@ -7,7 +7,7 @@ from pathlib import Path
 
 from benchmarks.rq1.evaluate import evaluate_branches, parse_branches
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+ROOT_DIR = Path(__file__).resolve().parents[2]
 
 
 def main() -> None:

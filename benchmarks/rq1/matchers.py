@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import difflib
 import json
+import os
 import re
+import shlex
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -200,9 +202,28 @@ def select_keyword_candidates(
     return [issue for overlap, score, issue in scored[:top_k]]
 
 
-def call_claude(prompt: str) -> str:
+def call_llm(prompt: str) -> str:
+    command_override = os.environ.get("LLM_COMMAND")
+    if command_override:
+        base = shlex.split(command_override)
+        command = base + [prompt]
+    else:
+        provider = os.environ.get("LLM_PROVIDER", "claude").strip().lower()
+        if provider == "codex":
+            command = [
+                "codex",
+                "exec",
+                "--sandbox",
+                "read-only",
+                "--ask-for-approval",
+                "never",
+                prompt,
+            ]
+        else:
+            command = ["claude", "--output-format", "json", "-p", prompt]
+
     result = subprocess.run(
-        ["claude", "--output-format", "json", "-p", prompt],
+        command,
         check=False,
         capture_output=True,
         text=True,
@@ -247,7 +268,7 @@ def extract_json_from_text(text: str) -> dict | None:
     return None
 
 
-def llm_match(audit_item: AuditItem, candidates: list[Issue]) -> tuple[bool, str | None, float]:
+def llm_match(audit_item: AuditItem, candidates: list[Issue], llm_id: str) -> tuple[bool, str | None, float]:
     if not candidates:
         return False, None, 0.0
 
@@ -267,7 +288,9 @@ def llm_match(audit_item: AuditItem, candidates: list[Issue]) -> tuple[bool, str
         + "\n"
     )
 
-    raw = call_claude(prompt)
+    print(f"[rq1] {llm_id}: llm_match start (candidates={len(candidates)})")
+    raw = call_llm(prompt)
+    print(f"[rq1] {llm_id}: llm_match done (bytes={len(raw) if raw else 0})")
     payload = extract_json_from_text(raw) or {}
     match = bool(payload.get("match"))
     idx = payload.get("candidate_index")
@@ -345,7 +368,8 @@ def match_items(
             if not candidates:
                 continue
             llm_calls += 1
-            matched, issue_id, confidence = llm_match(item, candidates)
+            llm_id = item.item_id or f"item_{llm_calls}"
+            matched, issue_id, confidence = llm_match(item, candidates, llm_id)
             if matched and issue_id:
                 matches[item.item_id] = {
                     "stage": "stage3",

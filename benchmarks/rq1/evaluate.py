@@ -111,11 +111,13 @@ def match_branch(
     sanitized = sanitize_branch(branch)
     branch_dir = results_dir / sanitized
     files = sorted(branch_dir.glob("03_*.json"))
+    print(f"[rq1] {branch}: {len(files)} audit files found")
     audit_items = extract_audit_items(
         files,
         classification_filter=audit_classifications,
         include_bug_bounty=audit_include_bug_bounty,
     )
+    print(f"[rq1] {branch}: {len(audit_items)} audit items after filter")
 
     matches, stage_counts, llm_calls = match_items(
         audit_items,
@@ -155,6 +157,10 @@ def match_branch(
 
     detail_path = results_dir / f"evaluation_{sanitized}.json"
     detail_path.write_text(json.dumps(detail, indent=2), encoding="utf-8")
+    print(
+        f"[rq1] {branch}: matched {matched_total}/{total} items "
+        f"(issues matched {issues_matched_total}/{len(issues)})"
+    )
     return detail, audit_items
 
 
@@ -229,6 +235,7 @@ def evaluate_branches(
         filtered_issues = issues
         if client_filter != "none" and branch_keywords:
             filtered_issues = filter_issues_by_keywords(issues, branch_keywords)
+        print(f"[rq1] {branch}: issues in scope {len(filtered_issues)} (filter={client_filter})")
 
         overall_issue_candidates.update(issue.issue_id for issue in filtered_issues)
         detail, audit_items = match_branch(
