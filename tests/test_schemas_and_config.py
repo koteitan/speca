@@ -1448,3 +1448,232 @@ class TestCostTrackerIntegration:
         """Default phases should have log_anomaly_threshold=3."""
         config = get_phase_config("01a")
         assert config.log_anomaly_threshold == 3
+
+
+# =========================================================================
+# GitHub Step Summary tests
+# =========================================================================
+
+from orchestrator.base import BaseOrchestrator
+
+
+class _MockOrchestrator(BaseOrchestrator):
+    """Minimal concrete subclass for testing base methods."""
+
+    def load_items(self):
+        return []
+
+    def enrich_items(self, items):
+        return items
+
+
+class TestGitHubStepSummary:
+    """Tests for _write_github_step_summary in base.py."""
+
+    def test_no_op_when_env_not_set(self):
+        """Should do nothing when GITHUB_STEP_SUMMARY is not set."""
+        old = os.environ.pop("GITHUB_STEP_SUMMARY", None)
+        try:
+            orch = _MockOrchestrator("03")
+            cb_stats = orch.circuit_breaker.get_stats()
+            val_stats = orch.collector.get_validation_summary()
+            # Should not raise
+            orch._write_github_step_summary(10.0, 5, cb_stats, val_stats, None)
+        finally:
+            if old is not None:
+                os.environ["GITHUB_STEP_SUMMARY"] = old
+
+    def test_writes_markdown_to_file(self):
+        """Should write Markdown content to the summary file."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            summary_file = f.name
+        os.environ["GITHUB_STEP_SUMMARY"] = summary_file
+        try:
+            orch = _MockOrchestrator("03")
+            cb_stats = orch.circuit_breaker.get_stats()
+            val_stats = orch.collector.get_validation_summary()
+            orch._write_github_step_summary(60.0, 10, cb_stats, val_stats, None)
+
+            with open(summary_file) as f:
+                content = f.read()
+            assert "## Phase 03" in content
+            assert "Audit Map Generation" in content
+            assert "Execution Summary" in content
+            assert "| Duration | 60.0s |" in content
+            assert "| Total results | 10 |" in content
+        finally:
+            del os.environ["GITHUB_STEP_SUMMARY"]
+            os.unlink(summary_file)
+
+    def test_includes_cost_report(self):
+        """Should include cost table when cost_stats is provided."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            summary_file = f.name
+        os.environ["GITHUB_STEP_SUMMARY"] = summary_file
+        try:
+            orch = _MockOrchestrator("03")
+            cb_stats = orch.circuit_breaker.get_stats()
+            val_stats = orch.collector.get_validation_summary()
+            cost_stats = {
+                "total_input_tokens": 100000,
+                "total_output_tokens": 30000,
+                "total_cost_usd": 8.50,
+                "max_budget_usd": 30.0,
+                "budget_utilization_pct": 28.3,
+                "budget_remaining_usd": 21.50,
+                "batch_count": 3,
+            }
+            orch._write_github_step_summary(45.0, 8, cb_stats, val_stats, cost_stats)
+
+            with open(summary_file) as f:
+                content = f.read()
+            assert "### Cost Report" in content
+            assert "| Input tokens | 100,000 |" in content
+            assert "| Estimated cost | $8.50 |" in content
+            assert "| Budget | $30.00 |" in content
+            assert "28.3%" in content
+        finally:
+            del os.environ["GITHUB_STEP_SUMMARY"]
+            os.unlink(summary_file)
+
+    def test_no_cost_section_without_stats(self):
+        """Should not include cost section when cost_stats is None."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            summary_file = f.name
+        os.environ["GITHUB_STEP_SUMMARY"] = summary_file
+        try:
+            orch = _MockOrchestrator("03")
+            cb_stats = orch.circuit_breaker.get_stats()
+            val_stats = orch.collector.get_validation_summary()
+            orch._write_github_step_summary(10.0, 5, cb_stats, val_stats, None)
+
+            with open(summary_file) as f:
+                content = f.read()
+            assert "### Cost Report" not in content
+        finally:
+            del os.environ["GITHUB_STEP_SUMMARY"]
+            os.unlink(summary_file)
+
+    def test_success_status(self):
+        """Normal run should show Success status."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            summary_file = f.name
+        os.environ["GITHUB_STEP_SUMMARY"] = summary_file
+        try:
+            orch = _MockOrchestrator("03")
+            cb_stats = orch.circuit_breaker.get_stats()
+            val_stats = orch.collector.get_validation_summary()
+            orch._write_github_step_summary(10.0, 5, cb_stats, val_stats, None)
+
+            with open(summary_file) as f:
+                content = f.read()
+            assert "Success" in content
+        finally:
+            del os.environ["GITHUB_STEP_SUMMARY"]
+            os.unlink(summary_file)
+
+    def test_circuit_breaker_status(self):
+        """Should show Circuit Breaker Tripped status."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            summary_file = f.name
+        os.environ["GITHUB_STEP_SUMMARY"] = summary_file
+        try:
+            orch = _MockOrchestrator("03")
+            orch._circuit_breaker_tripped = True
+            cb_stats = orch.circuit_breaker.get_stats()
+            val_stats = orch.collector.get_validation_summary()
+            orch._write_github_step_summary(10.0, 3, cb_stats, val_stats, None)
+
+            with open(summary_file) as f:
+                content = f.read()
+            assert "Circuit Breaker Tripped" in content
+        finally:
+            del os.environ["GITHUB_STEP_SUMMARY"]
+            os.unlink(summary_file)
+
+    def test_budget_exceeded_status(self):
+        """Should show Budget Exceeded status."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            summary_file = f.name
+        os.environ["GITHUB_STEP_SUMMARY"] = summary_file
+        try:
+            orch = _MockOrchestrator("03")
+            orch._budget_exceeded = True
+            cb_stats = orch.circuit_breaker.get_stats()
+            val_stats = orch.collector.get_validation_summary()
+            orch._write_github_step_summary(10.0, 2, cb_stats, val_stats, None)
+
+            with open(summary_file) as f:
+                content = f.read()
+            assert "Budget Exceeded" in content
+        finally:
+            del os.environ["GITHUB_STEP_SUMMARY"]
+            os.unlink(summary_file)
+
+    def test_failed_batches_table(self):
+        """Should include failed batches table when there are failures."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            summary_file = f.name
+        os.environ["GITHUB_STEP_SUMMARY"] = summary_file
+        try:
+            orch = _MockOrchestrator("03")
+            orch.failed_batches = [(0, 3), (1, 7)]
+            cb_stats = orch.circuit_breaker.get_stats()
+            val_stats = orch.collector.get_validation_summary()
+            orch._write_github_step_summary(10.0, 5, cb_stats, val_stats, None)
+
+            with open(summary_file) as f:
+                content = f.read()
+            assert "### Failed Batches" in content
+            assert "| 0 | 3 |" in content
+            assert "| 1 | 7 |" in content
+        finally:
+            del os.environ["GITHUB_STEP_SUMMARY"]
+            os.unlink(summary_file)
+
+    def test_budget_bar_high_utilization(self):
+        """High budget utilization (>=80%) should show red indicator."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            summary_file = f.name
+        os.environ["GITHUB_STEP_SUMMARY"] = summary_file
+        try:
+            orch = _MockOrchestrator("03")
+            cb_stats = orch.circuit_breaker.get_stats()
+            val_stats = orch.collector.get_validation_summary()
+            cost_stats = {
+                "total_input_tokens": 500000,
+                "total_output_tokens": 200000,
+                "total_cost_usd": 25.0,
+                "max_budget_usd": 30.0,
+                "budget_utilization_pct": 83.3,
+                "budget_remaining_usd": 5.0,
+                "batch_count": 10,
+            }
+            orch._write_github_step_summary(300.0, 50, cb_stats, val_stats, cost_stats)
+
+            with open(summary_file) as f:
+                content = f.read()
+            assert "83.3%" in content
+        finally:
+            del os.environ["GITHUB_STEP_SUMMARY"]
+            os.unlink(summary_file)
+
+    def test_appends_to_existing_file(self):
+        """Should append to existing summary file, not overwrite."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            f.write("# Previous content\n\n")
+            summary_file = f.name
+        os.environ["GITHUB_STEP_SUMMARY"] = summary_file
+        try:
+            orch = _MockOrchestrator("03")
+            cb_stats = orch.circuit_breaker.get_stats()
+            val_stats = orch.collector.get_validation_summary()
+            orch._write_github_step_summary(10.0, 5, cb_stats, val_stats, None)
+
+            with open(summary_file) as f:
+                content = f.read()
+            assert "# Previous content" in content
+            assert "## Phase 03" in content
+        finally:
+            del os.environ["GITHUB_STEP_SUMMARY"]
+            os.unlink(summary_file)

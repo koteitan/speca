@@ -235,6 +235,7 @@ class BaseOrchestrator(ABC):
         print(f"  Validation errors:     {val_stats['validation_errors']}")
 
         # Cost statistics
+        cost_stats = None
         if self.cost_tracker:
             cost_stats = self.cost_tracker.get_stats()
             print(f"  ---- Cost ----")
@@ -245,6 +246,106 @@ class BaseOrchestrator(ABC):
             print(f"  Budget utilization:    {cost_stats['budget_utilization_pct']:.1f}%")
         _sep = '\u2500' * 40
         print(_sep)
+
+        # Write to GitHub Step Summary if running in GitHub Actions
+        self._write_github_step_summary(
+            duration, total_results, cb_stats, val_stats, cost_stats,
+        )
+
+    def _write_github_step_summary(
+        self,
+        duration: float,
+        total_results: int,
+        cb_stats: dict[str, Any],
+        val_stats: dict[str, Any],
+        cost_stats: dict[str, Any] | None,
+    ) -> None:
+        """
+        Write a Markdown summary to ``$GITHUB_STEP_SUMMARY``.
+
+        This renders a rich table in the GitHub Actions "Summary" tab for
+        each workflow run, making it easy to spot anomalies at a glance.
+        If the environment variable is not set (i.e. running locally),
+        this method is a no-op.
+        """
+        summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+        if not summary_path:
+            return
+
+        # Determine status emoji
+        if self._budget_exceeded:
+            status = "\U0001f6d1 Budget Exceeded"
+        elif self._circuit_breaker_tripped:
+            status = "\U0001f6d1 Circuit Breaker Tripped"
+        elif self.failed_batches:
+            status = "\u26a0\ufe0f Partial Failure"
+        else:
+            status = "\u2705 Success"
+
+        lines: list[str] = []
+        lines.append(f"## Phase {self.config.phase_id}: {self.config.name}")
+        lines.append("")
+        lines.append(f"**Status:** {status}")
+        lines.append("")
+
+        # --- Execution summary table ---
+        lines.append("### Execution Summary")
+        lines.append("")
+        lines.append("| Metric | Value |")
+        lines.append("| :--- | ---: |")
+        lines.append(f"| Duration | {duration:.1f}s |")
+        lines.append(f"| Total results | {total_results} |")
+        lines.append(f"| Batch successes | {cb_stats['total_successes']} |")
+        lines.append(f"| Batch failures | {cb_stats['total_failures']} |")
+        lines.append(f"| Total retries | {cb_stats['total_retries']} |")
+        lines.append(f"| Empty results | {cb_stats['empty_results']} |")
+        lines.append(f"| Validation warnings | {val_stats['validation_warnings']} |")
+        lines.append(f"| Validation errors | {val_stats['validation_errors']} |")
+        lines.append("")
+
+        # --- Cost table (if available) ---
+        if cost_stats:
+            lines.append("### Cost Report")
+            lines.append("")
+            lines.append("| Metric | Value |")
+            lines.append("| :--- | ---: |")
+            lines.append(f"| Input tokens | {cost_stats['total_input_tokens']:,} |")
+            lines.append(f"| Output tokens | {cost_stats['total_output_tokens']:,} |")
+            lines.append(f"| Estimated cost | ${cost_stats['total_cost_usd']:.2f} |")
+            lines.append(f"| Budget | ${cost_stats['max_budget_usd']:.2f} |")
+            lines.append(f"| Budget utilization | {cost_stats['budget_utilization_pct']:.1f}% |")
+            lines.append("")
+
+            # Budget bar (visual indicator)
+            pct = min(cost_stats['budget_utilization_pct'], 100.0)
+            filled = int(pct / 5)  # 20 chars = 100%
+            bar = '\u2588' * filled + '\u2591' * (20 - filled)
+            if pct >= 80:
+                lines.append(f"> \U0001f534 **Budget: [{bar}] {pct:.1f}%**")
+            elif pct >= 50:
+                lines.append(f"> \U0001f7e1 Budget: [{bar}] {pct:.1f}%")
+            else:
+                lines.append(f"> \U0001f7e2 Budget: [{bar}] {pct:.1f}%")
+            lines.append("")
+
+        # --- Failed batches detail ---
+        if self.failed_batches:
+            lines.append("### Failed Batches")
+            lines.append("")
+            lines.append("| Worker | Batch |")
+            lines.append("| :---: | :---: |")
+            for worker_id, batch_index in self.failed_batches:
+                lines.append(f"| {worker_id} | {batch_index} |")
+            lines.append("")
+
+        md = "\n".join(lines)
+
+        try:
+            with open(summary_path, "a") as f:
+                f.write(md)
+                f.write("\n")
+        except OSError as e:
+            print(f"Warning: could not write to GITHUB_STEP_SUMMARY: {e}", file=sys.stderr)
 
     def load_items(self) -> list[dict[str, Any]]:
         """Load items from input sources. Override for custom loading logic."""
