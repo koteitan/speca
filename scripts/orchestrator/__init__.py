@@ -10,7 +10,9 @@ Architecture:
         ├── QueueManager - Queue loading, splitting, and state management
         ├── BatchStrategy - Token-based or count-based batching
         ├── ClaudeRunner - Async Claude CLI execution
-        ├── ResultCollector - Output parsing and aggregation
+        │   ├── CircuitBreaker - Anomaly detection and cost control
+        │   └── LogAnomalyDetector - Heuristic log scanning
+        ├── ResultCollector - Output parsing, validation, and aggregation
         └── schemas - Pydantic data models for inter-phase data contracts
 
 Usage:
@@ -24,7 +26,7 @@ from .base import BaseOrchestrator
 from .config import PhaseConfig, PHASE_CONFIGS
 from .queue import QueueManager
 from .batch import BatchStrategy, TokenBasedBatch, CountBasedBatch
-from .runner import ClaudeRunner
+from .runner import ClaudeRunner, CircuitBreaker, CircuitBreakerTripped, LogAnomalyDetector
 from .collector import ResultCollector
 from .resume import ResumeManager
 from .factory import create_orchestrator
@@ -39,6 +41,9 @@ __all__ = [
     "TokenBasedBatch",
     "CountBasedBatch",
     "ClaudeRunner",
+    "CircuitBreaker",
+    "CircuitBreakerTripped",
+    "LogAnomalyDetector",
     "ResultCollector",
     "ResumeManager",
     "create_orchestrator",

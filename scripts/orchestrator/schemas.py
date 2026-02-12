@@ -173,7 +173,7 @@ class TrustAssumption(BaseModel):
 
 class StrideAnalysisItem(BaseModel):
     """A single STRIDE analysis finding."""
-    id: str
+    id: str = ""
     trust_boundary_id: str = ""
     threat_type: str = ""
     description: str = ""

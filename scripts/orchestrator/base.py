@@ -19,7 +19,7 @@ from tqdm import tqdm
 from .config import PhaseConfig, get_phase_config
 from .queue import QueueManager
 from .batch import BatchStrategy, TokenBasedBatch, CountBasedBatch
-from .runner import ClaudeRunner
+from .runner import ClaudeRunner, CircuitBreaker, CircuitBreakerTripped
 from .collector import ResultCollector
 from .resume import ResumeManager
 from .schemas import (
@@ -70,6 +70,7 @@ class BaseOrchestrator(ABC):
     - Batch creation
     - Parallel Claude execution
     - Result collection
+    - **Circuit breaker** for anomaly detection and cost control
     
     Subclasses can override specific methods for phase-specific behavior.
     """
@@ -85,10 +86,17 @@ class BaseOrchestrator(ABC):
         self.max_concurrent = max(1, max_concurrent)
         self.semaphore = asyncio.Semaphore(max_concurrent)
         
+        # Shared circuit breaker for all workers in this phase
+        self.circuit_breaker = CircuitBreaker(self.config)
+
         # Components
         self.queue_manager = QueueManager(self.config)
         self.batch_strategy = self._create_batch_strategy()
-        self.runner = ClaudeRunner(self.config, self.semaphore)
+        self.runner = ClaudeRunner(
+            self.config,
+            self.semaphore,
+            circuit_breaker=self.circuit_breaker,
+        )
         self.collector = ResultCollector(self.config)
         self.resume_manager = ResumeManager(self.config)
         
@@ -96,6 +104,7 @@ class BaseOrchestrator(ABC):
         self.results: list[dict[str, Any]] = []
         self.failed_batches: list[tuple[int, int]] = []
         self._batch_counter = 0
+        self._circuit_breaker_tripped = False
     
     def _create_batch_strategy(self) -> BatchStrategy:
         """Create the appropriate batch strategy based on config."""
@@ -118,6 +127,7 @@ class BaseOrchestrator(ABC):
         3. Create batches
         4. Execute batches in parallel
         5. Collect and save results
+        6. Report circuit breaker / validation statistics
         """
         print(f"\n{'='*60}")
         print(f"Phase {self.config.phase_id}: {self.config.name}")
@@ -163,8 +173,20 @@ class BaseOrchestrator(ABC):
         
         duration = time.time() - start_time
         total_results = len(early_exit_results) + len(self.results)
+
+        # Step 6: Print statistics
+        self._print_run_statistics(duration, total_results)
         
-        # Step 6: Report failures
+        # Step 7: Report failures
+        if self._circuit_breaker_tripped:
+            print(
+                f"\n🛑 Phase {self.config.phase_id} ABORTED by circuit breaker "
+                f"after {duration:.1f}s",
+                file=sys.stderr,
+            )
+            print(f"   Saved results so far: {total_results}")
+            sys.exit(2)
+
         if self.failed_batches:
             print(f"\n⚠️  {len(self.failed_batches)} batch(es) failed (successful results saved as partials)", file=sys.stderr)
             for worker_id, batch_index in self.failed_batches:
@@ -174,6 +196,24 @@ class BaseOrchestrator(ABC):
         
         print(f"\n✅ Phase {self.config.phase_id} completed in {duration:.1f}s")
         print(f"   Total results: {total_results}")
+
+    def _print_run_statistics(self, duration: float, total_results: int) -> None:
+        """Print circuit breaker and validation statistics."""
+        cb_stats = self.circuit_breaker.get_stats()
+        val_stats = self.collector.get_validation_summary()
+
+        print(f"\n{'─'*40}")
+        print(f"Run Statistics (Phase {self.config.phase_id})")
+        print(f"{'─'*40}")
+        print(f"  Duration:              {duration:.1f}s")
+        print(f"  Total results:         {total_results}")
+        print(f"  Batch successes:       {cb_stats['total_successes']}")
+        print(f"  Batch failures:        {cb_stats['total_failures']}")
+        print(f"  Total retries:         {cb_stats['total_retries']}")
+        print(f"  Empty results:         {cb_stats['empty_results']}")
+        print(f"  Validation warnings:   {val_stats['validation_warnings']}")
+        print(f"  Validation errors:     {val_stats['validation_errors']}")
+        print(f"{'─'*40}")
     
     def load_items(self) -> list[dict[str, Any]]:
         """Load items from input sources. Override for custom loading logic."""
@@ -212,7 +252,13 @@ class BaseOrchestrator(ABC):
         return items
     
     async def execute_batches(self, batches: list[list[dict[str, Any]]]) -> None:
-        """Execute all batches in parallel with progress tracking."""
+        """
+        Execute all batches in parallel with progress tracking.
+
+        Integrates circuit breaker: if ``CircuitBreakerTripped`` is raised by
+        any worker, all remaining tasks are cancelled and partial results are
+        preserved.
+        """
 
         async def _run_with_meta(
             batch: list[dict[str, Any]],
@@ -223,7 +269,7 @@ class BaseOrchestrator(ABC):
             result = await self.runner.run_batch(batch, worker_id, batch_index)
             return result, worker_id, batch_index, len(batch)
 
-        tasks = []
+        tasks: list[asyncio.Task] = []
         for batch in batches:
             worker_id = self._batch_counter % self.num_workers
             self._batch_counter += 1
@@ -246,13 +292,27 @@ class BaseOrchestrator(ABC):
                         self.results.extend(result)
                         if result:
                             self.collector.save_partial(result, worker_id, batch_index)
+                except CircuitBreakerTripped as cb:
+                    self._circuit_breaker_tripped = True
+                    print(
+                        f"\n🛑 Circuit breaker tripped: {cb.reason}",
+                        file=sys.stderr,
+                    )
+                    print(
+                        f"   Stats: {cb.stats}",
+                        file=sys.stderr,
+                    )
+                    # Cancel all remaining tasks
+                    for task in tasks:
+                        if not task.done():
+                            task.cancel()
+                    break
                 except Exception as e:
                     print(f"Task failed with error: {e}", file=sys.stderr)
                     self.failed_batches.append((0, 0))
                 finally:
                     pbar.update(batch_size)
     
-
 
 
 class Phase01Orchestrator(BaseOrchestrator):
@@ -440,13 +500,9 @@ class Phase01Orchestrator(BaseOrchestrator):
         """Enrich items with necessary context."""
         if self.config.phase_id == "01a":
             # For 01a, we need to ensure KEYWORDS and SPEC_URLS are available
-            # We don't necessarily modify the item, as env vars are handled in runner
-            # But we can validate here
             keywords = os.environ.get("KEYWORDS")
             spec_urls = os.environ.get("SPEC_URLS")
             if not keywords or not spec_urls:
-                 # Fallback defaults if not set (mirroring Makefile defaults)
-                 # These should ideally be passed from run_phase.py or env
                  print("Warning: KEYWORDS or SPEC_URLS not set, using defaults")
             return items
 
@@ -459,14 +515,12 @@ class Phase01Orchestrator(BaseOrchestrator):
         items: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Add subgraph data to items."""
-        # Load subgraph cache
         subgraph_cache: dict[str, dict] = {}
         
         enriched = []
         for item in items:
             enriched_item = item.copy()
             
-            # Load relevant subgraph if referenced
             subgraph_file = item.get("subgraph_file")
             if subgraph_file:
                 if subgraph_file not in subgraph_cache:

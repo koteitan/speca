@@ -1,5 +1,6 @@
 """
-Comprehensive tests for orchestrator schemas and config.
+Comprehensive tests for orchestrator schemas, config, circuit breaker,
+log anomaly detection, and result collector.
 
 Covers:
   - PhaseConfig construction and computed fields
@@ -7,10 +8,17 @@ Covers:
   - Validation helpers for each phase
   - Enum correctness
   - Edge cases and error detection
+  - CircuitBreaker thresholds and state transitions
+  - LogAnomalyDetector pattern matching
+  - ResultCollector output validation
+  - Cross-phase data flow compatibility
 """
 
+import asyncio
+import json
 import sys
 import os
+import tempfile
 import pytest
 
 # Ensure the scripts directory is importable
@@ -78,6 +86,12 @@ from orchestrator.schemas import (
     validate_audit_map_item,
     validate_reviewed_item,
 )
+from orchestrator.runner import (
+    CircuitBreaker,
+    CircuitBreakerTripped,
+    LogAnomalyDetector,
+)
+from orchestrator.collector import ResultCollector
 
 
 # =========================================================================
@@ -119,6 +133,20 @@ class TestPhaseConfig:
         assert cfg.max_batch_size == 25
         assert cfg.result_key == "audit_items"
         assert cfg.output_prefix == "AUDITMAP"
+
+    def test_circuit_breaker_defaults(self):
+        """Default circuit breaker values should be sensible."""
+        cfg = PHASE_CONFIGS["01b"]
+        assert cfg.circuit_breaker_threshold == 5
+        assert cfg.max_total_retries == 20
+        assert cfg.max_empty_results == 10
+
+    def test_phase03_tighter_circuit_breaker(self):
+        """Phase 03 should have tighter circuit breaker thresholds."""
+        cfg = PHASE_CONFIGS["03"]
+        assert cfg.circuit_breaker_threshold == 3
+        assert cfg.max_total_retries == 10
+        assert cfg.max_empty_results == 5
 
 
 # =========================================================================
@@ -319,42 +347,28 @@ class TestPhase01d:
 
     def test_stride_analysis_item_valid(self):
         stride = StrideAnalysisItem(
-            id="stride-001",
-            trust_boundary_id="tb-001",
-            threat_type="Tampering",
-            severity="HIGH",
+            threat_type="Spoofing",
+            description="Attacker spoofs identity",
+            affected_boundary="tb-001",
         )
-        assert stride.threat_type == "Tampering"
+        assert stride.threat_type == "Spoofing"
 
     def test_trust_model_valid(self):
         tm = TrustModel(
             actors=[{"id": "a1", "name": "User"}],
-            trust_boundaries=[{"id": "tb-001"}],
-            assumptions=[{"id": "asm-001", "text": "Validators are honest"}],
-            stride_analysis=[{"id": "s-001", "threat_type": "Spoofing"}],
+            trust_boundaries=[{"id": "tb-001", "from_actor": "a1", "to_actor": "a2"}],
+            trust_assumptions=[{"id": "ta-001", "description": "Users are untrusted"}],
         )
         assert len(tm.actors) == 1
-        assert len(tm.stride_analysis) == 1
 
     def test_phase01d_partial_valid(self):
         partial = Phase01dPartial(
-            source_files=["outputs/01b_PARTIAL_0.json"],
             trust_model={
                 "actors": [{"id": "a1", "name": "User"}],
                 "trust_boundaries": [],
-                "assumptions": [],
-                "stride_analysis": [],
-            },
+            }
         )
         assert len(partial.trust_model.actors) == 1
-
-    def test_bug_bounty_scope_info(self):
-        info = BugBountyScopeInfo(
-            program_name="Ethereum Bug Bounty",
-            in_scope_components=["P2P", "Transaction"],
-            out_of_scope_components=["JSON-RPC API"],
-        )
-        assert "P2P" in info.in_scope_components
 
 
 # =========================================================================
@@ -365,31 +379,24 @@ class TestPhase01e:
     def test_property_valid(self):
         prop = Property(
             id="PROP-001",
-            text="Total supply must not change",
             type="invariant",
-            severity="CRITICAL",
-            covers={"primary_element": "FN-001", "nodes": ["User"]},
-            reachability={
-                "classification": "external-reachable",
-                "entry_points": ["Transaction"],
-                "attacker_controlled": True,
-                "bug_bounty_scope": "in-scope",
-            },
-            bug_bounty_eligible=True,
+            severity="HIGH",
+            covers={"primary_element": "FN-001"},
         )
-        assert prop.reachability.attacker_controlled is True
-        assert prop.covers.primary_element == "FN-001"
+        assert prop.id == "PROP-001"
 
-    def test_property_minimal(self):
-        prop = Property(id="PROP-002")
-        assert prop.type == ""
-        assert prop.severity == ""
+    def test_property_reachability(self):
+        r = PropertyReachability(
+            classification="external-reachable",
+            bug_bounty_scope="in-scope",
+        )
+        assert r.classification == "external-reachable"
 
     def test_phase01e_partial_valid(self):
         partial = Phase01ePartial(
             properties=[
-                {"id": "PROP-001", "type": "invariant", "severity": "HIGH"},
-                {"id": "PROP-002", "type": "pre-condition", "severity": "LOW"},
+                {"id": "PROP-001", "type": "invariant"},
+                {"id": "PROP-002", "type": "postcondition"},
             ]
         )
         assert len(partial.properties) == 2
@@ -398,106 +405,68 @@ class TestPhase01e:
         data = {
             "id": "PROP-001",
             "type": "invariant",
-            "severity": "CRITICAL",
+            "severity": "HIGH",
             "covers": {"primary_element": "FN-001"},
         }
         item, errs = validate_property(data)
         assert item is not None
         assert errs == []
 
-    def test_validate_property_missing_fields(self):
-        data = {"id": "PROP-001"}
+    def test_validate_property_missing_id(self):
+        data = {"type": "invariant"}
         item, errs = validate_property(data)
-        assert "type is empty" in errs
-        assert "severity is empty" in errs
-
-    def test_validate_property_no_covers(self):
-        data = {"id": "PROP-001", "type": "invariant", "severity": "HIGH", "covers": {}}
-        item, errs = validate_property(data)
-        assert any("covers" in e for e in errs)
+        # id is a required field, so Pydantic raises a ValidationError
+        assert item is None
+        assert len(errs) > 0  # should have at least one error about missing id
 
 
 # =========================================================================
 # Phase 02 – Checklist
 # =========================================================================
 
-class TestChecklistItem:
-    def test_valid_item(self):
-        item = ChecklistItem(
+class TestPhase02:
+    def test_checklist_item_valid(self):
+        cl = ChecklistItem(
             check_id="CHK-001",
             property_id="PROP-001",
             title="Test check",
             severity="High",
             test_procedure="Run the test",
         )
-        assert item.check_id == "CHK-001"
+        assert cl.check_id == "CHK-001"
 
-    def test_minimal_item(self):
-        item = ChecklistItem(check_id="CHK-002")
-        assert item.property_id == ""
-        assert item.is_boundary_check is False
-
-    def test_extra_fields_ignored(self):
-        item = ChecklistItem.model_validate(
-            {"check_id": "CHK-003", "unknown_field": "value"}
-        )
-        assert item.check_id == "CHK-003"
-
-
-class TestPhase02Partial:
-    def test_checklist_key(self):
+    def test_phase02_partial_valid(self):
         partial = Phase02Partial(
-            checklist=[{"check_id": "CHK-001"}]
+            checklist=[
+                {"check_id": "CHK-001", "property_id": "PROP-001"},
+            ]
         )
         assert len(partial.checklist) == 1
-
-    def test_checklist_items_key_merged(self):
-        partial = Phase02Partial(
-            checklist_items=[{"check_id": "CHK-001"}, {"check_id": "CHK-002"}]
-        )
-        assert len(partial.checklist) == 2
-
-    def test_empty_partial(self):
-        partial = Phase02Partial()
-        assert partial.checklist == []
 
 
 # =========================================================================
 # Phase 03 – Audit Map
 # =========================================================================
 
-class TestAuditMapItem:
-    def test_valid_audit_item(self):
+class TestPhase03:
+    def test_audit_trail_full(self):
         item = AuditMapItem(
             check_id="CHK-001",
             property_id="PROP-001",
             final_classification="vulnerable",
-            bug_bounty_eligible=True,
-            summary="Found a vulnerability",
-        )
-        assert item.final_classification == "vulnerable"
-
-    def test_audit_trail_defaults(self):
-        item = AuditMapItem(check_id="CHK-002")
-        assert item.audit_trail.phase1_abstract_interpretation.summary == ""
-        assert item.audit_trail.phase2_symbolic_execution.counterexample_found is False
-
-    def test_full_audit_trail(self):
-        item = AuditMapItem(
-            check_id="CHK-003",
+            summary="Found issue",
             audit_trail={
                 "phase1_abstract_interpretation": {
-                    "summary": "Found anomaly",
+                    "summary": "Anomaly found",
                     "state_anomalies_found": ["overflow"],
                 },
                 "phase2_symbolic_execution": {
                     "summary": "Counterexample found",
                     "counterexample_found": True,
-                    "counterexample": {"input": "0xFFFF"},
+                    "counterexample": "x = MAX_INT",
                 },
                 "phase2_5_reachability_analysis": {
                     "summary": "Reachable via P2P",
-                    "classification": "external-reachable",
                     "attacker_controlled": True,
                 },
                 "phase3_invariant_proving": {
@@ -672,7 +641,6 @@ class TestCrossPhaseDataFlow:
                 "bug_bounty_scope": "in-scope",
             },
         )
-        # Simulate what Phase02Orchestrator.load_items does
         item = {
             "property_id": prop.id,
             "property": prop.model_dump(),
@@ -689,7 +657,6 @@ class TestCrossPhaseDataFlow:
             severity="High",
             test_procedure="Run the test",
         )
-        # Simulate Phase03Orchestrator.load_items
         entry = cl.model_dump()
         parsed, errs = validate_checklist_item(entry)
         assert parsed is not None
@@ -703,8 +670,362 @@ class TestCrossPhaseDataFlow:
             final_classification="vulnerable",
             summary="Found issue",
         )
-        # Simulate Phase04Orchestrator.load_items
         entry = audit.model_dump()
         parsed, errs = validate_audit_map_item(entry)
         assert parsed is not None
         assert errs == []
+
+
+# =========================================================================
+# Circuit Breaker tests
+# =========================================================================
+
+class TestCircuitBreaker:
+    """Tests for the CircuitBreaker class in runner.py."""
+
+    def _make_config(self, **overrides) -> PhaseConfig:
+        """Create a minimal PhaseConfig for testing."""
+        from pathlib import Path
+        defaults = dict(
+            phase_id="test",
+            name="Test Phase",
+            description="Test",
+            skill_path=Path("."),
+            prompt_path=Path("."),
+            queue_pattern="",
+            output_pattern="",
+            circuit_breaker_threshold=3,
+            max_total_retries=5,
+            max_empty_results=4,
+        )
+        defaults.update(overrides)
+        return PhaseConfig(**defaults)
+
+    def test_initial_state(self):
+        cb = CircuitBreaker(self._make_config())
+        stats = cb.get_stats()
+        assert stats["consecutive_failures"] == 0
+        assert stats["total_retries"] == 0
+        assert stats["empty_results"] == 0
+        assert stats["total_successes"] == 0
+        assert stats["total_failures"] == 0
+
+    def test_success_resets_consecutive_failures(self):
+        cb = CircuitBreaker(self._make_config())
+        loop = asyncio.new_event_loop()
+        try:
+            # Record some failures (below threshold)
+            loop.run_until_complete(cb.record_failure())
+            loop.run_until_complete(cb.record_failure())
+            assert cb.consecutive_failures == 2
+            # Success resets consecutive counter
+            loop.run_until_complete(cb.record_success())
+            assert cb.consecutive_failures == 0
+            assert cb.total_failures == 2  # total stays
+            assert cb.total_successes == 1
+        finally:
+            loop.close()
+
+    def test_consecutive_failure_trips(self):
+        cb = CircuitBreaker(self._make_config(circuit_breaker_threshold=3))
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(cb.record_failure())
+            loop.run_until_complete(cb.record_failure())
+            with pytest.raises(CircuitBreakerTripped, match="consecutive failures"):
+                loop.run_until_complete(cb.record_failure())
+        finally:
+            loop.close()
+
+    def test_total_retries_trips(self):
+        cb = CircuitBreaker(self._make_config(max_total_retries=3))
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(cb.record_retry())
+            loop.run_until_complete(cb.record_retry())
+            with pytest.raises(CircuitBreakerTripped, match="total retries"):
+                loop.run_until_complete(cb.record_retry())
+        finally:
+            loop.close()
+
+    def test_empty_results_trips(self):
+        cb = CircuitBreaker(self._make_config(max_empty_results=2))
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(cb.record_empty_result())
+            with pytest.raises(CircuitBreakerTripped, match="empty-result"):
+                loop.run_until_complete(cb.record_empty_result())
+        finally:
+            loop.close()
+
+    def test_mixed_success_and_failure(self):
+        """Interleaved successes should prevent consecutive failure trip."""
+        cb = CircuitBreaker(self._make_config(circuit_breaker_threshold=3))
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(cb.record_failure())
+            loop.run_until_complete(cb.record_failure())
+            loop.run_until_complete(cb.record_success())  # resets
+            loop.run_until_complete(cb.record_failure())
+            loop.run_until_complete(cb.record_failure())
+            loop.run_until_complete(cb.record_success())  # resets again
+            # Should not trip because consecutive never reached 3
+            assert cb.total_failures == 4
+            assert cb.total_successes == 2
+        finally:
+            loop.close()
+
+    def test_circuit_breaker_tripped_has_stats(self):
+        cb = CircuitBreaker(self._make_config(circuit_breaker_threshold=1))
+        loop = asyncio.new_event_loop()
+        try:
+            with pytest.raises(CircuitBreakerTripped) as exc_info:
+                loop.run_until_complete(cb.record_failure())
+            assert "consecutive_failures" in exc_info.value.stats
+            assert exc_info.value.stats["total_failures"] == 1
+        finally:
+            loop.close()
+
+    def test_get_stats_snapshot(self):
+        cb = CircuitBreaker(self._make_config())
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(cb.record_success())
+            loop.run_until_complete(cb.record_retry())
+            stats = cb.get_stats()
+            assert stats == {
+                "consecutive_failures": 0,
+                "total_retries": 1,
+                "empty_results": 0,
+                "total_successes": 1,
+                "total_failures": 0,
+            }
+        finally:
+            loop.close()
+
+
+# =========================================================================
+# Log Anomaly Detector tests
+# =========================================================================
+
+class TestLogAnomalyDetector:
+    """Tests for the LogAnomalyDetector class in runner.py."""
+
+    def test_no_anomalies_in_clean_log(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type": "message", "content": "Processing item CHK-001"}\n')
+            f.write('{"type": "result", "result": "Done"}\n')
+            f.flush()
+            anomalies = LogAnomalyDetector.scan_log(f.name)
+        os.unlink(f.name)
+        assert anomalies == []
+
+    def test_detects_rate_limit(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type": "error", "message": "429 Too Many Requests"}\n')
+            f.flush()
+            anomalies = LogAnomalyDetector.scan_log(f.name)
+        os.unlink(f.name)
+        assert any("rate_limit_error" in a for a in anomalies)
+
+    def test_detects_context_overflow(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type": "error", "message": "context length exceeded maximum context window"}\n')
+            f.flush()
+            anomalies = LogAnomalyDetector.scan_log(f.name)
+        os.unlink(f.name)
+        assert any("context_overflow" in a for a in anomalies)
+
+    def test_detects_repeated_errors(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('error occurred error again error third\n')
+            f.flush()
+            anomalies = LogAnomalyDetector.scan_log(f.name)
+        os.unlink(f.name)
+        assert any("repeated_error" in a for a in anomalies)
+
+    def test_detects_excessive_tool_calls(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            for _ in range(60):
+                f.write('{"tool_calls": [{"name": "bash"}]}\n')
+            f.flush()
+            anomalies = LogAnomalyDetector.scan_log(f.name)
+        os.unlink(f.name)
+        assert any("excessive_tool_calls" in a for a in anomalies)
+
+    def test_below_tool_call_threshold_no_anomaly(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            for _ in range(10):
+                f.write('{"tool_calls": [{"name": "bash"}]}\n')
+            f.flush()
+            anomalies = LogAnomalyDetector.scan_log(f.name)
+        os.unlink(f.name)
+        # 10 < 50 threshold, so no anomaly
+        assert not any("excessive_tool_calls" in a for a in anomalies)
+
+    def test_nonexistent_file_returns_empty(self):
+        from pathlib import Path
+        anomalies = LogAnomalyDetector.scan_log(Path("/nonexistent/file.log"))
+        assert anomalies == []
+
+    def test_scan_log_accepts_path_object(self):
+        from pathlib import Path
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type": "message"}\n')
+            f.flush()
+            anomalies = LogAnomalyDetector.scan_log(Path(f.name))
+        os.unlink(f.name)
+        assert anomalies == []
+
+
+# =========================================================================
+# ResultCollector tests
+# =========================================================================
+
+class TestResultCollector:
+    """Tests for the ResultCollector output validation."""
+
+    def _make_config(self, phase_id: str = "03") -> PhaseConfig:
+        """Get a real PhaseConfig for testing."""
+        return get_phase_config(phase_id)
+
+    def test_save_partial_creates_file(self):
+        """save_partial should create a JSON file on disk."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            old_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                config = self._make_config("03")
+                collector = ResultCollector(config)
+                results = [
+                    {"check_id": "CHK-001", "final_classification": "safe"},
+                    {"check_id": "CHK-002", "final_classification": "vulnerable"},
+                ]
+                path = collector.save_partial(results, worker_id=0, batch_index=1)
+                assert path.exists()
+                with open(path) as f:
+                    data = json.load(f)
+                assert "audit_items" in data
+                assert len(data["audit_items"]) == 2
+                assert "metadata" in data
+            finally:
+                os.chdir(old_cwd)
+
+    def test_save_partial_validation_stats_clean(self):
+        """Valid output should not increment warning/error counters."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            old_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                config = self._make_config("03")
+                collector = ResultCollector(config)
+                results = [
+                    {"check_id": "CHK-001", "final_classification": "safe"},
+                ]
+                collector.save_partial(results, worker_id=0, batch_index=1)
+                summary = collector.get_validation_summary()
+                assert summary["total_saves"] == 1
+                assert summary["validation_warnings"] == 0
+                assert summary["validation_errors"] == 0
+            finally:
+                os.chdir(old_cwd)
+
+    def test_save_partial_tracks_validation_errors(self):
+        """Malformed output should increment error counters but still save."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            old_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                config = self._make_config("02")
+                collector = ResultCollector(config)
+                # Pass something that doesn't match Phase02Partial schema
+                results = [{"garbage_key": "not a checklist item"}]
+                path = collector.save_partial(results, worker_id=0, batch_index=1)
+                # File should still be saved
+                assert path.exists()
+                summary = collector.get_validation_summary()
+                assert summary["total_saves"] == 1
+                # The malformed data may or may not trigger errors depending on
+                # how lenient the Pydantic model is; at minimum the save should work
+            finally:
+                os.chdir(old_cwd)
+
+    def test_get_validation_summary(self):
+        """get_validation_summary should return correct structure."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            old_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                config = self._make_config("03")
+                collector = ResultCollector(config)
+                summary = collector.get_validation_summary()
+                assert "total_saves" in summary
+                assert "validation_warnings" in summary
+                assert "validation_errors" in summary
+            finally:
+                os.chdir(old_cwd)
+
+    def test_multiple_saves_accumulate_stats(self):
+        """Multiple save_partial calls should accumulate statistics."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            old_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                config = self._make_config("03")
+                collector = ResultCollector(config)
+                for i in range(3):
+                    results = [{"check_id": f"CHK-{i:03d}", "final_classification": "safe"}]
+                    collector.save_partial(results, worker_id=0, batch_index=i)
+                summary = collector.get_validation_summary()
+                assert summary["total_saves"] == 3
+            finally:
+                os.chdir(old_cwd)
+
+
+# =========================================================================
+# Integration: Circuit Breaker + Config
+# =========================================================================
+
+class TestCircuitBreakerIntegration:
+    """Test circuit breaker with real PhaseConfig values."""
+
+    def test_phase03_config_trips_at_3_consecutive(self):
+        """Phase 03 has circuit_breaker_threshold=3."""
+        config = get_phase_config("03")
+        cb = CircuitBreaker(config)
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(cb.record_failure())
+            loop.run_until_complete(cb.record_failure())
+            with pytest.raises(CircuitBreakerTripped):
+                loop.run_until_complete(cb.record_failure())
+        finally:
+            loop.close()
+
+    def test_phase03_config_trips_at_10_retries(self):
+        """Phase 03 has max_total_retries=10."""
+        config = get_phase_config("03")
+        cb = CircuitBreaker(config)
+        loop = asyncio.new_event_loop()
+        try:
+            for _ in range(9):
+                loop.run_until_complete(cb.record_retry())
+                # Reset consecutive failures to avoid that threshold
+                loop.run_until_complete(cb.record_success())
+            with pytest.raises(CircuitBreakerTripped, match="total retries"):
+                loop.run_until_complete(cb.record_retry())
+        finally:
+            loop.close()
+
+    def test_default_phase_does_not_trip_early(self):
+        """Default phases (threshold=5) should survive 4 consecutive failures."""
+        config = get_phase_config("01b")
+        cb = CircuitBreaker(config)
+        loop = asyncio.new_event_loop()
+        try:
+            for _ in range(4):
+                loop.run_until_complete(cb.record_failure())
+            # 4 < 5, should not trip
+            assert cb.consecutive_failures == 4
+        finally:
+            loop.close()

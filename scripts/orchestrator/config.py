@@ -68,6 +68,16 @@ class PhaseConfig(BaseModel):
     early_exit_check: Callable[[dict], bool] | None = None
     early_exit_builder: Callable[[dict], dict] | None = None
 
+    # ---- Circuit breaker / anomaly detection ----
+    # Maximum consecutive batch failures before the orchestrator aborts.
+    circuit_breaker_threshold: int = 5
+    # Cooldown in seconds after circuit breaker trips before allowing retry.
+    circuit_breaker_cooldown: int = 60
+    # Maximum total retries across all batches before aborting.
+    max_total_retries: int = 20
+    # Maximum empty-result batches (LLM returned nothing useful) before abort.
+    max_empty_results: int = 10
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def effective_result_id_field(self) -> str:
@@ -193,6 +203,10 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         item_id_field="check_id",
         result_key="audit_items",
         output_prefix="AUDITMAP",
+        # Phase 03 is the most expensive — tighter circuit breaker
+        circuit_breaker_threshold=3,
+        max_total_retries=10,
+        max_empty_results=5,
     ),
 
     "04": PhaseConfig(
