@@ -24,12 +24,41 @@ from .collector import ResultCollector
 from .resume import ResumeManager
 from .schemas import (
     ChecklistItem,
+    Phase01aState,
+    Phase01bPartial,
+    Phase01cPartial,
+    Phase01dPartial,
+    Phase01ePartial,
     Phase02Partial,
     Phase03Partial,
     AuditMapItem,
     validate_checklist_item,
     validate_audit_map_item,
+    validate_subgraph,
+    validate_property,
+    validate_reviewed_item,
 )
+
+
+# ---------------------------------------------------------------------------
+# Helper: log Pydantic validation warnings
+# ---------------------------------------------------------------------------
+
+def _log_validation_warning(
+    filepath: str,
+    ve: ValidationError,
+    *,
+    prefix: str = "",
+) -> None:
+    """Print structured Pydantic validation warnings to stderr."""
+    label = f"{prefix} " if prefix else ""
+    print(
+        f"⚠️  {label}Schema validation warning for {filepath}: "
+        f"{ve.error_count()} error(s)",
+        file=sys.stderr,
+    )
+    for err in ve.errors():
+        print(f"    {err['loc']}: {err['msg']}", file=sys.stderr)
 
 
 class BaseOrchestrator(ABC):
@@ -231,27 +260,180 @@ class Phase01Orchestrator(BaseOrchestrator):
 
     def load_items(self) -> list[dict[str, Any]]:
         """
-        Load items for Phase 01.
+        Load items for Phase 01 with Pydantic validation at phase boundaries.
+
         - 01a: Returns a single seed item (no input file).
-        - 01c/01d: Loads file paths as items.
+        - 01b: Loads discovered specs from 01a_STATE.json with validation.
+        - 01c/01d: Loads file paths as items with structural validation.
+        - 01e: Loads trust model outputs with validation.
         - Others: Standard queue loading.
         """
         if self.config.phase_id == "01a":
             return [{"id": "seed", "source": "manual"}]
-        
-        if self.config.phase_id in ("01c", "01d"):
-            return self._load_file_path_items()
-            
+
+        if self.config.phase_id == "01b":
+            return self._load_01b_items()
+
+        if self.config.phase_id == "01c":
+            return self._load_01c_items()
+
+        if self.config.phase_id == "01d":
+            return self._load_01d_items()
+
+        if self.config.phase_id == "01e":
+            return self._load_01e_items()
+
         return super().load_items()
 
-    def _load_file_path_items(self) -> list[dict[str, Any]]:
-        """Load each matching file as a single work item (file_path = item)."""
+    # -- Phase 01b: load discovered specs from 01a output ----------------
+
+    def _load_01b_items(self) -> list[dict[str, Any]]:
+        """Load discovered specs from 01a_STATE.json with Pydantic validation."""
         import glob as glob_mod
 
-        items = []
+        items: list[dict[str, Any]] = []
         for pattern in self.config.input_patterns:
             for filepath in sorted(glob_mod.glob(pattern)):
-                items.append({"file_path": filepath})
+                try:
+                    with open(filepath) as f:
+                        data = json.load(f)
+
+                    # Validate 01a output structure
+                    try:
+                        state = Phase01aState.model_validate(data)
+                        print(
+                            f"  ✓ {filepath}: {len(state.found_specs)} specs validated"
+                        )
+                    except ValidationError as ve:
+                        _log_validation_warning(filepath, ve, prefix="01a→01b")
+                        # Fall through to raw parsing
+
+                    for spec in data.get("found_specs", []):
+                        if isinstance(spec, dict) and spec.get("url"):
+                            items.append(spec)
+                except Exception as e:
+                    print(
+                        f"Warning: Failed to load {filepath}: {e}",
+                        file=sys.stderr,
+                    )
+        return items
+
+    # -- Phase 01c: load subgraph files for verification -----------------
+
+    def _load_01c_items(self) -> list[dict[str, Any]]:
+        """Load subgraph files for verification with Pydantic validation."""
+        import glob as glob_mod
+
+        items: list[dict[str, Any]] = []
+        validation_warnings = 0
+
+        for pattern in self.config.input_patterns:
+            for filepath in sorted(glob_mod.glob(pattern)):
+                try:
+                    with open(filepath) as f:
+                        data = json.load(f)
+
+                    # Validate 01b partial structure
+                    try:
+                        partial = Phase01bPartial.model_validate(data)
+                        for spec in partial.specs:
+                            for sg in spec.sub_graphs:
+                                _, errs = validate_subgraph(sg.model_dump())
+                                if errs:
+                                    for err in errs:
+                                        print(
+                                            f"    ⚠️  {filepath} subgraph {sg.id}: {err}",
+                                            file=sys.stderr,
+                                        )
+                    except ValidationError as ve:
+                        _log_validation_warning(filepath, ve, prefix="01b→01c")
+                        validation_warnings += 1
+
+                    # Regardless of validation, load file path items
+                    items.append({"file_path": filepath})
+                except Exception as e:
+                    print(
+                        f"Warning: Failed to load {filepath}: {e}",
+                        file=sys.stderr,
+                    )
+
+        if validation_warnings:
+            print(
+                f"⚠️  {validation_warnings} file(s) had schema validation warnings (01b→01c)",
+                file=sys.stderr,
+            )
+        return items
+
+    # -- Phase 01d: load subgraph files for trust model analysis ---------
+
+    def _load_01d_items(self) -> list[dict[str, Any]]:
+        """Load subgraph files for trust model analysis with Pydantic validation."""
+        import glob as glob_mod
+
+        items: list[dict[str, Any]] = []
+        validation_warnings = 0
+
+        for pattern in self.config.input_patterns:
+            for filepath in sorted(glob_mod.glob(pattern)):
+                try:
+                    with open(filepath) as f:
+                        data = json.load(f)
+
+                    # Validate 01b partial structure
+                    try:
+                        Phase01bPartial.model_validate(data)
+                    except ValidationError as ve:
+                        _log_validation_warning(filepath, ve, prefix="01b→01d")
+                        validation_warnings += 1
+
+                    items.append({"file_path": filepath})
+                except Exception as e:
+                    print(
+                        f"Warning: Failed to load {filepath}: {e}",
+                        file=sys.stderr,
+                    )
+
+        if validation_warnings:
+            print(
+                f"⚠️  {validation_warnings} file(s) had schema validation warnings (01b→01d)",
+                file=sys.stderr,
+            )
+        return items
+
+    # -- Phase 01e: load trust model outputs for property generation -----
+
+    def _load_01e_items(self) -> list[dict[str, Any]]:
+        """Load trust model outputs for property generation with Pydantic validation."""
+        import glob as glob_mod
+
+        items: list[dict[str, Any]] = []
+        validation_warnings = 0
+
+        for pattern in self.config.input_patterns:
+            for filepath in sorted(glob_mod.glob(pattern)):
+                try:
+                    with open(filepath) as f:
+                        data = json.load(f)
+
+                    # Validate 01d partial structure
+                    try:
+                        Phase01dPartial.model_validate(data)
+                    except ValidationError as ve:
+                        _log_validation_warning(filepath, ve, prefix="01d→01e")
+                        validation_warnings += 1
+
+                    items.append({"file_path": filepath})
+                except Exception as e:
+                    print(
+                        f"Warning: Failed to load {filepath}: {e}",
+                        file=sys.stderr,
+                    )
+
+        if validation_warnings:
+            print(
+                f"⚠️  {validation_warnings} file(s) had schema validation warnings (01d→01e)",
+                file=sys.stderr,
+            )
         return items
 
     def enrich_items(self, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -310,16 +492,39 @@ class Phase02Orchestrator(BaseOrchestrator):
     """Orchestrator for Phase 02 (Checklist Generation)."""
     
     def load_items(self) -> list[dict[str, Any]]:
-        """Load properties from 01e partials efficiently with deduplication."""
+        """Load properties from 01e partials with Pydantic validation and deduplication."""
         import glob
         
         items = {}  # Deduplication map
+        validation_warnings = 0
+
         for filepath in sorted(glob.glob("outputs/01e_PARTIAL_*.json")):
             try:
                 with open(filepath) as f:
                     data = json.load(f)
+
+                # Validate 01e partial structure
+                try:
+                    partial = Phase01ePartial.model_validate(data)
+                    print(
+                        f"  ✓ {filepath}: {len(partial.properties)} properties validated"
+                    )
+                except ValidationError as ve:
+                    _log_validation_warning(filepath, ve, prefix="01e→02")
+                    validation_warnings += 1
+
                 for prop in data.get("properties", []):
                     if isinstance(prop, dict):
+                        # Validate individual properties
+                        parsed, errs = validate_property(prop)
+                        if errs:
+                            prop_id_raw = prop.get("id", "<unknown>")
+                            for err in errs:
+                                print(
+                                    f"    ⚠️  {filepath} property {prop_id_raw}: {err}",
+                                    file=sys.stderr,
+                                )
+
                         prop_id = prop.get("id")
                         if prop_id and prop_id not in items:
                             # Keep first occurrence
@@ -330,6 +535,12 @@ class Phase02Orchestrator(BaseOrchestrator):
                             }
             except Exception as e:
                 print(f"Warning: Failed to load {filepath}: {e}", file=sys.stderr)
+
+        if validation_warnings:
+            print(
+                f"⚠️  {validation_warnings} file(s) had schema validation warnings (01e→02)",
+                file=sys.stderr,
+            )
         
         return list(items.values())
 
@@ -400,12 +611,7 @@ class Phase03Orchestrator(BaseOrchestrator):
                     partial = Phase02Partial.model_validate(data)
                     entries_raw = data.get("checklist_items") or data.get("checklist") or []
                 except ValidationError as ve:
-                    print(
-                        f"⚠️  Schema validation warning for {filepath}: {ve.error_count()} error(s)",
-                        file=sys.stderr,
-                    )
-                    for err in ve.errors():
-                        print(f"    {err['loc']}: {err['msg']}", file=sys.stderr)
+                    _log_validation_warning(filepath, ve, prefix="02→03")
                     validation_warnings += 1
                     # Fall back to raw dict parsing
                     entries_raw = data.get("checklist_items") or data.get("checklist") or []
@@ -448,7 +654,7 @@ class Phase03Orchestrator(BaseOrchestrator):
 
         if validation_warnings:
             print(
-                f"⚠️  {validation_warnings} file(s) had schema validation warnings",
+                f"⚠️  {validation_warnings} file(s) had schema validation warnings (02→03)",
                 file=sys.stderr,
             )
         
@@ -603,12 +809,7 @@ class Phase04Orchestrator(BaseOrchestrator):
                 try:
                     Phase03Partial.model_validate(data)
                 except ValidationError as ve:
-                    print(
-                        f"⚠️  Schema validation warning for {filepath}: {ve.error_count()} error(s)",
-                        file=sys.stderr,
-                    )
-                    for err in ve.errors():
-                        print(f"    {err['loc']}: {err['msg']}", file=sys.stderr)
+                    _log_validation_warning(filepath, ve, prefix="03→04")
                     validation_warnings += 1
 
                 audit_items = data.get("audit_items", [])
@@ -632,7 +833,7 @@ class Phase04Orchestrator(BaseOrchestrator):
 
         if validation_warnings:
             print(
-                f"⚠️  {validation_warnings} file(s) had schema validation warnings",
+                f"⚠️  {validation_warnings} file(s) had schema validation warnings (03→04)",
                 file=sys.stderr,
             )
         

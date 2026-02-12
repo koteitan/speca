@@ -84,6 +84,132 @@ class Phase01aState(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Phase 01b – Subgraph Extraction
+# ---------------------------------------------------------------------------
+
+class ProgramGraph(BaseModel):
+    """Formal program graph PG = (Q, q_init, q_final, Act, E)."""
+    Q: list[str] = Field(default_factory=list, description="Finite set of nodes")
+    q_init: str = Field(default="", description="Initial node")
+    q_final: str = Field(default="", description="Final node")
+    Act: list[str] = Field(default_factory=list, description="Set of actions")
+    E: list[list[str]] = Field(
+        default_factory=list,
+        description="Edges as [source, action, target] triples",
+    )
+
+
+class SubGraph(BaseModel):
+    """A single subgraph extracted from a specification."""
+    id: str
+    name: str = ""
+    mermaid_file: str = ""
+    program_graph: ProgramGraph = Field(default_factory=ProgramGraph)
+    invariants: list[str] = Field(default_factory=list)
+
+
+class SpecSubGraphs(BaseModel):
+    """Subgraphs extracted from a single specification URL."""
+    source_url: str
+    title: str = ""
+    sub_graphs: list[SubGraph] = Field(default_factory=list)
+
+
+class Phase01bPartial(BaseModel):
+    """Output of Phase 01b: subgraphs extracted from specifications."""
+    specs: list[SpecSubGraphs] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+# ---------------------------------------------------------------------------
+# Phase 01c – Subgraph Verification
+# ---------------------------------------------------------------------------
+
+class VerificationResult(BaseModel):
+    """Verification result for a single subgraph file."""
+    file_path: str
+    status: str = ""  # "verified", "failed", "error"
+    issues: list[str] = Field(default_factory=list)
+    corrections: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class Phase01cPartial(BaseModel):
+    """Output of Phase 01c: verification results."""
+    results: list[VerificationResult] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+# ---------------------------------------------------------------------------
+# Phase 01d – Trust Model Analysis
+# ---------------------------------------------------------------------------
+
+class TrustModelActor(BaseModel):
+    """An actor in the trust model."""
+    id: str
+    name: str = ""
+    description: str = ""
+    trust_level: str = ""
+
+
+class TrustBoundary(BaseModel):
+    """A trust boundary between actors."""
+    id: str
+    from_actor: str = ""
+    to_actor: str = ""
+    description: str = ""
+    entry_point_type: str = ""
+    bug_bounty_scope: str = "conditional"
+    attacker_controlled: bool = False
+    data_flow: str = ""
+
+
+class TrustAssumption(BaseModel):
+    """A trust assumption in the model."""
+    id: str
+    text: str = ""
+    related_boundary_ids: list[str] = Field(default_factory=list)
+    criticality: str = ""
+
+
+class StrideAnalysisItem(BaseModel):
+    """A single STRIDE analysis finding."""
+    id: str
+    trust_boundary_id: str = ""
+    threat_type: str = ""
+    description: str = ""
+    mitigation: str = ""
+    exploitability: str = ""
+    bug_bounty_scope: str = "conditional"
+    severity: str = ""
+
+
+class TrustModel(BaseModel):
+    """The trust model structure."""
+    actors: list[TrustModelActor] = Field(default_factory=list)
+    trust_boundaries: list[TrustBoundary] = Field(default_factory=list)
+    assumptions: list[TrustAssumption] = Field(default_factory=list)
+    stride_analysis: list[StrideAnalysisItem] = Field(default_factory=list)
+
+
+class BugBountyScopeInfo(BaseModel):
+    """Bug bounty scope information."""
+    program_name: str = ""
+    program_url: str = ""
+    inherited_from: str = ""
+    in_scope_components: list[str] = Field(default_factory=list)
+    out_of_scope_components: list[str] = Field(default_factory=list)
+    scope_notes: list[str] = Field(default_factory=list)
+
+
+class Phase01dPartial(BaseModel):
+    """Output of Phase 01d: trust model analysis."""
+    source_files: list[str] = Field(default_factory=list)
+    bug_bounty_scope: BugBountyScopeInfo = Field(default_factory=BugBountyScopeInfo)
+    trust_model: TrustModel = Field(default_factory=TrustModel)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+# ---------------------------------------------------------------------------
 # Phase 01e – Properties
 # ---------------------------------------------------------------------------
 
@@ -92,7 +218,9 @@ class PropertyReachability(BaseModel):
     classification: str = ""
     entry_points: list[str] = Field(default_factory=list)
     attacker_controlled: bool = False
+    validation_layers: list[str] = Field(default_factory=list)
     bug_bounty_scope: str = "conditional"
+    notes: str = ""
 
 
 class PropertyCovers(BaseModel):
@@ -106,16 +234,25 @@ class PropertyCovers(BaseModel):
 class Property(BaseModel):
     """A single formal property from Phase 01e."""
     id: str
+    text: str = ""
     type: str = ""
     assertion: str = ""
     severity: str = ""
+    severity_justification: str = ""
     covers: PropertyCovers = Field(default_factory=PropertyCovers)
     reachability: PropertyReachability = Field(default_factory=PropertyReachability)
     exploitability: str = ""
+    bug_bounty_eligible: bool = False
+    bug_bounty_notes: str | None = None
+    source_assumption_id: str | None = None
+    source_invariant_id: str | None = None
+    source_threat_id: str | None = None
 
 
 class Phase01ePartial(BaseModel):
     """Output of Phase 01e: properties extracted from trust model."""
+    source_files: dict[str, Any] | list[str] = Field(default_factory=dict)
+    bug_bounty_scope: BugBountyScopeInfo = Field(default_factory=BugBountyScopeInfo)
     properties: list[Property] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -314,6 +451,70 @@ class TargetInfo(BaseModel):
 # Validation helpers
 # ---------------------------------------------------------------------------
 
+def validate_discovered_spec(data: dict[str, Any]) -> tuple[DiscoveredSpec | None, list[str]]:
+    """
+    Validate a raw dict as a DiscoveredSpec.
+
+    Returns:
+        (parsed_item, errors) – parsed_item is None when validation fails.
+    """
+    errors: list[str] = []
+    try:
+        item = DiscoveredSpec.model_validate(data)
+        if not item.url:
+            errors.append("url is empty")
+        return item, errors
+    except Exception as exc:
+        return None, [str(exc)]
+
+
+def validate_subgraph(data: dict[str, Any]) -> tuple[SubGraph | None, list[str]]:
+    """
+    Validate a raw dict as a SubGraph.
+
+    Returns:
+        (parsed_item, errors) – parsed_item is None when validation fails.
+    """
+    errors: list[str] = []
+    try:
+        item = SubGraph.model_validate(data)
+        if not item.id:
+            errors.append("id is empty")
+        if not item.name:
+            errors.append("name is empty")
+        pg = item.program_graph
+        if not pg.Q:
+            errors.append("program_graph.Q is empty (no nodes)")
+        if not pg.E:
+            errors.append("program_graph.E is empty (no edges)")
+        return item, errors
+    except Exception as exc:
+        return None, [str(exc)]
+
+
+def validate_property(data: dict[str, Any]) -> tuple[Property | None, list[str]]:
+    """
+    Validate a raw dict as a Property.
+
+    Returns:
+        (parsed_item, errors) – parsed_item is None when validation fails.
+    """
+    errors: list[str] = []
+    try:
+        item = Property.model_validate(data)
+        if not item.id:
+            errors.append("id is empty")
+        if not item.type:
+            errors.append("type is empty")
+        if not item.severity:
+            errors.append("severity is empty")
+        if not item.covers.primary_element and not item.covers.edges and not item.covers.nodes:
+            errors.append("covers has no primary_element, edges, or nodes")
+        return item, errors
+    except Exception as exc:
+        return None, [str(exc)]
+
+
 def validate_checklist_item(data: dict[str, Any]) -> tuple[ChecklistItem | None, list[str]]:
     """
     Validate a raw dict as a ChecklistItem.
@@ -350,6 +551,25 @@ def validate_audit_map_item(data: dict[str, Any]) -> tuple[AuditMapItem | None, 
             errors.append("check_id is empty")
         if not item.final_classification:
             errors.append("final_classification is empty")
+        return item, errors
+    except Exception as exc:
+        return None, [str(exc)]
+
+
+def validate_reviewed_item(data: dict[str, Any]) -> tuple[ReviewedItem | None, list[str]]:
+    """
+    Validate a raw dict as a ReviewedItem.
+
+    Returns:
+        (parsed_item, errors) – parsed_item is None when validation fails.
+    """
+    errors: list[str] = []
+    try:
+        item = ReviewedItem.model_validate(data)
+        if not item.check_id:
+            errors.append("check_id is empty")
+        if not item.review_verdict:
+            errors.append("review_verdict is empty")
         return item, errors
     except Exception as exc:
         return None, [str(exc)]
