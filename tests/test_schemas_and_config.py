@@ -1881,3 +1881,195 @@ class TestGitHubStepSummary:
         finally:
             del os.environ["GITHUB_STEP_SUMMARY"]
             os.unlink(summary_file)
+
+
+
+# =====================================================================
+# Partial Result Recovery Tests
+# =====================================================================
+import unittest
+from pathlib import Path
+
+
+class TestCheckLogResultStatus(unittest.TestCase):
+    """Tests for ClaudeRunner._check_log_result_status."""
+
+    def test_returns_none_for_nonexistent_file(self):
+        """Should return None if the log file does not exist."""
+        from scripts.orchestrator.runner import ClaudeRunner
+        result = ClaudeRunner._check_log_result_status(Path("/nonexistent/file.jsonl"))
+        assert result is None
+
+    def test_returns_none_for_log_without_result(self):
+        """Should return None if the log has no result event."""
+        from scripts.orchestrator.runner import ClaudeRunner
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type":"assistant","message":{"content":"hello"}}\n')
+            f.write('{"type":"user","message":{"content":"world"}}\n')
+            log_path = Path(f.name)
+        try:
+            result = ClaudeRunner._check_log_result_status(log_path)
+            assert result is None
+        finally:
+            log_path.unlink()
+
+    def test_returns_result_event_success_no_error(self):
+        """Should return the result event for a normal success."""
+        from scripts.orchestrator.runner import ClaudeRunner
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type":"assistant","message":{"content":"working"}}\n')
+            f.write('{"type":"result","subtype":"success","is_error":false,"duration_ms":120000}\n')
+            log_path = Path(f.name)
+        try:
+            result = ClaudeRunner._check_log_result_status(log_path)
+            assert result is not None
+            assert result["subtype"] == "success"
+            assert result["is_error"] is False
+        finally:
+            log_path.unlink()
+
+    def test_returns_result_event_success_with_error(self):
+        """Should return the result event for is_error=true, subtype=success (max_turns)."""
+        from scripts.orchestrator.runner import ClaudeRunner
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type":"assistant","message":{"content":"working"}}\n')
+            f.write('{"type":"result","subtype":"success","is_error":true,"duration_ms":488000}\n')
+            log_path = Path(f.name)
+        try:
+            result = ClaudeRunner._check_log_result_status(log_path)
+            assert result is not None
+            assert result["subtype"] == "success"
+            assert result["is_error"] is True
+            assert result["duration_ms"] == 488000
+        finally:
+            log_path.unlink()
+
+    def test_returns_result_event_error_subtype(self):
+        """Should return the result event for subtype=error."""
+        from scripts.orchestrator.runner import ClaudeRunner
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type":"result","subtype":"error","is_error":true,"duration_ms":5000}\n')
+            log_path = Path(f.name)
+        try:
+            result = ClaudeRunner._check_log_result_status(log_path)
+            assert result is not None
+            assert result["subtype"] == "error"
+        finally:
+            log_path.unlink()
+
+    def test_returns_last_result_when_multiple(self):
+        """Should return the last result event if multiple exist."""
+        from scripts.orchestrator.runner import ClaudeRunner
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type":"result","subtype":"error","is_error":true,"duration_ms":1000}\n')
+            f.write('{"type":"result","subtype":"success","is_error":true,"duration_ms":488000}\n')
+            log_path = Path(f.name)
+        try:
+            result = ClaudeRunner._check_log_result_status(log_path)
+            assert result is not None
+            assert result["subtype"] == "success"
+            assert result["duration_ms"] == 488000
+        finally:
+            log_path.unlink()
+
+
+class TestTryRecoverPartial(unittest.TestCase):
+    """Tests for ClaudeRunner._try_recover_partial."""
+
+    def _make_runner(self):
+        from scripts.orchestrator.runner import ClaudeRunner
+        from scripts.orchestrator.config import get_phase_config
+        config = get_phase_config("03")
+        sem = asyncio.Semaphore(1)
+        return ClaudeRunner(config, sem)
+
+    def test_returns_none_when_no_result_in_log(self):
+        """Should return None if log has no result event (killed process)."""
+        runner = self._make_runner()
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type":"assistant","message":{"content":"hello"}}\n')
+            log_path = Path(f.name)
+        result_path = Path("/tmp/nonexistent_result.json")
+        try:
+            result = runner._try_recover_partial(
+                log_path, result_path, False, 0, 1, 12345
+            )
+            assert result is None
+        finally:
+            log_path.unlink()
+
+    def test_returns_none_when_subtype_is_error(self):
+        """Should return None if subtype=error (genuine failure)."""
+        runner = self._make_runner()
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type":"result","subtype":"error","is_error":true,"duration_ms":5000}\n')
+            log_path = Path(f.name)
+        result_path = Path("/tmp/nonexistent_result.json")
+        try:
+            result = runner._try_recover_partial(
+                log_path, result_path, False, 0, 1, 12345
+            )
+            assert result is None
+        finally:
+            log_path.unlink()
+
+    def test_recovers_from_output_file(self):
+        """Should recover results from output file when subtype=success, is_error=true."""
+        runner = self._make_runner()
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type":"result","subtype":"success","is_error":true,"duration_ms":488000}\n')
+            log_path = Path(f.name)
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump({"audit_items": [{"id": "A1", "status": "done"}]}, f)
+            result_path = Path(f.name)
+        try:
+            result = runner._try_recover_partial(
+                log_path, result_path, False, 0, 1, 12345
+            )
+            assert result is not None
+            assert len(result) == 1
+            assert result[0]["id"] == "A1"
+        finally:
+            log_path.unlink()
+            if result_path.exists():
+                result_path.unlink()
+
+    def test_recovers_from_log_fallback(self):
+        """Should recover results from log inline response when output file missing."""
+        runner = self._make_runner()
+        result_json = json.dumps([{"id": "B1", "classification": "safe"}])
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type":"assistant","message":{"content":"working"}}\n')
+            f.write(json.dumps({
+                "type": "result",
+                "subtype": "success",
+                "is_error": True,
+                "duration_ms": 488000,
+                "result": f"Here are the results:\n```json\n{result_json}\n```"
+            }) + "\n")
+            log_path = Path(f.name)
+        result_path = Path("/tmp/nonexistent_result.json")
+        try:
+            result = runner._try_recover_partial(
+                log_path, result_path, False, 0, 1, 12345
+            )
+            assert result is not None
+            assert len(result) == 1
+            assert result[0]["id"] == "B1"
+        finally:
+            log_path.unlink()
+
+    def test_returns_none_when_no_parseable_results(self):
+        """Should return None if subtype=success but no results can be parsed."""
+        runner = self._make_runner()
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type":"result","subtype":"success","is_error":true,"duration_ms":488000}\n')
+            log_path = Path(f.name)
+        result_path = Path("/tmp/nonexistent_result.json")
+        try:
+            result = runner._try_recover_partial(
+                log_path, result_path, False, 0, 1, 12345
+            )
+            assert result is None
+        finally:
+            log_path.unlink()

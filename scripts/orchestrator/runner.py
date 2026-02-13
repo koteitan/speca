@@ -444,6 +444,19 @@ class ClaudeRunner:
 
         # Check result
         if proc.returncode != 0:
+            # Before giving up, check if the log contains a partial result.
+            # Claude CLI sometimes exits with returncode=1 when max_turns is
+            # reached, but the log still contains ``{"type": "result",
+            # "subtype": "success", "is_error": true, ...}`` with usable
+            # output written to disk.
+            partial_results = self._try_recover_partial(
+                log_file, result_parse_path, directory_mode,
+                worker_id, batch_index, timestamp,
+            )
+            if partial_results is not None:
+                return partial_results
+
+            # Genuine failure — save error log and return None
             stderr = await proc.stderr.read() if proc.stderr else b""
             self._save_error_log(worker_id, batch_index, timestamp, proc.returncode, stderr)
             print(
@@ -469,7 +482,105 @@ class ClaudeRunner:
         return results
 
     # ------------------------------------------------------------------
-    # Helpers (unchanged from original)
+    # Partial result recovery
+    # ------------------------------------------------------------------
+
+    def _try_recover_partial(
+        self,
+        log_file: Path,
+        result_parse_path: Path,
+        directory_mode: bool,
+        worker_id: int,
+        batch_index: int,
+        timestamp: int,
+    ) -> list[dict[str, Any]] | None:
+        """
+        Attempt to recover partial results when Claude CLI exits with a
+        non-zero return code.
+
+        Claude CLI may exit with ``returncode=1`` even when it has
+        produced usable output — for example when ``max_turns`` is
+        reached.  In that case the stream-json log will contain a final
+        ``{"type": "result", "subtype": "success", "is_error": true}``
+        event, and the output file / directory may still hold valid data.
+
+        Returns:
+            A list of recovered result dicts, or ``None`` if recovery
+            is not possible (i.e. the failure is genuine).
+        """
+        result_info = self._check_log_result_status(log_file)
+        if result_info is None:
+            # No result event in log at all — genuine crash / kill
+            return None
+
+        subtype = result_info.get("subtype", "")
+        is_error = result_info.get("is_error", False)
+
+        if subtype != "success":
+            # e.g. subtype="error" — genuine failure
+            return None
+
+        # subtype=success, is_error=true — likely max_turns reached
+        duration_s = result_info.get("duration_ms", 0) / 1000
+        print(
+            f"[W{worker_id}] Batch {batch_index}: Claude exited non-zero but "
+            f"log shows subtype=success (is_error={is_error}, "
+            f"duration={duration_s:.0f}s) — attempting partial recovery",
+            file=sys.stderr,
+        )
+
+        # Try to parse whatever output was produced
+        results = self._parse_results(result_parse_path)
+        if not results:
+            results = self._parse_results_from_log(log_file)
+
+        if results:
+            print(
+                f"[W{worker_id}] Batch {batch_index}: "
+                f"recovered {len(results)} partial result(s) from non-zero exit",
+                file=sys.stderr,
+            )
+            # Clean up intermediate file
+            if not directory_mode and result_parse_path.exists():
+                result_parse_path.unlink()
+            return results
+
+        print(
+            f"[W{worker_id}] Batch {batch_index}: "
+            f"subtype=success but no parseable results found",
+            file=sys.stderr,
+        )
+        return None
+
+    @staticmethod
+    def _check_log_result_status(log_file: Path) -> dict[str, Any] | None:
+        """
+        Scan a stream-json log for the final ``{"type": "result"}`` event
+        and return its fields.
+
+        Returns ``None`` if no result event is found (process was killed
+        or crashed before producing one).
+        """
+        if not log_file.exists():
+            return None
+
+        last_result: dict[str, Any] | None = None
+        try:
+            with open(log_file, errors="replace") as f:
+                for line in f:
+                    try:
+                        obj = json.loads(line)
+                        if isinstance(obj, dict) and obj.get("type") == "result":
+                            last_result = obj
+                    except (json.JSONDecodeError, KeyError):
+                        continue
+        except Exception:
+            return None
+
+        return last_result
+
+    # ------------------------------------------------------------------
+    # Helpers
     # ------------------------------------------------------------------
 
     def _build_queue_payload(
