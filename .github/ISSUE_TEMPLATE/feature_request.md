@@ -1,20 +1,24 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
-
+about: 機能要望（要件→設計→受け入れ条件を揃える）
+title: "[Feature] "
+labels: ["enhancement"]
+assignees: ""
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## 背景 / 目的
+（なぜ必要か、誰のためか）
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+## 提案内容
+（何を作るか。UI/API/挙動など具体的に）
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## 代替案
+（他のやり方があるなら）
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+## 受け入れ条件
+- [ ] 期待するユーザーストーリーが満たされる
+- [ ] 主要な境界ケースがカバーされる
+- [ ] （必要なら）テストが追加される
+
+## 実装メモ（任意）
+（参考リンク、関連Issue、影響範囲など）
