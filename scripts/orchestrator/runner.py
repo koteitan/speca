@@ -157,7 +157,11 @@ class LogAnomalyDetector:
         ("context_overflow", re.compile(r"context.?length|token.?limit|maximum.?context", re.IGNORECASE)),
         ("api_error", re.compile(r"APIError|InternalServerError|ServiceUnavailable|overloaded", re.IGNORECASE)),
         ("timeout_error", re.compile(r"timed?\s*out|deadline exceeded|ETIMEDOUT", re.IGNORECASE)),
+        ("usage_limit", re.compile(r"out of (?:extra )?usage|usage.?limit|resets? \w+ \d+", re.IGNORECASE)),
     ]
+
+    # Fatal patterns that indicate systemic issues (no point retrying)
+    _FATAL_PATTERNS: frozenset[str] = frozenset({"usage_limit"})
 
     # If the log contains more than this many tool_use blocks it's likely looping.
     # Phase 03 batches of 25 items each require multiple tool calls, so 50 is
@@ -206,6 +210,21 @@ class LogAnomalyDetector:
             )
 
         return anomalies
+
+    @classmethod
+    def has_fatal_anomaly(cls, anomalies: list[str]) -> bool:
+        """
+        Check if any anomaly in the list is a fatal pattern.
+
+        Fatal anomalies (e.g. usage_limit) indicate systemic issues that
+        cannot be resolved by retrying.  The caller should immediately
+        trip the circuit breaker.
+        """
+        for desc in anomalies:
+            for fatal_name in cls._FATAL_PATTERNS:
+                if desc.startswith(f"{fatal_name}:"):
+                    return True
+        return False
 
 
 # ---------------------------------------------------------------------------
@@ -421,7 +440,18 @@ class ClaudeRunner:
                 file=sys.stderr,
             )
             for a in anomalies[:5]:  # cap output
-                print(f"    ⚠️  {a}", file=sys.stderr)
+                print(f"    \u26a0\ufe0f  {a}", file=sys.stderr)
+
+            # Fatal anomalies (e.g. usage_limit) — immediately trip the
+            # circuit breaker so ALL workers stop, not just this batch.
+            if LogAnomalyDetector.has_fatal_anomaly(anomalies):
+                raise CircuitBreakerTripped(
+                    f"Fatal anomaly detected in batch {batch_index}: "
+                    + "; ".join(a for a in anomalies if any(
+                        a.startswith(f"{fn}:") for fn in LogAnomalyDetector._FATAL_PATTERNS
+                    )),
+                    self.circuit_breaker.get_stats(),
+                )
 
         # --- Cost tracking: extract token usage from log ---
         if self.cost_tracker:

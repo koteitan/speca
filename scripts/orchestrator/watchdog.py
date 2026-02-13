@@ -62,7 +62,12 @@ _ANOMALY_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("context_overflow", re.compile(r"context.?length|token.?limit|maximum.?context", re.IGNORECASE)),
     ("api_error", re.compile(r"APIError|InternalServerError|ServiceUnavailable|overloaded", re.IGNORECASE)),
     ("timeout_error", re.compile(r"timed?\s*out|deadline exceeded|ETIMEDOUT", re.IGNORECASE)),
+    ("usage_limit", re.compile(r"out of (?:extra )?usage|usage.?limit|resets? \w+ \d+", re.IGNORECASE)),
 ]
+
+# Fatal patterns that should trigger IMMEDIATE stop (threshold=1).
+# These indicate systemic issues that cannot be resolved by retrying.
+_FATAL_PATTERNS: frozenset[str] = frozenset({"usage_limit"})
 
 _TOOL_CALL_PATTERN = re.compile(r'"type"\s*:\s*"tool_use"')
 
@@ -142,7 +147,19 @@ def _extract_scannable_text(line: str) -> tuple[str | None, bool]:
                         is_tool_use = True
                         break
 
-    # For assistant/user/result messages, do NOT scan content for anomalies
+    # 5. Result events — scan the result text for usage limit messages.
+    #    When Claude CLI hits a usage limit, it emits a result event with
+    #    is_error=true and the result text contains the limit message.
+    if msg_type == "result":
+        result_text = obj.get("result", "")
+        is_error = obj.get("is_error", False)
+        subtype = obj.get("subtype", "")
+        if is_error and isinstance(result_text, str) and result_text:
+            # Only scan a short prefix to avoid false positives from
+            # large result payloads that happen to contain trigger words
+            return (result_text[:500], False)
+
+    # For assistant/user/other messages, do NOT scan content for anomalies
     return (None, is_tool_use)
 
 
@@ -182,6 +199,8 @@ class LogWatcher:
         self._cancelled = False
         # Flag to ensure excessive_tool_calls is only counted once
         self._tool_call_flagged = False
+        # Flag for fatal anomalies (e.g. usage_limit) — immediate stop
+        self._fatal_detected = False
 
     @property
     def should_stop(self) -> bool:
@@ -246,6 +265,9 @@ class LogWatcher:
         Uses ``_extract_scannable_text()`` to parse the JSON structure and
         only inspect error/system fields — NOT user content that may contain
         domain-specific terms like "429", "rate limit", "timeout" etc.
+
+        Fatal patterns (e.g. usage_limit) are flagged for immediate stop
+        regardless of the anomaly threshold.
         """
         text_to_scan, is_tool_use = _extract_scannable_text(line)
 
@@ -257,10 +279,26 @@ class LogWatcher:
                 if pattern.search(text_to_scan):
                     desc = f"{name}: {text_to_scan.strip()[:200]}"
                     self.anomalies.append(desc)
+                    # Mark fatal patterns for immediate stop
+                    if name in _FATAL_PATTERNS:
+                        self._fatal_detected = True
 
     def _check_threshold(self) -> bool:
         """Check if anomaly counts exceed thresholds.  Returns True to stop."""
         total_anomalies = len(self.anomalies)
+
+        # FATAL patterns (e.g. usage_limit) trigger immediate stop
+        # regardless of the anomaly threshold — these are systemic issues
+        # that cannot be resolved by retrying.
+        if self._fatal_detected:
+            self._stop_event.set()
+            print(
+                f"\n🛑  LogWatcher: FATAL anomaly detected — immediate stop",
+                file=sys.stderr,
+            )
+            for a in self.anomalies[-5:]:
+                print(f"    🛑  {a}", file=sys.stderr)
+            return True
 
         # Only flag excessive tool calls ONCE (not on every subsequent line)
         if (
@@ -294,6 +332,7 @@ class LogWatcher:
             "anomaly_count": len(self.anomalies),
             "tool_call_count": self.tool_call_count,
             "should_stop": self.should_stop,
+            "fatal_detected": self._fatal_detected,
             "anomalies": self.anomalies[-10:],  # cap for readability
         }
 
