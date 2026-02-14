@@ -24,7 +24,7 @@ jobs:
       macro: ${{ vars.OPENHANDS_MACRO || '@openhands-agent' }}
       max_iterations: ${{ fromJson(vars.OPENHANDS_MAX_ITER || 200) }}
       base_container_image: ${{ vars.OPENHANDS_BASE_CONTAINER_IMAGE || '' }}
-      LLM_MODEL: "openai/qwen3-coder-30b-a3b-instruct:2"
+      LLM_MODEL: "openai/qwen3-coder-30b-a3b-instruct"
       target_branch: "master"
       runner: "self-hosted"
     secrets:
