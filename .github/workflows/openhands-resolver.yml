@@ -215,59 +215,59 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd "$RUN_DIR"
-          cat > test_httpx.py << 'EOF'
-import httpx
-import ssl
-import sys
-
-print("=== Testing httpx connection to GitHub API ===" )
-print(f"Python version: {sys.version}")
-
-# Test 1: Basic GET request without authentication
-print("\n--- Test 1: GET https://api.github.com (no auth ) ---")
-try:
-    with httpx.Client(timeout=30.0 ) as client:
-        response = client.get("https://api.github.com" )
-        print(f"Status: {response.status_code}")
-        print(f"Headers: {dict(response.headers)}")
-except Exception as e:
-    print(f"ERROR: {type(e).__name__}: {e}")
-
-# Test 2: With SSL context (like OpenHands)
-print("\n--- Test 2: GET with ssl.create_default_context() ---")
-try:
-    ssl_context = ssl.create_default_context()
-    with httpx.Client(verify=ssl_context, timeout=30.0 ) as client:
-        response = client.get("https://api.github.com" )
-        print(f"Status: {response.status_code}")
-except Exception as e:
-    print(f"ERROR: {type(e).__name__}: {e}")
-    import traceback
-    traceback.print_exc()
-
-# Test 3: With authentication
-print("\n--- Test 3: GET with Bearer token ---")
-import os
-token = os.environ.get("GITHUB_TOKEN", "")
-if token:
-    print(f"Token length: {len(token)}")
-    try:
-        ssl_context = ssl.create_default_context()
-        headers = {"Authorization": f"Bearer {token}"}
-        with httpx.Client(verify=ssl_context, timeout=30.0 ) as client:
-            response = client.get("https://api.github.com", headers=headers )
-            print(f"Status: {response.status_code}")
-    except Exception as e:
-        print(f"ERROR: {type(e).__name__}: {e}")
-        import traceback
-        traceback.print_exc()
-else:
-    print("No GITHUB_TOKEN found")
-
-print("\n=== Environment variables ===")
-for key in ["HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "SSL_CERT_FILE", "REQUESTS_CA_BUNDLE"]:
-    print(f"{key}: {os.environ.get(key, '(not set)')}")
-EOF
+          cat > test_httpx.py << 'EOFPYTHON'
+          import httpx
+          import ssl
+          import sys
+          
+          print("=== Testing httpx connection to GitHub API ===")
+          print(f"Python version: {sys.version}")
+          
+          # Test 1: Basic GET request without authentication
+          print("\n--- Test 1: GET https://api.github.com (no auth) ---")
+          try:
+              with httpx.Client(timeout=30.0) as client:
+                  response = client.get("https://api.github.com")
+                  print(f"Status: {response.status_code}")
+                  print(f"Headers: {dict(response.headers)}")
+          except Exception as e:
+              print(f"ERROR: {type(e).__name__}: {e}")
+          
+          # Test 2: With SSL context (like OpenHands)
+          print("\n--- Test 2: GET with ssl.create_default_context() ---")
+          try:
+              ssl_context = ssl.create_default_context()
+              with httpx.Client(verify=ssl_context, timeout=30.0) as client:
+                  response = client.get("https://api.github.com")
+                  print(f"Status: {response.status_code}")
+          except Exception as e:
+              print(f"ERROR: {type(e).__name__}: {e}")
+              import traceback
+              traceback.print_exc()
+          
+          # Test 3: With authentication
+          print("\n--- Test 3: GET with Bearer token ---")
+          import os
+          token = os.environ.get("GITHUB_TOKEN", "")
+          if token:
+              print(f"Token length: {len(token)}")
+              try:
+                  ssl_context = ssl.create_default_context()
+                  headers = {"Authorization": f"Bearer {token}"}
+                  with httpx.Client(verify=ssl_context, timeout=30.0) as client:
+                      response = client.get("https://api.github.com", headers=headers)
+                      print(f"Status: {response.status_code}")
+              except Exception as e:
+                  print(f"ERROR: {type(e).__name__}: {e}")
+                  import traceback
+                  traceback.print_exc()
+          else:
+              print("No GITHUB_TOKEN found")
+          
+          print("\n=== Environment variables ===")
+          for key in ["HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "SSL_CERT_FILE", "REQUESTS_CA_BUNDLE"]:
+              print(f"{key}: {os.environ.get(key, '(not set)')}")
+          EOFPYTHON
 
           uv run --python 3.12 python test_httpx.py
 
@@ -312,7 +312,7 @@ EOF
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Create draft PR or push branch (don’t fail job on “no changes”)
+      - name: Create draft PR or push branch (don't fail job on "no changes")
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -339,112 +339,68 @@ EOF
             SEND_EXIT=${PIPESTATUS[0]}
 
             # Extract PR number if created
-            if grep -q "PR created" "$PR_RESULT_TXT"; then
-              grep "PR created" "$PR_RESULT_TXT" | sed 's/.*\///g' > "$PR_NUMBER_TXT"
+            if [ -f "$PR_RESULT_TXT" ]; then
+              PR_NUM=$(grep -oP 'Created pull request #\K\d+' "$PR_RESULT_TXT" || echo "")
+              if [ -n "$PR_NUM" ]; then
+                echo "$PR_NUM" > "$PR_NUMBER_TXT"
+                echo "PR_NUMBER=$PR_NUM" >> $GITHUB_ENV
+              fi
+              BRANCH=$(grep -oP 'Pushed branch: \K[^\s]+' "$PR_RESULT_TXT" || echo "")
+              if [ -n "$BRANCH" ]; then
+                echo "$BRANCH" > "$BRANCH_NAME_TXT"
+                echo "BRANCH_NAME=$BRANCH" >> $GITHUB_ENV
+              fi
+            fi
+
+            if [ $SEND_EXIT -eq 0 ]; then
+              echo "PR/branch creation succeeded"
+            else
+              echo "PR/branch creation failed or had no changes (exit=$SEND_EXIT)"
             fi
           else
-            uvx --python 3.12 --from openhands-ai \
-              python -m openhands.resolver.send_pull_request \
-              --issue-number ${{ env.ISSUE_NUMBER }} \
-              --pr-type branch \
-              --send-on-failure | tee "$BRANCH_RESULT_TXT"
-            SEND_EXIT=${PIPESTATUS[0]}
-
-            # Extract branch name if created
-            if grep -q "branch created" "$BRANCH_RESULT_TXT"; then
-              grep "branch created" "$BRANCH_RESULT_TXT" | sed 's/.*\///g; s/.expand=1//g' > "$BRANCH_NAME_TXT"
-            fi
+            echo "Resolution not successful, skipping PR creation"
           fi
 
-          echo "SEND_PR_EXIT_CODE=$SEND_EXIT" >> $GITHUB_ENV
-          exit 0
-
-      - name: Comment on issue (PR/branch/no-changes)
-        uses: actions/github-script@v7
+      - name: Comment on issue with result
         if: always()
-        env:
-          ISSUE_NUMBER: ${{ env.ISSUE_NUMBER }}
-          RESOLUTION_SUCCESS: ${{ steps.check_result.outputs.RESOLUTION_SUCCESS }}
-          OUTPUT_JSONL: ${{ env.OUTPUT_JSONL }}
-          PR_RESULT_TXT: ${{ env.PR_RESULT_TXT }}
-          BRANCH_RESULT_TXT: ${{ env.BRANCH_RESULT_TXT }}
-          PR_NUMBER_TXT: ${{ env.PR_NUMBER_TXT }}
-          BRANCH_NAME_TXT: ${{ env.BRANCH_NAME_TXT }}
-          RUN_KEY: ${{ env.RUN_KEY }}
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-
             const issueNumber = Number(process.env.ISSUE_NUMBER);
-            const success = process.env.RESOLUTION_SUCCESS === 'true';
-            const runKey = process.env.RUN_KEY;
+            const resolutionSuccess = process.env.RESOLUTION_SUCCESS === 'true';
+            const prNumberFile = process.env.PR_NUMBER_TXT;
+            const branchNameFile = process.env.BRANCH_NAME_TXT;
 
-            const safeRead = (p) => {
-              try { return fs.readFileSync(p, 'utf8').trim(); } catch { return ''; }
-            };
+            let prNumber = null;
+            let branchName = null;
 
-            const prLog = safeRead(process.env.PR_RESULT_TXT);
-            const brLog = safeRead(process.env.BRANCH_RESULT_TXT);
-
-            // If "no changes" happened, tell user to re-run or adjust prompt
-            const noChangesMsg = `No changes to commit for issue #${issueNumber}. Skipping commit.`;
-            if (prLog.includes(noChangesMsg)) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                body: `OpenHands ran (run key: \`${runKey}\`) but produced **no code changes**, so no PR was created.\n\nTip: add a failing test output + explicit acceptance criteria, then comment \`${process.env.macro || '@openhands-agent'}\` again to re-run.`
-              });
-              return;
+            if (fs.existsSync(prNumberFile)) {
+              prNumber = fs.readFileSync(prNumberFile, 'utf8').trim();
+            }
+            if (fs.existsSync(branchNameFile)) {
+              branchName = fs.readFileSync(branchNameFile, 'utf8').trim();
             }
 
-            if (success) {
-              const prNumber = safeRead(process.env.PR_NUMBER_TXT);
+            let body = '';
+            if (resolutionSuccess) {
               if (prNumber) {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issueNumber,
-                  body: `A potential fix has been generated and a **draft PR #${prNumber}** has been created. (run key: \`${runKey}\`)`
-                });
+                body = `✅ OpenHands successfully resolved the issue and created PR #${prNumber}!`;
+              } else if (branchName) {
+                body = `✅ OpenHands successfully resolved the issue and pushed branch \`${branchName}\`!`;
               } else {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issueNumber,
-                  body: `OpenHands reported success (run key: \`${runKey}\`), but PR number could not be parsed. Please check the workflow logs/artifact.`
-                });
+                body = `✅ OpenHands finished processing, but no PR or branch was created (possibly no changes needed).`;
               }
             } else {
-              const branchName = safeRead(process.env.BRANCH_NAME_TXT);
-
-              // pull result_explanation (first line JSON)
-              let resultExplanation = '';
-              try {
-                const content = safeRead(process.env.OUTPUT_JSONL);
-                const firstLine = content.split('\n').filter(Boolean)[0];
-                if (firstLine) {
-                  const j = JSON.parse(firstLine);
-                  resultExplanation = j.result_explanation || '';
-                }
-              } catch {}
-
-              if (branchName) {
-                let body = `An attempt was made but it was unsuccessful. A branch \`${branchName}\` was created with attempted changes.\nhttps://github.com/${context.repo.owner}/${context.repo.repo}/tree/${branchName}\n\n(run key: \`${runKey}\`)`;
-                if (resultExplanation) body += `\n\nDetails:\n${resultExplanation}`;
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issueNumber,
-                  body
-                });
-              } else {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issueNumber,
-                  body: `OpenHands failed (run key: \`${runKey}\`). No branch/PR info was found—please check the workflow logs and the uploaded resolver-output artifact.`
-                });
-              }
+              body = `❌ OpenHands was unable to resolve the issue. Please check the logs for details.`;
             }
+
+            body += `\n\nRun details: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            await github.rest.issues.createComment({
+              issue_number: issueNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
