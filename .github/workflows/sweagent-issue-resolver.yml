@@ -25,7 +25,11 @@ jobs:
 
       - name: Clone SWE-agent repository for config files
         run: |
-          git clone --depth 1 https://github.com/SWE-agent/SWE-agent.git /tmp/swe-agent-repo
+          if [ -d /tmp/swe-agent-repo ]; then
+            echo "Skipping clone; /tmp/swe-agent-repo already exists."
+          else
+            git clone --depth 1 https://github.com/SWE-agent/SWE-agent.git /tmp/swe-agent-repo
+          fi
 
       - name: Run SWE-agent to create a Pull Request
         env:
