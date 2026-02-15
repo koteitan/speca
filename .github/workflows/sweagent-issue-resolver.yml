@@ -20,17 +20,15 @@ jobs:
 
       - name: Install SWE-agent
         run: |
-          nix develop .#. --command bash -c \
-          "uv pip install swe-agent"
+          uv pip install swe-agent
 
       - name: Run SWE-agent to create a Pull Request
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          nix develop .#. --command bash -c \
-          "uv run sweagent run \
+          uv run sweagent run \
           --agent.model.name=gpt-5-mini \
           --agent.model.per_instance_cost_limit=2.00 \
           --env.repo.github_url=https://github.com/NyxFoundation/security-agent \
-          --problem_statement.github_url=https://github.com/NyxFoundation/security-agent/issues/${{ github.event.issue.number }}"
+          --problem_statement.github_url=https://github.com/NyxFoundation/security-agent/issues/${{ github.event.issue.number }}
