@@ -20,7 +20,8 @@ jobs:
 
       - name: Install SWE-agent
         run: |
-          uv pip install swe-agent
+          uv venv
+          uv sync --frozen
 
       - name: Run SWE-agent to create a Pull Request
         env:
