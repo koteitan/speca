@@ -28,7 +28,11 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
     
        2a. **Resolve Code Scope**: Use Tree-sitter MCP tools (`mcp__tree_sitter__get_symbols` or `mcp__tree_sitter__run_query`) to find the relevant file path and line numbers based on `item.checklist_item.graph_element_under_test`. Use `mcp__filesystem__read_text_file` with `head`/`tail` parameters to extract only the relevant lines efficiently. Extract this code as `code_excerpt`.
        
-       2b. **Check Skip Conditions**: If any of the following conditions are met:
+       2b. **Include Location Information**: The final output MUST include both:
+          - `code_scope`: containing file path and line numbers
+          - `code_snippet`: the actual code excerpt from the identified location
+
+       2c. **Check Skip Conditions**: If any of the following conditions are met:
            - `code_scope.file` is `N/A`, `SPECIFICATION-ONLY`, or missing
            - Code resolves to external dependency (`vendor/`, submodules)
            - Component mismatch (EL vs CL)

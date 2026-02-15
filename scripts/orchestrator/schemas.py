@@ -369,6 +369,7 @@ class AuditMapItem(BaseModel):
     check_id: str
     property_id: str | None = None
     code_scope: dict[str, Any] = Field(default_factory=dict)
+    code_snippet: str = ""
     final_classification: str = ""
     bug_bounty_eligible: bool = False
     summary: str = ""
