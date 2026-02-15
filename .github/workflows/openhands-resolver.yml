@@ -386,16 +386,15 @@ jobs:
             }
 
             let body = '';
-            if (resolutionSuccess) {
-              if (prNumber) {
-                body = `✅ OpenHands successfully resolved the issue and created PR #${prNumber}!`;
-              } else if (branchName) {
-                body = `✅ OpenHands successfully resolved the issue and pushed branch \`${branchName}\`!`;
-              } else {
-                body = `✅ OpenHands finished processing, but no PR or branch was created (possibly no changes needed).`;
-              }
+            // PR/ブランチが実際に作成されたかを最優先で確認
+            if (prNumber) {
+              body = "✅ PR created!";
+            } else if (branchName) {
+              body = "✅ Branch pushed!";
+            } else if (resolutionSuccess) {
+              body = "✅ No changes needed";
             } else {
-              body = `❌ OpenHands was unable to resolve the issue. Please check the logs for details.`;
+              body = "❌ Failed";
             }
 
             body += `\n\nRun details: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
