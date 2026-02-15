@@ -36,6 +36,9 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SWE_AGENT_CONFIG_ROOT: /tmp/swe-agent-repo
+          SWE_AGENT_CONFIG_DIR: /tmp/swe-agent-repo/config
+          SWE_AGENT_TOOLS_DIR: /tmp/swe-agent-repo/tools
+          SWE_AGENT_TRAJECTORY_DIR: /tmp/swe-agent-repo/trajectories
         run: |
           uv run sweagent run \
           --agent.model.name=gpt-5-mini \
