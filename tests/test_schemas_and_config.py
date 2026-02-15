@@ -485,6 +485,39 @@ class TestPhase03:
         assert trail.phase2_5_reachability_analysis.attacker_controlled is True
         assert trail.phase3_5_scope_filtering.bug_bounty_eligible is True
 
+    def test_audit_map_item_with_code_snippet(self):
+        """Test that AuditMapItem includes code_snippet field."""
+        item = AuditMapItem(
+            check_id="CHK-001",
+            property_id="PROP-001",
+            final_classification="vulnerable",
+            summary="Found issue",
+            code_snippet="int x = 0;\nif (x > 0) {\n    return true;\n}",
+        )
+        assert item.check_id == "CHK-001"
+        assert item.code_snippet == "int x = 0;\nif (x > 0) {\n    return true;\n}"
+        # Test that it can be serialized
+        dumped = item.model_dump()
+        assert "code_snippet" in dumped
+        assert dumped["code_snippet"] == "int x = 0;\nif (x > 0) {\n    return true;\n}"
+
+    def test_audit_map_item_complete_fields(self):
+        """Test that AuditMapItem can be created with all fields including code snippet."""
+        item = AuditMapItem(
+            check_id="CHK-001",
+            property_id="PROP-001",
+            code_scope={"file": "test.java", "lines": "10-20"},
+            code_snippet="int x = 0;\nif (x > 0) {\n    return true;\n}",
+            final_classification="vulnerable",
+            bug_bounty_eligible=True,
+            summary="Found issue"
+        )
+        assert item.check_id == "CHK-001"
+        assert item.code_scope["file"] == "test.java"
+        assert item.code_snippet == "int x = 0;\nif (x > 0) {\n    return true;\n}"
+        assert item.final_classification == "vulnerable"
+        assert item.bug_bounty_eligible is True
+
 
 class TestPhase03Partial:
     def test_valid_partial(self):
