@@ -39,6 +39,7 @@ jobs:
           SWE_AGENT_CONFIG_DIR: /tmp/swe-agent-repo/config
           SWE_AGENT_TOOLS_DIR: /tmp/swe-agent-repo/tools
           SWE_AGENT_TRAJECTORY_DIR: /tmp/swe-agent-repo/trajectories
+          SSL_CERT_FILE: /etc/ssl/certs/ca-bundle.crt
         run: |
           uv run sweagent run \
           --agent.model.name=gpt-5-mini \
