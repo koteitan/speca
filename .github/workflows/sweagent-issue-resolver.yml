@@ -12,11 +12,16 @@ permissions:
 jobs:
   run-swe-agent:
     if: contains(github.event.comment.body, '@swe-agent')
-    runs-on: [self-hosted, nixos-swe-agent]
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install SWE-agent
+        run: |
+          nix develop .#. --command bash -c \
+          "uv pip install swe-agent"
 
       - name: Run SWE-agent to create a Pull Request
         env:
@@ -24,5 +29,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           nix develop .#. --command bash -c \
-          "uv pip install swe-agent && uv run swe-agent -i ${{ github.event.issue.number }} --model-name gpt-5-mini --github-token $GITHUB_TOKEN"
-
+          "uv run sweagent run \
+          --agent.model.name=gpt-5-mini \
+          --agent.model.per_instance_cost_limit=2.00 \
+          --env.repo.github_url=https://github.com/NyxFoundation/security-agent \
+          --problem_statement.github_url=https://github.com/NyxFoundation/security-agent/issues/${{ github.event.issue.number }}"
