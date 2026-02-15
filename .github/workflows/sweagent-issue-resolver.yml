@@ -1,0 +1,28 @@
+name: SWE-agent on Issue Comment
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  run-swe-agent:
+    if: contains(github.event.comment.body, '@swe-agent')
+    runs-on: [self-hosted, nixos-swe-agent]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run SWE-agent to create a Pull Request
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          nix develop .#. --command bash -c \
+          "uv pip install swe-agent && uv run swe-agent -i ${{ github.event.issue.number }} --model-name gpt-5-mini --github-token $GITHUB_TOKEN"
+
