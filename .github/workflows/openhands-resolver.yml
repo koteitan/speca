@@ -269,7 +269,7 @@ jobs:
               print(f"{key}: {os.environ.get(key, '(not set)')}")
           EOFPYTHON
 
-          uv run --python 3.12 python test_httpx.py
+          uv run --python 3.12 --with httpx python test_httpx.py
 
       - name: Attempt to resolve issue (run in per-run dir)
         env:
