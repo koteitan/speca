@@ -134,8 +134,8 @@ Generates security audit checklist items from formal properties. Each item inclu
 
 | | |
 |---|---|
-| **Prompt** | `prompts/03_auditmap_worker.md` |
-| **Skill** | `/formal-audit-phase1`, `/formal-audit-phase2`, `/formal-audit-phase3` |
+| **Prompt** | `prompts/03_auditmap_worker_optimized.md` |
+| **Skill** | `/formal-audit-unified` |
 | **Input** | `outputs/02_PARTIAL_*.json` + Target codebase |
 | **Output** | `outputs/03_AUDITMAP_PARTIAL_*.json` |
 

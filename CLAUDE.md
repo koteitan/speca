@@ -81,13 +81,12 @@ Skills live in `.claude/skills/<name>/SKILL.md`. Each has YAML frontmatter (`nam
 - **Budget enforcement:** Cost tracking is built into `ClaudeRunner`, not bolted on. Raises `BudgetExceeded` at the runner level.
 - **Phase 02c/03 target consistency:** Phase 02c creates a new branch with `outputs/02c_TARGET_INFO.json` containing target repository and commit info. Phase 03 reads this file to auto-clone the same target, ensuring consistency. No manual target specification needed in Phase 03.
 - **Phase 02c optimization:** Pre-resolves code locations for checklist items before Phase 03, reducing redundant MCP calls and token consumption by ~40-60% in Phase 03.
-- **Phase 03 optimization:** Uses unified `formal-audit-unified` skill (single context fork) instead of sequential phase1→phase2→phase3 skills (triple context fork). Reduces token consumption by ~75-80% per item. Set `USE_LEGACY_PHASE03=1` to revert to legacy behavior.
+- **Phase 03 optimization:** Uses unified `formal-audit-unified` skill (single context fork) for all three audit phases (Abstract Interpretation → Symbolic Execution → Invariant Proving). Reduces token consumption by ~75-80% per item compared to sequential skill invocations.
 
 ### Environment Variables
 
 - `KEYWORDS`, `SPEC_URLS` — Phase 01a discovery inputs
 - `FORCE_EXECUTE=1` — Bypass resume (set automatically by `--force` flag)
-- `USE_LEGACY_PHASE03=1` — Use legacy three-skill phase 03 instead of optimized unified skill (default: optimized)
 - `CLAUDE_CODE_PERMISSIONS=bypassPermissions` — Used in CI
 - `CLAUDE_CODE_MAX_OUTPUT_TOKENS=100000` — Used in CI
 - `GITHUB_PERSONAL_ACCESS_TOKEN` — For GitHub MCP server

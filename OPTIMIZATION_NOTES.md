@@ -42,20 +42,20 @@ This document describes the optimizations implemented to reduce token consumptio
 ### 3. Code Resolution Pre-execution (Medium Priority)
 
 **Location**: 
-- `scripts/enrich_checklist_with_code.py` - Preparation script
-- `prompts/02_enrich_code.md` - Optional enrichment worker
-- `.github/workflows/02-enrich-code.yml` - GitHub Workflow
+- `prompts/02c_worker.md` - Phase 02c worker prompt
+- `.github/workflows/02c-enrich-code.yml` - Phase 02c GitHub Workflow
 - `scripts/orchestrator/schemas.py` - CodeScope type definition
-- `prompts/03_auditmap_worker_optimized.md` - Updated to check pre-resolved code
+- `scripts/orchestrator/config.py` - Phase 02c configuration
+- `prompts/03_auditmap_worker_optimized.md` - Phase 03 checks pre-resolved code
 
-**Description**: Added optional code pre-resolution step that enriches checklist items with code locations before Phase 03.
+**Description**: Phase 02c pre-resolves code locations for checklist items before Phase 03. This is now a formal phase in the pipeline, not an optional step.
 
 **Implementation**:
 - **Type-safe schema**: Added `CodeScope` model with `resolution_status` field
-- **Backward compatible**: Phase 03 checks if code is pre-resolved, otherwise resolves on-demand
-- **Optional workflow**: New GitHub Workflow `02-enrich-code.yml` for code pre-resolution
-- **Batch optimization**: Resolves all code locations in a single Claude Code session
-- **Cache symbols**: Uses `mcp__tree_sitter__analyze_project` once for all items
+- **Orchestrated phase**: Phase 02c runs via `scripts/run_phase.py --phase 02c`
+- **Target consistency**: Phase 02c creates branch with `02c_TARGET_INFO.json`, Phase 03 auto-clones same target
+- **Batch optimization**: Resolves code locations in parallel batches (100 items per batch)
+- **MCP-based**: Uses Tree-sitter MCP for symbolic code navigation
 
 **Expected Impact**:
 - **MCP call reduction**: 70-80% (from ~1500 to ~300 calls)
@@ -65,7 +65,7 @@ This document describes the optimizations implemented to reduce token consumptio
 
 ## Usage
 
-### Running with Optimizations
+### Running the Full Pipeline
 
 All optimizations are enabled by default. To run the full workflow:
 
@@ -73,30 +73,22 @@ All optimizations are enabled by default. To run the full workflow:
 # Step 1: Run Phase 02 (Checklist Generation)
 uv run python3 scripts/run_phase.py --phase 02 --workers 4 --max-concurrent 64
 
-# Step 2 (Optional): Enrich checklist with code locations
+# Step 2: Run Phase 02c (Code Pre-resolution)
 # Via GitHub Workflow (recommended):
-#   Manually trigger "02-enrich. Code Pre-resolution" workflow
+#   Manually trigger "02c. Code Pre-resolution" workflow
+#   Inputs: target_repo, target_ref_type, audit_scope
+#   Creates new branch with 02c_TARGET_INFO.json
 
-# Or via command line:
-python3 scripts/enrich_checklist_with_code.py outputs/
-claude --mcp-config .claude/mcp.json /02_enrich_code \
-  INPUT_FILE=outputs/02_CHECKLIST_ENRICHED.json \
-  OUTPUT_FILE=outputs/02_CHECKLIST_WITH_CODE.json
+# Or via command line (after setting up target_workspace):
+uv run python3 scripts/run_phase.py --phase 02c --workers 4 --max-concurrent 64
 
 # Step 3: Run Phase 03 (Audit Map Generation)
-# Phase 03 will automatically use pre-resolved code if available
-uv run python3 scripts/run_phase.py --phase 03 --workers 4 --max-concurrent 64
-```
+# Via GitHub Workflow (recommended):
+#   Manually trigger "03. Audit Map" workflow
+#   Input: branch (from Phase 02c)
+#   Auto-reads 02c_TARGET_INFO.json and clones same target
 
-### Disabling Optimizations
-
-To revert to the legacy Phase 03 behavior (for comparison or debugging):
-
-```bash
-# Set environment variable
-export USE_LEGACY_PHASE03=1
-
-# Run Phase 03
+# Or via command line:
 uv run python3 scripts/run_phase.py --phase 03 --workers 4 --max-concurrent 64
 ```
 
