@@ -30,20 +30,22 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
     1. **Initialize**: Read <ref id="queue"/>, select first BATCH_SIZE items. Create `results = []`.
 
     2. **Process Each Item**:
-       a. **Resolve Code**: Use `mcp__tree_sitter__get_symbols` or `mcp__tree_sitter__run_query` to find file/line numbers from `item.checklist_item.graph_element_under_test`. Use `mcp__filesystem__read_text_file` with `head`/`tail` to extract relevant lines as `code_excerpt`.
+       a. **Check Pre-resolved Code**: If `item.code_scope.resolution_status == "resolved"` and `item.code_excerpt` exists, skip code resolution and use pre-resolved data.
+       
+       b. **Resolve Code (if needed)**: Otherwise, use `mcp__tree_sitter__get_symbols` or `mcp__tree_sitter__run_query` to find file/line numbers from `item.checklist_item.graph_element_under_test`. Use `mcp__filesystem__read_text_file` with `head`/`tail` to extract relevant lines as `code_excerpt`.
 
-       b. **Include Location**: Output MUST include:
+       c. **Include Location**: Output MUST include:
           - `code_scope`: {file, function, line_range}
           - `code_snippet`: actual code excerpt
 
-       c. **Skip Check**: If `code_scope.file` is `N/A`/`SPECIFICATION-ONLY`/missing, OR code is external (`vendor/`, submodules), OR component mismatch:
+       d. **Skip Check**: If `code_scope.file` is `N/A`/`SPECIFICATION-ONLY`/missing, OR code is external (`vendor/`, submodules), OR component mismatch:
           Create result with `final_classification = "out-of-scope"`, append to `results`, continue to next item.
 
-       d. **Run Audit**: If valid `code_excerpt` found, call `/formal-audit-unified` skill (single call, not phase1/2/3 separately).
+       e. **Run Audit**: If valid `code_excerpt` found, call `/formal-audit-unified` skill (single call, not phase1/2/3 separately).
           - **Cache-friendly invocation**: Pass only essential context to the skill (code_excerpt, property, check_id)
           - **Avoid redundancy**: Do not repeat information already in the skill's context
 
-       e. **Merge & Continue**: Merge skill output into result object, append to `results`, proceed to next item.
+       f. **Merge & Continue**: Merge skill output into result object, append to `results`, proceed to next item.
 
     3. **Write Output**: After ALL items processed, write `results` array to <ref id="results"/>.
 

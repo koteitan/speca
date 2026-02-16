@@ -42,47 +42,50 @@ This document describes the optimizations implemented to reduce token consumptio
 ### 3. Code Resolution Pre-execution (Medium Priority)
 
 **Location**: 
-- `scripts/presolve_code_locations.py`
-- `prompts/02_5_code_resolver_worker.md`
-- `scripts/run_code_preresolution.sh`
-- `scripts/orchestrator/config.py` (Phase 02.5 configuration)
+- `scripts/enrich_checklist_with_code.py` - Preparation script
+- `prompts/02_enrich_code.md` - Optional enrichment worker
+- `.github/workflows/02-enrich-code.yml` - GitHub Workflow
+- `scripts/orchestrator/schemas.py` - CodeScope type definition
+- `prompts/03_auditmap_worker_optimized.md` - Updated to check pre-resolved code
 
-**Description**: Introduced Phase 02.5 to batch-resolve code locations before Phase 03, reducing redundant MCP tool calls.
+**Description**: Added optional code pre-resolution step that enriches checklist items with code locations before Phase 03.
 
 **Implementation**:
-- **New Phase 02.5**: Runs between Phase 02 and Phase 03
-- **Batch resolution**: Resolves all code locations in a single operation
+- **Type-safe schema**: Added `CodeScope` model with `resolution_status` field
+- **Backward compatible**: Phase 03 checks if code is pre-resolved, otherwise resolves on-demand
+- **Optional workflow**: New GitHub Workflow `02-enrich-code.yml` for code pre-resolution
+- **Batch optimization**: Resolves all code locations in a single Claude Code session
 - **Cache symbols**: Uses `mcp__tree_sitter__analyze_project` once for all items
-- **Skip duplicates**: Resolves each unique function only once
 
 **Expected Impact**:
-- **MCP call reduction**: 80-85% (from ~1500 to ~200 calls)
-- **Time savings**: 2-5 minutes per audit
+- **MCP call reduction**: 70-80% (from ~1500 to ~300 calls)
+- **Time savings**: 3-5 minutes per audit
 - **Reliability**: Early detection of code resolution failures
+- **Flexibility**: Can be skipped if not needed
 
 ## Usage
 
 ### Running with Optimizations
 
-All optimizations are enabled by default. To run Phase 03 with optimizations:
+All optimizations are enabled by default. To run the full workflow:
 
 ```bash
-# Standard workflow (includes Phase 02.5)
+# Step 1: Run Phase 02 (Checklist Generation)
+uv run python3 scripts/run_phase.py --phase 02 --workers 4 --max-concurrent 64
+
+# Step 2 (Optional): Enrich checklist with code locations
+# Via GitHub Workflow (recommended):
+#   Manually trigger "02-enrich. Code Pre-resolution" workflow
+
+# Or via command line:
+python3 scripts/enrich_checklist_with_code.py outputs/
+claude --mcp-config .claude/mcp.json /02_enrich_code \
+  INPUT_FILE=outputs/02_CHECKLIST_ENRICHED.json \
+  OUTPUT_FILE=outputs/02_CHECKLIST_WITH_CODE.json
+
+# Step 3: Run Phase 03 (Audit Map Generation)
+# Phase 03 will automatically use pre-resolved code if available
 uv run python3 scripts/run_phase.py --phase 03 --workers 4 --max-concurrent 64
-```
-
-### Running Phase 02.5 Separately
-
-If you need to run code pre-resolution separately:
-
-```bash
-# Run Phase 02.5
-bash scripts/run_code_preresolution.sh outputs/
-
-# Or with Claude Code directly
-claude --mcp-config .claude/mcp.json /02_5_code_resolver \
-  QUEUE_FILE=outputs/02_5_CODE_RESOLUTION_STATUS.json \
-  OUTPUT_FILE=outputs/02_5_CODE_RESOLVED.json
 ```
 
 ### Disabling Optimizations
