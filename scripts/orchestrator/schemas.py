@@ -269,12 +269,32 @@ class ChecklistReachability(BaseModel):
     bug_bounty_scope: str = "conditional"
 
 
+class LineRange(BaseModel):
+    """Line range in a source file."""
+    start: int
+    end: int
+
+
+class CodeLocation(BaseModel):
+    """A single code location (file + symbol + line range)."""
+    file: str                     # File path relative to repository root
+    symbol: str                   # Symbol name (function/class/method in name_path format)
+    line_range: LineRange         # Start and end line numbers
+    role: str = "primary"         # Role: "primary", "caller", "callee", "related"
+
+
 class CodeScope(BaseModel):
-    """Code location information for a checklist item."""
-    file: str = ""
-    function: str = ""
-    line_range: str = ""
-    resolution_status: str = ""  # "resolved", "not_found", "ambiguous", "pending"
+    """Code location information for a checklist item.
+    
+    Supports multiple related code locations for comprehensive coverage.
+    For example, a security check might involve:
+    - Primary: the function being tested
+    - Callers: functions that call the primary
+    - Callees: functions called by the primary
+    - Related: other relevant code locations
+    """
+    locations: list[CodeLocation] = Field(default_factory=list)
+    resolution_status: str = ""  # "resolved", "not_found", "specification_only", "out_of_scope", "error"
     resolution_error: str = ""
 
 
