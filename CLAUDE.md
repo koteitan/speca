@@ -48,7 +48,7 @@ The async Python orchestrator manages the full lifecycle of each phase:
 
 ### Pipeline Phases
 
-Phase IDs: `01a` → `01b` → `01c` (verify) / `01d` (trust model) → `01e` → `02` → `03` → `04`
+Phase IDs: `01a` → `01b` → `01c` (verify) / `01d` (trust model) → `01e` → `02` → `02c` → `03` → `04`
 
 - **01a** Spec Discovery: crawl URLs → `outputs/01a_STATE.json`
 - **01b** Subgraph Extraction: specs → program graphs (`.mmd` + `index.json`)
@@ -56,7 +56,8 @@ Phase IDs: `01a` → `01b` → `01c` (verify) / `01d` (trust model) → `01e` �
 - **01d** Trust Model: identify trust boundaries/actors (depends on 01b, parallel with 01c)
 - **01e** Property Generation: formal security properties from trust models
 - **02** Checklist: generate audit checklist items from properties
-- **03** Audit Map: three-phase formal audit (Abstract Interpretation → Symbolic Execution → Invariant Proving) against target codebase using Tree-sitter MCP
+- **02c** Code Pre-resolution: pre-resolve code locations (`code_scope`, `code_excerpt`) for checklist items against target repository using Tree-sitter MCP. Requires `target_repo`, `target_ref_type`, `audit_scope`. Creates new branch with `outputs/02c_TARGET_INFO.json`. Reduces token consumption in Phase 03 by ~40-60%.
+- **03** Audit Map: three-phase formal audit (Abstract Interpretation → Symbolic Execution → Invariant Proving) against target codebase. Reads `outputs/02c_TARGET_INFO.json` from branch to auto-clone same target repository/commit. Uses pre-resolved code from Phase 02c.
 - **04** Review: six-category verdict system (CONFIRMED_VULNERABILITY through REQUIRES_MANUAL_REVIEW)
 
 Manual (not orchestrated): `05` PoC Generation, `06` Bug-Bounty Report, `06b` Full Audit Report.
@@ -76,8 +77,10 @@ Skills live in `.claude/skills/<name>/SKILL.md`. Each has YAML frontmatter (`nam
 
 - **Partial results are first-class:** Every batch result is saved immediately. Resume scans these files to skip completed items. Never block saves on validation failures.
 - **Circuit breaker is shared:** All workers in a phase share one circuit breaker, so systemic issues (bad prompt, API outage) trigger fast abort.
-- **MCP-first code resolution:** Phase 03 must use `mcp__tree_sitter__get_symbols` / `run_query` for code location before reading files. Direct file access for code resolution is not permitted.
+- **MCP-first code resolution:** Phase 02c and Phase 03 must use `mcp__tree_sitter__get_symbols` / `run_query` for code location before reading files. Direct file access for code resolution is not permitted.
 - **Budget enforcement:** Cost tracking is built into `ClaudeRunner`, not bolted on. Raises `BudgetExceeded` at the runner level.
+- **Phase 02c/03 target consistency:** Phase 02c creates a new branch with `outputs/02c_TARGET_INFO.json` containing target repository and commit info. Phase 03 reads this file to auto-clone the same target, ensuring consistency. No manual target specification needed in Phase 03.
+- **Phase 02c optimization:** Pre-resolves code locations for checklist items before Phase 03, reducing redundant MCP calls and token consumption by ~40-60% in Phase 03.
 - **Phase 03 optimization:** Uses unified `formal-audit-unified` skill (single context fork) instead of sequential phase1→phase2→phase3 skills (triple context fork). Reduces token consumption by ~75-80% per item. Set `USE_LEGACY_PHASE03=1` to revert to legacy behavior.
 
 ### Environment Variables

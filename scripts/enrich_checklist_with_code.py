@@ -1,11 +1,23 @@
 #!/usr/bin/env python3
 """
-Post-Phase 02: Enrich checklist items with pre-resolved code locations.
+DEPRECATED: This script is replaced by Phase 02c orchestrated workflow.
 
-This script runs after Phase 02 to populate code_scope and code_excerpt
-fields in checklist items, reducing MCP overhead in Phase 03.
+Legacy script for enriching checklist items with pre-resolved code locations.
+This was used before Phase 02c was integrated into the orchestrated pipeline.
 
-Usage:
+New workflow (Phase 02c):
+    - Uses .github/workflows/02c-enrich-code.yml
+    - Requires target_repo, target_ref_type, audit_scope
+    - Creates new branch with outputs/02c_TARGET_INFO.json
+    - Runs via: uv run python3 scripts/run_phase.py --phase 02c
+    - Uses prompts/02c_worker.md
+
+Phase 03 then reads 02c_TARGET_INFO.json to auto-clone the same target.
+
+This script is kept for reference but should not be used in production.
+Use the Phase 02c workflow instead.
+
+Old usage:
     python3 scripts/enrich_checklist_with_code.py outputs/
 """
 
