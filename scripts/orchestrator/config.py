@@ -203,6 +203,24 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         output_prefix="CHECKLIST",
     ),
 
+    "02.5": PhaseConfig(
+        phase_id="02.5",
+        name="Code Location Pre-resolution",
+        description="Pre-resolve code locations for checklist items to optimize Phase 03",
+        skill_path=Path(".claude/skills/checklist-specialist/SKILL.md"),  # Reuse existing skill
+        prompt_path=Path("prompts/02_5_code_resolver_worker.md"),
+        queue_pattern="outputs/02_5_QUEUE.json",
+        output_pattern="outputs/02_5_CODE_RESOLVED.json",
+        depends_on=["02"],
+        input_patterns=["outputs/02_CHECKLIST_PARTIAL_*.json"],
+        batch_strategy="count",
+        max_batch_size=1000,  # Process all items in one batch
+        item_id_field="check_id",
+        result_key="checklist_with_code",
+        output_prefix="CODE_RESOLVED",
+        model="sonnet",
+    ),
+
     "03": PhaseConfig(
         phase_id="03",
         name="Audit Map Generation",
@@ -213,8 +231,8 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
                     else Path("prompts/03_auditmap_worker_optimized.md"),
         queue_pattern="outputs/03_ASYNC_QUEUE_*.json",
         output_pattern="outputs/03_AUDITMAP_PARTIAL_*.json",
-        depends_on=["02"],
-        input_patterns=["outputs/02_PARTIAL_*.json"],
+        depends_on=["02.5"],  # Now depends on code pre-resolution
+        input_patterns=["outputs/02_5_CODE_RESOLVED.json", "outputs/02_PARTIAL_*.json"],
         batch_strategy="count",
         max_batch_size=10 if USE_LEGACY_PHASE03 else 15,  # Increased batch size with optimization
         item_id_field="check_id",

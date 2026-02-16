@@ -18,6 +18,14 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
     3. File MUST be written even if some items are skipped
   </critical_requirements>
 
+  <cache_optimization>
+    To minimize token consumption, follow these caching guidelines:
+    - **Reuse context**: Keep common context (skill definitions, checklist schema) in the same conversation
+    - **Batch similar items**: Process items from the same file/component together to maximize cache hits
+    - **Minimal context**: Only include necessary information in each skill invocation
+    - **Leverage prompt caching**: Structure prompts to maximize Claude API's automatic prompt caching
+  </cache_optimization>
+
   <instructions>
     1. **Initialize**: Read <ref id="queue"/>, select first BATCH_SIZE items. Create `results = []`.
 
@@ -32,6 +40,8 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
           Create result with `final_classification = "out-of-scope"`, append to `results`, continue to next item.
 
        d. **Run Audit**: If valid `code_excerpt` found, call `/formal-audit-unified` skill (single call, not phase1/2/3 separately).
+          - **Cache-friendly invocation**: Pass only essential context to the skill (code_excerpt, property, check_id)
+          - **Avoid redundancy**: Do not repeat information already in the skill's context
 
        e. **Merge & Continue**: Merge skill output into result object, append to `results`, proceed to next item.
 
