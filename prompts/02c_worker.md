@@ -4,178 +4,196 @@ Description: [WORKER] Pre-resolve code locations for checklist items before Phas
 Usage: `/02c_worker WORKER_ID=... QUEUE_FILE=... [TIMESTAMP=...] [ITERATION=...] [BATCH_SIZE=...] [OUTPUT_FILE=...]`
 Example: `/02c_worker WORKER_ID=0 QUEUE_FILE=outputs/02c_QUEUE_0.json TIMESTAMP=1700000000 ITERATION=1 BATCH_SIZE=100 OUTPUT_FILE=outputs/02c_CODE_RESOLVED_PARTIAL_W0_1700000000_1.json`
 Language: English only.
-Execution hint: This worker prompt is invoked by the phase-02c orchestrator with Tree-sitter and Filesystem MCP tools enabled.
+Execution hint: This worker uses built-in file and shell tools for reliable code resolution. MCP tools are NOT required.
 ---
 
 <task>
-  <goal>For each checklist item in the batch, resolve code locations using MCP tools and populate code_scope and code_excerpt fields.</goal>
+  <goal>For each checklist item in the batch, resolve code locations using grep/ripgrep and populate code_scope and code_excerpt fields.</goal>
   <input type="file" id="queue">{{QUEUE_FILE}}</input>
   <output type="file" id="results">{{OUTPUT_FILE}}</output>
 
   <critical_requirements>
     1. Process ALL items in the batch
-    2. Use Tree-sitter MCP tools (mcp__tree_sitter__*) for code resolution
-    3. Use Filesystem MCP tools (mcp__filesystem__*) for reading code excerpts
+    2. Use shell tools (grep, rg, find) for code resolution - NO MCP tools
+    3. Use file tool for reading code excerpts
     4. Write JSON file to <ref id="results"/> after processing ALL items
     5. File MUST be written even if some items fail resolution
+    6. Handle errors gracefully - continue processing even if individual items fail
   </critical_requirements>
 
   <instructions>
-    1. **Initialize**: Read <ref id="queue"/>, select first BATCH_SIZE items. Create `results = []`.
+    1. **Initialize**: 
+       - Read <ref id="queue"/> using file tool
+       - Parse JSON and select first BATCH_SIZE items
+       - Create empty `results = []` array
+       - Determine target workspace path (usually `target_workspace/` or current directory)
 
     2. **Batch Symbol Collection**:
-       - Extract ALL `graph_element_under_test` values from all items in batch
+       - Extract ALL `graph_element_under_test` values from all items
        - Create a deduplicated list of symbols to search
-       - Group by expected file/component for efficient searching
-       - This reduces MCP calls from O(n*m) to O(n) where n=unique symbols, m=operations per symbol
+       - Build a single grep/ripgrep pattern for all symbols: `(Symbol1|Symbol2|Symbol3)`
 
-    3. **Batch Code Resolution** (prefer batch processing):
-       a. **Option A - Project-wide Analysis** (recommended, most efficient):
-          - Use `mcp__tree_sitter__analyze_project` ONCE for the entire target workspace
-          - This creates a symbol cache that can be queried in-memory
-          - Then iterate through items using cached results (no additional MCP calls)
+    3. **Batch Code Search** (ONE command for all symbols):
+       ```bash
+       rg --json --line-number --no-heading '(func|type|const|var)\s+(Symbol1|Symbol2|Symbol3)' target_workspace/
+       ```
+       OR if ripgrep not available:
+       ```bash
+       grep -rn -E '(func|type|const|var)\s+(Symbol1|Symbol2|Symbol3)' target_workspace/
+       ```
+       - Parse results and create a symbol→location mapping
+       - This reduces search operations from O(n) to O(1)
+
+    4. **Process Each Item**:
+       For each checklist item in the batch:
        
-       b. **Option B - Batch Symbol Search** (alternative):
-          - Use `mcp__tree_sitter__run_query` with a combined query for all symbols at once
-          - Example: `(function_definition name: (identifier) @name (#match? @name "^(Symbol1|Symbol2|Symbol3)$"))`
-          - This reduces multiple `find_symbol` calls to a single batch query
+       a. **Extract Element Info**: 
+          - Get `graph_element_under_test` from item
+          - If missing/empty: set `resolution_status: "no_element"`, append to results, continue
 
-    4. **Process Each Item** (using cached/batch results):
-       a. **Extract Element Info**: Get `graph_element_under_test` from checklist item. If missing or empty, mark as `resolution_status: "no_element"`, append to results, continue.
+       b. **Resolve Primary Location** (from batch search results):
+          - Look up symbol in the mapping created in step 3
+          - If found:
+            * Extract file path, line number
+            * Read surrounding lines (±10 lines) to get function/type definition
+            * Determine line range by finding function start/end
+            * Create location: {file, symbol, line_range: {start, end}, role: "primary"}
+          - If not found:
+            * Try fuzzy search with partial symbol name
+            * If still not found: set `resolution_status: "not_found"`, continue
 
-       b. **Resolve Primary Code Location** (from cached/batch results):
-          - Look up the graph element in cached results from step 3
-          - If using Option A (analyze_project): query the cached symbol table
-          - If using Option B (batch query): extract from batch query results
-          - Extract: file path, symbol name (in name_path format), line range (start/end)
-          - This becomes the **primary** location (role: "primary")
-          - **NO additional MCP calls per item**
-
-       c. **Find Related Code Locations** (batch where possible):
-          - **Callers**: Collect all primary symbols first, then batch call `find_referencing_symbols` for all at once
-          - **Callees**: Extract from primary symbol body (already cached) using regex or tree-sitter parse
-          - **Related**: Extract from checklist item description, lookup in cached results
-          - For each related location, extract: file, symbol, line_range
-          - Limit to top 10 most relevant locations to avoid excessive data
-
-       d. **Extract Code Excerpts** (from cached results):
-          - PRIMARY location: extract from cached symbol bodies (already loaded in step 3)
-          - RELATED locations: extract from cached results where available
-          - Only use `mcp__filesystem__read_text_file` if symbol body not in cache (rare)
-          - Store combined excerpts in `code_excerpt` field with clear markers:
+       c. **Extract Code Excerpt**:
+          - Use file tool to read the file at the identified location
+          - Extract lines from line_range.start to line_range.end
+          - Format as:
             ```
             // PRIMARY: path/to/file.go:FunctionName (lines 10-50)
             [code here]
-            
-            // CALLER: path/to/caller.go:CallerFunc (lines 100-120)
-            [code here]
             ```
+          - Limit to 100 lines max to avoid token bloat
+
+       d. **Find Related Locations** (OPTIONAL, time permitting):
+          - Search for callers using grep for symbol name in function calls
+          - Limit to top 3 most relevant
+          - Add as additional locations with role: "caller"
 
        e. **Populate Result**:
-          - Create result with:
-            - `check_id`: from original item
-            - `code_scope`: {
-                locations: [
-                  {file, symbol, line_range: {start, end}, role: "primary"},
-                  {file, symbol, line_range: {start, end}, role: "caller"},
-                  ...
-                ],
-                resolution_status
-              }
-            - `code_excerpt`: combined code text with clear section markers (if found)
-          - Set `resolution_status`:
-            - `"resolved"`: Successfully found primary and related code
-            - `"not_found"`: Element not found in target codebase
-            - `"specification_only"`: Element is specification-level, no code exists
-            - `"error"`: Error during resolution
+          ```json
+          {
+            "check_id": "...",
+            "code_scope": {
+              "locations": [
+                {
+                  "file": "beacon-chain/sync/validate.go",
+                  "symbol": "validateBlockHeader",
+                  "line_range": {"start": 45, "end": 78},
+                  "role": "primary"
+                }
+              ],
+              "resolution_status": "resolved|not_found|no_element|error",
+              "resolution_error": "error message if status=error"
+            },
+            "code_excerpt": "// PRIMARY: ...\n[code]"
+          }
+          ```
 
-       f. **Append & Continue**: Append result to `results`, continue to next item.
+       f. **Error Handling**:
+          - Wrap each item processing in try-catch logic
+          - If error occurs: set `resolution_status: "error"`, add error message, continue
+          - DO NOT let one item's error stop the entire batch
 
-    3. **Write Output**: After ALL items processed, write `results` array to <ref id="results"/>.
+    5. **Write Output**:
+       - After ALL items processed, write `results` array to <ref id="results"/>
+       - Use file tool's write action
+       - Ensure valid JSON format
 
-    4. **Confirm**: Print summary with counts:
-       - Total items processed
-       - Successfully resolved
-       - Not found
-       - Specification-only
-       - Errors
-       End with: `Output File: {{OUTPUT_FILE}}`
+    6. **Confirm**: 
+       Print summary:
+       ```
+       Processed: 100 items
+       Resolved: 75
+       Not found: 20
+       Errors: 5
+       Output File: {{OUTPUT_FILE}}
+       ```
   </instructions>
 
   <search_strategies>
-    For different graph element types, use appropriate search methods:
+    **For Go code** (Prysm, Geth, etc.):
+    - Functions: `grep -rn 'func.*FunctionName' target_workspace/`
+    - Types: `grep -rn 'type.*TypeName' target_workspace/`
+    - Methods: `grep -rn 'func.*(.*TypeName).*MethodName' target_workspace/`
     
-    **Functions/Methods**:
-    - Use `mcp__tree_sitter__find_symbol` with name path pattern
-    - Example: `FunctionName` or `ClassName/methodName`
+    **For Solidity code**:
+    - Functions: `grep -rn 'function.*functionName' target_workspace/`
+    - Contracts: `grep -rn 'contract.*ContractName' target_workspace/`
     
-    **Classes/Interfaces**:
-    - Use `mcp__tree_sitter__find_symbol` with class name
-    - Example: `ClassName`
+    **For Rust code**:
+    - Functions: `grep -rn 'fn.*function_name' target_workspace/`
+    - Structs: `grep -rn 'struct.*StructName' target_workspace/`
     
-    **Variables/Constants**:
-    - Use `mcp__tree_sitter__run_query` with Tree-sitter query
-    - Example query: `(variable_declaration name: (identifier) @name)`
-    
-    **Complex patterns**:
-    - Use `mcp__tree_sitter__run_query` with custom queries
-    - Reference element description for context
+    **Use ripgrep (rg) if available** - it's much faster:
+    ```bash
+    rg --json -n 'pattern' target_workspace/
+    ```
   </search_strategies>
 
-  <data_sources>
-    - **Checklist Items**: Input queue from Phase 02
-    - **Target Codebase**: `target_workspace/` directory (checked out by workflow)
-    - **Tree-sitter MCP**: For symbolic code navigation
-    - **Filesystem MCP**: For reading file contents
-  </data_sources>
-
-  <scope_filtering>
-    Apply scope filtering based on AUDIT_SCOPE environment variable:
-    - `"cl"`: Consensus Layer only
-    - `"el"`: Execution Layer only
-    - `"both"`: Both layers
-    - `"auto"`: Infer from target repository
-    
-    Mark items outside scope as `resolution_status: "out_of_scope"`.
-  </scope_filtering>
-
   <performance_notes>
-    **MCP Call Optimization (CRITICAL)**:
-    - **Target**: 1-10 MCP calls total for 100-item batch (not 300-400 calls per item)
-    - **Method**: Use `mcp__tree_sitter__analyze_project` ONCE, then query cached results
-    - **Fallback**: Use batch queries with combined symbol patterns
-    - **Avoid**: Individual `find_symbol` calls per item (too expensive)
-    
-    **Batching**:
-    - Process items in batches of up to 100 for efficiency (max_batch_size=100)
-    - Group items by file/component before making MCP calls
-    - Deduplicate symbol lookups across items
+    **Optimization Goals**:
+    - Target: 1-5 shell commands total for entire batch (not per item)
+    - Method: Batch all symbol searches into ONE grep/rg command
+    - Avoid: Individual searches per item
     
     **Resource Limits**:
-    - Limit total code excerpts to 500 lines max across ALL locations to avoid token bloat
-    - Limit related locations to top 10 most relevant (prioritize direct callers/callees)
-    - For large symbols (>100 lines), consider truncating excerpts with "... [truncated] ..."
+    - Max 100 lines per code excerpt
+    - Max 3 related locations per item
+    - Total batch processing time: <2 minutes for 100 items
+    
+    **Reliability**:
+    - Use built-in tools only (no MCP dependencies)
+    - Graceful degradation: partial results better than no results
+    - Clear error messages for debugging
   </performance_notes>
+
+  <example_workflow>
+    1. Read queue file → 100 items
+    2. Extract symbols → ["validateBlock", "processAttestation", "verifySignature"]
+    3. Run ONE grep: `rg -n '(validateBlock|processAttestation|verifySignature)' target_workspace/`
+    4. Parse results → create symbol map
+    5. For each item:
+       - Lookup symbol in map
+       - Read code excerpt
+       - Build result object
+    6. Write all results to output file
+    7. Print summary
+  </example_workflow>
 </task>
 
 <output>
-  <format>JSON array of enriched checklist items</format>
+  <format>JSON object with "checklist_with_code" array</format>
   <schema>
     {
-      "check_id": "string",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "string",
-            "symbol": "string (name_path format, e.g., 'ClassName/methodName')",
-            "line_range": {"start": int, "end": int},
-            "role": "primary|caller|callee|related"
-          }
-        ],
-        "resolution_status": "resolved|not_found|specification_only|out_of_scope|error",
-        "resolution_error": "string (optional)"
-      },
-      "code_excerpt": "string (optional, combined excerpts with section markers)"
+      "checklist_with_code": [
+        {
+          "check_id": "string",
+          "property_id": "string",
+          "title": "string",
+          ...all original fields...,
+          "code_scope": {
+            "locations": [
+              {
+                "file": "string (relative path from workspace root)",
+                "symbol": "string (function/type name)",
+                "line_range": {"start": int, "end": int},
+                "role": "primary|caller|callee|related"
+              }
+            ],
+            "resolution_status": "resolved|not_found|no_element|error",
+            "resolution_error": "string (optional, only if status=error)"
+          },
+          "code_excerpt": "string (optional, formatted code with markers)"
+        }
+      ]
     }
   </schema>
   <stdout>Max 10 lines: batch size, resolution stats, status.</stdout>
