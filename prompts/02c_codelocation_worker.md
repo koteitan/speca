@@ -18,21 +18,18 @@ Language: English only.
   <instructions>
     ## Step 1: Setup
 
-    Read `outputs/02c_TARGET_INFO.json` to get `target_repo` and detect target layer:
-
-    - Consensus layer clients: prysm, lighthouse, teku, nimbus, lodestar
-    - Execution layer clients: geth, go-ethereum, nethermind, besu, erigon, reth
+    Read `outputs/02c_TARGET_INFO.json`. It contains:
+    - `target_repo`: repository identifier (e.g. "OffchainLabs/prysm")
+    - `target_layer` *(optional)*: the functional layer this target belongs to (e.g. "consensus", "execution", "l2-node", "validator-runtime")
+    - `out_of_scope_spec_layers` *(optional)*: list of spec layer strings that are out of scope for this target (e.g. `["execution"]`)
 
     Register the cloned repository at `target_workspace/` with Tree-sitter MCP.
 
-    ## Step 2: Layer Scope Check (per item)
+    ## Step 2: Layer Scope Check (per item, only if TARGET_INFO has `out_of_scope_spec_layers`)
 
-    Extract the EIP number from the item's `notes` field and check layer:
+    If `out_of_scope_spec_layers` is present and non-empty, infer the spec layer for each item from its `notes` field (look for layer keywords or spec identifiers). If the inferred layer matches any entry in `out_of_scope_spec_layers` → mark as `out_of_scope` and skip to next item.
 
-    - Execution layer EIPs: 7623, 7691, 7702, 7823, 7825, 7883, 7917, 7920
-    - Consensus layer EIPs: 7251, 7549, 7594, 7685, 7692, 7716, 7732, 7742, 7840, 7892
-
-    If target layer and spec layer are both known and do **not** match → mark as `out_of_scope` and skip to next item.
+    When `out_of_scope_spec_layers` is absent or empty, skip this check entirely and treat all items as in-scope.
 
     ## Step 3: Code Resolution (per in-scope item)
 
@@ -40,15 +37,7 @@ Language: English only.
     Use Tree-sitter MCP to identify entry point functions matching `reachability.entry_points`, then traverse the call graph (depth ≤ 3) to find functions whose names or logic match keywords extracted from `test_procedure`. Extract file path, symbol name, and line range for the top matches.
 
     **Fallback — Glob + Grep:**
-    If MCP fails or returns no results, use the standard Glob and Grep tools to search `target_workspace/` directly. Extract keywords (PascalCase, snake_case, ALL_CAPS, domain terms) from `test_procedure` and search for function/type definitions matching those keywords. Narrow the search path using the entry point category:
-
-    | Entry point | Search path hint |
-    |-------------|-----------------|
-    | P2P | `**/p2p/**`, `**/sync/**` |
-    | Transaction | `**/txpool/**`, `**/core/types/**` |
-    | EngineAPI / Engine API | `**/engine/**`, `**/beacon/**` |
-    | Consensus | `**/consensus/**`, `**/forkchoice/**` |
-    | Internal / Internal API | `**/core/**`, `**/internal/**` |
+    If MCP fails or returns no results, use the standard Glob and Grep tools to search `target_workspace/` directly. Extract keywords (identifiers, constants, domain terms) from `test_procedure`, then search for matching function/type definitions. Use `reachability.entry_points` as a hint to narrow the search directory (e.g. an entry point named "P2P" likely maps to directories like `p2p/`, `sync/`, `network/`; "Transaction" to `txpool/`, `core/`; infer from the codebase structure if uncertain).
 
     Read the matched file sections with the Read tool to extract code excerpts (max 50 lines per location).
 
