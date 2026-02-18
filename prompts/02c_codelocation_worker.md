@@ -66,8 +66,7 @@ Language: English only.
               "resolution_status": "resolved" | "out_of_scope" | "not_found" | "error",
               "resolution_error": "",   // empty string unless status is "error"
               "resolution_method": "mcp_callgraph" | "mcp_simple" | "grep_fallback"  // only when resolved
-            },
-            "code_excerpt": "// PRIMARY: path/to/file.go:FunctionName (lines 42-78)\n..."
+            }
           }
         ]
       }
