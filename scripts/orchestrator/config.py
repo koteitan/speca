@@ -225,13 +225,13 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         name="Audit Map Generation",
         description="Perform formal audit analysis on checklist items",
         skill_path=Path(".claude/skills/formal-audit-unified/SKILL.md"),
-        prompt_path=Path("prompts/03_auditmap_worker_optimized.md"),
+        prompt_path=Path("prompts/03_auditmap_worker_inline.md"),  # Inlined skill — no fork
         queue_pattern="outputs/03_ASYNC_QUEUE_*.json",
         output_pattern="outputs/03_PARTIAL_*.json",
         depends_on=["02c"],  # Now depends on code pre-resolution
         input_patterns=["outputs/02c_PARTIAL_*.json", "outputs/02_PARTIAL_*.json"],
         batch_strategy="count",
-        max_batch_size=5,  # Reduced to prevent timeout and improve completion rate
+        max_batch_size=1,  # Single item — eliminates inter-item context accumulation
         max_context_tokens=120_000,
         base_prompt_tokens=2_000,
         item_id_field="check_id",
@@ -243,8 +243,8 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         max_empty_results=5,
         max_budget_usd=30.0,
         log_anomaly_threshold=3,
-        max_turns_per_batch=3,
-        max_cache_read_tokens=300_000,
+        max_turns_per_batch=5,  # More turns for single-item inline audit
+        max_cache_read_tokens=100_000,  # Reduced — single item needs less cache
     ),
 
     "04": PhaseConfig(
