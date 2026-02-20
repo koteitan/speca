@@ -36,6 +36,7 @@ from .schemas import (
     Phase02cPartial,
     Phase03Partial,
     AuditMapItem,
+    Severity,
     validate_checklist_item,
     validate_audit_map_item,
     validate_subgraph,
@@ -842,30 +843,57 @@ class Phase02Orchestrator(BaseOrchestrator):
         self,
         items: list[dict[str, Any]],
     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-        """Apply early exit for properties without required fields."""
+        """Apply early exit for properties without required fields.
+
+        Filters applied (in order):
+        1. Missing property ID → skip
+        2. Bug-bounty out-of-scope → skip
+        3. Severity below ``min_severity`` config threshold → skip
+        """
         early_exit_results = []
         items_to_process = []
-        
+
+        # Resolve the severity threshold once (None = no filtering)
+        min_sev = Severity.from_str(self.config.min_severity) if self.config.min_severity else None
+        if min_sev is not None:
+            print(f"  Severity gate: min_severity={min_sev.value} (dropping below)")
+
+        severity_skipped = 0
+
         for item in items:
             prop = item.get("property", {})
-            
+
             # Check required fields
             if not prop.get("id"):
                 early_exit_results.append(self._build_skip_result(item, "missing property id"))
                 continue
-            
+
             # Skip ONLY out-of-scope properties
             # Keep all other items (in-scope, conditional, unknown) for Phase 03 verification
             # This ensures we don't miss potential vulnerabilities due to overly strict filtering
             reachability = prop.get("reachability", {})
             bug_bounty_scope = reachability.get("bug_bounty_scope", "unknown")
-            
+
             if bug_bounty_scope == "out-of-scope":
                 early_exit_results.append(self._build_skip_result(item, "out-of-scope"))
                 continue
-            
+
+            # Severity gate — drop properties below the configured threshold
+            if min_sev is not None:
+                prop_severity = Severity.from_str(prop.get("severity", ""))
+                if prop_severity is None or prop_severity < min_sev:
+                    label = prop.get("severity", "(empty)")
+                    early_exit_results.append(
+                        self._build_skip_result(item, f"below min_severity ({label})")
+                    )
+                    severity_skipped += 1
+                    continue
+
             items_to_process.append(item)
-        
+
+        if severity_skipped and min_sev is not None:
+            print(f"  Severity gate: skipped {severity_skipped} properties below {min_sev.value}")
+
         return early_exit_results, items_to_process
     
     def _build_skip_result(self, item: dict[str, Any], reason: str) -> dict[str, Any]:

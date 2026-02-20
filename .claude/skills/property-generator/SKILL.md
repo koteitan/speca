@@ -18,12 +18,12 @@ Inherit the `bug_bounty_scope` from the input trust model. If not present, use t
 **In-Scope Entry Points:**
 - P2P networking (devp2p, libp2p)
 - Transaction submission and processing
-- Engine API (EL-CL interface)
 
 **Out-of-Scope Entry Points:**
 - JSON-RPC API
 - Beacon API
 - Configuration/Admin interfaces
+- Engine API (EL-CL interface)
 
 ## Input
 A JSON object containing a list of items, where each item references a trust model and its corresponding subgraph files.

@@ -23,12 +23,66 @@ from pydantic import BaseModel, Field, model_validator
 # ---------------------------------------------------------------------------
 
 class Severity(str, Enum):
-    """Severity levels used across the pipeline."""
+    """Severity levels used across the pipeline.
+
+    Members are ordered from most to least severe so that numeric
+    comparison works:  ``Severity.CRITICAL < Severity.HIGH`` is ``True``.
+    The ``rank`` property returns a numeric value (lower = more severe)
+    for use in threshold comparisons.
+    """
     CRITICAL = "Critical"
     HIGH = "High"
     MEDIUM = "Medium"
     LOW = "Low"
     INFORMATIONAL = "Informational"
+
+    @property
+    def rank(self) -> int:
+        """Numeric rank (0 = most severe)."""
+        return _SEVERITY_RANK[self]
+
+    def __ge__(self, other: object) -> bool:
+        if not isinstance(other, Severity):
+            return NotImplemented
+        # Lower rank = more severe, so "greater-or-equal severity" means
+        # rank is numerically less-or-equal.
+        return self.rank <= other.rank
+
+    def __gt__(self, other: object) -> bool:
+        if not isinstance(other, Severity):
+            return NotImplemented
+        return self.rank < other.rank
+
+    def __le__(self, other: object) -> bool:
+        if not isinstance(other, Severity):
+            return NotImplemented
+        return self.rank >= other.rank
+
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, Severity):
+            return NotImplemented
+        return self.rank > other.rank
+
+    @classmethod
+    def from_str(cls, value: str) -> Severity | None:
+        """Parse a severity string (case-insensitive).  Returns None on failure."""
+        if not value:
+            return None
+        normalised = value.strip().capitalize()
+        try:
+            return cls(normalised)
+        except ValueError:
+            return None
+
+
+# Rank lookup (populated after class definition to avoid forward-ref issues)
+_SEVERITY_RANK: dict[Severity, int] = {
+    Severity.CRITICAL: 0,
+    Severity.HIGH: 1,
+    Severity.MEDIUM: 2,
+    Severity.LOW: 3,
+    Severity.INFORMATIONAL: 4,
+}
 
 
 class ReachabilityClassification(str, Enum):

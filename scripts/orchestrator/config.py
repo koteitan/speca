@@ -103,6 +103,13 @@ class PhaseConfig(BaseModel):
     # are sent to the API, reducing context token consumption.
     tools_filter: list[str] | None = None
 
+    # ---- Severity gate ----
+    # Minimum severity level for items entering this phase.
+    # Items below this threshold are early-exited.
+    # None = no severity filtering (default for most phases).
+    # Value is a Severity enum string: "Critical", "High", "Medium", "Low", "Informational".
+    min_severity: str | None = None
+
     # ---- Context / output field filtering ----
     # Fields to include in the context file sent to workers.
     # None = all fields (no filtering).
@@ -222,6 +229,7 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         result_id_field="property_id",
         result_key="checklist",
         mcp_servers=[],
+        min_severity="Low",  # Gate: drops Informational properties
         context_fields=["property_id", "source_file", "_id_prefix"],
         output_fields=["check_id", "property_id", "title", "severity",
                         "test_procedure", "bug_class", "reachability", "notes"],
