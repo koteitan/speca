@@ -33,6 +33,11 @@ on:
         required: false
         type: number
         default: 120
+      dataset_run_id:
+        description: "Run ID from benchmark-01-setup (for artifact download)"
+        required: false
+        type: string
+        default: ""
       force_execute:
         description: "Force execute even if results exist"
         required: false
@@ -83,6 +88,24 @@ jobs:
           esac
           echo "DATASET_PATH=${DATASET_PATH}" >> $GITHUB_ENV
           echo "RESULTS_DIR=benchmarks/results/rq2/${{ inputs.dataset }}" >> $GITHUB_ENV
+
+      - name: Download Dataset Artifact
+        if: ${{ inputs.dataset_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: rq2-dataset-${{ inputs.dataset }}-${{ inputs.dataset_run_id }}
+          path: benchmarks/data/${{ inputs.dataset }}/
+        continue-on-error: true
+
+      - name: Fallback to ~/.cache
+        run: |
+          CACHE_DIR="${HOME}/.cache/security-agent/benchmarks/${{ inputs.dataset }}"
+          DEST_DIR="benchmarks/data/${{ inputs.dataset }}"
+          if [ ! -f "${DATASET_PATH}" ] && [ -d "${CACHE_DIR}" ]; then
+            echo "Restoring from ~/.cache..."
+            mkdir -p "${DEST_DIR}"
+            cp -rf "${CACHE_DIR}/." "${DEST_DIR}/"
+          fi
 
       - name: Verify Dataset
         run: |
