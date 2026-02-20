@@ -10,6 +10,7 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
 <task>
   <goal>Execute a complete 3-phase adversarial formal audit for a single checklist item and write the result.</goal>
   <input type="file" id="queue">{{QUEUE_FILE}}</input>
+  <input type="file" id="context">{{CONTEXT_FILE}}</input>
   <output type="file" id="results">{{OUTPUT_FILE}}</output>
 
   <critical_requirements>
@@ -37,7 +38,7 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
   </adversarial_mindset>
 
   <instructions>
-    1. **Read Queue**: Read <ref id="queue"/>. Extract the single item. Create `results = []`.
+    1. **Read Queue**: Read <ref id="queue"/> to get `item_ids` and `context_file` path. Read <ref id="context"/> to get item data (keyed by ID). Extract the single item by looking up the first ID. Create `results = []`.
 
     2. **Resolve Code Scope**:
        a. **Pre-resolved (preferred)**: If `item.code_scope.resolution_status == "resolved"` and `item.code_scope.locations` is not empty:

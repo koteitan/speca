@@ -341,14 +341,18 @@ class ClaudeRunner:
             result_parse_path = self.output_dir / f"{partial_base}_W{worker_id}B{batch_index}_{timestamp}.json"
             output_kwargs = {"output_file": str(result_parse_path)}
 
-        # Save queue
-        queue_payload = self._build_queue_payload(batch, worker_id)
+        # Save queue (ID-only) and context (full item data, optionally filtered)
+        context_path = self.output_dir / f"{phase_id}_CONTEXT_W{worker_id}B{batch_index}_{timestamp}.json"
+        queue_payload = self._build_queue_payload(batch, worker_id, str(context_path))
+        context_payload = self._build_context_payload(batch)
         self._save_json(queue_path, queue_payload)
+        self._save_json(context_path, context_payload)
 
         # Build prompt
         prompt_content = self._build_prompt(
             worker_id=worker_id,
             queue_file=str(queue_path),
+            context_file=str(context_path),
             batch_size=len(batch),
             iteration=batch_index,
             timestamp=timestamp,
@@ -362,6 +366,7 @@ class ClaudeRunner:
         env = self._build_env(
             worker_id=worker_id,
             queue_file=str(queue_path),
+            context_file=str(context_path),
             batch_size=len(batch),
             iteration=batch_index,
             timestamp=timestamp,
@@ -670,14 +675,34 @@ class ClaudeRunner:
         self,
         batch: list[dict[str, Any]],
         worker_id: int,
+        context_file: str,
     ) -> dict[str, Any]:
-        """Build the queue payload for Claude."""
+        """Build the queue payload for Claude (ID-only)."""
+        id_field = self.config.item_id_field
+        item_ids = [str(item.get(id_field, f"item-{i}")) for i, item in enumerate(batch)]
         return {
             "worker_id": worker_id,
             "phase": self.config.phase_id,
-            "items": batch,
+            "item_ids": item_ids,
             "total_items": len(batch),
+            "context_file": context_file,
         }
+
+    def _build_context_payload(
+        self,
+        batch: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Build the context payload (full item data keyed by ID, optionally filtered)."""
+        id_field = self.config.item_id_field
+        fields = self.config.context_fields
+        result: dict[str, Any] = {}
+        for i, item in enumerate(batch):
+            key = str(item.get(id_field, f"item-{i}"))
+            if fields:
+                result[key] = {k: item[k] for k in fields if k in item}
+            else:
+                result[key] = item
+        return result
 
     def _build_prompt(self, **kwargs) -> str:
         """Build the prompt content with arguments."""

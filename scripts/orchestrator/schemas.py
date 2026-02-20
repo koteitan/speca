@@ -238,7 +238,7 @@ class Property(BaseModel):
     type: str = ""
     assertion: str = ""
     severity: str = ""
-    severity_justification: str = ""
+    severity_justification: str | None = None  # Optional — omitted in slim output
     covers: PropertyCovers = Field(default_factory=PropertyCovers)
     reachability: PropertyReachability = Field(default_factory=PropertyReachability)
     exploitability: str = ""
@@ -304,15 +304,15 @@ class ChecklistItem(BaseModel):
     property_id: str = ""
     title: str = ""
     severity: str = ""
-    mindset: str = ""
-    is_boundary_check: bool = False
+    mindset: str | None = None  # Optional — omitted in slim output
+    is_boundary_check: bool | None = None  # Optional — omitted in slim output
     reachability: ChecklistReachability = Field(default_factory=ChecklistReachability)
     test_procedure: str = ""
     bug_class: str = ""
-    risk_category: str = ""
+    risk_category: str | None = None  # Optional — omitted in slim output
     notes: str = ""
     # Optional fields from graph element
-    graph_element_under_test: str | None = None
+    graph_element_under_test: str | None = None  # Optional — omitted in slim output
     code_scope: CodeScope = Field(default_factory=CodeScope)  # Typed code location
     code_excerpt: str = ""  # Pre-resolved code snippet
 
@@ -450,11 +450,16 @@ class Phase04Partial(BaseModel):
 # ---------------------------------------------------------------------------
 
 class QueuePayload(BaseModel):
-    """Standard queue payload sent to Claude workers."""
+    """Standard queue payload sent to Claude workers.
+
+    Queue files contain only item IDs; full item data lives in a separate
+    context file (keyed by ID) to reduce context window pressure.
+    """
     worker_id: int
     phase: str
-    items: list[dict[str, Any]]
+    item_ids: list[str]
     total_items: int
+    context_file: str  # path to the companion context file
 
 
 # ---------------------------------------------------------------------------

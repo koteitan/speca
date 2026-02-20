@@ -95,6 +95,164 @@ from orchestrator.runner import (
     LogAnomalyDetector,
 )
 from orchestrator.collector import ResultCollector
+from orchestrator.base import generate_slug, Phase01Orchestrator, Phase02Orchestrator
+
+
+# =========================================================================
+# generate_slug tests
+# =========================================================================
+
+class TestGenerateSlug:
+    """Tests for the generate_slug utility function."""
+
+    def test_abbreviation_map_hit(self):
+        """Known phrases should map to their abbreviation."""
+        assert generate_slug("Transaction Validation") == "txn"
+        assert generate_slug("P2P Network Layer") == "p2p"
+        assert generate_slug("Engine API Bridge") == "engapi"
+        assert generate_slug("Consensus Protocol") == "cons"
+        assert generate_slug("Validator Set") == "val"
+        assert generate_slug("Block Processing") == "blk"
+
+    def test_abbreviation_case_insensitive(self):
+        assert generate_slug("TRANSACTION pool") == "txn"
+        assert generate_slug("Consensus Layer") == "cons"
+
+    def test_fallback_slugification(self):
+        """Non-matching text should be slugified."""
+        assert generate_slug("Hello World") == "hello-world"
+        assert generate_slug("my-component") == "my-component"
+
+    def test_max_len_truncation(self):
+        """Long slugs should be truncated to max_len."""
+        result = generate_slug("this is a very long description indeed", max_len=8)
+        assert len(result) <= 8
+        # Should not end with a hyphen
+        assert not result.endswith("-")
+
+    def test_hash_fallback_for_empty(self):
+        """Empty or non-alphanumeric text should produce a hash."""
+        result = generate_slug("---")
+        assert len(result) == 8  # sha256 hex[:8]
+
+    def test_max_len_respected_for_abbreviation(self):
+        result = generate_slug("Transaction", max_len=2)
+        assert len(result) <= 2
+
+
+# =========================================================================
+# ID Prefix Assignment tests
+# =========================================================================
+
+class TestIdPrefixAssignment:
+    """Tests for Phase01Orchestrator._assign_property_id_prefixes."""
+
+    def test_assigns_prefix_from_trust_model(self):
+        """Items should get _id_prefix based on trust model data."""
+        orch = Phase01Orchestrator("01e")
+        # Create a temp trust model file
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", delete=False
+        ) as f:
+            json.dump({
+                "trust_model": {
+                    "trust_boundaries": [
+                        {"entry_point_type": "P2P Network"},
+                        {"entry_point_type": "P2P Network"},
+                        {"entry_point_type": "Transaction"},
+                    ]
+                }
+            }, f)
+            trust_file = f.name
+
+        try:
+            items = [{"file_path": trust_file}]
+            result = orch._assign_property_id_prefixes(items)
+            assert result[0]["_id_prefix"] == "PROP-p2p"
+        finally:
+            os.unlink(trust_file)
+
+    def test_disambiguation_on_slug_collision(self):
+        """Duplicate slugs should get a numeric disambiguator."""
+        orch = Phase01Orchestrator("01e")
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", delete=False
+        ) as f:
+            json.dump({
+                "trust_model": {
+                    "trust_boundaries": [
+                        {"entry_point_type": "Transaction Pool"},
+                    ]
+                }
+            }, f)
+            trust_file = f.name
+
+        try:
+            items = [
+                {"file_path": trust_file},
+                {"file_path": trust_file},
+                {"file_path": trust_file},
+            ]
+            result = orch._assign_property_id_prefixes(items)
+            assert result[0]["_id_prefix"] == "PROP-txn"
+            assert result[1]["_id_prefix"] == "PROP-txn1"
+            assert result[2]["_id_prefix"] == "PROP-txn2"
+        finally:
+            os.unlink(trust_file)
+
+    def test_fallback_on_missing_file(self):
+        """Missing file should produce a hash-based prefix."""
+        orch = Phase01Orchestrator("01e")
+        items = [{"file_path": "/nonexistent/path.json"}]
+        result = orch._assign_property_id_prefixes(items)
+        assert result[0]["_id_prefix"].startswith("PROP-")
+        # Hash-based slug should be 8 chars
+        slug = result[0]["_id_prefix"][5:]  # Strip "PROP-"
+        assert len(slug) == 8
+
+    def test_fallback_on_empty_path(self):
+        """Empty file_path should produce a hash-based prefix."""
+        orch = Phase01Orchestrator("01e")
+        items = [{"file_path": ""}]
+        result = orch._assign_property_id_prefixes(items)
+        assert result[0]["_id_prefix"].startswith("PROP-")
+
+
+class TestPhase02EnrichItems:
+    """Tests for Phase02Orchestrator.enrich_items."""
+
+    def test_assigns_checklist_prefix(self):
+        """Phase 02 should derive CHK prefix from property_id."""
+        orch = Phase02Orchestrator("02")
+        items = [
+            {"property_id": "PROP-txval-inv-001", "source_file": "test.json"},
+            {"property_id": "PROP-p2p-pre-003", "source_file": "test2.json"},
+        ]
+        result = orch.enrich_items(items)
+        assert result[0]["_id_prefix"] == "CHK-txval-inv-001"
+        assert result[1]["_id_prefix"] == "CHK-p2p-pre-003"
+
+    def test_handles_legacy_property_id(self):
+        """Legacy property IDs (PROP-W3B12-7) should also work."""
+        orch = Phase02Orchestrator("02")
+        items = [{"property_id": "PROP-W3B12-7", "source_file": "test.json"}]
+        result = orch.enrich_items(items)
+        assert result[0]["_id_prefix"] == "CHK-W3B12-7"
+
+    def test_handles_missing_property_id(self):
+        """Missing property_id should still produce a prefix."""
+        orch = Phase02Orchestrator("02")
+        items = [{"source_file": "test.json"}]
+        result = orch.enrich_items(items)
+        assert result[0]["_id_prefix"] == "CHK-"
+
+
+class TestPhase02ContextFieldsIncludeIdPrefix:
+    """Test that Phase 02 config includes _id_prefix in context_fields."""
+
+    def test_context_fields_include_id_prefix(self):
+        config = get_phase_config("02")
+        assert "_id_prefix" in config.context_fields
 
 
 # =========================================================================
@@ -675,10 +833,13 @@ class TestQueuePayload:
         payload = QueuePayload(
             worker_id=0,
             phase="03",
-            items=[{"check_id": "CHK-001"}],
+            item_ids=["CHK-001"],
             total_items=1,
+            context_file="outputs/03_CONTEXT_W0B0_1700000000.json",
         )
         assert payload.worker_id == 0
+        assert payload.item_ids == ["CHK-001"]
+        assert payload.context_file == "outputs/03_CONTEXT_W0B0_1700000000.json"
 
 
 class TestPartialMetadata:

@@ -103,6 +103,14 @@ class PhaseConfig(BaseModel):
     # are sent to the API, reducing context token consumption.
     tools_filter: list[str] | None = None
 
+    # ---- Context / output field filtering ----
+    # Fields to include in the context file sent to workers.
+    # None = all fields (no filtering).
+    context_fields: list[str] | None = None
+    # Fields to keep in partial output files saved by the collector.
+    # None = all fields (no filtering).
+    output_fields: list[str] | None = None
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def effective_result_id_field(self) -> str:
@@ -194,6 +202,8 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         item_id_field="property_id",
         result_key="properties",
         mcp_servers=[],
+        output_fields=["id", "text", "type", "assertion", "severity", "covers",
+                        "reachability", "bug_bounty_eligible", "exploitability"],
     ),
 
     "02": PhaseConfig(
@@ -212,6 +222,9 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         result_id_field="property_id",
         result_key="checklist",
         mcp_servers=[],
+        context_fields=["property_id", "source_file", "_id_prefix"],
+        output_fields=["check_id", "property_id", "title", "severity",
+                        "test_procedure", "bug_class", "reachability", "notes"],
     ),
 
     "02c": PhaseConfig(
@@ -235,6 +248,10 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         max_empty_results=20,  # Increased - out_of_scope items are valid results
         max_budget_usd=20.0,  # Moderate increase - Grep fallback reduces MCP costs
         mcp_servers=["tree_sitter", "filesystem"],
+        context_fields=["check_id", "property_id", "title", "severity",
+                         "test_procedure", "reachability", "notes", "bug_class"],
+        output_fields=["check_id", "property_id", "title", "severity",
+                        "test_procedure", "bug_class", "reachability", "notes", "code_scope"],
     ),
 
     "03": PhaseConfig(
@@ -264,6 +281,9 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         max_cache_read_tokens=100_000,  # Reduced — single item needs less cache
         mcp_servers=[],  # No MCP — inlined prompt uses Read/Grep/Glob only
         tools_filter=["Read", "Write", "Grep", "Glob"],
+        context_fields=["check_id", "property_id", "title", "severity",
+                         "test_procedure", "bug_class", "reachability", "notes",
+                         "code_scope", "code_excerpt"],
     ),
 
     "04": PhaseConfig(
@@ -281,6 +301,7 @@ PHASE_CONFIGS: dict[str, PhaseConfig] = {
         item_id_field="check_id",
         result_key="reviewed_items",
         mcp_servers=["filesystem"],
+        context_fields=["check_id", "audit_result"],
     ),
 }
 
