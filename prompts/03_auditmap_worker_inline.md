@@ -20,6 +20,13 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
     4. File MUST be written even if the item is skipped (out-of-scope)
   </critical_requirements>
 
+  <severity_context>
+    The `severity` field on each checklist item was assigned using the bug bounty program's
+    `severity_classification` criteria (e.g., network impact thresholds, % of validators affected).
+    When assessing findings, respect these program-specific severity definitions — do not
+    re-classify severity using generic heuristics.
+  </severity_context>
+
   <adversarial_mindset>
     **CRITICAL: Your goal is to FIND vulnerabilities, not prove correctness.**
 

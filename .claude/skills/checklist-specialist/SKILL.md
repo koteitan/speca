@@ -80,12 +80,13 @@ This skill MUST:
       - `Pre-condition`: Design a test to bypass the condition with invalid inputs.
       - `Post-condition`: Design a test to verify side-effects and check for unexpected state changes.
 
-7.  **Assign Severity**: Inherit severity from the property if available. Otherwise, assign based on:
-    - `Critical`: Boundary properties with `attacker_controlled: true`
-    - `High`: Properties with `severity: HIGH` or `CRITICAL`
-    - `Medium`: Properties with `severity: MEDIUM`
-    - `Low`: Properties with `severity: LOW`
-    - `Informational`: Properties with `severity: INFORMATIONAL`
+7.  **Assign Severity**: Inherit `severity` from the source property — properties already carry program-specific severity assigned using the bug bounty program's `severity_classification` criteria. Preserve the upstream severity value (normalise to Title Case: `Critical`, `High`, `Medium`, `Low`, `Informational`).
+    - If the property's `severity` field is missing or empty, assign based on:
+      - `Critical`: Boundary properties with `attacker_controlled: true`
+      - `High`: Properties with high impact potential
+      - `Medium`: Properties with moderate impact
+      - `Low`: Properties with limited impact
+      - `Informational`: Best practice observations only
 
 8.  **Map to Code**: Using the `covers` information in the property, identify specific code locations (files, functions) relevant to verifying the checklist item. If code locations are not determinable, omit this field.
 

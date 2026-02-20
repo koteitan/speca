@@ -253,6 +253,10 @@ class BugBountyScopeInfo(BaseModel):
     in_scope_components: list[str] = Field(default_factory=list)
     out_of_scope_components: list[str] = Field(default_factory=list)
     scope_notes: list[str] = Field(default_factory=list)
+    # Severity classification from the bug bounty program.
+    # Each key is a severity level (Critical/High/Medium/Low/Informational)
+    # with criteria, examples, and impact description.
+    severity_classification: dict[str, Any] = Field(default_factory=dict)
 
 
 class Phase01dPartial(BaseModel):

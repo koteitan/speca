@@ -40,7 +40,7 @@ A JSON object containing a list of items, where each item references a trust mod
 
 ## Procedure
 
-1.  **Load Inputs**: Read the content of the `trust_model_file` and all associated `subgraph_files`. Extract the `bug_bounty_scope` from the trust model.
+1.  **Load Inputs**: Read the content of the `trust_model_file` and all associated `subgraph_files`. Extract the `bug_bounty_scope` from the trust model. **Extract `severity_classification`** from `bug_bounty_scope` — this is the authoritative severity definition for the entire audit and MUST be used in step 9.
 
 2.  **Analyze Trust Boundaries**: For each trust boundary identified in the model, formulate properties that must hold true for the boundary to be secure. **Prioritize boundaries marked as `in-scope` and `attacker_controlled: true`.**
 
@@ -66,12 +66,15 @@ A JSON object containing a list of items, where each item references a trust mod
     - `out-of-scope`: Property is only reachable via out-of-scope entry points
     - `conditional`: Requires specific conditions or further investigation
 
-9.  **Assign Severity**: Based on impact and exploitability:
-    - `CRITICAL`: Consensus failure, fund loss, network-wide impact
-    - `HIGH`: Single-node crash, significant DoS, data corruption
-    - `MEDIUM`: Limited DoS, information disclosure, edge cases
-    - `LOW`: Minor issues, requires unlikely conditions
-    - `INFORMATIONAL`: Best practice violations, no direct security impact
+9.  **Assign Severity**: Use the `severity_classification` from the trust model's `bug_bounty_scope` as the **authoritative definition** for each severity level. Match the property's potential impact against the program-specific criteria, examples, and impact thresholds defined there.
+    - Compare the property's impact scope against each level's `criteria`, `examples`, and `impact` fields.
+    - Include a `severity_justification` that references the specific program criterion matched.
+    - **Fallback** (only if `severity_classification` is absent from the trust model):
+      - `CRITICAL`: Consensus failure, fund loss, network-wide impact
+      - `HIGH`: Single-node crash, significant DoS, data corruption
+      - `MEDIUM`: Limited DoS, information disclosure, edge cases
+      - `LOW`: Minor issues, requires unlikely conditions
+      - `INFORMATIONAL`: Best practice violations, no direct security impact
 
 10. **Determine Bug Bounty Eligibility**: A property is `bug_bounty_eligible: true` if:
     - `reachability.classification == "external-reachable"` AND
