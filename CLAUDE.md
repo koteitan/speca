@@ -52,7 +52,7 @@ Phase IDs: `01a` → `01b` → `01e` → `02c` → `03` → `04`
 
 - **01a** Spec Discovery: crawl URLs → `outputs/01a_STATE.json`
 - **01b** Subgraph Extraction: specs → program graphs (`.mmd` + `index.json`)
-- **01e** Property Generation: trust model analysis + formal security properties from subgraphs (depends on 01b). Accepts optional `BUG_BOUNTY_SCOPE.json`.
+- **01e** Property Generation: trust model analysis + formal security properties from subgraphs (depends on 01b). **Requires** `outputs/BUG_BOUNTY_SCOPE.json` (orchestrator aborts if missing). Logic inlined in worker prompt (no skill fork).
 - **02c** Code Pre-resolution: pre-resolve code locations (`code_scope`) for properties against target repository using Tree-sitter MCP. Requires `target_repo`, `target_ref_type`, `audit_scope`. Creates new branch with `outputs/02c_TARGET_INFO.json`. Reduces token consumption in Phase 03 by ~40-60%.
 - **03** Audit Map: three-phase formal audit (Abstract Interpretation → Symbolic Execution → Invariant Proving) against target codebase. Reads `outputs/02c_TARGET_INFO.json` from branch to auto-clone same target repository/commit. Uses pre-resolved code from Phase 02c.
 - **04** Review: six-category verdict system (CONFIRMED_VULNERABILITY through REQUIRES_MANUAL_REVIEW)
@@ -78,7 +78,8 @@ Skills live in `.claude/skills/<name>/SKILL.md`. Each has YAML frontmatter (`nam
 - **Budget enforcement:** Cost tracking is built into `ClaudeRunner`, not bolted on. Raises `BudgetExceeded` at the runner level.
 - **Phase 02c/03 target consistency:** Phase 02c creates a new branch with `outputs/02c_TARGET_INFO.json` containing target repository and commit info. Phase 03 reads this file to auto-clone the same target, ensuring consistency. No manual target specification needed in Phase 03.
 - **Phase 02c optimization:** Pre-resolves code locations for properties before Phase 03, reducing redundant MCP calls and token consumption by ~40-60% in Phase 03.
-- **Phase 03 optimization:** Uses unified `formal-audit-unified` skill (single context fork) for all three audit phases (Abstract Interpretation → Symbolic Execution → Invariant Proving). Reduces token consumption by ~75-80% per item compared to sequential skill invocations.
+- **Phase 01e/03 inline prompts:** Both phases inline their full analysis logic in the worker prompt (no skill fork), reducing context fork overhead. Phase 01e inlines trust model + property generation; Phase 03 inlines 3-phase formal audit.
+- **Required bug_bounty_scope:** Phase 01e requires `outputs/BUG_BOUNTY_SCOPE.json`. The orchestrator aborts with `sys.exit(1)` if the file is missing or unparseable. No hardcoded defaults.
 
 ### Environment Variables
 
