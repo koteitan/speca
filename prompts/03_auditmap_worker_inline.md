@@ -33,13 +33,11 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
     **Think like an attacker, not a verifier.**
 
     Your goal is NOT to prove the code is correct. Your goal is to **find ways to break it**. Ask:
-    - "How can I exploit this code?"
-    - "What happens if operations occur in unexpected order?"
-    - "Can I cause state inconsistency through timing or concurrency?"
-    - "What if the cache is stale or inconsistent?"
-    - "Can I bypass validation in a specific scenario?"
-    - "What happens in unexpected combinations of states?"
-    - "What if multiple operations happen concurrently?"
+    - "How can I exploit this code from an external entry point?"
+    - "Can I craft inputs that bypass validation?"
+    - "What if the cache key is incomplete, or the cached value is stale?"
+    - "Does the implementation introduce bugs the spec doesn't anticipate (e.g., optimization that weakens a guarantee)?"
+    - "What happens in unexpected combinations of states or operation orderings?"
 
     **DO NOT be satisfied with finding guards. Challenge whether guards are sufficient.**
   </adversarial_mindset>
@@ -116,6 +114,24 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
 
        **CRITICAL**: "No counterexample found" does NOT mean safe. It may mean the exploit is complex or requires specific timing. Document this uncertainty.
 
+       ### Phase 2.5: Implementation Pattern Audit
+
+       **Objective:** Detect bugs introduced by implementation-level optimizations absent from the specification.
+
+       When implementations cache, memoize, or deduplicate to optimize performance, they introduce new correctness requirements that the specification does not describe. Audit these patterns:
+
+       1. **Caching / Memoization**: Search for maps used as caches, LRU structures, `sync.Map`, or result-reuse patterns.
+          - Ask: "Does the cache key capture EVERY input that can change the result?" If any input is omitted from the key, two semantically different calls may share a single cached result.
+          - Ask: "Can the cached value become stale if the underlying state mutates after caching?"
+
+       2. **Deduplication / Seen-sets**: Search for duplicate-detection checks (seen maps, bloom filters, `has[key]` guards).
+          - Ask: "Does the dedup key include ALL fields that make items semantically distinct?" If a distinguishing field is missing, a valid-but-different item may be silently dropped.
+
+       3. **Derived / Precomputed State**: Search for values computed from other mutable state and stored for reuse.
+          - Ask: "When the source state changes, is the derived value invalidated or recomputed?"
+
+       For each pattern found, attempt to construct a concrete exploit using the methodology from Phase 2.
+
        ### Phase 3: Invariant Analysis with Skepticism
 
        **Objective:** Determine if guards are SUFFICIENT, not just present.
@@ -189,7 +205,7 @@ Execution hint: This worker prompt is invoked by the phase-03 async orchestrator
     3. **Code path present**: code_path includes file, symbol (if available), and line range e.g., `beacon-chain/core/peerdas/reconstruction.go::ReconstructDataColumnSidecars::L31-122`.
     4. **Classification sanity**: use allowed set only.
     5. **Metadata preserved**: metadata object is still included and unchanged except for fields you legitimately update (e.g., timestamp, processed_ids).
-    6. **All phases executed**: Every phase (1, 2, 3, 3.5) must have been considered. No early exits.
+    6. **All phases executed**: Every phase (1, 2, 2.5, 3, 3.5) must have been considered. No early exits.
   </quality_gates>
 
   <anti_patterns>

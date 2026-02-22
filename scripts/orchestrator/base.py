@@ -1021,7 +1021,7 @@ class Phase04Orchestrator(BaseOrchestrator):
 
         items = []
         validation_warnings = 0
-        for filepath in sorted(glob.glob("outputs/03_AUDITMAP_PARTIAL_*.json")):
+        for filepath in sorted(glob.glob("outputs/03_PARTIAL_*.json")):
             try:
                 with open(filepath) as f:
                     data = json.load(f)
