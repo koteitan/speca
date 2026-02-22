@@ -60,6 +60,13 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      - name: Clean workspace (fix Docker root-owned files)
+        run: |
+          if [ -d "${{ github.workspace }}" ]; then
+            sudo find "${{ github.workspace }}" -type f -not -writable -delete 2>/dev/null || true
+            sudo find "${{ github.workspace }}" -type d -not -writable -exec rm -rf {} + 2>/dev/null || true
+          fi
+
       - name: Checkout Branch
         uses: actions/checkout@v4
         with:
@@ -176,7 +183,8 @@ jobs:
             echo "Semgrep results already exist. Use force_execute to re-run."
             exit 0
           fi
-          docker run --rm -v "$PWD":/app -e PYTHONPATH=/app security-agent-benchmark \
+          mkdir -p "${RESULTS_DIR}"
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/app -e PYTHONPATH=/app security-agent-benchmark \
             python3 /app/benchmarks/runners/run_semgrep.py \
               --dataset "/app/${DATASET_PATH}" \
               --output "/app/${RESULTS_DIR}/semgrep_results.json" \
