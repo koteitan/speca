@@ -176,7 +176,7 @@ jobs:
             echo "Semgrep results already exist. Use force_execute to re-run."
             exit 0
           fi
-          docker run --rm -v "$PWD":/app security-agent-benchmark \
+          docker run --rm -v "$PWD":/app -e PYTHONPATH=/app security-agent-benchmark \
             python3 /app/benchmarks/runners/run_semgrep.py \
               --dataset "/app/${DATASET_PATH}" \
               --output "/app/${RESULTS_DIR}/semgrep_results.json" \

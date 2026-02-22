@@ -1,7 +1,7 @@
 {
   "dataset": {
     "name": "primevul",
-    "path": "/home/user/security-agent/benchmarks/data/primevul/primevul_test_paired.jsonl",
+    "path": "benchmarks/data/primevul/primevul_test_paired.jsonl",
     "ground_truth_count": 868,
     "sample_count": 868,
     "pair_count": 0,

@@ -1,10 +1,10 @@
 # Benchmark Report
 
-Generated: 2026-02-22T03:57:36.856086+00:00
+Generated: 2026-02-22T05:24:32.848389+00:00
 
 ## Dataset
 
-- Path: /home/user/security-agent/benchmarks/data/primevul/primevul_test_paired.jsonl
+- Path: benchmarks/data/primevul/primevul_test_paired.jsonl
 - Ground-truth samples: 868
 - Total samples: 868
 - Pair groups: 0 (eligible: 0, skipped: 0)
