@@ -47,6 +47,16 @@ class CircuitBreakerTripped(Exception):
         super().__init__(f"Circuit breaker tripped: {reason} (stats={stats})")
 
 
+class MaxTurnsExhausted(Exception):
+    """Raised when a batch exhausts max_turns without producing output.
+
+    Retrying is pointless because hitting max_turns is deterministic for
+    the same prompt + queue.  Callers should treat this as a non-retriable
+    empty result that does NOT count toward the circuit breaker's
+    ``empty_results`` counter.
+    """
+
+
 class CircuitBreaker:
     """
     Tracks failure / anomaly counters and raises ``CircuitBreakerTripped``
@@ -299,6 +309,15 @@ class ClaudeRunner:
                         return result
                 except (CircuitBreakerTripped, BudgetExceeded):
                     raise  # Propagate immediately
+                except MaxTurnsExhausted as e:
+                    # Don't retry — hitting max_turns is deterministic.
+                    # Return empty list without counting toward empty_results
+                    # circuit breaker (this is a known limitation, not a bug).
+                    print(
+                        f"[W{worker_id}] {e}",
+                        file=sys.stderr,
+                    )
+                    return []
                 except Exception as e:
                     print(
                         f"[W{worker_id}] Batch {batch_index} attempt {attempt + 1} failed: {e}",
@@ -335,20 +354,26 @@ class ClaudeRunner:
         if directory_mode:
             batch_output_dir = self.output_dir / "graphs" / f"batch_w{worker_id}b{batch_index}_{timestamp}"
             batch_output_dir.mkdir(parents=True, exist_ok=True)
-            result_parse_path = batch_output_dir / "index.json"
+            # Directory mode has no result file; _parse_results will return []
+            # and the runner falls back to _parse_results_from_log automatically.
+            result_parse_path = batch_output_dir / ".no_result_file"
             output_kwargs: dict[str, str] = {"output_dir": str(batch_output_dir)}
         else:
             result_parse_path = self.output_dir / f"{partial_base}_W{worker_id}B{batch_index}_{timestamp}.json"
             output_kwargs = {"output_file": str(result_parse_path)}
 
-        # Save queue
-        queue_payload = self._build_queue_payload(batch, worker_id)
+        # Save queue (ID-only) and context (full item data, optionally filtered)
+        context_path = self.output_dir / f"{phase_id}_CONTEXT_W{worker_id}B{batch_index}_{timestamp}.json"
+        queue_payload = self._build_queue_payload(batch, worker_id, str(context_path))
+        context_payload = self._build_context_payload(batch)
         self._save_json(queue_path, queue_payload)
+        self._save_json(context_path, context_payload)
 
         # Build prompt
         prompt_content = self._build_prompt(
             worker_id=worker_id,
             queue_file=str(queue_path),
+            context_file=str(context_path),
             batch_size=len(batch),
             iteration=batch_index,
             timestamp=timestamp,
@@ -362,6 +387,7 @@ class ClaudeRunner:
         env = self._build_env(
             worker_id=worker_id,
             queue_file=str(queue_path),
+            context_file=str(context_path),
             batch_size=len(batch),
             iteration=batch_index,
             timestamp=timestamp,
@@ -443,6 +469,15 @@ class ClaudeRunner:
             await watcher_task
             return None
         finally:
+            # Kill subprocess if still running (critical for circuit breaker /
+            # cancellation — without this, cancelled tasks leave orphan Claude
+            # CLI processes that prevent the orchestrator from exiting).
+            if proc.returncode is None:
+                try:
+                    proc.kill()
+                    await proc.wait()
+                except ProcessLookupError:
+                    pass
             # Ensure watcher is stopped
             watcher.stop()
             if not watcher_task.done():
@@ -505,6 +540,7 @@ class ClaudeRunner:
                     output_tokens=usage["output_tokens"],
                     cache_read_tokens=usage["cache_read_tokens"],
                     cache_creation_tokens=usage["cache_creation_tokens"],
+                    num_turns=usage.get("num_turns", 0),
                     worker_id=worker_id,
                     batch_index=batch_index,
                 )
@@ -515,14 +551,43 @@ class ClaudeRunner:
                     + usage["cache_read_tokens"]
                     + usage["cache_creation_tokens"]
                 )
+                turns_str = f", turns={usage['num_turns']}" if usage.get("num_turns") else ""
                 print(
                     f"[W{worker_id}] Batch {batch_index}: "
                     f"tokens={total_tokens:,} "
                     f"(in={usage['input_tokens']:,}, cache_read={usage['cache_read_tokens']:,}, "
-                    f"cache_create={usage['cache_creation_tokens']:,}, out={usage['output_tokens']:,}); "
+                    f"cache_create={usage['cache_creation_tokens']:,}, out={usage['output_tokens']:,}"
+                    f"{turns_str}); "
                     f"+${batch_cost:.4f}, total=${cost_stats['total_cost_usd']:.2f}/"
                     f"${cost_stats['max_budget_usd']:.2f}",
                 )
+
+        # --- Detect error_max_turns (may arrive with returncode 0 or 1) ---
+        # Claude CLI can exit with code 0 while the result event carries
+        # subtype="error_max_turns".  Handling this before the returncode
+        # check covers both cases.
+        result_status = self._check_log_result_status(log_file)
+        if result_status and result_status.get("subtype") == "error_max_turns":
+            num_turns = result_status.get("num_turns", "?")
+            # Try to recover whatever output was produced
+            results = self._parse_results(result_parse_path)
+            if not results:
+                results = self._parse_results_from_log(log_file)
+            if results:
+                print(
+                    f"[W{worker_id}] Batch {batch_index}: "
+                    f"error_max_turns ({num_turns} turns) but "
+                    f"recovered {len(results)} result(s)",
+                    file=sys.stderr,
+                )
+                if not directory_mode and result_parse_path.exists():
+                    result_parse_path.unlink()
+                return results
+            # No output — retrying won't help (max_turns is deterministic)
+            raise MaxTurnsExhausted(
+                f"Batch {batch_index} exhausted {num_turns} turns "
+                f"without producing output"
+            )
 
         # Check result
         if proc.returncode != 0:
@@ -548,7 +613,7 @@ class ClaudeRunner:
             )
             return None
 
-        # Parse results from output file / index.json, fallback to log
+        # Parse results from output file, fallback to log
         results = self._parse_results(result_parse_path)
         if not results:
             results = self._parse_results_from_log(log_file)
@@ -600,10 +665,10 @@ class ClaudeRunner:
         is_error = result_info.get("is_error", False)
 
         if subtype != "success":
-            # e.g. subtype="error" — genuine failure
+            # e.g. subtype="error", "error_max_turns" — genuine failure
             return None
 
-        # subtype=success, is_error=true — likely max_turns reached
+        # subtype=success, is_error=true — likely graceful exit with output
         duration_s = result_info.get("duration_ms", 0) / 1000
         print(
             f"[W{worker_id}] Batch {batch_index}: Claude exited non-zero but "
@@ -670,14 +735,34 @@ class ClaudeRunner:
         self,
         batch: list[dict[str, Any]],
         worker_id: int,
+        context_file: str,
     ) -> dict[str, Any]:
-        """Build the queue payload for Claude."""
+        """Build the queue payload for Claude (ID-only)."""
+        id_field = self.config.item_id_field
+        item_ids = [str(item.get(id_field, f"item-{i}")) for i, item in enumerate(batch)]
         return {
             "worker_id": worker_id,
             "phase": self.config.phase_id,
-            "items": batch,
+            "item_ids": item_ids,
             "total_items": len(batch),
+            "context_file": context_file,
         }
+
+    def _build_context_payload(
+        self,
+        batch: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Build the context payload (full item data keyed by ID, optionally filtered)."""
+        id_field = self.config.item_id_field
+        fields = self.config.context_fields
+        result: dict[str, Any] = {}
+        for i, item in enumerate(batch):
+            key = str(item.get(id_field, f"item-{i}"))
+            if fields:
+                result[key] = {k: item[k] for k in fields if k in item}
+            else:
+                result[key] = item
+        return result
 
     def _build_prompt(self, **kwargs) -> str:
         """Build the prompt content with arguments."""

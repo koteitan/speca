@@ -23,12 +23,66 @@ from pydantic import BaseModel, Field, model_validator
 # ---------------------------------------------------------------------------
 
 class Severity(str, Enum):
-    """Severity levels used across the pipeline."""
+    """Severity levels used across the pipeline.
+
+    Members are ordered from most to least severe so that numeric
+    comparison works:  ``Severity.CRITICAL < Severity.HIGH`` is ``True``.
+    The ``rank`` property returns a numeric value (lower = more severe)
+    for use in threshold comparisons.
+    """
     CRITICAL = "Critical"
     HIGH = "High"
     MEDIUM = "Medium"
     LOW = "Low"
     INFORMATIONAL = "Informational"
+
+    @property
+    def rank(self) -> int:
+        """Numeric rank (0 = most severe)."""
+        return _SEVERITY_RANK[self]
+
+    def __ge__(self, other: object) -> bool:
+        if not isinstance(other, Severity):
+            return NotImplemented
+        # Lower rank = more severe, so "greater-or-equal severity" means
+        # rank is numerically less-or-equal.
+        return self.rank <= other.rank
+
+    def __gt__(self, other: object) -> bool:
+        if not isinstance(other, Severity):
+            return NotImplemented
+        return self.rank < other.rank
+
+    def __le__(self, other: object) -> bool:
+        if not isinstance(other, Severity):
+            return NotImplemented
+        return self.rank >= other.rank
+
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, Severity):
+            return NotImplemented
+        return self.rank > other.rank
+
+    @classmethod
+    def from_str(cls, value: str) -> Severity | None:
+        """Parse a severity string (case-insensitive).  Returns None on failure."""
+        if not value:
+            return None
+        normalised = value.strip().capitalize()
+        try:
+            return cls(normalised)
+        except ValueError:
+            return None
+
+
+# Rank lookup (populated after class definition to avoid forward-ref issues)
+_SEVERITY_RANK: dict[Severity, int] = {
+    Severity.CRITICAL: 0,
+    Severity.HIGH: 1,
+    Severity.MEDIUM: 2,
+    Severity.LOW: 3,
+    Severity.INFORMATIONAL: 4,
+}
 
 
 class ReachabilityClassification(str, Enum):
@@ -122,25 +176,7 @@ class Phase01bPartial(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Phase 01c – Subgraph Verification
-# ---------------------------------------------------------------------------
-
-class VerificationResult(BaseModel):
-    """Verification result for a single subgraph file."""
-    file_path: str
-    status: str = ""  # "verified", "failed", "error"
-    issues: list[str] = Field(default_factory=list)
-    corrections: list[dict[str, Any]] = Field(default_factory=list)
-
-
-class Phase01cPartial(BaseModel):
-    """Output of Phase 01c: verification results."""
-    results: list[VerificationResult] = Field(default_factory=list)
-    metadata: dict[str, Any] = Field(default_factory=dict)
-
-
-# ---------------------------------------------------------------------------
-# Phase 01d – Trust Model Analysis
+# Trust Model (referenced by Phase 01e)
 # ---------------------------------------------------------------------------
 
 class TrustModelActor(BaseModel):
@@ -199,6 +235,10 @@ class BugBountyScopeInfo(BaseModel):
     in_scope_components: list[str] = Field(default_factory=list)
     out_of_scope_components: list[str] = Field(default_factory=list)
     scope_notes: list[str] = Field(default_factory=list)
+    # Severity classification from the bug bounty program.
+    # Each key is a severity level (Critical/High/Medium/Low/Informational)
+    # with criteria, examples, and impact description.
+    severity_classification: dict[str, Any] = Field(default_factory=dict)
 
 
 class Phase01dPartial(BaseModel):
@@ -214,51 +254,37 @@ class Phase01dPartial(BaseModel):
 # ---------------------------------------------------------------------------
 
 class PropertyReachability(BaseModel):
-    """Reachability information for a property."""
+    """Reachability information for a property (slim: 4 fields only)."""
     classification: str = ""
     entry_points: list[str] = Field(default_factory=list)
     attacker_controlled: bool = False
-    validation_layers: list[str] = Field(default_factory=list)
     bug_bounty_scope: str = "conditional"
-    notes: str = ""
-
-
-class PropertyCovers(BaseModel):
-    """Coverage information for a property."""
-    primary_element: str | None = None
-    edges: list[str] = Field(default_factory=list)
-    nodes: list[str] = Field(default_factory=list)
-    is_boundary_edge: bool = False
 
 
 class Property(BaseModel):
-    """A single formal property from Phase 01e."""
-    id: str
+    """A single formal property from Phase 01e.
+
+    ``covers`` is the primary element ID string (e.g. ``"FN-001"``).
+    """
+    property_id: str
     text: str = ""
     type: str = ""
     assertion: str = ""
     severity: str = ""
-    severity_justification: str = ""
-    covers: PropertyCovers = Field(default_factory=PropertyCovers)
+    covers: str = ""  # Primary element ID (slim — was an object before)
     reachability: PropertyReachability = Field(default_factory=PropertyReachability)
     exploitability: str = ""
     bug_bounty_eligible: bool = False
-    bug_bounty_notes: str | None = None
-    source_assumption_id: str | None = None
-    source_invariant_id: str | None = None
-    source_threat_id: str | None = None
 
 
 class Phase01ePartial(BaseModel):
-    """Output of Phase 01e: properties extracted from trust model."""
-    source_files: dict[str, Any] | list[str] = Field(default_factory=dict)
-    bug_bounty_scope: BugBountyScopeInfo = Field(default_factory=BugBountyScopeInfo)
+    """Output of Phase 01e: properties extracted from trust model (slim)."""
     properties: list[Property] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
-# Phase 02 – Checklist
+# Phase 02c – Code Pre-resolution (properties with code)
 # ---------------------------------------------------------------------------
 
 class ChecklistReachability(BaseModel):
@@ -298,21 +324,27 @@ class CodeScope(BaseModel):
     resolution_error: str = ""
 
 
+class PropertyWithCode(Property):
+    """Property with pre-resolved code locations from Phase 02c."""
+    code_scope: CodeScope = Field(default_factory=CodeScope)
+    code_excerpt: str = ""
+
+
 class ChecklistItem(BaseModel):
-    """A single checklist item from Phase 02."""
+    """A single checklist item from Phase 02 (kept for backwards compatibility)."""
     check_id: str
     property_id: str = ""
     title: str = ""
     severity: str = ""
-    mindset: str = ""
-    is_boundary_check: bool = False
+    mindset: str | None = None  # Optional — omitted in slim output
+    is_boundary_check: bool | None = None  # Optional — omitted in slim output
     reachability: ChecklistReachability = Field(default_factory=ChecklistReachability)
     test_procedure: str = ""
     bug_class: str = ""
-    risk_category: str = ""
+    risk_category: str | None = None  # Optional — omitted in slim output
     notes: str = ""
     # Optional fields from graph element
-    graph_element_under_test: str | None = None
+    graph_element_under_test: str | None = None  # Optional — omitted in slim output
     code_scope: CodeScope = Field(default_factory=CodeScope)  # Typed code location
     code_excerpt: str = ""  # Pre-resolved code snippet
 
@@ -333,8 +365,8 @@ class Phase02Partial(BaseModel):
 
 
 class Phase02cPartial(BaseModel):
-    """Output of Phase 02c: checklist items with pre-resolved code locations."""
-    checklist_with_code: list[ChecklistItem] = Field(default_factory=list)
+    """Output of Phase 02c: properties with pre-resolved code locations."""
+    properties_with_code: list[PropertyWithCode] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -402,14 +434,21 @@ class AuditTrail(BaseModel):
 
 class AuditMapItem(BaseModel):
     """A single audit result from Phase 03."""
-    check_id: str
-    property_id: str | None = None
+    property_id: str
+    check_id: str = ""  # Kept for downstream compatibility (populated with property_id)
     code_scope: CodeScope = Field(default_factory=CodeScope)  # Type-safe code scope
     code_snippet: str = ""
     final_classification: str = ""
     bug_bounty_eligible: bool = False
     summary: str = ""
     audit_trail: AuditTrail = Field(default_factory=AuditTrail)
+
+    @model_validator(mode="after")
+    def _sync_check_id(self) -> "AuditMapItem":
+        """Populate check_id from property_id for downstream compatibility."""
+        if not self.check_id and self.property_id:
+            self.check_id = self.property_id
+        return self
 
 
 class Phase03Partial(BaseModel):
@@ -430,7 +469,8 @@ class OriginalFinding(BaseModel):
 
 class ReviewedItem(BaseModel):
     """A single reviewed item from Phase 04."""
-    check_id: str
+    property_id: str = ""
+    check_id: str = ""  # Kept for downstream compatibility
     original_finding: OriginalFinding = Field(default_factory=OriginalFinding)
     review_verdict: str = ""
     adjusted_severity: str = ""
@@ -450,11 +490,16 @@ class Phase04Partial(BaseModel):
 # ---------------------------------------------------------------------------
 
 class QueuePayload(BaseModel):
-    """Standard queue payload sent to Claude workers."""
+    """Standard queue payload sent to Claude workers.
+
+    Queue files contain only item IDs; full item data lives in a separate
+    context file (keyed by ID) to reduce context window pressure.
+    """
     worker_id: int
     phase: str
-    items: list[dict[str, Any]]
+    item_ids: list[str]
     total_items: int
+    context_file: str  # path to the companion context file
 
 
 # ---------------------------------------------------------------------------
@@ -476,7 +521,11 @@ class PartialMetadata(BaseModel):
 # ---------------------------------------------------------------------------
 
 class TargetInfo(BaseModel):
-    """Target repository information saved by Phase 03 for Phase 04."""
+    """Target repository information (outputs/TARGET_INFO.json).
+
+    Created by the 02c CI workflow before Phase 02c runs. Consumed by
+    Phases 02c, 03, and 04 for target repository/commit consistency.
+    """
     target_repo: str
     target_ref_type: str = ""
     target_ref_label: str = ""
@@ -519,11 +568,14 @@ def validate_subgraph(data: dict[str, Any]) -> tuple[SubGraph | None, list[str]]
             errors.append("id is empty")
         if not item.name:
             errors.append("name is empty")
-        pg = item.program_graph
-        if not pg.Q:
-            errors.append("program_graph.Q is empty (no nodes)")
-        if not pg.E:
-            errors.append("program_graph.E is empty (no edges)")
+        # When mermaid_file is present, the structured PG lives in the .mmd
+        # file and program_graph/invariants may be absent from the JSON.
+        if not item.mermaid_file:
+            pg = item.program_graph
+            if not pg.Q:
+                errors.append("program_graph.Q is empty (no nodes)")
+            if not pg.E:
+                errors.append("program_graph.E is empty (no edges)")
         return item, errors
     except Exception as exc:
         return None, [str(exc)]
@@ -539,14 +591,14 @@ def validate_property(data: dict[str, Any]) -> tuple[Property | None, list[str]]
     errors: list[str] = []
     try:
         item = Property.model_validate(data)
-        if not item.id:
-            errors.append("id is empty")
+        if not item.property_id:
+            errors.append("property_id is empty")
         if not item.type:
             errors.append("type is empty")
         if not item.severity:
             errors.append("severity is empty")
-        if not item.covers.primary_element and not item.covers.edges and not item.covers.nodes:
-            errors.append("covers has no primary_element, edges, or nodes")
+        if not item.covers:
+            errors.append("covers is empty (expected primary element ID string)")
         return item, errors
     except Exception as exc:
         return None, [str(exc)]
@@ -584,8 +636,8 @@ def validate_audit_map_item(data: dict[str, Any]) -> tuple[AuditMapItem | None, 
     errors: list[str] = []
     try:
         item = AuditMapItem.model_validate(data)
-        if not item.check_id:
-            errors.append("check_id is empty")
+        if not item.property_id:
+            errors.append("property_id is empty")
         if not item.final_classification:
             errors.append("final_classification is empty")
         return item, errors
@@ -603,8 +655,8 @@ def validate_reviewed_item(data: dict[str, Any]) -> tuple[ReviewedItem | None, l
     errors: list[str] = []
     try:
         item = ReviewedItem.model_validate(data)
-        if not item.check_id:
-            errors.append("check_id is empty")
+        if not item.property_id and not item.check_id:
+            errors.append("property_id is empty")
         if not item.review_verdict:
             errors.append("review_verdict is empty")
         return item, errors

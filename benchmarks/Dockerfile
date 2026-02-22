@@ -1,7 +1,8 @@
 FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
-    SEMGREP_ENABLE_VERSION_CHECK=0
+    SEMGREP_ENABLE_VERSION_CHECK=0 \
+        PYTHONPATH=/app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \

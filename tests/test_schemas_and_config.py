@@ -41,20 +41,16 @@ from orchestrator.schemas import (
     SubGraph,
     SpecSubGraphs,
     Phase01bPartial,
-    # Phase 01c
-    VerificationResult,
-    Phase01cPartial,
-    # Phase 01d
+    # Trust Model (referenced by Phase 01e)
     TrustModelActor,
     TrustBoundary,
     TrustAssumption,
     StrideAnalysisItem,
     TrustModel,
     BugBountyScopeInfo,
-    Phase01dPartial,
+    Phase01dPartial,  # kept for backwards compatibility
     # Phase 01e
     PropertyReachability,
-    PropertyCovers,
     Property,
     Phase01ePartial,
     # Phase 02
@@ -95,6 +91,129 @@ from orchestrator.runner import (
     LogAnomalyDetector,
 )
 from orchestrator.collector import ResultCollector
+from orchestrator.base import generate_slug, Phase01Orchestrator
+
+
+# =========================================================================
+# generate_slug tests
+# =========================================================================
+
+class TestGenerateSlug:
+    """Tests for the generate_slug utility function."""
+
+    def test_abbreviation_map_hit(self):
+        """Known phrases should map to their abbreviation."""
+        assert generate_slug("Transaction Validation") == "txn"
+        assert generate_slug("P2P Network Layer") == "p2p"
+        assert generate_slug("Engine API Bridge") == "engapi"
+        assert generate_slug("Consensus Protocol") == "cons"
+        assert generate_slug("Validator Set") == "val"
+        assert generate_slug("Block Processing") == "blk"
+
+    def test_abbreviation_case_insensitive(self):
+        assert generate_slug("TRANSACTION pool") == "txn"
+        assert generate_slug("Consensus Layer") == "cons"
+
+    def test_fallback_slugification(self):
+        """Non-matching text should be slugified."""
+        assert generate_slug("Hello World") == "hello-world"
+        assert generate_slug("my-component") == "my-component"
+
+    def test_max_len_truncation(self):
+        """Long slugs should be truncated to max_len."""
+        result = generate_slug("this is a very long description indeed", max_len=8)
+        assert len(result) <= 8
+        # Should not end with a hyphen
+        assert not result.endswith("-")
+
+    def test_hash_fallback_for_empty(self):
+        """Empty or non-alphanumeric text should produce a hash."""
+        result = generate_slug("---")
+        assert len(result) == 8  # sha256 hex[:8]
+
+    def test_max_len_respected_for_abbreviation(self):
+        result = generate_slug("Transaction", max_len=2)
+        assert len(result) <= 2
+
+
+# =========================================================================
+# ID Prefix Assignment tests
+# =========================================================================
+
+class TestIdPrefixAssignment:
+    """Tests for Phase01Orchestrator._assign_property_id_prefixes."""
+
+    def test_assigns_prefix_from_partial(self):
+        """Items should get _id_prefix based on 01b partial data."""
+        orch = Phase01Orchestrator("01e")
+        # Create a temp 01b partial file
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", delete=False
+        ) as f:
+            json.dump({
+                "specs": [
+                    {
+                        "source_url": "https://eips.ethereum.org/EIPS/eip-7594",
+                        "title": "EIP-7594",
+                        "sub_graphs": [{"id": "SG-001", "name": "test"}],
+                    }
+                ]
+            }, f)
+            partial_file = f.name
+
+        try:
+            items = [{"file_path": partial_file}]
+            result = orch._assign_property_id_prefixes(items)
+            assert result[0]["_id_prefix"] == "PROP-eip-7594"
+        finally:
+            os.unlink(partial_file)
+
+    def test_disambiguation_on_slug_collision(self):
+        """Duplicate slugs should get a numeric disambiguator."""
+        orch = Phase01Orchestrator("01e")
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", delete=False
+        ) as f:
+            json.dump({
+                "specs": [
+                    {
+                        "source_url": "https://example.com/transaction-pool",
+                        "title": "Transaction Pool",
+                        "sub_graphs": [{"id": "SG-001", "name": "test"}],
+                    }
+                ]
+            }, f)
+            partial_file = f.name
+
+        try:
+            items = [
+                {"file_path": partial_file},
+                {"file_path": partial_file},
+                {"file_path": partial_file},
+            ]
+            result = orch._assign_property_id_prefixes(items)
+            assert result[0]["_id_prefix"] == "PROP-txn"
+            assert result[1]["_id_prefix"] == "PROP-txn1"
+            assert result[2]["_id_prefix"] == "PROP-txn2"
+        finally:
+            os.unlink(partial_file)
+
+    def test_fallback_on_missing_file(self):
+        """Missing file should produce a hash-based prefix."""
+        orch = Phase01Orchestrator("01e")
+        items = [{"file_path": "/nonexistent/path.json"}]
+        result = orch._assign_property_id_prefixes(items)
+        assert result[0]["_id_prefix"].startswith("PROP-")
+        # Hash-based slug should be 8 chars
+        slug = result[0]["_id_prefix"][5:]  # Strip "PROP-"
+        assert len(slug) == 8
+
+    def test_fallback_on_empty_path(self):
+        """Empty file_path should produce a hash-based prefix."""
+        orch = Phase01Orchestrator("01e")
+        items = [{"file_path": ""}]
+        result = orch._assign_property_id_prefixes(items)
+        assert result[0]["_id_prefix"].startswith("PROP-")
 
 
 # =========================================================================
@@ -127,8 +246,44 @@ class TestPhaseConfig:
     def test_get_phase_chain(self):
         chain = get_phase_chain("03")
         assert "01a" in chain
-        assert "02" in chain
+        assert "02c" in chain
+        assert "01e" in chain
+        assert "02" not in chain
         assert chain[-1] == "03"
+
+    def test_01e_depends_on_01b(self):
+        """Phase 01e should depend on 01b (not 01d)."""
+        cfg = get_phase_config("01e")
+        assert cfg.depends_on == ["01b"]
+
+    def test_01c_not_in_configs(self):
+        """Phase 01c should not exist in PHASE_CONFIGS."""
+        assert "01c" not in PHASE_CONFIGS
+
+    def test_01d_not_in_configs(self):
+        """Phase 01d should not exist in PHASE_CONFIGS."""
+        assert "01d" not in PHASE_CONFIGS
+
+    def test_02_not_in_configs(self):
+        """Phase 02 should not exist in PHASE_CONFIGS."""
+        assert "02" not in PHASE_CONFIGS
+
+    def test_02c_depends_on_01e_and_01b(self):
+        """Phase 02c should depend on 01e and 01b."""
+        cfg = get_phase_config("02c")
+        assert cfg.depends_on == ["01e", "01b"]
+
+    def test_phase_chain_excludes_01c(self):
+        """Phase chain should not include 01c."""
+        chain = get_phase_chain("03")
+        assert "01c" not in chain
+
+    def test_phase_chain_excludes_01d(self):
+        """Phase chain to 02c should not include 01d."""
+        chain = get_phase_chain("02c")
+        assert "01d" not in chain
+        assert "01e" in chain
+        assert "01b" in chain
 
     def test_phase03_config_values(self):
         cfg = PHASE_CONFIGS["03"]
@@ -149,7 +304,7 @@ class TestPhaseConfig:
         cfg = PHASE_CONFIGS["03"]
         assert cfg.circuit_breaker_threshold == 5
         assert cfg.max_total_retries == 20
-        assert cfg.max_empty_results == 5
+        assert cfg.max_empty_results == 15
 
     def test_mcp_servers_defaults(self):
         """Phases without mcp_servers set should default to None (all servers)."""
@@ -334,34 +489,10 @@ class TestPhase01b:
 
 
 # =========================================================================
-# Phase 01c – Verification
+# Trust Model Schemas (referenced by Phase 01e)
 # =========================================================================
 
-class TestPhase01c:
-    def test_verification_result_valid(self):
-        vr = VerificationResult(
-            file_path="outputs/01b_PARTIAL_0.json",
-            status="verified",
-            issues=[],
-        )
-        assert vr.status == "verified"
-
-    def test_phase01c_partial_valid(self):
-        partial = Phase01cPartial(
-            results=[
-                {"file_path": "test.json", "status": "verified"},
-                {"file_path": "test2.json", "status": "failed", "issues": ["bad edge"]},
-            ]
-        )
-        assert len(partial.results) == 2
-        assert partial.results[1].issues == ["bad edge"]
-
-
-# =========================================================================
-# Phase 01d – Trust Model
-# =========================================================================
-
-class TestPhase01d:
+class TestTrustModelSchemas:
     def test_trust_model_actor_valid(self):
         actor = TrustModelActor(
             id="actor-user",
@@ -415,12 +546,13 @@ class TestPhase01d:
 class TestPhase01e:
     def test_property_valid(self):
         prop = Property(
-            id="PROP-001",
+            property_id="PROP-001",
             type="invariant",
             severity="HIGH",
-            covers={"primary_element": "FN-001"},
+            covers="FN-001",
         )
-        assert prop.id == "PROP-001"
+        assert prop.property_id == "PROP-001"
+        assert prop.covers == "FN-001"
 
     def test_property_reachability(self):
         r = PropertyReachability(
@@ -432,18 +564,18 @@ class TestPhase01e:
     def test_phase01e_partial_valid(self):
         partial = Phase01ePartial(
             properties=[
-                {"id": "PROP-001", "type": "invariant"},
-                {"id": "PROP-002", "type": "postcondition"},
+                {"property_id": "PROP-001", "type": "invariant"},
+                {"property_id": "PROP-002", "type": "postcondition"},
             ]
         )
         assert len(partial.properties) == 2
 
     def test_validate_property_valid(self):
         data = {
-            "id": "PROP-001",
+            "property_id": "PROP-001",
             "type": "invariant",
             "severity": "HIGH",
-            "covers": {"primary_element": "FN-001"},
+            "covers": "FN-001",
         }
         item, errs = validate_property(data)
         assert item is not None
@@ -488,7 +620,6 @@ class TestPhase02:
 class TestPhase03:
     def test_audit_trail_full(self):
         item = AuditMapItem(
-            check_id="CHK-001",
             property_id="PROP-001",
             final_classification="vulnerable",
             summary="Found issue",
@@ -525,13 +656,13 @@ class TestPhase03:
     def test_audit_map_item_with_code_snippet(self):
         """Test that AuditMapItem includes code_snippet field."""
         item = AuditMapItem(
-            check_id="CHK-001",
             property_id="PROP-001",
             final_classification="vulnerable",
             summary="Found issue",
             code_snippet="int x = 0;\nif (x > 0) {\n    return true;\n}",
         )
-        assert item.check_id == "CHK-001"
+        assert item.property_id == "PROP-001"
+        assert item.check_id == "PROP-001"  # Auto-populated from property_id
         assert item.code_snippet == "int x = 0;\nif (x > 0) {\n    return true;\n}"
         # Test that it can be serialized
         dumped = item.model_dump()
@@ -541,7 +672,6 @@ class TestPhase03:
     def test_audit_map_item_complete_fields(self):
         """Test that AuditMapItem can be created with all fields including code snippet."""
         item = AuditMapItem(
-            check_id="CHK-001",
             property_id="PROP-001",
             code_scope=CodeScope(
                 locations=[
@@ -559,7 +689,8 @@ class TestPhase03:
             bug_bounty_eligible=True,
             summary="Found issue"
         )
-        assert item.check_id == "CHK-001"
+        assert item.property_id == "PROP-001"
+        assert item.check_id == "PROP-001"  # Auto-populated
         assert len(item.code_scope.locations) == 1
         assert item.code_scope.locations[0].file == "test.java"
         assert item.code_scope.locations[0].line_range.start == 10
@@ -573,7 +704,7 @@ class TestPhase03Partial:
     def test_valid_partial(self):
         partial = Phase03Partial(
             audit_items=[
-                {"check_id": "CHK-001", "final_classification": "safe"},
+                {"property_id": "PROP-001", "final_classification": "safe"},
             ]
         )
         assert len(partial.audit_items) == 1
@@ -633,7 +764,7 @@ class TestValidationHelpers:
     # -- audit map items --
     def test_validate_audit_map_item_valid(self):
         data = {
-            "check_id": "CHK-001",
+            "property_id": "PROP-001",
             "final_classification": "vulnerable",
         }
         item, errs = validate_audit_map_item(data)
@@ -641,7 +772,7 @@ class TestValidationHelpers:
         assert errs == []
 
     def test_validate_audit_map_item_missing_classification(self):
-        data = {"check_id": "CHK-001"}
+        data = {"property_id": "PROP-001"}
         item, errs = validate_audit_map_item(data)
         assert "final_classification is empty" in errs
 
@@ -663,7 +794,7 @@ class TestValidationHelpers:
     def test_validate_reviewed_item_empty_check_id(self):
         data = {"check_id": "", "review_verdict": "Confirmed"}
         item, errs = validate_reviewed_item(data)
-        assert "check_id is empty" in errs
+        assert "property_id is empty" in errs
 
 
 # =========================================================================
@@ -675,10 +806,13 @@ class TestQueuePayload:
         payload = QueuePayload(
             worker_id=0,
             phase="03",
-            items=[{"check_id": "CHK-001"}],
+            item_ids=["CHK-001"],
             total_items=1,
+            context_file="outputs/03_CONTEXT_W0B0_1700000000.json",
         )
         assert payload.worker_id == 0
+        assert payload.item_ids == ["CHK-001"]
+        assert payload.context_file == "outputs/03_CONTEXT_W0B0_1700000000.json"
 
 
 class TestPartialMetadata:
@@ -712,43 +846,44 @@ class TestTargetInfo:
 class TestCrossPhaseDataFlow:
     """Test that data structures are compatible across phase boundaries."""
 
-    def test_01e_property_to_02_checklist(self):
-        """Property from 01e should be usable as input for 02 checklist."""
+    def test_01e_property_to_02c_code_resolution(self):
+        """Property from 01e should be usable as input for 02c code resolution."""
         prop = Property(
-            id="PROP-001",
+            property_id="PROP-001",
             type="invariant",
             severity="HIGH",
-            covers={"primary_element": "FN-001"},
+            covers="FN-001",
             reachability={
                 "classification": "external-reachable",
                 "bug_bounty_scope": "in-scope",
             },
         )
-        item = {
-            "property_id": prop.id,
-            "property": prop.model_dump(),
-            "source_file": "test.json",
-        }
-        assert item["property"]["reachability"]["bug_bounty_scope"] == "in-scope"
+        item = dict(prop.model_dump())
+        item["source_file"] = "test.json"
+        assert item["reachability"]["bug_bounty_scope"] == "in-scope"
+        assert item["covers"] == "FN-001"
 
-    def test_02_checklist_to_03_audit(self):
-        """Checklist item from 02 should be parseable as Phase03 input."""
-        cl = ChecklistItem(
-            check_id="CHK-001",
+    def test_02c_property_to_03_audit(self):
+        """Property with code from 02c should be parseable as Phase03 input."""
+        from orchestrator.schemas import PropertyWithCode
+        pwc = PropertyWithCode(
             property_id="PROP-001",
-            title="Test check",
+            text="Test property",
+            type="invariant",
             severity="High",
-            test_procedure="Run the test",
+            covers="FN-001",
+            code_scope={"resolution_status": "resolved", "locations": [
+                {"file": "test.go", "symbol": "TestFunc", "line_range": {"start": 1, "end": 10}, "role": "primary"}
+            ]},
         )
-        entry = cl.model_dump()
-        parsed, errs = validate_checklist_item(entry)
+        entry = pwc.model_dump()
+        parsed, errs = validate_property(entry)
         assert parsed is not None
         assert errs == []
 
     def test_03_audit_to_04_review(self):
         """Audit item from 03 should be parseable as Phase04 input."""
         audit = AuditMapItem(
-            check_id="CHK-001",
             property_id="PROP-001",
             final_classification="vulnerable",
             summary="Found issue",
@@ -1050,7 +1185,7 @@ class TestResultCollector:
                 config = self._make_config("03")
                 collector = ResultCollector(config)
                 results = [
-                    {"check_id": "CHK-001", "final_classification": "safe"},
+                    {"property_id": "PROP-001", "check_id": "PROP-001", "final_classification": "safe"},
                 ]
                 collector.save_partial(results, worker_id=0, batch_index=1)
                 summary = collector.get_validation_summary()
@@ -1066,10 +1201,10 @@ class TestResultCollector:
             old_cwd = os.getcwd()
             os.chdir(tmpdir)
             try:
-                config = self._make_config("02")
+                config = self._make_config("01e")
                 collector = ResultCollector(config)
-                # Pass something that doesn't match Phase02Partial schema
-                results = [{"garbage_key": "not a checklist item"}]
+                # Pass something that doesn't match Phase01ePartial schema
+                results = [{"garbage_key": "not a property"}]
                 path = collector.save_partial(results, worker_id=0, batch_index=1)
                 # File should still be saved
                 assert path.exists()
@@ -1656,16 +1791,23 @@ class TestExtractTokenUsage:
     """Tests for the extract_token_usage_from_log utility."""
 
     def test_extract_from_stream_json(self):
-        """Should extract usage from Claude CLI stream-json format."""
+        """Should extract usage from Claude CLI stream-json format with message IDs."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
-            f.write('{"type": "message_start", "message": {"usage": {"input_tokens": 5000, "output_tokens": 0}}}\n')
+            # Two events for the same message (same id) — should be deduped
+            f.write('{"type": "assistant", "message": {"id": "msg_01", "usage": {"input_tokens": 5, "output_tokens": 1, "cache_read_input_tokens": 4000, "cache_creation_input_tokens": 1000}}}\n')
             f.write('{"type": "content_block_delta"}\n')
-            f.write('{"type": "message_delta", "usage": {"input_tokens": 5000, "output_tokens": 1200}}\n')
+            f.write('{"type": "assistant", "message": {"id": "msg_01", "usage": {"input_tokens": 5, "output_tokens": 1, "cache_read_input_tokens": 4000, "cache_creation_input_tokens": 1000}}}\n')
+            # Second message
+            f.write('{"type": "assistant", "message": {"id": "msg_02", "usage": {"input_tokens": 7, "output_tokens": 2, "cache_read_input_tokens": 5200, "cache_creation_input_tokens": 800}}}\n')
             f.flush()
             usage = extract_token_usage_from_log(f.name)
         os.unlink(f.name)
-        assert usage["input_tokens"] == 5000
-        assert usage["output_tokens"] == 1200
+        # Summed across 2 unique messages (msg_01 deduped)
+        assert usage["input_tokens"] == 12
+        assert usage["output_tokens"] == 3
+        assert usage["cache_read_tokens"] == 9200
+        assert usage["cache_creation_tokens"] == 1800
+        assert usage["num_turns"] == 2
 
     def test_extract_from_empty_log(self):
         """Empty log should return zero tokens."""
@@ -1675,15 +1817,33 @@ class TestExtractTokenUsage:
         os.unlink(f.name)
         assert usage["input_tokens"] == 0
         assert usage["output_tokens"] == 0
+        assert usage["num_turns"] == 0
 
     def test_extract_from_nonexistent_file(self):
         """Nonexistent file should return zero tokens."""
         usage = extract_token_usage_from_log("/nonexistent/file.jsonl")
         assert usage["input_tokens"] == 0
         assert usage["output_tokens"] == 0
+        assert usage["num_turns"] == 0
 
-    def test_extract_with_multiple_usage_entries(self):
-        """Should take max input_tokens and sum output_tokens."""
+    def test_extract_with_result_event(self):
+        """Result event provides authoritative totals."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            # Some per-message events (should be ignored when result present)
+            f.write('{"type": "assistant", "message": {"id": "msg_01", "usage": {"input_tokens": 5, "output_tokens": 1, "cache_read_input_tokens": 4000, "cache_creation_input_tokens": 1000}}}\n')
+            # Result event with authoritative totals
+            f.write('{"type": "result", "subtype": "success", "num_turns": 16, "usage": {"input_tokens": 61, "output_tokens": 2146, "cache_read_input_tokens": 259216, "cache_creation_input_tokens": 31808}}\n')
+            f.flush()
+            usage = extract_token_usage_from_log(f.name)
+        os.unlink(f.name)
+        assert usage["input_tokens"] == 61
+        assert usage["output_tokens"] == 2146
+        assert usage["cache_read_tokens"] == 259216
+        assert usage["cache_creation_tokens"] == 31808
+        assert usage["num_turns"] == 16
+
+    def test_extract_with_anonymous_events(self):
+        """Events without message IDs are treated as unique messages and summed."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
             f.write('{"usage": {"input_tokens": 3000, "output_tokens": 500}}\n')
             f.write('{"usage": {"input_tokens": 5000, "output_tokens": 800}}\n')
@@ -1691,14 +1851,14 @@ class TestExtractTokenUsage:
             f.flush()
             usage = extract_token_usage_from_log(f.name)
         os.unlink(f.name)
-        assert usage["input_tokens"] == 5000  # max
-        assert usage["output_tokens"] == 1500  # sum
+        assert usage["input_tokens"] == 13000  # sum of 3 unique events
+        assert usage["output_tokens"] == 1500   # sum
 
     def test_extract_with_malformed_lines(self):
         """Should gracefully skip malformed JSON lines."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
             f.write('not json at all\n')
-            f.write('{"usage": {"input_tokens": 1000, "output_tokens": 200}}\n')
+            f.write('{"type": "assistant", "message": {"id": "msg_01", "usage": {"input_tokens": 1000, "output_tokens": 200}}}\n')
             f.write('{broken json\n')
             f.flush()
             usage = extract_token_usage_from_log(f.name)
@@ -1715,11 +1875,11 @@ class TestCostTrackerIntegration:
     """Test CostTracker with real PhaseConfig values."""
 
     def test_phase03_budget(self):
-        """Phase 03 should have max_budget_usd=30.0."""
+        """Phase 03 should have max_budget_usd=50.0."""
         config = get_phase_config("03")
-        assert config.max_budget_usd == 30.0
+        assert config.max_budget_usd == 50.0
         tracker = CostTracker(max_budget_usd=config.max_budget_usd)
-        assert tracker.max_budget_usd == 30.0
+        assert tracker.max_budget_usd == 50.0
 
     def test_phase03_log_anomaly_threshold(self):
         """Phase 03 should have log_anomaly_threshold=3."""
@@ -2157,6 +2317,37 @@ class TestTryRecoverPartial(unittest.TestCase):
             log_path.unlink()
 
 
+class TestMaxTurnsExhausted(unittest.TestCase):
+    """Tests for error_max_turns detection in _execute_batch."""
+
+    def test_error_max_turns_returns_none_for_try_recover(self):
+        """_try_recover_partial should return None for error_max_turns
+        (it's handled earlier in _execute_batch now)."""
+        from orchestrator.runner import ClaudeRunner
+        from orchestrator.config import get_phase_config
+        config = get_phase_config("03")
+        sem = asyncio.Semaphore(1)
+        runner = ClaudeRunner(config, sem)
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            f.write('{"type":"result","subtype":"error_max_turns","is_error":false,'
+                    '"num_turns":26,"duration_ms":90000}\n')
+            log_path = Path(f.name)
+        result_path = Path("/tmp/nonexistent_result.json")
+        try:
+            result = runner._try_recover_partial(
+                log_path, result_path, False, 0, 1, 12345
+            )
+            assert result is None
+        finally:
+            log_path.unlink()
+
+    def test_max_turns_exhausted_exception_exists(self):
+        """MaxTurnsExhausted should be importable from runner."""
+        from orchestrator.runner import MaxTurnsExhausted
+        exc = MaxTurnsExhausted("Batch 42 exhausted 26 turns")
+        assert "26 turns" in str(exc)
+
+
 class TestClaudeRunnerCommand(unittest.TestCase):
     """Tests for ClaudeRunner command building."""
 
@@ -2174,7 +2365,7 @@ class TestClaudeRunnerCommand(unittest.TestCase):
     def test_omits_model_when_not_configured(self):
         from orchestrator.runner import ClaudeRunner
         from orchestrator.config import get_phase_config
-        config = get_phase_config("02")
+        config = get_phase_config("01e")
         sem = asyncio.Semaphore(1)
         runner = ClaudeRunner(config, sem)
         cmd = runner._build_cmd("hello")
