@@ -146,10 +146,11 @@ class TestIdPrefixAssignment:
     def test_assigns_prefix_from_partial(self):
         """Items should get _id_prefix based on 01b partial data."""
         orch = Phase01Orchestrator("01e")
-        # Create a temp 01b partial file
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        # Create a temp 01b partial file inside outputs/ (required by path
+        # traversal guard SEC-C02)
+        os.makedirs("outputs", exist_ok=True)
+        partial_file = os.path.join("outputs", "_test_prefix_partial.json")
+        with open(partial_file, "w") as f:
             json.dump({
                 "specs": [
                     {
@@ -159,7 +160,6 @@ class TestIdPrefixAssignment:
                     }
                 ]
             }, f)
-            partial_file = f.name
 
         try:
             items = [{"file_path": partial_file}]
@@ -171,9 +171,10 @@ class TestIdPrefixAssignment:
     def test_disambiguation_on_slug_collision(self):
         """Duplicate slugs should get a numeric disambiguator."""
         orch = Phase01Orchestrator("01e")
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        # Create temp file inside outputs/ (required by path traversal guard SEC-C02)
+        os.makedirs("outputs", exist_ok=True)
+        partial_file = os.path.join("outputs", "_test_disambiguation_partial.json")
+        with open(partial_file, "w") as f:
             json.dump({
                 "specs": [
                     {
@@ -183,7 +184,6 @@ class TestIdPrefixAssignment:
                     }
                 ]
             }, f)
-            partial_file = f.name
 
         try:
             items = [
