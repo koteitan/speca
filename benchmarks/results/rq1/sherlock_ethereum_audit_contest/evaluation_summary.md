@@ -1,3 +1,49 @@
+# RQ1 Evaluation Report
+
+- Generated at (UTC): 2026-02-24T10:07:11.324862+00:00
+- Dataset: /home/gohan/runners/security-agent-1/_work/security-agent/security-agent/benchmarks/data/rq1/sherlock_contest_1140_issues_1766639267091.csv (366 issues)
+- Audit item filter: classifications=['potential-vulnerability', 'vulnerability']
+- Issue filter: mode=auto
+
+## Experiment Environment
+- AI: claude (codex-cli 0.92.0)
+| Branch | Commit | Phase 03 Runtime | Tokens (in/out/total) | Num Turns | Files |
+| --- | --- | --- | --- | --- | --- |
+| alloy_evm_fusaka | a3ee030 | 2.4m | 23121/435014/105879944 | 1389 | 82 |
+| rust_eth_kzg_fusaka | 853bd4d | 3.1m | 7031/179632/36358051 | 421 | 20 |
+| c_kzg_4844_fusaka | 0aa3a1a | 4.4m | 12755/341389/70238622 | 779 | 36 |
+| grandine_fusaka | f1d757971d | 3.7m | 34661/772778/213896986 | 2027 | 75 |
+| lodestar_fusaka | 598c1ec54e | 3.3m | 14907/332079/84123324 | 817 | 38 |
+| reth_fusaka | 8e65a1d1a2 | 4.3m | 24723/500683/144696898 | 1401 | 48 |
+| nimbus_fusaka | da9305a98 | 3.9m | 30275/645510/171841072 | 1739 | 56 |
+| nethermind_fusaka | 7d34bdd47a | 4.4m | 8998/224051/102757416 | 583 | 19 |
+| lighthouse_fusaka | b8178515c | 8.1m | 56363/1281488/495273141 | 3222 | 134 |
+| prysm_fusaka | 238d5c07df | 4.2m | 54387/1356380/462839722 | 3437 | 149 |
+
+## Matching & Recall
+- Keyword matching against CSV issues selects candidate issues; LLM judges semantic similarity for final match.
+- Recall definition: issue_recall = unique_issue_ids_matched / total_issues_in_scope (per branch).
+- unique_issue_ids_matched is computed from matched audit items' issue_id values.
+- Match config: llm_max=200
+
+## Results
+| Branch | Items | Matched | Overlap | Issues | Issues Matched | Issue Recall | New | LLM Calls |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| alloy_evm_fusaka | 3 | 0 | 0.000 | 20 | 0 | 0.000 | 3 | 3 |
+| rust_eth_kzg_fusaka | 1 | 0 | 0.000 | 333 | 0 | 0.000 | 1 | 1 |
+| c_kzg_4844_fusaka | 5 | 0 | 0.000 | 366 | 0 | 0.000 | 5 | 5 |
+| grandine_fusaka | 12 | 0 | 0.000 | 29 | 0 | 0.000 | 12 | 12 |
+| lodestar_fusaka | 9 | 0 | 0.000 | 24 | 0 | 0.000 | 9 | 9 |
+| reth_fusaka | 4 | 0 | 0.000 | 34 | 0 | 0.000 | 4 | 4 |
+| nimbus_fusaka | 14 | 0 | 0.000 | 63 | 0 | 0.000 | 14 | 14 |
+| nethermind_fusaka | 5 | 0 | 0.000 | 50 | 0 | 0.000 | 5 | 5 |
+| lighthouse_fusaka | 24 | 0 | 0.000 | 51 | 0 | 0.000 | 24 | 24 |
+| prysm_fusaka | 25 | 0 | 0.000 | 50 | 0 | 0.000 | 25 | 25 |
+
+- Overall issue recall (union of branches): 0.000 (0/366)
+
+## Raw Metadata
+```json
 {
   "generated_at": "2026-02-24T10:07:11.105069+00:00",
   "ai": {
@@ -11534,3 +11580,4 @@
     "phase_timing_caveat": "Timing is estimated from phase log timestamps when available."
   }
 }
+```

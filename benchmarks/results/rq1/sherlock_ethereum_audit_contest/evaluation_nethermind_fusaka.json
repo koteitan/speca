@@ -1,0 +1,13 @@
+{
+  "branch": "nethermind_fusaka",
+  "sanitized_branch": "nethermind_fusaka",
+  "items_total": 5,
+  "matched_total": 0,
+  "new_total": 5,
+  "overlap_rate": 0.0,
+  "new_rate": 1.0,
+  "issues_matched_total": 0,
+  "issue_recall": 0.0,
+  "llm_calls": 5,
+  "matches": {}
+}
