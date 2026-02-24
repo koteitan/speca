@@ -103,8 +103,6 @@ def match_branch(
     llm_max: int,
     stage1_threshold: float,
     stage2_threshold: float,
-    keyword_min_overlap: int,
-    candidate_top_k: int,
     audit_classifications: set[str] | None,
 ) -> tuple[dict, list[AuditItem]]:
     sanitized = sanitize_branch(branch)
@@ -124,8 +122,6 @@ def match_branch(
         llm_max,
         stage1_threshold,
         stage2_threshold,
-        keyword_min_overlap,
-        candidate_top_k,
     )
 
     total = len(audit_items)
@@ -170,8 +166,6 @@ def evaluate_branches(
     llm_max: int,
     stage1_threshold: float,
     stage2_threshold: float,
-    keyword_min_overlap: int,
-    candidate_top_k: int,
     baseline_dir: Path | None,
     bootstrap_samples: int,
     bootstrap_seed: int,
@@ -196,8 +190,6 @@ def evaluate_branches(
         "match_config": {
             "stage1_threshold": stage1_threshold,
             "stage2_threshold": stage2_threshold,
-            "keyword_min_overlap": keyword_min_overlap,
-            "candidate_top_k": candidate_top_k,
             "llm_max": llm_max,
             "llm_used": use_llm,
         },
@@ -242,8 +234,6 @@ def evaluate_branches(
             llm_max,
             stage1_threshold,
             stage2_threshold,
-            keyword_min_overlap,
-            candidate_top_k,
             audit_classifications,
         )
 

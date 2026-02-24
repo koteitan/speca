@@ -145,23 +145,6 @@ def extract_audit_items(
     return items
 
 
-def select_keyword_candidates(
-    audit_item: AuditItem,
-    issues: list[Issue],
-    top_k: int,
-    min_overlap: int,
-) -> list[Issue]:
-    scored: list[tuple[int, float, Issue]] = []
-    for issue in issues:
-        overlap = len(audit_item.tokens & issue.tokens)
-        if overlap < min_overlap:
-            continue
-        score = jaccard(audit_item.tokens, issue.tokens)
-        scored.append((overlap, score, issue))
-    scored.sort(key=lambda x: (x[0], x[1]), reverse=True)
-    return [issue for overlap, score, issue in scored[:top_k]]
-
-
 def call_llm(prompt: str) -> str:
     command_override = os.environ.get("LLM_COMMAND")
     if command_override:
@@ -228,22 +211,39 @@ def extract_json_from_text(text: str) -> dict | None:
     return None
 
 
+def _truncate_description(description: str, max_chars: int = 300) -> str:
+    if len(description) <= max_chars:
+        return description
+    return description[:max_chars].rstrip() + "..."
+
+
 def llm_match(audit_item: AuditItem, candidates: list[Issue], llm_id: str) -> tuple[bool, str | None, float]:
     if not candidates:
         return False, None, 0.0
 
     candidate_block = []
     for idx, issue in enumerate(candidates):
+        truncated = _truncate_description(issue.description)
         candidate_block.append(
-            f"[{idx}] ID={issue.issue_id}\nTitle: {issue.title}\nDescription: {issue.description}\n"
+            f"[{idx}] ID={issue.issue_id}\nTitle: {issue.title}\nDescription: {truncated}\n"
         )
 
     prompt = (
-        "You are matching security findings. Decide if the audit finding matches any candidate issue."
-        ' Respond with JSON only: {"match": true|false, "candidate_index": number|null, "confidence": 0-1}.\n\n'
-        "Audit finding:\n"
+        "You are matching an automated code-analysis finding against human-written bug reports.\n\n"
+        "The AUDIT FINDING below was produced by an automated security analyzer. "
+        "It contains file paths, proof traces, and attack scenarios extracted from static analysis.\n\n"
+        "The CANDIDATE ISSUES below are human-written bug reports from a security contest. "
+        "They use natural language, markdown, PoC code, and root-cause analysis.\n\n"
+        "Two items MATCH if they describe the SAME underlying vulnerability or root cause, even if "
+        "the wording is completely different. Key signals:\n"
+        "- Same code file or function is implicated\n"
+        "- Same vulnerability mechanism (e.g., missing validation, race condition, overflow)\n"
+        "- Same security impact or exploit path\n\n"
+        "Respond with JSON only: "
+        '{"match": true|false, "candidate_index": number|null, "confidence": 0.0-1.0}\n\n'
+        "AUDIT FINDING:\n"
         f"{audit_item.text}\n\n"
-        "Candidates:\n"
+        f"CANDIDATE ISSUES ({len(candidates)} total):\n"
         + "\n".join(candidate_block)
         + "\n"
     )
@@ -264,6 +264,21 @@ def llm_match(audit_item: AuditItem, candidates: list[Issue], llm_id: str) -> tu
     return False, None, confidence
 
 
+def _rank_candidates_by_jaccard(
+    audit_item: AuditItem,
+    issues: list[Issue],
+    max_candidates: int = 50,
+) -> list[Issue]:
+    if len(issues) <= max_candidates:
+        return list(issues)
+    scored = []
+    for issue in issues:
+        score = jaccard(audit_item.tokens, issue.tokens)
+        scored.append((score, issue))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return [issue for _, issue in scored[:max_candidates]]
+
+
 def match_items(
     audit_items: list[AuditItem],
     issues: list[Issue],
@@ -271,8 +286,6 @@ def match_items(
     llm_max: int,
     stage1_threshold: float,
     stage2_threshold: float,
-    keyword_min_overlap: int,
-    candidate_top_k: int,
 ) -> tuple[dict[str, dict], dict, int]:
     matches: dict[str, dict] = {}
     stage_counts = {"stage1": 0, "stage2": 0, "stage3": 0}
@@ -319,12 +332,7 @@ def match_items(
                 continue
             if llm_calls >= llm_max:
                 break
-            candidates = select_keyword_candidates(
-                item,
-                issues,
-                top_k=candidate_top_k,
-                min_overlap=keyword_min_overlap,
-            )
+            candidates = _rank_candidates_by_jaccard(item, issues)
             if not candidates:
                 continue
             llm_calls += 1
