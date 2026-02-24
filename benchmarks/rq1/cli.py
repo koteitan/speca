@@ -27,10 +27,7 @@ def main() -> None:
         "--results-dir",
         default=str(ROOT_DIR / "benchmarks" / "results" / "rq1" / "sherlock_ethereum_audit_contest"),
     )
-    parser.add_argument("--use-llm", action="store_true")
     parser.add_argument("--llm-max", type=int, default=200)
-    parser.add_argument("--stage1-threshold", type=float, default=0.88)
-    parser.add_argument("--stage2-threshold", type=float, default=0.25)
     parser.add_argument("--baseline-results", type=str, default="", help="Baseline results dir with evaluation_*.json")
     parser.add_argument("--bootstrap-samples", type=int, default=2000)
     parser.add_argument("--bootstrap-seed", type=int, default=42)
@@ -44,8 +41,8 @@ def main() -> None:
     parser.add_argument(
         "--audit-classifications",
         type=str,
-        default="",
-        help="Comma-separated audit classifications to include (e.g., exploitable,defense-in-depth)",
+        default="vulnerability,potential-vulnerability",
+        help="Comma-separated audit classifications to include",
     )
     parser.add_argument(
         "--client-filter",
@@ -79,10 +76,7 @@ def main() -> None:
         branches=parse_branches(args.branches),
         csv_path=Path(args.csv),
         results_dir=results_dir,
-        use_llm=args.use_llm,
         llm_max=args.llm_max,
-        stage1_threshold=args.stage1_threshold,
-        stage2_threshold=args.stage2_threshold,
         baseline_dir=Path(args.baseline_results) if args.baseline_results else None,
         bootstrap_samples=args.bootstrap_samples,
         bootstrap_seed=args.bootstrap_seed,

@@ -99,10 +99,7 @@ def match_branch(
     branch: str,
     issues: list[Issue],
     results_dir: Path,
-    use_llm: bool,
     llm_max: int,
-    stage1_threshold: float,
-    stage2_threshold: float,
     audit_classifications: set[str] | None,
 ) -> tuple[dict, list[AuditItem]]:
     sanitized = sanitize_branch(branch)
@@ -115,13 +112,10 @@ def match_branch(
     )
     print(f"[rq1] {branch}: {len(audit_items)} audit items after filter")
 
-    matches, stage_counts, llm_calls = match_items(
+    matches, llm_calls = match_items(
         audit_items,
         issues,
-        use_llm,
         llm_max,
-        stage1_threshold,
-        stage2_threshold,
     )
 
     total = len(audit_items)
@@ -143,8 +137,6 @@ def match_branch(
         "new_rate": new_rate,
         "issues_matched_total": issues_matched_total,
         "issue_recall": issue_recall,
-        "stage_counts": stage_counts,
-        "llm_used": use_llm,
         "llm_calls": llm_calls,
         "matches": matches,
     }
@@ -162,10 +154,7 @@ def evaluate_branches(
     branches: list[str],
     csv_path: Path,
     results_dir: Path,
-    use_llm: bool,
     llm_max: int,
-    stage1_threshold: float,
-    stage2_threshold: float,
     baseline_dir: Path | None,
     bootstrap_samples: int,
     bootstrap_seed: int,
@@ -188,10 +177,7 @@ def evaluate_branches(
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "branches": {},
         "match_config": {
-            "stage1_threshold": stage1_threshold,
-            "stage2_threshold": stage2_threshold,
             "llm_max": llm_max,
-            "llm_used": use_llm,
         },
         "audit_item_filter": {
             "classifications": sorted(audit_classifications) if audit_classifications else None,
@@ -230,10 +216,7 @@ def evaluate_branches(
             branch,
             filtered_issues,
             results_dir,
-            use_llm,
             llm_max,
-            stage1_threshold,
-            stage2_threshold,
             audit_classifications,
         )
 
@@ -283,8 +266,6 @@ def evaluate_branches(
             "issues_total": len(filtered_issues),
             "overlap_rate_ci": overlap_ci,
             "new_rate_ci": new_ci,
-            "stage_counts": detail["stage_counts"],
-            "llm_used": detail["llm_used"],
             "llm_calls": detail["llm_calls"],
             "issue_filter": {
                 "mode": client_filter,
@@ -309,7 +290,6 @@ def evaluate_branches(
                 "branch": branch,
                 "item_id": item.item_id,
                 "matched": matched,
-                "stage": detail["matches"].get(item.item_id, {}).get("stage") if matched else None,
                 "issue_id": issue_id,
                 "issue_title": issue.title if issue else None,
                 "issue_description": issue.description if issue else None,

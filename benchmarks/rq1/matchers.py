@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""RQ1 matching logic (stage1/2/3)."""
+"""RQ1 matching logic — LLM-based root-cause matching."""
 
 from __future__ import annotations
 
-import difflib
 import json
 import os
 import re
@@ -48,12 +47,6 @@ def tokenize(text: str) -> set[str]:
     if not text:
         return set()
     return set(re.findall(r"[a-z0-9_]+", text.lower()))
-
-
-def similarity(a: str, b: str) -> float:
-    if not a or not b:
-        return 0.0
-    return difflib.SequenceMatcher(None, a, b).ratio()
 
 
 def jaccard(a: set[str], b: set[str]) -> float:
@@ -229,21 +222,11 @@ def llm_match(audit_item: AuditItem, candidates: list[Issue], llm_id: str) -> tu
         )
 
     prompt = (
-        "You are matching an automated code-analysis finding against human-written bug reports.\n\n"
-        "The AUDIT FINDING below was produced by an automated security analyzer. "
-        "It contains file paths, proof traces, and attack scenarios extracted from static analysis.\n\n"
-        "The CANDIDATE ISSUES below are human-written bug reports from a security contest. "
-        "They use natural language, markdown, PoC code, and root-cause analysis.\n\n"
-        "Two items MATCH if they describe the SAME underlying vulnerability or root cause, even if "
-        "the wording is completely different. Key signals:\n"
-        "- Same code file or function is implicated\n"
-        "- Same vulnerability mechanism (e.g., missing validation, race condition, overflow)\n"
-        "- Same security impact or exploit path\n\n"
-        "Respond with JSON only: "
-        '{"match": true|false, "candidate_index": number|null, "confidence": 0.0-1.0}\n\n'
+        "Does the following audit finding share the same root cause as any candidate issue?\n"
+        'Respond with JSON only: {"match": true|false, "candidate_index": number|null, "confidence": 0.0-1.0}\n\n'
         "AUDIT FINDING:\n"
         f"{audit_item.text}\n\n"
-        f"CANDIDATE ISSUES ({len(candidates)} total):\n"
+        f"CANDIDATES:\n"
         + "\n".join(candidate_block)
         + "\n"
     )
@@ -282,68 +265,24 @@ def _rank_candidates_by_jaccard(
 def match_items(
     audit_items: list[AuditItem],
     issues: list[Issue],
-    use_llm: bool,
     llm_max: int,
-    stage1_threshold: float,
-    stage2_threshold: float,
-) -> tuple[dict[str, dict], dict, int]:
+) -> tuple[dict[str, dict], int]:
     matches: dict[str, dict] = {}
-    stage_counts = {"stage1": 0, "stage2": 0, "stage3": 0}
     llm_calls = 0
 
     for item in audit_items:
-        best_score = 0.0
-        best_issue = None
-        for issue in issues:
-            score = similarity(item.normalized, issue.normalized)
-            if score > best_score:
-                best_score = score
-                best_issue = issue
-        if best_issue and best_score >= stage1_threshold:
-            matches[item.item_id] = {
-                "stage": "stage1",
-                "issue_id": best_issue.issue_id,
-                "score": best_score,
-            }
-            stage_counts["stage1"] += 1
-
-    for item in audit_items:
-        if item.item_id in matches:
+        if llm_calls >= llm_max:
+            break
+        candidates = _rank_candidates_by_jaccard(item, issues)
+        if not candidates:
             continue
-        best_score = 0.0
-        best_issue = None
-        for issue in issues:
-            overlap = len(item.tokens & issue.tokens)
-            score = jaccard(item.tokens, issue.tokens)
-            if score > best_score and overlap >= 3:
-                best_score = score
-                best_issue = issue
-        if best_issue and best_score >= stage2_threshold:
+        llm_calls += 1
+        llm_id = item.item_id or f"item_{llm_calls}"
+        matched, issue_id, confidence = llm_match(item, candidates, llm_id)
+        if matched and issue_id:
             matches[item.item_id] = {
-                "stage": "stage2",
-                "issue_id": best_issue.issue_id,
-                "score": best_score,
+                "issue_id": issue_id,
+                "score": confidence,
             }
-            stage_counts["stage2"] += 1
 
-    if use_llm:
-        for item in audit_items:
-            if item.item_id in matches:
-                continue
-            if llm_calls >= llm_max:
-                break
-            candidates = _rank_candidates_by_jaccard(item, issues)
-            if not candidates:
-                continue
-            llm_calls += 1
-            llm_id = item.item_id or f"item_{llm_calls}"
-            matched, issue_id, confidence = llm_match(item, candidates, llm_id)
-            if matched and issue_id:
-                matches[item.item_id] = {
-                    "stage": "stage3",
-                    "issue_id": issue_id,
-                    "score": confidence,
-                }
-                stage_counts["stage3"] += 1
-
-    return matches, stage_counts, llm_calls
+    return matches, llm_calls
