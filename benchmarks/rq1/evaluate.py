@@ -81,6 +81,24 @@ def _invert_recall_matches(recall_matches: dict[str, dict]) -> dict[str, list[st
 # ── Label CSV generation ─────────────────────────────────────────────
 
 
+def _load_target_info(results_dir: Path) -> dict[str, dict]:
+    """Load TARGET_INFO.json per branch → {branch: {repo, commit}}."""
+    info: dict[str, dict] = {}
+    for sub in sorted(results_dir.iterdir()):
+        ti = sub / "TARGET_INFO.json"
+        if sub.is_dir() and ti.exists():
+            try:
+                data = json.loads(ti.read_text(encoding="utf-8"))
+                commit = str(data.get("target_commit") or "")
+                info[sub.name] = {
+                    "repo": str(data.get("target_repo") or ""),
+                    "commit": commit[:10] if commit else "",
+                }
+            except (json.JSONDecodeError, OSError):
+                pass
+    return info
+
+
 def generate_labels_csv(
     all_items: list[AuditItem],
     recall_matches: dict[str, dict],
@@ -107,16 +125,19 @@ def generate_labels_csv(
     else:
         fp_matches = check_findings_fp(unmatched, non_hml, cache_path=fp_cache)
 
-    # Build issue lookup
+    # Build issue lookup + target info
     issue_map = {i.issue_id: i for i in all_issues}
+    target_info = _load_target_info(results_dir)
 
     # Write CSV
     out_path = results_dir / "findings_labels.csv"
     rows: list[dict] = []
     for item in all_items:
+        branch_info = target_info.get(sanitize_branch(item.branch), {})
         row: dict[str, str] = {
             "finding_id": item.item_id,
-            "branch": item.branch,
+            "repo": branch_info.get("repo", ""),
+            "commit": branch_info.get("commit", ""),
             "classification": item.classification or "",
             "text": _truncate(item.text, 200),
             "auto_label": "",
@@ -136,7 +157,7 @@ def generate_labels_csv(
             fp = fp_matches[item.item_id]
             issue = issue_map.get(fp["issue_id"])
             severity = issue.severity if issue else fp.get("severity", "")
-            row["auto_label"] = f"fp_{severity}" if severity else "fp"
+            row["auto_label"] = f"tp_{severity}" if severity == "info" else f"fp_{severity}" if severity else "fp"
             row["csv_issue_id"] = fp["issue_id"]
             row["csv_severity"] = severity
             row["csv_title"] = issue.title if issue else fp.get("title", "")
@@ -144,7 +165,7 @@ def generate_labels_csv(
             row["auto_label"] = "unknown"
         rows.append(row)
 
-    fieldnames = ["finding_id", "branch", "classification", "text", "auto_label",
+    fieldnames = ["finding_id", "repo", "commit", "classification", "text", "auto_label",
                   "csv_issue_id", "csv_severity", "csv_title", "human_label"]
     with out_path.open("w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -154,7 +175,7 @@ def generate_labels_csv(
     # Summary
     labels = [r["auto_label"] for r in rows]
     print(f"[rq1] labels CSV: {out_path}")
-    print(f"[rq1]   tp={labels.count('tp')} fp_invalid={labels.count('fp_invalid')} fp_info={labels.count('fp_info')} unknown={labels.count('unknown')}")
+    print(f"[rq1]   tp={labels.count('tp')} tp_info={labels.count('tp_info')} fp_invalid={labels.count('fp_invalid')} unknown={labels.count('unknown')}")
     return out_path
 
 
@@ -172,20 +193,23 @@ def compute_precision(labels_csv_path: Path) -> dict:
     total = len(rows)
     auto_tp = sum(1 for r in rows if r.get("auto_label") == "tp")
     auto_fp_invalid = sum(1 for r in rows if r.get("auto_label") == "fp_invalid")
-    auto_fp_info = sum(1 for r in rows if r.get("auto_label") == "fp_info")
+    auto_tp_info = sum(1 for r in rows if r.get("auto_label") == "tp_info")
     auto_unknown = sum(1 for r in rows if r.get("auto_label") == "unknown")
 
     # Human labels (if filled in)
     human_tp = sum(1 for r in rows if (r.get("human_label") or "").strip().lower() in ("tp", "true", "1", "yes"))
     human_fp = sum(1 for r in rows if (r.get("human_label") or "").strip().lower() in ("fp", "false", "0", "no"))
-    human_unlabeled = total - auto_tp - auto_fp_invalid - auto_fp_info - human_tp - human_fp
+    human_unlabeled = total - auto_tp - auto_fp_invalid - auto_tp_info - human_tp - human_fp
+
+    # tp_info = info-level finding (real issue, low severity) → counts as TP
+    auto_tp_total = auto_tp + auto_tp_info
 
     # Precision calculations
-    auto_labeled = auto_tp + auto_fp_invalid + auto_fp_info
-    precision_auto = auto_tp / auto_labeled if auto_labeled else 0.0
+    auto_labeled = auto_tp_total + auto_fp_invalid
+    precision_auto = auto_tp_total / auto_labeled if auto_labeled else 0.0
 
     all_labeled = auto_labeled + human_tp + human_fp
-    total_tp = auto_tp + human_tp
+    total_tp = auto_tp_total + human_tp
     precision_full = total_tp / all_labeled if all_labeled else 0.0
 
     # Conservative (treat unknown as FP)
@@ -195,7 +219,7 @@ def compute_precision(labels_csv_path: Path) -> dict:
         "total_findings": total,
         "auto_tp": auto_tp,
         "auto_fp_invalid": auto_fp_invalid,
-        "auto_fp_info": auto_fp_info,
+        "auto_tp_info": auto_tp_info,
         "auto_unknown": auto_unknown,
         "human_tp": human_tp,
         "human_fp": human_fp,
