@@ -114,18 +114,18 @@
   "precision": {
     "total_findings": 102,
     "auto_tp": 17,
-    "auto_fp_invalid": 53,
-    "auto_tp_info": 25,
-    "auto_unknown": 7,
+    "auto_fp_invalid": 17,
+    "auto_tp_info": 15,
+    "auto_unknown": 53,
     "human_tp": 0,
     "human_fp": 0,
-    "human_unlabeled": 7,
-    "precision_auto": 0.4421,
-    "precision_full": 0.4421,
-    "precision_conservative": 0.4118,
-    "total_tp": 42
+    "human_unlabeled": 53,
+    "precision_auto": 0.6531,
+    "precision_full": 0.6531,
+    "precision_conservative": 0.3137,
+    "total_tp": 32
   },
-  "f1": 0.6132,
+  "f1": 0.7902,
   "run_metadata": {
     "generated_at": "2026-02-24T11:53:07.735735+00:00",
     "ai": {
