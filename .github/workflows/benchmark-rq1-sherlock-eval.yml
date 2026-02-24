@@ -114,7 +114,7 @@ jobs:
           if [ "${{ inputs.use_llm }}" = "true" ]; then
             LLM_FLAG="--use-llm"
           fi
-          uv run python benchmarks/rq1/cli.py \
+          uv run python -m benchmarks.rq1.cli \
             --branches "${{ inputs.branches }}" \
             --results-dir "benchmarks/results/rq1/sherlock_ethereum_audit_contest" \
             --llm-max "${{ inputs.llm_max }}" \
