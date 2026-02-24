@@ -156,6 +156,15 @@ def call_llm(prompt: str) -> str:
     if result.returncode != 0:
         print(f"[rq1] call_llm failed (rc={result.returncode}): {result.stderr[:300] if result.stderr else ''}")
         return ""
+
+    # claude --output-format json returns {"type":"result","result":"<llm text>"}
+    # Unwrap the envelope to get the raw LLM text.
+    try:
+        envelope = json.loads(result.stdout)
+        if isinstance(envelope, dict) and "result" in envelope:
+            return str(envelope["result"])
+    except (json.JSONDecodeError, TypeError):
+        pass
     return result.stdout
 
 
@@ -183,7 +192,7 @@ def extract_json_from_text(text: str) -> dict | None:
             if match:
                 return json.loads(match.group(0))
     except Exception:
-        return None
+        pass
 
     match = re.search(r"\{.*\}", text, flags=re.DOTALL)
     if match:
