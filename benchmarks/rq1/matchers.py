@@ -6,7 +6,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import shlex
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -139,32 +138,23 @@ def extract_audit_items(
 
 
 def call_llm(prompt: str) -> str:
-    command_override = os.environ.get("LLM_COMMAND")
-    if command_override:
-        base = shlex.split(command_override)
-        command = base + [prompt]
-    else:
-        provider = os.environ.get("LLM_PROVIDER", "claude").strip().lower()
-        if provider == "codex":
-            command = [
-                "codex",
-                "exec",
-                "--sandbox",
-                "read-only",
-                "--ask-for-approval",
-                "never",
-                prompt,
-            ]
-        else:
-            command = ["claude", "--output-format", "json", "-p", prompt]
+    env = os.environ.copy()
+    # Prevent nested-session detection (same as runner.py)
+    for var in ("CLAUDECODE", "CLAUDE_CODE_SESSION_ID"):
+        env.pop(var, None)
+
+    model = env.get("RQ1_MODEL", "haiku")
+    command = ["claude", "--output-format", "json", "--model", model, "-p", prompt]
 
     result = subprocess.run(
         command,
         check=False,
         capture_output=True,
         text=True,
+        env=env,
     )
     if result.returncode != 0:
+        print(f"[rq1] call_llm failed (rc={result.returncode}): {result.stderr[:300] if result.stderr else ''}")
         return ""
     return result.stdout
 
@@ -231,9 +221,12 @@ def llm_match(audit_item: AuditItem, candidates: list[Issue], llm_id: str) -> tu
         + "\n"
     )
 
-    print(f"[rq1] {llm_id}: llm_match start (candidates={len(candidates)})")
+    print(f"[rq1] {llm_id}: llm_match start (candidates={len(candidates)}, prompt_chars={len(prompt)})")
     raw = call_llm(prompt)
     print(f"[rq1] {llm_id}: llm_match done (bytes={len(raw) if raw else 0})")
+    if raw:
+        preview = raw[:500].replace("\n", "\\n")
+        print(f"[rq1] {llm_id}: raw response: {preview}")
     payload = extract_json_from_text(raw) or {}
     match = bool(payload.get("match"))
     idx = payload.get("candidate_index")

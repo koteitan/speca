@@ -131,13 +131,10 @@ def main() -> None:
 
     lines.append("## Matching & Recall")
     lines.append(
-        "- Keyword matching against CSV issues selects candidate issues; LLM judges semantic similarity for final match."
+        "- LLM judges whether each audit finding shares the same root cause as any candidate issue."
     )
     lines.append(
         "- Recall definition: issue_recall = unique_issue_ids_matched / total_issues_in_scope (per branch)."
-    )
-    lines.append(
-        "- unique_issue_ids_matched is computed from matched audit items' issue_id values."
     )
     if match_config:
         lines.append(
