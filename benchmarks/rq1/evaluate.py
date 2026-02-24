@@ -106,7 +106,6 @@ def match_branch(
     keyword_min_overlap: int,
     candidate_top_k: int,
     audit_classifications: set[str] | None,
-    audit_include_bug_bounty: bool,
 ) -> tuple[dict, list[AuditItem]]:
     sanitized = sanitize_branch(branch)
     branch_dir = results_dir / sanitized
@@ -115,7 +114,6 @@ def match_branch(
     audit_items = extract_audit_items(
         files,
         classification_filter=audit_classifications,
-        include_bug_bounty=audit_include_bug_bounty,
     )
     print(f"[rq1] {branch}: {len(audit_items)} audit items after filter")
 
@@ -185,7 +183,6 @@ def evaluate_branches(
     human_labels_report: Path | None,
     metadata_path: Path | None,
     audit_classifications: set[str] | None,
-    audit_include_bug_bounty: bool,
     client_filter: str,
     client_keywords: list[str],
 ) -> dict:
@@ -206,7 +203,6 @@ def evaluate_branches(
         },
         "audit_item_filter": {
             "classifications": sorted(audit_classifications) if audit_classifications else None,
-            "include_bug_bounty": audit_include_bug_bounty,
         },
         "issue_filter": {
             "mode": client_filter,
@@ -249,7 +245,6 @@ def evaluate_branches(
             keyword_min_overlap,
             candidate_top_k,
             audit_classifications,
-            audit_include_bug_bounty,
         )
 
         matched_flags = [item.item_id in detail["matches"] for item in audit_items]

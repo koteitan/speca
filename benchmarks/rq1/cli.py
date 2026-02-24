@@ -50,11 +50,6 @@ def main() -> None:
         help="Comma-separated audit classifications to include (e.g., exploitable,defense-in-depth)",
     )
     parser.add_argument(
-        "--audit-include-bug-bounty",
-        action="store_true",
-        help="Include items marked bug_bounty_eligible regardless of classification filter",
-    )
-    parser.add_argument(
         "--client-filter",
         type=str,
         default="none",
@@ -103,7 +98,6 @@ def main() -> None:
         human_labels_report=Path(args.human_labels_report) if args.human_labels_report else None,
         metadata_path=Path(args.metadata) if args.metadata else None,
         audit_classifications=audit_classifications,
-        audit_include_bug_bounty=args.audit_include_bug_bounty,
         client_filter=client_filter,
         client_keywords=client_keywords,
     )

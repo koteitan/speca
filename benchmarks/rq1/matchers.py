@@ -79,73 +79,42 @@ def load_csv_issues(path: Path) -> list[Issue]:
     return issues
 
 
-def build_audit_text(raw: dict) -> tuple[str, str, str, str, str, str | None]:
-    item_id = str(raw.get("id") or raw.get("check_id") or "")
-    description = str(raw.get("description") or raw.get("summary") or "")
-    snippet = str(raw.get("snippet") or "")
-    file = str(raw.get("file") or "")
-    line = str(raw.get("line") or "")
+def build_audit_text(raw: dict) -> tuple[str, str, str, str, str, str, str]:
+    """Extract fields from a Phase 03 audit item.
 
-    code_scope = raw.get("code_scope") if isinstance(raw.get("code_scope"), dict) else {}
-    scope_desc = str(code_scope.get("description") or "")
+    Phase 03 schema: property_id, classification, code_path, proof_trace, attack_scenario, checklist_id
+    code_path format: "file.go::func::L10-20"
+    """
+    item_id = str(raw.get("property_id") or "")
+    description = str(raw.get("proof_trace") or "")
+    snippet = str(raw.get("attack_scenario") or "")
+    classification = str(raw.get("classification") or "")
 
-    text_parts = [description, scope_desc, snippet, file, line]
+    code_path = str(raw.get("code_path") or "")
+    parts = code_path.split("::")
+    file = parts[0] if parts else ""
+    line = parts[-1] if len(parts) > 1 else ""
+
+    text_parts = [description, snippet, file, line]
     text = "\n".join(part for part in text_parts if part).strip()
-    classification = None
-    for key in ("final_classification", "classification", "verdict", "risk_classification"):
-        value = raw.get(key)
-        if isinstance(value, str) and value.strip():
-            classification = value.strip()
-            break
-    return item_id, description, snippet, file, line if line else "", text, classification
-
-
-def extract_classifications(raw: dict) -> set[str]:
-    values: set[str] = set()
-    for key in (
-        "final_classification",
-        "classification",
-        "verdict",
-        "risk_classification",
-        "exploitability_classification",
-    ):
-        value = raw.get(key)
-        if isinstance(value, str) and value.strip():
-            values.add(value.strip().lower())
-    severity = raw.get("severity")
-    if isinstance(severity, str) and severity.strip():
-        values.add(severity.strip().lower())
-    severity_hint = raw.get("severity_hint")
-    if isinstance(severity_hint, str) and severity_hint.strip():
-        values.add(severity_hint.strip().lower())
-    severity_class = raw.get("severity_classification")
-    if isinstance(severity_class, dict):
-        for key in ("bug_bounty_severity", "severity", "classification"):
-            value = severity_class.get(key)
-            if isinstance(value, str) and value.strip():
-                values.add(value.strip().lower())
-    return values
+    return item_id, description, snippet, file, line, text, classification
 
 
 def is_selected_audit_item(
     raw: dict,
     classification_filter: set[str] | None,
-    include_bug_bounty: bool,
 ) -> bool:
-    if classification_filter is None and not include_bug_bounty:
-        return True
-    if include_bug_bounty and raw.get("bug_bounty_eligible") is True:
-        return True
     if classification_filter is None:
-        return False
-    classifications = extract_classifications(raw)
-    return bool(classifications & classification_filter)
+        return True
+    value = raw.get("classification")
+    if isinstance(value, str) and value.strip().lower() in classification_filter:
+        return True
+    return False
 
 
 def extract_audit_items(
     files: Iterable[Path],
     classification_filter: set[str] | None = None,
-    include_bug_bounty: bool = False,
 ) -> list[AuditItem]:
     items: list[AuditItem] = []
     for path in files:
@@ -156,30 +125,21 @@ def extract_audit_items(
 
         raw_items: list[dict] = []
         if isinstance(payload, dict) and isinstance(payload.get("audit_items"), list):
-            raw_items = [item for item in payload.get("audit_items") if isinstance(item, dict)]
-        elif isinstance(payload, list):
-            raw_items = [item for item in payload if isinstance(item, dict)]
+            raw_items = [item for item in payload["audit_items"] if isinstance(item, dict)]
 
         if not raw_items:
             continue
 
         for raw in raw_items:
-            if not is_selected_audit_item(raw, classification_filter, include_bug_bounty):
+            if not is_selected_audit_item(raw, classification_filter):
                 continue
             item_id, description, snippet, file, line, text, classification = build_audit_text(raw)
             normalized = normalize_text(text)
             tokens = tokenize(text)
             items.append(
                 AuditItem(
-                    item_id,
-                    description,
-                    snippet,
-                    file,
-                    line,
-                    text,
-                    normalized,
-                    tokens,
-                    classification=classification,
+                    item_id, description, snippet, file, line,
+                    text, normalized, tokens, classification=classification,
                 )
             )
     return items
