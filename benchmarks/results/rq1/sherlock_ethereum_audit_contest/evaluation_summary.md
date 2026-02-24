@@ -1,7 +1,7 @@
 # RQ1 Evaluation Report
 
-- Generated at (UTC): 2026-02-24T10:13:55.104590+00:00
-- Dataset: /home/gohan/runners/security-agent-2/_work/security-agent/security-agent/benchmarks/data/rq1/sherlock_contest_1140_issues_1766639267091.csv (366 issues)
+- Generated at (UTC): 2026-02-24T10:40:32.499778+00:00
+- Dataset: /home/gohan/runners/security-agent-1/_work/security-agent/security-agent/benchmarks/data/rq1/sherlock_contest_1140_issues_1766639267091.csv (366 issues)
 - Audit item filter: classifications=['potential-vulnerability', 'vulnerability']
 - Issue filter: mode=auto
 
@@ -28,23 +28,23 @@
 ## Results
 | Branch | Items | Matched | Overlap | Issues | Issues Matched | Issue Recall | New | LLM Calls |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| alloy_evm_fusaka | 3 | 0 | 0.000 | 20 | 0 | 0.000 | 3 | 3 |
+| alloy_evm_fusaka | 3 | 1 | 0.333 | 20 | 1 | 0.050 | 2 | 3 |
 | rust_eth_kzg_fusaka | 1 | 0 | 0.000 | 333 | 0 | 0.000 | 1 | 1 |
-| c_kzg_4844_fusaka | 5 | 0 | 0.000 | 366 | 0 | 0.000 | 5 | 5 |
-| grandine_fusaka | 12 | 0 | 0.000 | 29 | 0 | 0.000 | 12 | 12 |
-| lodestar_fusaka | 9 | 0 | 0.000 | 24 | 0 | 0.000 | 9 | 9 |
+| c_kzg_4844_fusaka | 5 | 5 | 1.000 | 366 | 3 | 0.008 | 0 | 5 |
+| grandine_fusaka | 12 | 6 | 0.500 | 29 | 4 | 0.138 | 6 | 12 |
+| lodestar_fusaka | 9 | 8 | 0.889 | 24 | 4 | 0.167 | 1 | 9 |
 | reth_fusaka | 4 | 0 | 0.000 | 34 | 0 | 0.000 | 4 | 4 |
-| nimbus_fusaka | 14 | 0 | 0.000 | 63 | 0 | 0.000 | 14 | 14 |
-| nethermind_fusaka | 5 | 0 | 0.000 | 50 | 0 | 0.000 | 5 | 5 |
-| lighthouse_fusaka | 24 | 0 | 0.000 | 51 | 0 | 0.000 | 24 | 24 |
-| prysm_fusaka | 25 | 0 | 0.000 | 50 | 0 | 0.000 | 25 | 25 |
+| nimbus_fusaka | 14 | 12 | 0.857 | 63 | 10 | 0.159 | 2 | 14 |
+| nethermind_fusaka | 5 | 4 | 0.800 | 50 | 3 | 0.060 | 1 | 5 |
+| lighthouse_fusaka | 24 | 24 | 1.000 | 51 | 12 | 0.235 | 0 | 24 |
+| prysm_fusaka | 25 | 13 | 0.520 | 50 | 10 | 0.200 | 12 | 25 |
 
-- Overall issue recall (union of branches): 0.000 (0/366)
+- Overall issue recall (union of branches): 0.120 (44/366)
 
 ## Raw Metadata
 ```json
 {
-  "generated_at": "2026-02-24T10:13:54.884206+00:00",
+  "generated_at": "2026-02-24T10:40:32.277620+00:00",
   "ai": {
     "name": "claude",
     "version": "2.1.39 (Claude Code)"

@@ -1,30 +1,30 @@
 {
   "dataset": {
-    "path": "/home/gohan/runners/security-agent-2/_work/security-agent/security-agent/benchmarks/data/rq1/sherlock_contest_1140_issues_1766639267091.csv",
+    "path": "/home/gohan/runners/security-agent-1/_work/security-agent/security-agent/benchmarks/data/rq1/sherlock_contest_1140_issues_1766639267091.csv",
     "issues": 366
   },
-  "generated_at": "2026-02-24T10:13:55.104590+00:00",
+  "generated_at": "2026-02-24T10:40:32.499778+00:00",
   "branches": {
     "alloy_evm_fusaka": {
       "items_total": 3,
-      "matched_total": 0,
-      "new_total": 3,
-      "overlap_rate": 0.0,
-      "new_rate": 1.0,
-      "issues_matched_total": 0,
-      "issue_recall": 0.0,
+      "matched_total": 1,
+      "new_total": 2,
+      "overlap_rate": 0.3333333333333333,
+      "new_rate": 0.6666666666666666,
+      "issues_matched_total": 1,
+      "issue_recall": 0.05,
       "issues_total": 20,
       "overlap_rate_ci": {
-        "mean": 0.0,
+        "mean": 0.3316666666666679,
         "ci": [
           0.0,
-          0.0
+          1.0
         ]
       },
       "new_rate_ci": {
-        "mean": 1.0,
+        "mean": 0.6683333333333297,
         "ci": [
-          1.0,
+          0.0,
           1.0
         ]
       },
@@ -74,25 +74,25 @@
     },
     "c_kzg_4844_fusaka": {
       "items_total": 5,
-      "matched_total": 0,
-      "new_total": 5,
-      "overlap_rate": 0.0,
-      "new_rate": 1.0,
-      "issues_matched_total": 0,
-      "issue_recall": 0.0,
+      "matched_total": 5,
+      "new_total": 0,
+      "overlap_rate": 1.0,
+      "new_rate": 0.0,
+      "issues_matched_total": 3,
+      "issue_recall": 0.00819672131147541,
       "issues_total": 366,
       "overlap_rate_ci": {
-        "mean": 0.0,
-        "ci": [
-          0.0,
-          0.0
-        ]
-      },
-      "new_rate_ci": {
         "mean": 1.0,
         "ci": [
           1.0,
           1.0
+        ]
+      },
+      "new_rate_ci": {
+        "mean": 0.0,
+        "ci": [
+          0.0,
+          0.0
         ]
       },
       "llm_calls": 5,
@@ -109,25 +109,25 @@
     },
     "grandine_fusaka": {
       "items_total": 12,
-      "matched_total": 0,
-      "new_total": 12,
-      "overlap_rate": 0.0,
-      "new_rate": 1.0,
-      "issues_matched_total": 0,
-      "issue_recall": 0.0,
+      "matched_total": 6,
+      "new_total": 6,
+      "overlap_rate": 0.5,
+      "new_rate": 0.5,
+      "issues_matched_total": 4,
+      "issue_recall": 0.13793103448275862,
       "issues_total": 29,
       "overlap_rate_ci": {
-        "mean": 0.0,
+        "mean": 0.49725000000000164,
         "ci": [
-          0.0,
-          0.0
+          0.25,
+          0.75
         ]
       },
       "new_rate_ci": {
-        "mean": 1.0,
+        "mean": 0.5027500000000003,
         "ci": [
-          1.0,
-          1.0
+          0.25,
+          0.75
         ]
       },
       "llm_calls": 12,
@@ -141,25 +141,25 @@
     },
     "lodestar_fusaka": {
       "items_total": 9,
-      "matched_total": 0,
-      "new_total": 9,
-      "overlap_rate": 0.0,
-      "new_rate": 1.0,
-      "issues_matched_total": 0,
-      "issue_recall": 0.0,
+      "matched_total": 8,
+      "new_total": 1,
+      "overlap_rate": 0.8888888888888888,
+      "new_rate": 0.1111111111111111,
+      "issues_matched_total": 4,
+      "issue_recall": 0.16666666666666666,
       "issues_total": 24,
       "overlap_rate_ci": {
-        "mean": 0.0,
+        "mean": 0.8933333333333421,
         "ci": [
-          0.0,
-          0.0
+          0.6666666666666666,
+          1.0
         ]
       },
       "new_rate_ci": {
-        "mean": 1.0,
+        "mean": 0.10666666666666914,
         "ci": [
-          1.0,
-          1.0
+          0.0,
+          0.3333333333333333
         ]
       },
       "llm_calls": 9,
@@ -206,25 +206,25 @@
     },
     "nimbus_fusaka": {
       "items_total": 14,
-      "matched_total": 0,
-      "new_total": 14,
-      "overlap_rate": 0.0,
-      "new_rate": 1.0,
-      "issues_matched_total": 0,
-      "issue_recall": 0.0,
+      "matched_total": 12,
+      "new_total": 2,
+      "overlap_rate": 0.8571428571428571,
+      "new_rate": 0.14285714285714285,
+      "issues_matched_total": 10,
+      "issue_recall": 0.15873015873015872,
       "issues_total": 63,
       "overlap_rate_ci": {
-        "mean": 0.0,
+        "mean": 0.8572857142856976,
         "ci": [
-          0.0,
-          0.0
+          0.6428571428571429,
+          1.0
         ]
       },
       "new_rate_ci": {
-        "mean": 1.0,
+        "mean": 0.14271428571428527,
         "ci": [
-          1.0,
-          1.0
+          0.0,
+          0.35714285714285715
         ]
       },
       "llm_calls": 14,
@@ -241,25 +241,25 @@
     },
     "nethermind_fusaka": {
       "items_total": 5,
-      "matched_total": 0,
-      "new_total": 5,
-      "overlap_rate": 0.0,
-      "new_rate": 1.0,
-      "issues_matched_total": 0,
-      "issue_recall": 0.0,
+      "matched_total": 4,
+      "new_total": 1,
+      "overlap_rate": 0.8,
+      "new_rate": 0.2,
+      "issues_matched_total": 3,
+      "issue_recall": 0.06,
       "issues_total": 50,
       "overlap_rate_ci": {
-        "mean": 0.0,
+        "mean": 0.7998999999999891,
         "ci": [
-          0.0,
-          0.0
+          0.4,
+          1.0
         ]
       },
       "new_rate_ci": {
-        "mean": 1.0,
+        "mean": 0.20009999999999958,
         "ci": [
-          1.0,
-          1.0
+          0.0,
+          0.6
         ]
       },
       "llm_calls": 5,
@@ -273,25 +273,25 @@
     },
     "lighthouse_fusaka": {
       "items_total": 24,
-      "matched_total": 0,
-      "new_total": 24,
-      "overlap_rate": 0.0,
-      "new_rate": 1.0,
-      "issues_matched_total": 0,
-      "issue_recall": 0.0,
+      "matched_total": 24,
+      "new_total": 0,
+      "overlap_rate": 1.0,
+      "new_rate": 0.0,
+      "issues_matched_total": 12,
+      "issue_recall": 0.23529411764705882,
       "issues_total": 51,
       "overlap_rate_ci": {
-        "mean": 0.0,
-        "ci": [
-          0.0,
-          0.0
-        ]
-      },
-      "new_rate_ci": {
         "mean": 1.0,
         "ci": [
           1.0,
           1.0
+        ]
+      },
+      "new_rate_ci": {
+        "mean": 0.0,
+        "ci": [
+          0.0,
+          0.0
         ]
       },
       "llm_calls": 24,
@@ -306,25 +306,25 @@
     },
     "prysm_fusaka": {
       "items_total": 25,
-      "matched_total": 0,
-      "new_total": 25,
-      "overlap_rate": 0.0,
-      "new_rate": 1.0,
-      "issues_matched_total": 0,
-      "issue_recall": 0.0,
+      "matched_total": 13,
+      "new_total": 12,
+      "overlap_rate": 0.52,
+      "new_rate": 0.48,
+      "issues_matched_total": 10,
+      "issue_recall": 0.2,
       "issues_total": 50,
       "overlap_rate_ci": {
-        "mean": 0.0,
+        "mean": 0.5206599999999908,
         "ci": [
-          0.0,
-          0.0
+          0.32,
+          0.72
         ]
       },
       "new_rate_ci": {
-        "mean": 1.0,
+        "mean": 0.47933999999999427,
         "ci": [
-          1.0,
-          1.0
+          0.28,
+          0.68
         ]
       },
       "llm_calls": 25,
@@ -352,7 +352,7 @@
     "keywords": null
   },
   "run_metadata": {
-    "generated_at": "2026-02-24T10:13:54.884206+00:00",
+    "generated_at": "2026-02-24T10:40:32.277620+00:00",
     "ai": {
       "name": "claude",
       "version": "2.1.39 (Claude Code)"
@@ -11887,7 +11887,7 @@
       "phase_timing_caveat": "Timing is estimated from phase log timestamps when available."
     }
   },
-  "issues_matched_total": 0,
+  "issues_matched_total": 44,
   "issues_total": 366,
-  "issue_recall": 0.0
+  "issue_recall": 0.12021857923497267
 }
