@@ -1,19 +1,20 @@
 {
-  "generated_at": "2026-02-26T10:19:10.545351+00:00",
+  "generated_at": "2026-02-26T10:28:03.538790+00:00",
   "verdict_breakdown": {
     "total_findings": 647,
-    "total_reviewed": 152,
-    "unreviewed": 495,
+    "total_reviewed": 162,
+    "unreviewed": 485,
     "by_verdict": {
-      "CONFIRMED_POTENTIAL": 16,
-      "CONFIRMED_VULNERABILITY": 16,
-      "DISPUTED_FP": 20,
-      "DOWNGRADED": 3,
-      "PASS_THROUGH": 97
+      "CONFIRMED_POTENTIAL": 9,
+      "CONFIRMED_VULNERABILITY": 14,
+      "DISPUTED_FP": 10,
+      "DOWNGRADED": 4,
+      "NEEDS_MANUAL_REVIEW": 1,
+      "PASS_THROUGH": 124
     },
-    "survived": 132,
-    "filtered": 20,
-    "survived_total": 627,
+    "survived": 152,
+    "filtered": 10,
+    "survived_total": 637,
     "branches_with_04": [
       "c_kzg_4844_fusaka",
       "grandine_fusaka",
@@ -58,9 +59,9 @@
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
-      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-003": {
       "review_verdict": "PASS_THROUGH",
@@ -71,12 +72,12 @@
       "source_file": "04_PARTIAL_W0B0_1772098938.json"
     },
     "PROP-6a4369e9-inv-010": {
-      "review_verdict": "CONFIRMED_VULNERABILITY",
+      "review_verdict": "PASS_THROUGH",
       "classification": "survived",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "An attacker can trigger this via the P2P sync protocol (data_column_sidecars_by_root) by sending a DataColumnSidecar with mismatched array lengths (e.g., column.len=6, kzg_proofs.len=4), causing an out-of-bounds access or crash when the block processor calls verify_data_column_sidecar_kzg_proofs \u2192 verifyCellKzgProofBatch at block_processor.nim:254-262. The gossip path validates via verify_data_column_sidecar (peerdas_helpers.nim:362-364), but the sync path only checks inclusion proof in checkColumnResponse (request_manager.nim:190), never calling the full validation before adding to quarantine (line 437). Spec reference: 01e_PARTIAL_W2B3_1771748669.json, invariant PROP-6a4369e9-inv-010: 'Column, kzg_commitments, and kzg_proofs arrays must all have equal length.' Severity downgraded from High to Medium: single malicious packet can crash individual Nimbus nodes, but does not affect >33% of network from one packet (High threshold requires >33% impact, Medium requires >5% which is more appropriate for single-client DoS).",
-      "branch": "nimbus_fusaka",
-      "source_file": "04_PARTIAL_W5B5_1772024516.json"
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-047": {
       "review_verdict": "CONFIRMED_VULNERABILITY",
@@ -91,16 +92,16 @@
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-025": {
       "review_verdict": "CONFIRMED_VULNERABILITY",
       "classification": "survived",
       "adjusted_severity": "Medium",
-      "reviewer_notes": "All 3 gates passed. An attacker can trigger this via P2P RPC (DataColumnSidecarsByRoot) by sending a data column with valid KZG/inclusion proofs but invalid proposer signature, causing the node to store and later serve it to other peers via by_root RPC, violating the invariant that served sidecars must pass full gossip validation. The RPC handler (line 123) serves from storage without re-validating gossip requirements (12 checks), only RPC validation (3 checks) was performed. Severity calibrated to Medium based on Prysm's 31% network share (exceeds 5% threshold).",
+      "reviewer_notes": "All 3 gates passed. Gate 1 (Dead Code): Function is actively used (registered in RPC topic mapping). Gate 2 (Trust Boundary): Entry point is P2P RPC (UNTRUSTED), not a trusted source. Gate 3 (Scope): PeerDAS data column validation is Fusaka-specific and in scope. An attacker can trigger this via P2P RPC by_root request by providing a data column with valid KZG/inclusion proofs but invalid proposer signature, causing the node to serve unvalidated sidecars to peers, violating the invariant that served sidecars must pass full gossip validation. Medium severity justified by potential impact on Prysm clients (31% of consensus layer).",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W3B3_1772101001.json"
+      "source_file": "04_PARTIAL_W3B3_1772101449.json"
     },
     "PROP-57888860-pre-001": {
       "review_verdict": "PASS_THROUGH",
@@ -111,60 +112,60 @@
       "source_file": "04_PARTIAL_W0B0_1772098938.json"
     },
     "PROP-57888860-asm-003": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "Gate 2 (Trust Boundary): Attack path relies solely on a compromised/malicious EL sending blobs with invalid KZG proofs via Engine API. P2P path correctly enforces KZG verification (GossipBlobSidecarRequirements includes RequireSidecarKzgProofVerified), while EL path uses ELMemPoolRequirements (empty array, no verification). However, the attack requires the semi-trusted EL to be compromised, which is outside the security model per BUG_BOUNTY_SCOPE.json trust_assumptions. No untrusted (P2P) attack path exists for this issue.",
-      "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W2B2_1772101004.json"
-    },
-    "PROP-57888860-inv-028": {
       "review_verdict": "CONFIRMED_POTENTIAL",
       "classification": "survived",
       "adjusted_severity": "Medium",
-      "reviewer_notes": "Gate 5 (Spec Cross-Reference): 01e invariant from outputs/01e_PARTIAL_W3B4_1771748827.json (lines 737-754) requires 'DataColumnSidecar.index must equal its positional column_index in the iteration' per spec's get_data_column_sidecars. Lighthouse's build_data_column_sidecars (kzg_utils.rs:278) correctly implements this with 'index: index as u64' from enumerate(). However, gossip validation (data_column_verification.rs:535-537) only checks bounds (index < NUMBER_OF_COLUMNS) and subnet matching (line 481), not positional correctness when sidecars are collected. Attacker control: P2P gossip allows sending sidecars with swapped indices (e.g., index=5 at position 0) that pass individual validation. Mitigation analysis: reconstruct_data_columns (kzg_utils.rs:372) sorts by index before reconstruction, but reconstruct_blobs (kzg_utils.rs:295-363) does NOT sort and assumes database correctness (line 302 comment). Downstream KZG verification may catch misindexed cells, but spec violation exists. Severity: Medium is appropriate per BUG_BOUNTY_SCOPE.json (affects >5% of network if single client has bug, Lighthouse market share ~30-40%). Attack requires coordination across multiple subnets and may be detected by KZG proof failures, reducing practical exploitability but not eliminating the spec deviation.",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W4B20_1772095872.json"
+      "reviewer_notes": "Spec deviation confirmed: Engine API blob data should undergo KZG commitment verification before network propagation, but ReconstructBlobSidecars bypasses this via NewVerifiedRODataColumn on GetBlobsV2 path (beacon-chain/execution/engine_client.go:714). Attack requires compromised local EL, which is a conditional precondition per trust_assumptions (engine_api: in_scope_for_bug_bounty=true, but 'attacks requiring a compromised local EL may be considered conditional'). Impact: 31% of network (Prysm CL share) could propagate invalid blobs. All 3 gates passed.",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W2B2_1772101445.json"
+    },
+    "PROP-57888860-inv-028": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-039": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "grandine_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772031330.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-inv-032": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
-      "adjusted_severity": "HIGH",
-      "reviewer_notes": "Gate 1 PASSED: Function has production caller at validate_beacon_blocks.go:115. Gate 2 analysis: The claimed signature bypass at L498-501 is a misinterpretation of correct logic. The early return occurs when the chain head has advanced to a different slot than the duplicate block. In this case, you cannot create a valid ProposerSlashing by comparing blocks from different slots (the slashing specification requires both headers to be from the same slot and proposer). The actual signature verification happens at L534 via VerifyProposerSlashing, which validates both block signatures. The function's purpose is to detect equivocation between two blocks with the same (slot, proposer) - when the head has moved forward, no equivocation can be proven against the new head. This is not a signature bypass; it's correct logic that prevents invalid slashing creation. DISPUTED_FP: Code analysis shows the early return is correct behavior, not a vulnerability.",
+      "review_verdict": "CONFIRMED_POTENTIAL",
+      "classification": "survived",
+      "adjusted_severity": "Low",
+      "reviewer_notes": "All 3 gates passed. Spec deviation confirmed: signature verification is bypassed for resubmitted blocks when chain head moves to different slot/proposer (L498-501 early return). However, impact is minimal - invalid blocks are silently ignored (ValidationIgnore at L124), not accepted or propagated. No state transition, consensus impact, or slashing occurs. Downgraded from HIGH to Low due to limited exploitability - attacker can only cause silent drop of already-seen invalid blocks without network impact. Does not meet Medium threshold (>5% network impact).",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W6B6_1772100976.json"
+      "source_file": "04_PARTIAL_W6B6_1772101476.json"
     },
     "PROP-6a4369e9-inv-002": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-011": {
-      "review_verdict": "CONFIRMED_POTENTIAL",
+      "review_verdict": "PASS_THROUGH",
       "classification": "survived",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "Gate 3 (Code Verification): Confirmed that gossip path validates empty kzg_commitments (peerdas_helpers.nim:359) but sync path only validates Merkle inclusion proof (request_manager.nim:190). Gate 4 (Exploitability): Attacker can trigger via DataColumnsByRoot by crafting sidecars with empty kzg_commitments. Empty list produces valid hash_tree_root, passes inclusion proof check, gets stored in quarantine. Block processing skips KZG verification when kzgCommits.len == 0 (block_processor.nim:252). Gate 5 (Spec Cross-Reference): 01e property PROP-6a4369e9-inv-011 in file outputs/01e_PARTIAL_W2B3_1771748669.json clearly requires 'kzg_commitments must not be empty in a valid data column sidecar.' Code deviates from spec in sync path. However, spec also allows blocks with zero blobs (PROP-6a4369e9-inv-021), creating ambiguity about whether empty-commitment data columns should exist. Verdict: CONFIRMED_POTENTIAL because validation gap is real and exploitable via untrusted P2P, but concrete security impact beyond spec violation is uncertain. Attack allows storage of invalid metadata but doesn't clearly cause consensus splits, crashes, or data corruption. Severity remains Medium - aligns with bug bounty threshold for spec deviations affecting data column validation without network-wide impact.",
-      "branch": "nimbus_fusaka",
-      "source_file": "04_PARTIAL_W1B9_1772024606.json"
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-016": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-050": {
       "review_verdict": "CONFIRMED_POTENTIAL",
@@ -175,20 +176,20 @@
       "source_file": "04_PARTIAL_W2B2_1772095800.json"
     },
     "PROP-6a4369e9-asm-001": {
-      "review_verdict": "CONFIRMED_VULNERABILITY",
+      "review_verdict": "PASS_THROUGH",
       "classification": "survived",
-      "adjusted_severity": "High",
-      "reviewer_notes": "Gate 1 (Dead Code): PASS - Function actively used in sync paths (block_verification.rs:652, sync_methods.rs:601). Gate 2 (Trust Boundary): PASS - Attack via untrusted P2P peers (DataColumnsByRange/DataColumnsByRoot RPC). Gate 3 (Code Verification): PASS - Factually correct: RPC path verify_kzg_for_rpc_blocks (L446) performs ONLY KZG validation, while gossip path validate_data_column_sidecar_for_gossip (L502-507) enforces signature verification, inclusion proof, and ancestry checks. Gate 4 (Exploitability): PASS - Attacker-triggered. An attacker can respond to DataColumnsByRange with columns having valid KZG proofs but forged signatures or invalid merkle proofs, bypassing cryptographic authenticity checks. Gate 5 (Spec Cross-Reference): PASS - 01e property PROP-6a4369e9-asm-001 (outputs/01e_PARTIAL_W2B3_1771748669.json, L642-657) requires 'forall msg from P2P: processed(msg) => fully_validated(msg) == true'. RPC columns violate this by skipping signature/inclusion/ancestry validation. Gate 6 (Scope Check): PASS - P2P vulnerabilities in-scope, Fusaka-specific PeerDAS code. Severity: HIGH matches threshold (>33% network impact if exploited at scale). An attacker can trigger this via DataColumnsByRange RPC by sending columns with valid KZG proofs but forged signatures/invalid merkle proofs, causing the node to mark invalid columns as available and potentially reconstruct or propagate them without detecting the forgery.",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W6B14_1772095789.json"
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-038": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-pre-002": {
       "review_verdict": "PASS_THROUGH",
@@ -203,16 +204,16 @@
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-029": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "Gate 1 (Dead Code): The flagged function get_data_column_sidecars at beacon_chain/spec/peerdas_helpers.nim:239-289 has zero non-test callers in the codebase. Grep search across all .nim files shows the function is only defined but never invoked. While the code does contain the described bug (uses cellsAndProofs[i].cells instead of cellsAndProofs[i].cells[column_index] at lines 275-276, causing incorrect cell counts), this code is unreachable and cannot affect live network operations. The 01e invariant from outputs/01e_PARTIAL_W3B4_1771748827.json (lines 756-773) requires len(sidecar.column) == len(kzg_commitments), which this dead code would violate, but unreachable code cannot cause security impact. Disputed as dead/unreachable code.",
-      "branch": "nimbus_fusaka",
-      "source_file": "04_PARTIAL_W4B4_1772024510.json"
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-041": {
       "review_verdict": "PASS_THROUGH",
@@ -227,32 +228,32 @@
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-012": {
-      "review_verdict": "CONFIRMED_POTENTIAL",
+      "review_verdict": "CONFIRMED_VULNERABILITY",
       "classification": "survived",
       "adjusted_severity": "Medium",
-      "reviewer_notes": "All 3 FP gates passed. TOCTOU race condition confirmed: hasSeenDataColumnIndex check (L157) and setSeenDataColumnIndex (subscriber L42) are not atomic, allowing two identical data column sidecars arriving concurrently to both return ValidationAccept before either is marked as seen. This violates the spec requirement that the sidecar must be 'the first sidecar for the tuple'. Attack is triggerable via concurrent P2P gossip from different peers. However, impact unclear: duplicate acceptance may cause resource consumption but actual DoS/crash/network-split impact not proven. Classified as potential pending further impact analysis.",
+      "reviewer_notes": "All three gates passed. Gate 1: Function validateDataColumn has production caller at subscriber.go:316. Gate 2: Entry point is untrusted P2P network (p2p_peers). Gate 3: TOCTOU race in PeerDAS data column deduplication is Fusaka-specific and in scope. An attacker can trigger this via P2P gossip by broadcasting identical data column sidecars to multiple peers simultaneously, causing concurrent validation before cache marking, resulting in duplicate acceptance that violates the deduplication invariant.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W0B8_1772101051.json"
+      "source_file": "04_PARTIAL_W0B8_1772101447.json"
     },
     "PROP-56ad1eb2-inv-004": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-039": {
-      "review_verdict": "CONFIRMED_POTENTIAL",
+      "review_verdict": "PASS_THROUGH",
       "classification": "survived",
-      "adjusted_severity": "Low",
-      "reviewer_notes": "Gate 1 (Dead Code): Passed - process_gossip_data_column_sidecar is actively called from the gossip handler and has multiple call sites. Gate 2 (Trust Boundary): Passed - Issue is on P2P gossip path (UNTRUSTED source), within security model. Gate 3 (Code Verification): Passed - Code reading is factually correct. Lines 745-765 show FutureSlot and PastFinalizedSlot both return MessageAcceptance::Ignore without reprocessing queue. This differs from block handling at line 1431 where early blocks ARE requeued via ReprocessQueueMessage::EarlyBlock. Gate 4 (Exploitability): Passed - An attacker can send data columns with slot just outside the clock disparity window. The node will IGNORE (correct, no forward), but unlike ParentUnknown (which queues for sync at line 684-689), there is no reprocessing mechanism for time-bounded IGNOREs. However, the practical impact is limited: (1) PastFinalizedSlot messages are useless and should not be reprocessed anyway, (2) FutureSlot messages will likely be re-gossiped by other peers when the slot becomes valid, (3) The spec's 'reprocessable' may refer to P2P-level reprocessability (peers can resend) rather than application-level requeuing requirement. Gate 5 (Spec Cross-Reference): The 01e property at outputs/01e_PARTIAL_W2B3_1771748669.json:969 states 'forall msg: ignored(msg) => not_forwarded(msg) && reprocessable(msg)'. The code correctly implements not_forwarded (MessageAcceptance::Ignore prevents propagation). The 'reprocessable(msg)' assertion is ambiguous: it could mean either (a) the application must explicitly requeue the message, or (b) the P2P layer must not permanently ban it. Lighthouse implements (b) but not (a). This is a spec interpretation issue. Gate 6 (Scope Check): Passed - PeerDAS gossip validation is in-scope for Fusaka. Severity Calibration: Original severity is LOW. The finding is theoretically correct but practical exploitability is uncertain due to natural P2P re-gossip behavior and the ambiguity of 'reprocessable' in the spec. Maintaining Low severity. Verdict: CONFIRMED_POTENTIAL due to spec ambiguity and uncertain attack path.",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W2B18_1772095824.json"
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-024": {
       "review_verdict": "PASS_THROUGH",
@@ -263,212 +264,212 @@
       "source_file": "04_PARTIAL_W0B0_1772098938.json"
     },
     "PROP-57888860-pre-007": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "Gate 1 (Dead Code) triggered. The flagged function `get_data_column_sidecars` at beacon_chain/spec/peerdas_helpers.nim:239-289 has zero non-test callers in the entire codebase (grep confirms only definition + spec comment exist). This code is unreachable in production execution paths. While Phase 03 correctly identified a semantic bug (lines 275-276 access `.cells` and `.proofs` without column indexing, creating potential length mismatch with commitments at line 281), the vulnerability cannot be exploited as the function is never invoked. The 01e property from outputs/01e_PARTIAL_W3B4_1771748827.json:774-792 requires 'len(cells_and_kzg_proofs) == len(kzg_commitments)' before sidecar construction, but this precondition is irrelevant for dead code. No attack path exists via P2P or Consensus entry points.",
-      "branch": "nimbus_fusaka",
-      "source_file": "04_PARTIAL_W0B8_1772024566.json"
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-pre-002": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-013": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
-      "adjusted_severity": "HIGH",
-      "reviewer_notes": "Gate 2 (Trust Boundary) triggered: The cache inconsistency occurs in the validator's own block production path (broadcastAndReceiveDataColumns in proposer.go), which is a SEMI_TRUSTED component under local operator control. The issue arises from locally-produced data columns not updating the anti-equivocation cache. No untrusted (P2P) attack path was identified in Phase 03's analysis. Per BUG_BOUNTY_SCOPE.json, local_validator issues are out of scope (in_scope_for_bug_bounty: false). The attack scenario requires the validator to re-submit its own data through different paths, which is a self-inflicted operational issue rather than an external security vulnerability.",
+      "review_verdict": "DOWNGRADED",
+      "classification": "survived",
+      "adjusted_severity": "Medium",
+      "reviewer_notes": "All three FP gates passed. The finding identifies a genuine code defect where locally-produced data columns bypass the anti-equivocation cache (broadcastAndReceiveDataColumns:L502-504 calls ReceiveDataColumns without calling setSeenDataColumnIndex), while the P2P gossip path correctly updates the cache (receiveDataColumnSidecar:L42). An attacker controlling a validator can trigger this by producing and broadcasting data columns, causing cache inconsistency that could allow duplicate column acceptance or equivocation detection bypass. Severity downgraded from High to Medium because Prysm's 31% network share is below the 33% threshold required for High severity per BUG_BOUNTY_SCOPE.json severity classification.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W5B13_1772100958.json"
+      "source_file": "04_PARTIAL_W5B13_1772101496.json"
     },
     "PROP-6a4369e9-inv-020": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-asm-003": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
-      "adjusted_severity": "High",
-      "reviewer_notes": "Gate 2 (Trust Boundary) triggered. The attack path requires the local EL (Engine API) to be compromised or buggy. According to BUG_BOUNTY_SCOPE.json, Engine API is SEMI_TRUSTED: 'EL-CL communication via Engine API is authenticated using JWT and considered semi-trusted. Compromised EL can affect CL behavior.' The scope explicitly states 'attacks requiring a compromised local EL may be considered conditional or lower severity.' The finding correctly identifies that Fulu blocks (L155-193 in message_router.nim) skip blob KZG validation before calling computeCells (peerdas_helpers.nim:325), while Deneb/Electra blocks validate via validate_blobs (L115-131). However, this deviation only occurs when the local EL provides malformed blob data, which falls outside the primary security model. The 01e property (outputs/01e_PARTIAL_W2B3_1771748669.json, L678-695) states: 'Blobs from local EL that skip KZG verification must still produce valid data columns,' with entry_points=['P2P', 'EngineAPI'] and attacker_controlled=false. This is classified as an assumption about EL behavior, not a P2P attack surface. Disputed as requires compromised Engine API, outside security model.",
-      "branch": "nimbus_fusaka",
-      "source_file": "04_PARTIAL_W2B10_1772024511.json"
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-pre-010": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-pre-004": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-030": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-pre-005": {
-      "review_verdict": "CONFIRMED_POTENTIAL",
+      "review_verdict": "PASS_THROUGH",
       "classification": "survived",
-      "adjusted_severity": "Low",
-      "reviewer_notes": "Gate 1 (Dead Code): PASS - new_for_block_publishing is called from build_data_columns at publish_blocks.rs:423 in active block publishing path. Gate 2 (Trust Boundary): PASS - Issue involves semi-trusted Engine API data, but spec requires gossip validation regardless of source; defense-in-depth gap, not trust boundary violation. Gate 3 (Code Verification): PASS - Phase 03 reading is accurate: main gossip path has verify_slot_higher_than_parent at data_column_verification.rs:504, while new_for_block_publishing only calls verify_data_column_sidecar (structural) and verify_is_unknown_sidecar (dedup) without slot validation. Gate 4 (Exploitability): PASS - Code-intrinsic (requires bug in local EL or block construction), but qualifies as protocol violation. However, practical impact is limited: other nodes reject invalid columns at gossip validation, so only the publishing node suffers (self-inflicted peer penalties, minimal bandwidth waste). Gate 5 (Spec Cross-Reference): PASS - 01e property PROP-6a4369e9-pre-005 from outputs/01e_PARTIAL_W2B3_1771748669.json:317-332 requires 'Gossip validation must reject sidecar whose slot is not higher than parent block slot' (assertion: forall sidecar: accepted(sidecar) => sidecar.slot > parent_block.slot). Code creates GossipVerifiedDataColumn without enforcing this requirement. Gate 6 (Scope): PASS - Fusaka-specific PeerDAS validation, in-scope. Severity Adjustment: Original HIGH downgraded to Low. Reason: (1) Requires implementation bug in semi-trusted local EL, not direct attacker trigger. (2) Impact limited to publishing node (self-harm); network protected by peer gossip validation. (3) Lighthouse market share caps max network impact per BUG_BOUNTY_SCOPE deployment_context. This is a defense-in-depth gap and spec compliance issue rather than a critical network vulnerability. An implementation bug in local block construction could cause a node to publish invalid data columns, triggering self-inflicted peer penalties and minimal bandwidth waste, but the network's gossip validation prevents broader propagation.",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B16_1772095844.json"
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-post-002": {
       "review_verdict": "DISPUTED_FP",
       "classification": "filtered",
       "adjusted_severity": "Critical",
-      "reviewer_notes": "Gate 2 (Trust Boundary): The self-peer bypass at L37-38 only affects messages originating from the local node's own peer ID. Phase 03's attack scenario requires either a compromised local validator or malicious modification of the validator client to exploit this bypass. Per BUG_BOUNTY_SCOPE.json, local_validator is SEMI_TRUSTED with in_scope_for_bug_bounty=false. Configuration issues and attacks requiring local compromise are explicitly out-of-scope.",
+      "reviewer_notes": "Gate 2 (Trust Boundary): The attack path requires a compromised local validator to broadcast invalid data columns. BUG_BOUNTY_SCOPE.json classifies 'local_validator' as SEMI_TRUSTED with in_scope_for_bug_bounty=false. The trust assumptions explicitly state: 'Configuration issues requiring operator error are typically out-of-scope.' The self-peer bypass at L37-38 is a design choice that trusts the node's own messages, assuming the local validator is not adversarial. This finding falls outside bug bounty scope as it requires compromise of an operator-controlled, semi-trusted component.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W7B23_1772100957.json"
+      "source_file": "04_PARTIAL_W7B23_1772101443.json"
     },
     "PROP-6a4369e9-pre-011": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-post-003": {
       "review_verdict": "DISPUTED_FP",
       "classification": "filtered",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "Gate 2 (Trust Boundary): Finding assumes c-kzg-4844 library has a bug causing it to return fewer than 128 cells. The c-kzg-4844 library is a trusted cryptographic dependency maintained by Ethereum Foundation and linked at compile time. The cell count is determined by library implementation, not by attacker-controlled input. Attack path relies solely on compromised/faulty trusted component (c-kzg-4844), outside security model.",
+      "adjusted_severity": "MEDIUM",
+      "reviewer_notes": "Gate 3 (Scope Check) triggered. The vulnerability is only reachable via Beacon API handler (beacon-chain/rpc/eth/beacon/handlers.go:1090, called from validateBlobs in validateConsensus). Only one non-test caller exists. Per BUG_BOUNTY_SCOPE.json conditional_scope (lines 135-142), vulnerabilities requiring publicly exposed Beacon API are explicitly out-of-scope. The finding describes a missing bounds check on c-kzg-4844 library output, but the attack requires submitting blocks via the Beacon API endpoint, which requires the user to have publicly exposed this API.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W1B17_1772100998.json"
+      "source_file": "04_PARTIAL_W1B17_1772101516.json"
     },
     "PROP-56ad1eb2-inv-014": {
       "review_verdict": "DISPUTED_FP",
       "classification": "filtered",
-      "adjusted_severity": "MEDIUM",
-      "reviewer_notes": "Gate 2 (Trust Boundary) triggers. The vulnerability requires loading a malicious local configuration file with MAX_BLOBS_PER_BLOCK > 4096. According to BUG_BOUNTY_SCOPE.json, local_validator configuration is SEMI_TRUSTED and explicitly out-of-scope: 'Configuration issues requiring operator error are typically out-of-scope'. There is no P2P attack path; this solely relies on operators choosing to load a compromised/faulty config file, which falls outside the security model for the bug bounty program.",
+      "adjusted_severity": "Medium",
+      "reviewer_notes": "Gate 2 (Trust Boundary): Entry point is local configuration file (BLOB_SCHEDULE), which is SEMI_TRUSTED per trust_assumptions.local_validator and explicitly marked as out-of-scope for bug bounty (in_scope_for_bug_bounty: false). The attack scenario requires operator error (loading a malicious config file), which is excluded per 'Configuration issues requiring operator error are typically out-of-scope'. This finding relies on a trust assumption violation that is conditionally out of scope.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W4B12_1772101013.json"
+      "source_file": "04_PARTIAL_W4B12_1772101436.json"
     },
     "PROP-57888860-inv-026": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-031": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-pre-004": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-pre-006": {
-      "review_verdict": "DOWNGRADED",
+      "review_verdict": "CONFIRMED_VULNERABILITY",
       "classification": "survived",
-      "adjusted_severity": "Informational",
-      "reviewer_notes": "Spec deviation confirmed: implementation checks fc.HasNode(parentRoot) instead of verifying finalized checkpoint ancestry via get_checkpoint_block(). However, practical security impact is limited - data columns on non-canonical forks do not lead to invalid block acceptance and are eventually pruned. This finding matches Sherlock issue #257 (same on Lighthouse) which was judged as Informational. Downgraded from Critical to Informational per severity_classification thresholds - no direct network impact demonstrated.",
+      "adjusted_severity": "High",
+      "reviewer_notes": "An attacker can trigger this via P2P gossip by broadcasting a data column sidecar with parent_root on a non-finalized fork that exists in fork choice but conflicts with finalized checkpoint ancestry, causing honest Prysm nodes (31% of network) to accept and propagate invalid sidecars that may lead to invalid block reconstruction. Severity downgraded from Critical to High because single-client bug (Prysm at 31% network share) cannot directly affect >50% threshold required for Critical, though gossip propagation may indirectly affect additional nodes.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W3B19_1772101075.json"
+      "source_file": "04_PARTIAL_W3B19_1772101443.json"
     },
     "PROP-6a4369e9-inv-022": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-027": {
-      "review_verdict": "CONFIRMED_VULNERABILITY",
+      "review_verdict": "PASS_THROUGH",
       "classification": "survived",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "All 6 gates passed. An attacker can trigger this via P2P network by sending a DataColumnSidecarsByRangeRequest with startSlot from epochs before max(current_epoch - 4096, FULU_FORK_EPOCH), causing the node to waste resources attempting to serve data columns from epochs it's not required to retain, or serving incorrect/partial data. The validation function validateDataColumnSidecarsByRangeRequest (L124-144) only checks startSlot < GENESIS_SLOT (L135), with a TODO comment at L134 confirming the epoch range check is unimplemented. In contrast, dataColumnSidecarsByRoot correctly implements this check at L18-23. Spec reference from outputs/01e_PARTIAL_W2B3_1771748669.json: 'data_column_serve_range lower bound must be max(current_epoch - MIN_EPOCHS, FULU_FORK_EPOCH).' Medium severity is justified as this affects individual nodes responding to malicious P2P requests, causing resource exhaustion or data inconsistency.",
-      "branch": "lodestar_fusaka",
-      "source_file": "04_PARTIAL_W0B8_1772095815.json"
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-040": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-018": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-027": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
-      "adjusted_severity": "MEDIUM",
-      "reviewer_notes": "Gate 2 (Trust Boundary): Attack path requires c-kzg-4844 library to return \u2260128 cells from ComputeCells(). Function has 2 call sites: (1) beacon-chain/execution/engine_client.go:700 processing Engine API data from EL (SEMI_TRUSTED per BUG_BOUNTY_SCOPE.json lines 107-117, comment on line 706 states 'We trust the execution layer'), (2) beacon-chain/rpc/prysm/v1alpha1/validator/proposer.go:410 processing local validator RPC data (SEMI_TRUSTED per lines 119-125 'under operator control'). Both paths rely solely on trusted/semi-trusted components being buggy or compromised, outside the security model. No untrusted P2P attack vector exists.",
-      "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W4B4_1772100989.json"
-    },
-    "PROP-56ad1eb2-inv-015": {
       "review_verdict": "CONFIRMED_POTENTIAL",
       "classification": "survived",
       "adjusted_severity": "Medium",
-      "reviewer_notes": "Spec deviation confirmed: Fulu spec mandates returning Electra blob limit (9) when no BlobSchedule entry matches, but code returns epoch-dependent fallback (6 for Deneb, 9 for Electra). Currently dormant (FuluForkEpoch=MaxUint64), but would cause consensus splits upon Fulu activation when validating historical epochs with no schedule match. Prysm's 31% network share exceeds Medium threshold (5%). Function has active callers in production paths (blockchain, sync, blob verification).",
+      "reviewer_notes": "All 3 gates passed. Gate 1 (Dead Code): function has 2+ non-test callers in proposer.go and engine_client.go. Gate 2 (Trust Boundary): not a trust boundary issue \u2014 vulnerability is in CL's own validation logic (missing check on kzg.ComputeCells output), not in trusting Engine API data. Gate 3 (Scope): in-scope PeerDAS functionality (EIP-7594, Fusaka-specific). Spec deviation confirmed: code does not validate that kzg.ComputeCells returns exactly CELLS_PER_EXT_BLOB (128) cells before constructing CellsAndProofs struct. Attack path is conditional on c-kzg-4844 library bug (no concrete evidence of such bug). Defense-in-depth validation gap. Severity: Prysm has 31% CL share, Medium threshold (>5% impact) is appropriate.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W7B15_1772100975.json"
+      "source_file": "04_PARTIAL_W4B4_1772101467.json"
+    },
+    "PROP-56ad1eb2-inv-015": {
+      "review_verdict": "DISPUTED_FP",
+      "classification": "filtered",
+      "adjusted_severity": "Medium",
+      "reviewer_notes": "Gate 3 (Scope Check) triggered: The issue affects Fulu fork logic (FuluForkEpoch=MaxUint64, not yet activated). Per bug bounty conditional_scope, 'future_upgrades' are out of scope and should be submitted via the Ethereum Foundation's Bug Bounty Program. The Fusaka audit scope covers only Fusaka-specific code, and this finding explicitly states it 'must be fixed before Fulu fork', indicating it is for a future upgrade.",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W7B15_1772101461.json"
     },
     "PROP-6a4369e9-inv-008": {
-      "review_verdict": "CONFIRMED_VULNERABILITY",
+      "review_verdict": "PASS_THROUGH",
       "classification": "survived",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "Gate 3 (Code Verification) PASSED: Code reading is accurate. The gossip path validates index < 128 via verify_data_column_sidecar (peerdas_helpers.nim:356), but the sync path (request_manager.nim:190, validator_custody.nim:168) only calls verify_data_column_sidecar_inclusion_proof, which omits index validation. Columns from sync are put directly into ColumnQuarantine, and getIndex (blob_quarantine.nim:237) performs unchecked array access indexMap[int(index)] with indexMap sized to 128. An attacker serving sync requests can send sidecars with index >= 128, causing out-of-bounds access. Matches 01e invariant from outputs/01e_PARTIAL_W2B3_1771748669.json line 209: 'sidecar.index must be in range [0, NUMBER_OF_COLUMNS)'. An attacker can trigger this via P2P sync by responding to dataColumnSidecarsByRoot with malicious index values >= 128, causing array bounds violation when accessed, leading to crash or memory corruption affecting sync nodes.",
-      "branch": "nimbus_fusaka",
-      "source_file": "04_PARTIAL_W2B2_1772024510.json"
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-pre-007": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-023": {
-      "review_verdict": "CONFIRMED_POTENTIAL",
+      "review_verdict": "PASS_THROUGH",
       "classification": "survived",
-      "adjusted_severity": "Low",
-      "reviewer_notes": "All 6 gates passed. Spec cross-reference: outputs/01e_PARTIAL_W2B3_1771748669.json requires 'data_column_sidecars_by_range sidecars must be sent in (slot, column_index) order' with assertion 'forall resp, i < j: resp[i].slot < resp[j].slot || (resp[i].slot == resp[j].slot && resp[i].col < resp[j].col)'. Code verification confirms Phase 03's analysis: availableColumns is constructed via filter() at dataColumnResponseValidation.ts:75, preserving request order; getManyBinary() at abstractPrefixedRepository.ts:89-95 preserves input array order; handler yields sidecars at dataColumnSidecarsByRange.ts:35-44 and 83-92 in the order returned by getManyBinary, without sorting by column_index. Exploitability: An attacker can trigger this via P2P ReqResp by sending a DataColumnSidecarsByRangeRequest with columns=[5,2,8], causing the responder to yield sidecars in request order (5,2,8) rather than ascending column_index order (2,5,8), violating the spec requirement. Impact is limited to interoperability failures with strict clients that enforce ordering\u2014does not cause consensus splits, validator slashing, or network-wide disruption. Severity remains Low per BUG_BOUNTY_SCOPE.json thresholds (minor protocol compliance violation affecting <0.01% of network). Verdict: CONFIRMED_POTENTIAL due to uncertain real-world impact on client interoperability.",
-      "branch": "lodestar_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772095876.json"
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-041": {
       "review_verdict": "PASS_THROUGH",
@@ -482,17 +483,17 @@
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
-      "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-pre-006": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "Gate 2 (Trust Boundary) triggered. The vulnerability requires data from the Engine API (EL) to be malformed. According to BUG_BOUNTY_SCOPE.json, the Engine API is SEMI_TRUSTED with JWT authentication and represents co-located EL-CL communication. The scope explicitly states that 'attacks requiring a compromised local EL may be considered conditional or lower severity.' The entry points listed in 01e (EngineAPI, Consensus) confirm this is reachable via Engine API. The REST API path (/eth/v2/beacon/blocks) is explicitly OUT OF SCOPE per conditional_scope.publicly_exposed_api. The code at beacon_validators.nim:589 shows proofs come from engineBlock.blobsBundle.proofs (Engine API), and rest_beacon_api.nim:1110 shows proofs come from REST API input. While the bounds check is indeed missing at peerdas_helpers.nim:328, exploiting this requires either (1) a compromised/buggy local EL sending malformed data, or (2) a publicly exposed REST API (out of scope). The 01e property PROP-57888860-pre-006 from file outputs/01e_PARTIAL_W3B4_1771748827.json states: 'Proof slicing indices in cells_and_kzg_proofs_construction must always be within blobs_bundle.proofs bounds' with entry_points=['EngineAPI', 'Consensus'], attacker_controlled=false, bug_bounty_scope='conditional'. This confirms the property itself acknowledges the conditional nature of this attack requiring Engine API compromise.",
-      "branch": "nimbus_fusaka",
-      "source_file": "04_PARTIAL_W5B13_1772024503.json"
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-033": {
       "review_verdict": "PASS_THROUGH",
@@ -503,36 +504,36 @@
       "source_file": "04_PARTIAL_W0B0_1772098938.json"
     },
     "PROP-56ad1eb2-inv-027": {
-      "review_verdict": "CONFIRMED_VULNERABILITY",
-      "classification": "survived",
-      "adjusted_severity": "High",
-      "reviewer_notes": "All 3 FP gates passed. Gate 1 (dead code): ComputeForkDigest has active production call sites including bootnode.go:221. Gate 2 (trust boundary): Attack path is via untrusted P2P network (bootnode discovery), not trusted components. Gate 3 (scope): EIP-7892 blob parameter fork isolation is explicitly in-scope for Fusaka audit. An attacker can trigger this via bootnode discovery by operating a Fulu bootnode with same ForkVersion but different MaxBlobsPerBlock, causing victim nodes to compute identical fork digests and join an incompatible network, leading to consensus failures and potential chain split affecting Prysm's ~31% market share.",
-      "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W2B18_1772100992.json"
-    },
-    "PROP-6a4369e9-pre-009": {
-      "review_verdict": "CONFIRMED_VULNERABILITY",
-      "classification": "survived",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "Gate 3 (Code Verification): Phase 03's code reading is factually correct. The handler at rpc_methods.rs:408-460 processes DataColumnsByRoot requests without validating the total column count against MAX_REQUEST_DATA_COLUMN_SIDECARS (16384). In contrast, DataColumnsByRange has this validation at line 1148. Gate 4 (Exploitability): An attacker can trigger this via P2P by sending a DataColumnsByRoot request with 128 identifiers (the decode-time limit at codec.rs:567), each containing 128 columns, totaling 16384 columns. While this equals (not exceeds) the limit, the complete absence of validation means no rejection occurs, and the node processes all requested columns. Gate 5 (Spec Cross-Reference): The 01e property from file outputs/01e_PARTIAL_W2B3_1771748669.json (lines 588-604) explicitly requires: 'data_column_sidecars_by_root must reject requests exceeding MAX_REQUEST_DATA_COLUMN_SIDECARS' with assertion 'forall req: sum(len(r.columns) for r in req) > MAX_REQUEST_DATA_COLUMN_SIDECARS => rejected(req)'. The code violates this requirement by not checking the sum. Severity: Medium per BUG_BOUNTY_SCOPE.json criteria\u2014this enables resource exhaustion DoS affecting >5% of the network (single-client bug in Lighthouse with ~33% network share caps severity at Medium per deployment context rules). Attack path: attacker sends crafted P2P packet \u2192 node processes 16384 columns without validation \u2192 excessive memory/CPU consumption for data retrieval and potential reconstruction.",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W1B1_1772095813.json"
-    },
-    "PROP-6a4369e9-inv-036": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
-      "adjusted_severity": "Informational",
-      "reviewer_notes": "Gate 3 (Scope Check) triggered: The finding explicitly states this bug only manifests on configurations where subnets != columns, and acknowledges it 'works on mainnet where subnets==columns (both 128)'. All current network configurations (mainnet, minimal, testnets) have DataColumnSidecarSubnetCount=128 and NumberOfColumns=128, meaning the bug cannot be exploited on any live network. This falls under the explicit out-of-scope exclusion: 'Anything that cannot be exploited on a live network'. While the code is technically incorrect (should call ComputeSubnetForDataColumnSidecar() like other call sites), the impact is purely hypothetical for non-existent configurations.",
-      "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772101058.json"
-    },
-    "PROP-6a4369e9-inv-042": {
       "review_verdict": "DOWNGRADED",
       "classification": "survived",
       "adjusted_severity": "Medium",
-      "reviewer_notes": "All three FP gates passed: (1) Code is actively used in P2P gossip validation and sync paths, not dead code. (2) Attack path is via untrusted P2P network (data_column gossip), not dependent on compromised/faulty EL. (3) PeerDAS (EIP-7594) is explicitly in-scope. However, this is a single-client bug affecting only Prysm. Severity downgraded from Critical to Medium because Prysm's 31% network share is below the 33% threshold required for High severity (per severity_classification in BUG_BOUNTY_SCOPE.json). An attacker can trigger this via P2P gossip by sending a valid DataColumnSidecar A, then sending forged DataColumnSidecar M with same inclusion proof and header but malicious KzgCommitments, causing cache collision that bypasses full Merkle verification.",
+      "reviewer_notes": "All 3 gates passed (non-zero callers, untrusted P2P entry point, Fusaka-specific EIP-7892 in scope). An attacker can trigger this via P2P network by configuring a bootnode for Fulu with different MaxBlobsPerBlock but same ForkVersion, causing victim nodes to connect to incompatible network and experience consensus failures. Severity downgraded from HIGH to Medium: Prysm represents ~31% of network share (below 33% threshold for High severity per BUG_BOUNTY_SCOPE.json lines 189-197). Impact limited to single client implementation.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W1B1_1772100985.json"
+      "source_file": "04_PARTIAL_W2B18_1772101510.json"
+    },
+    "PROP-6a4369e9-pre-009": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
+    "PROP-6a4369e9-inv-036": {
+      "review_verdict": "NEEDS_MANUAL_REVIEW",
+      "classification": "survived",
+      "adjusted_severity": "Medium",
+      "reviewer_notes": "All 3 gates passed. The code violates the specification by passing sidecar.Index directly instead of computing subnet via peerdas.ComputeSubnetForDataColumnSidecar(). However, the issue only manifests on configurations where subnets != columns. Current mainnet has 128 subnets = 128 columns, so the bug doesn't trigger. Manual review needed to determine if configuration-dependent vulnerabilities that don't affect current mainnet are in scope per 'can be exploited on a live network' requirement.",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
+    "PROP-6a4369e9-inv-042": {
+      "review_verdict": "CONFIRMED_VULNERABILITY",
+      "classification": "survived",
+      "adjusted_severity": "High",
+      "reviewer_notes": "An attacker can trigger this via P2P network by sending a valid DataColumnSidecar followed by a forged DataColumnSidecar with the same inclusion proof and header but malicious KzgCommitments, causing cache hit and bypassing Merkle verification to accept invalid commitments. Severity adjusted from Critical to High because this is a single-client vulnerability affecting Prysm (31% of consensus layer validators), below the 33% threshold for Critical/High but above Medium threshold given the severity of accepting invalid cryptographic commitments.",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W1B1_1772101457.json"
     },
     "PROP-57888860-asm-001": {
       "review_verdict": "PASS_THROUGH",
@@ -547,112 +548,112 @@
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-034": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
-      "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-018": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-032": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-asm-002": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-009": {
       "review_verdict": "CONFIRMED_VULNERABILITY",
       "classification": "survived",
-      "adjusted_severity": "High",
-      "reviewer_notes": "An attacker can trigger this via P2P gossip by sending a data column sidecar with excessive KZG commitments (e.g., 100 commitments exceeding MaxBlobsPerBlock of 6-12). The gossip validation (validateDataColumn \u2192 ValidFields \u2192 VerifyDataColumnSidecar at p2p_interface.go:34-52) checks length consistency but does NOT enforce len(kzg_commitments) <= MaxBlobsPerBlock. The MaxBlobsPerBlock check only exists in DataColumnsAlignWithBlock (verification.go:28-38), which is called after block receipt, not during gossip validation. This causes nodes to perform expensive KZG proof verification (validateWithKzgBatchVerifier at validate_data_column.go:148) on oversized columns, leading to CPU/memory exhaustion. Severity: High based on single-packet DoS affecting >33% of network (Prysm's ~31% share allows network-wide impact).",
+      "adjusted_severity": "Medium",
+      "reviewer_notes": "An attacker can trigger this via P2P gossip by sending a data column sidecar with >max_blobs_per_block KzG commitments (e.g., 100 commitments when limit is 6/9/12), causing Prysm nodes to process and store oversized columns leading to memory/CPU exhaustion and DoS. Severity downgraded from High to Medium: single-client bug affecting ~31% of network (Prysm market share), which exceeds 5% but not 33% threshold.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W5B21_1772100998.json"
+      "source_file": "04_PARTIAL_W5B21_1772101478.json"
     },
     "PROP-6a4369e9-inv-014": {
       "review_verdict": "DISPUTED_FP",
       "classification": "filtered",
-      "adjusted_severity": "Informational",
-      "reviewer_notes": "Gate 2 (Trust Boundary): This issue requires the local validator operator to create and load a malformed YAML config file with incorrectly ordered fork epochs via the --chain-config-file CLI flag. The config loader (loader.go:UnmarshalConfig) accepts operator-provided files and is not exposed to P2P or untrusted input. Per BUG_BOUNTY_SCOPE.json, local_validator configuration is SEMI_TRUSTED with in_scope_for_bug_bounty=false, and 'Configuration issues requiring operator error are typically out-of-scope'. This is a configuration validation issue, not a vulnerability exploitable by an external attacker.",
+      "adjusted_severity": "High",
+      "reviewer_notes": "Gate 2 (Trust Boundary): Entry point is local configuration files (loaded via CLI flag ChainConfigFileFlag). This falls under 'local_validator' trust assumption which is SEMI_TRUSTED with in_scope_for_bug_bounty=false. No untrusted path (e.g., P2P network) can deliver malicious configs. Configuration is under operator control.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W6B22_1772100978.json"
+      "source_file": "04_PARTIAL_W6B22_1772101462.json"
     },
     "PROP-57888860-pre-003": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-inv-029": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-inv-005": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-025": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-pre-003": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-pre-008": {
-      "review_verdict": "CONFIRMED_POTENTIAL",
+      "review_verdict": "CONFIRMED_VULNERABILITY",
       "classification": "survived",
       "adjusted_severity": "Medium",
-      "reviewer_notes": "All 3 gates passed. Gate 1: Function is registered as P2P RPC handler (reachable). Gate 2: Attack relies on untrusted P2P peers, not compromised trusted components. Gate 3: Fusaka-specific PeerDAS code, P2P network in scope. Spec violation confirmed: when requests fall outside data_column_serve_range, validateDataColumnsByRange returns nil (L198-200), causing handler to return nil (L72-74) which sends success (0x00) instead of ResourceUnavailable (0x03) as required by P2P spec. An attacker can trigger this via P2P by sending DataColumnSidecarsByRangeRequest with startSlot before minValidSlot. Verdict is CONFIRMED_POTENTIAL because while the spec deviation is clear and attacker-triggered, the network-wide impact is uncertain (response code error may cause interoperability issues but not immediate crashes/splits).",
+      "reviewer_notes": "All 3 gates passed. Gate 1: Function is registered as active P2P RPC handler (rpc.go:55), not dead code. Gate 2: Entry point is untrusted P2P network, not a trusted source. Gate 3: In scope - PeerDAS (EIP-7594) is part of Fusaka upgrade. An attacker can trigger this via P2P network by sending DataColumnSidecarsByRangeRequest with startSlot < minValidSlot or > currentSlot, causing the server to return success (0x00) with empty data instead of ResourceUnavailable (0x03), violating the P2P spec requirement for out-of-range requests.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W0B16_1772100975.json"
+      "source_file": "04_PARTIAL_W0B16_1772101455.json"
     },
     "PROP-57888860-inv-032": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-014": {
       "review_verdict": "PASS_THROUGH",
@@ -667,24 +668,24 @@
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-inv-030": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-006": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-002": {
       "review_verdict": "PASS_THROUGH",
@@ -699,104 +700,104 @@
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-015": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-asm-003": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-inv-031": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-007": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-007": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-post-002": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-asm-005": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-inv-021": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-post-004": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-008": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-009": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-016": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-020": {
       "review_verdict": "PASS_THROUGH",
@@ -811,32 +812,32 @@
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-001": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-pre-001": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-043": {
-      "review_verdict": "CONFIRMED_VULNERABILITY",
+      "review_verdict": "DOWNGRADED",
       "classification": "survived",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "An attacker can trigger this via P2P DataColumnSidecarsByRange RPC by requesting a large range that forces quota exhaustion mid-block. The quota check at L164-165 exits immediately when quota reaches zero, breaking atomicity - if a block has sidecars [1,2,3] and quota=2, only sidecars 1-2 are sent, violating the spec requirement that all sidecars of a block must be included if any sidecar is included. This causes reconstruction failure for peers relying on complete sidecar sets for PeerDAS data availability sampling. Severity remains Medium as this affects Prysm's 31% network share (>5% threshold) through degraded data availability but does not directly cause node crashes or validator slashing.",
+      "adjusted_severity": "Low",
+      "reviewer_notes": "All 3 gates passed. An attacker can trigger this via P2P network by requesting a large range that forces quota exhaustion mid-block, causing partial sidecar delivery that violates the all-or-nothing atomicity requirement. The impact affects individual peer sync operations (reconstruction failures, wasted bandwidth) but does not meet the Medium severity threshold of '>5% network impact'. Downgraded from Medium to Low based on BUG_BOUNTY_SCOPE severity thresholds.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W3B11_1772100987.json"
+      "source_file": "04_PARTIAL_W3B11_1772101459.json"
     },
     "PROP-57888860-inv-010": {
       "review_verdict": "PASS_THROUGH",
@@ -851,40 +852,40 @@
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-021": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-inv-023": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-pre-002": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-044": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-004": {
       "review_verdict": "PASS_THROUGH",
@@ -899,48 +900,48 @@
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-022": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-post-001": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-003": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-pre-003": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-045": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-005": {
       "review_verdict": "PASS_THROUGH",
@@ -955,184 +956,184 @@
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-post-002": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-inv-028": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-004": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-post-001": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-inv-008": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-046": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-013": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-023": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-040": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-post-003": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-005": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-024": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-034": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-56ad1eb2-inv-009": {
       "review_verdict": "PASS_THROUGH",
       "classification": "survived",
       "adjusted_severity": "Informational",
       "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W0B0_1772096099.json"
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-57888860-inv-006": {
       "review_verdict": "CONFIRMED_VULNERABILITY",
       "classification": "survived",
       "adjusted_severity": "Medium",
-      "reviewer_notes": "An attacker can trigger this via P2P network by sending valid DataColumnSidecars. Go's randomized map iteration at lines 79-82 causes cellsIndices to be unsorted when passed to RecoverCellsAndKZGProofs, violating the c-kzg-4844 library requirement for sorted indices. This breaks PeerDAS reconstruction functionality, affecting all Prysm nodes (31% of network). All 3 FP gates passed: not dead code (active callers in sync layer), P2P untrusted path (not trust boundary issue), and in-scope for Fusaka PeerDAS audit.",
+      "reviewer_notes": "An attacker can trigger this via P2P network by sending valid DataColumnSidecars, causing the node's ReconstructDataColumnSidecars function to randomly order cell indices due to Go map iteration (lines 79-82), which violates the c-kzg-4844 library requirement for sorted indices, breaking PeerDAS reconstruction. All gates passed: function has multiple non-test callers (sync/execution components), entry point is untrusted P2P, and PeerDAS is in-scope per EIP-7594.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W4B20_1772100972.json"
+      "source_file": "04_PARTIAL_W4B20_1772101457.json"
     },
     "PROP-6a4369e9-inv-029": {
-      "review_verdict": "CONFIRMED_POTENTIAL",
-      "classification": "survived",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "All gates passed. The blob_sidecars_by_range RPC handler lacks epoch-based filtering to restrict serving blobs to pre-Fulu epochs during the transition period, violating the spec requirement (SG-011 INV-002). The code is reachable via P2P (untrusted), not dead code, and in-scope for Fulu. However, the concrete security impact beyond protocol non-compliance is not fully articulated. Confirmed as potential vulnerability pending clarification of exploitability.",
-      "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W6B14_1772101003.json"
-    },
-    "PROP-6a4369e9-inv-026": {
       "review_verdict": "CONFIRMED_VULNERABILITY",
       "classification": "survived",
       "adjusted_severity": "Medium",
-      "reviewer_notes": "An attacker can trigger this via P2P gossip by proposing a block with invalid state transition. The async goroutine in subscriber_beacon_blocks.go:40 reconstructs and saves data columns from the local EL (via processDataColumnSidecarsFromExecution) before ReceiveBlock validation at line 42 completes. During this race window, peers requesting sidecars via DataColumnSidecarsByRoot RPC receive invalid data. Medium severity is appropriate as this affects Prysm (31% of CL network) during the race window only, not persistently network-wide.",
+      "reviewer_notes": "All 3 gates passed (code is live with caller at line 107, entry point is untrusted P2P peer, issue is Fusaka-specific and in-scope). An attacker can trigger this via P2P network by requesting blob_sidecars_by_range with a range spanning FULU_FORK_EPOCH, causing the handler to serve both pre-Fulu and post-Fulu blobs without epoch-based filtering, violating the protocol requirement that only pre-Fulu blobs should be served after the fork.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W1B9_1772101022.json"
+      "source_file": "04_PARTIAL_W6B14_1772101448.json"
+    },
+    "PROP-6a4369e9-inv-026": {
+      "review_verdict": "CONFIRMED_POTENTIAL",
+      "classification": "survived",
+      "adjusted_severity": "Medium",
+      "reviewer_notes": "All 3 FP gates passed. Gate 1 (Dead Code): Function has active caller at rpc.go:54 (RPC handler registration). Gate 2 (Trust Boundary): Entry point is P2P network (UNTRUSTED per trust_assumptions). Gate 3 (Scope): In-scope PeerDAS issue (EIP-7594). Confirmed spec deviation: data columns saved to storage (receive_data_column.go:19) asynchronously before ReceiveBlock validation completes (subscriber_beacon_blocks.go:40,42). However, exploitability depends on race window timing between async goroutine save and block validation failure. Marked as CONFIRMED_POTENTIAL due to narrow race window and uncertain real-world impact.",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W1B9_1772101476.json"
     },
     "PROP-6a4369e9-inv-030": {
-      "review_verdict": "CONFIRMED_POTENTIAL",
+      "review_verdict": "PASS_THROUGH",
       "classification": "survived",
-      "adjusted_severity": "Low",
-      "reviewer_notes": "All 6 gates passed. Code verification confirms Phase 03's analysis: at rpc_methods.rs:1029-1039, when request_start_slot < oldest_blob_slot AND data_availability_boundary_slot >= oldest_blob_slot, the code returns InvalidRequest (line 1036), which maps to LowToleranceError penalty (-10.0 score, ~5 occurrences lead to ban) per peer_manager/mod.rs:588 and score.rs:176. During FULU_FORK_EPOCH transition with PeerDAS activation, honest peers may legitimately request blobs from early fork slots that fall within the availability period but were never stored due to fork-specific storage changes. Such legitimate requests receive penalties, violating the spec requirement from 01e_PARTIAL_W2B3_1771748669.json: 'Peers must not be penalized for requesting blob sidecars from FULU_FORK_EPOCH during transition.' Attack path: A peer (or honest node during transition) requests blobs via P2P BlobsByRange for slots within data_availability_boundary but before oldest_blob_slot, triggering the penalty path. Impact is fork-transition-specific and may affect honest peer connectivity during the upgrade window. Verdict is CONFIRMED_POTENTIAL rather than CONFIRMED_VULNERABILITY because the actual network impact depends on the prevalence of such requests during the transition period and whether accumulated penalties lead to meaningful disconnections. The bug is real but exploitability and network-wide impact remain uncertain without empirical data on fork transition behavior.",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W3B19_1772095828.json"
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-035": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
+      "review_verdict": "CONFIRMED_VULNERABILITY",
+      "classification": "survived",
       "adjusted_severity": "Medium",
-      "reviewer_notes": "Gate 3 (Scope Check) triggered: The finding's primary impact is resource exhaustion via legacy RPC paths, which requires sustained multiple requests to cause DoS. This falls under 'High-effort DoS attacks' explicitly excluded in BUG_BOUNTY_SCOPE.json (requires more than 1 packet). Secondary impact of 'delaying PeerDAS migration' is a spec compliance issue without direct security consequence meeting severity thresholds (cannot take down >5% of network with single packet).",
+      "reviewer_notes": "All 3 gates passed. Gate 1: Handler actively registered in rpc.go (non-test callers exist). Gate 2: Entry point is P2P peers (UNTRUSTED per trust_assumptions). Gate 3: Fusaka-specific PeerDAS deprecation requirement, in scope. An attacker can trigger this via P2P network by sending blob_sidecars_by_root requests after FULU_FORK_EPOCH + 4096 epochs, causing the node to serve legacy RPC requests instead of rejecting them, delaying PeerDAS migration and enabling resource exhaustion. Severity calibrated against Prysm's 31% market share (exceeds 5% Medium threshold).",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W0B24_1772101020.json"
+      "source_file": "04_PARTIAL_W0B24_1772101443.json"
     },
     "PROP-56ad1eb2-inv-018": {
-      "review_verdict": "CONFIRMED_POTENTIAL",
+      "review_verdict": "PASS_THROUGH",
       "classification": "survived",
-      "adjusted_severity": "High",
-      "reviewer_notes": "Passed all 6 gates. Code verification confirmed: data_column_verification.rs:688, blob_verification.rs:536, and block_verification.rs:991 all call get_beacon_proposer_indices(epoch) which always recomputes from active validators (beacon_state.rs:1166-1175), instead of reading from state.proposer_lookahead as required by EIP-7917. A compliant implementation exists at beacon_state.rs:1144-1153 (get_beacon_proposer_index singular) which reads from the cache post-Fulu, but gossip verification paths don't use it. The spec violation is clear and could cause consensus splits if different clients or code paths produce different results, but no concrete attack path to trigger divergence was found. All three paths operate on current epoch after cheap_state_advance, so they could use the cached singular function. Spec reference from outputs/01e_PARTIAL_W0B1_1771748647.json: 'get_beacon_proposer_index must return proposer_lookahead[slot % SLOTS_PER_EPOCH], not recompute.' Severity justified as High per BUG_BOUNTY_SCOPE.json threshold: network splits affecting >33% if cache-vs-recompute divergence occurs across implementations.",
-      "branch": "lighthouse_fusaka",
-      "source_file": "04_PARTIAL_W5B5_1772095880.json"
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-6a4369e9-inv-028": {
       "review_verdict": "CONFIRMED_POTENTIAL",
       "classification": "survived",
-      "adjusted_severity": "Low",
-      "reviewer_notes": "All 3 FP gates passed: code is actively used (registered in rpc.go), exploitable via P2P (untrusted path), and in Fusaka scope. However, the concrete security impact is uncertain. The spec requires blob_sidecars_by_range deprecation after FULU_FORK_EPOCH + MIN_EPOCHS, and the implementation at beacon-chain/sync/rpc_blob_sidecars_by_range.go:136-148 lacks this check. While this is a clear protocol deviation, the claim that it 'prevents migration to data columns' is not substantiated with a concrete attack path showing network-wide impact. Severity downgraded from Medium to Low: protocol compliance issue without demonstrated DoS, slashing, or network split impact meeting Medium threshold (>5% network impact).",
+      "adjusted_severity": "Medium",
+      "reviewer_notes": "Spec deviation confirmed: BlobRPCMinValidSlot does not implement Fulu deprecation requirement (should reject all requests after FULU_FORK_EPOCH + MIN_EPOCHS). Function continues calculating minStart = currEpoch - minReqEpochs, allowing recent blob requests indefinitely. Attack path is straightforward (P2P peer sends BlobSidecarsByRangeRequest post-deadline), but the claimed impact of 'preventing migration to data columns' lacks concrete exploitability\u2014unclear how serving deprecated blobs directly blocks network-wide migration. Passed all 3 gates: (1) function actively used by multiple callers, (2) entry point is untrusted P2P, (3) Fusaka-specific (Fulu fork) and in scope. Severity remains Medium\u2014protocol compliance issue affecting single client (Prysm, 31% CL share) but not causing immediate validator slashing, network splits, or consensus failures.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W2B10_1772101031.json"
+      "source_file": "04_PARTIAL_W2B10_1772101470.json"
     },
     "PROP-6a4369e9-post-003": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
-      "adjusted_severity": "HIGH",
-      "reviewer_notes": "Gate 2 (Trust Boundary): This finding requires a compromised or buggy local Execution Layer client. The code at block_processor.nim:896 intentionally discards entry.columns and uses entry.blobs instead. The data flow is: (1) EL provides blobs via JWT-authenticated Engine API (SEMI_TRUSTED source per BUG_BOUNTY_SCOPE.json trust_assumptions), (2) CL converts blobs to columns locally for distributed publishing, (3) CL imports block using blobs only. Malformed columns can only result from malformed blobs from the local EL. The trust_assumptions explicitly state: 'If the EL is compromised or buggy, corrupted data may be propagated to the network.' This is a conditional vulnerability requiring a compromised trusted component, outside the security boundary. The 01e property (outputs/01e_PARTIAL_W2B3_1771748669.json:733-749) states the requirement, but the attack path requires local EL compromise, which is semi-trusted per the bug bounty scope.",
-      "branch": "nimbus_fusaka",
-      "source_file": "04_PARTIAL_W3B11_1772024561.json"
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
     },
     "PROP-1ada093f-inv-041": {
       "review_verdict": "DISPUTED_FP",
@@ -1182,13 +1183,101 @@
       "branch": "nimbus_fusaka",
       "source_file": "04_PARTIAL_W7B7_1772024497.json"
     },
+    "PROP-ff7df16a-inv-008": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
+    "PROP-ff7df16a-inv-018": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
+    "PROP-ff7df16a-inv-009": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
+    "PROP-ff7df16a-inv-022": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
+    "PROP-ff7df16a-inv-023": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
+    "PROP-ff7df16a-post-002": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
+    "PROP-ff7df16a-inv-024": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
+    "PROP-ff7df16a-post-003": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as out-of-scope",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
+    "PROP-ff7df16a-asm-001": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
+    "PROP-ff7df16a-asm-002": {
+      "review_verdict": "DISPUTED_FP",
+      "classification": "filtered",
+      "adjusted_severity": "Medium",
+      "reviewer_notes": "Gate 2 (Trust Boundary) triggered. The finding is factually correct: IPC transport bypasses JWT authentication (auth.rs:105-110 starts IPC server without AuthLayer). However, this requires local access to the Unix socket. Per BUG_BOUNTY_SCOPE.json trust_assumptions.engine_api, Engine API is for local EL-CL communication and classified as SEMI_TRUSTED. The 01e property (outputs/01e_PARTIAL_W4B5_1771748579.json:453-469) has bug_bounty_eligible=false and bug_bounty_scope='conditional'. Attack scenario requires compromised local process/container to access IPC socket, which falls outside the primary threat model (P2P network attacks). While a valid implementation gap, it requires local privilege escalation as a precondition.",
+      "branch": "reth_fusaka",
+      "source_file": "04_PARTIAL_W3B3_1772031774.json"
+    },
+    "PROP-ff7df16a-asm-003": {
+      "review_verdict": "PASS_THROUGH",
+      "classification": "survived",
+      "adjusted_severity": "Informational",
+      "reviewer_notes": "Auto-passed: Phase 03 classified as not-a-vulnerability",
+      "branch": "prysm_fusaka",
+      "source_file": "04_PARTIAL_W0B0_1772101589.json"
+    },
     "PROP-ff7df16a-post-001": {
       "review_verdict": "CONFIRMED_VULNERABILITY",
       "classification": "survived",
       "adjusted_severity": "High",
-      "reviewer_notes": "An attacker can trigger this via P2P by submitting a beacon block with execution requests that cause ProcessDepositRequests to fail (e.g., state operation errors during pending deposit append). The error is returned as raw execReqErr (L517) instead of invalidBlock, bypassing proper fork choice invalidation and potentially allowing the invalid block to propagate. This affects consensus safety as improperly validated blocks may not be rejected by fork choice. Severity: High based on potential for network confusion and improper block handling affecting >33% of Prysm nodes (31% network share).",
+      "reviewer_notes": "An attacker can trigger this via P2P network by submitting a block with nil or invalid deposit request, causing the validation error to return as raw execReqErr (L516-517) instead of being wrapped in invalidBlock. This bypasses proper block invalidation in fork choice, potentially allowing invalid blocks to propagate through the network. All gates passed: code is active (called from receive_block.go:222), entry point is untrusted P2P network, and finding is in-scope for Fusaka audit (consensus block validation). Severity maintained at High due to consensus-critical nature of deposit validation bypass in Prysm (31% consensus client share).",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W5B5_1772101083.json"
+      "source_file": "04_PARTIAL_W5B5_1772101477.json"
     },
     "PROP-56ad1eb2-inv-006": {
       "review_verdict": "DOWNGRADED",
@@ -1196,7 +1285,7 @@
       "adjusted_severity": "Medium",
       "reviewer_notes": "An attacker can trigger this via untrusted checkpoint state (weak subjectivity or P2P sync) by providing a malicious SSZ-encoded state with proposer_lookahead length != 64, causing InitializeFromProtoUnsafeFulu to bypass validation at L649-652 and leading to out-of-bounds access in ProcessProposerLookahead. Severity downgraded from High to Medium due to single-client impact: Prysm represents 31% of consensus client share, below the 33% threshold for High severity.",
       "branch": "prysm_fusaka",
-      "source_file": "04_PARTIAL_W7B7_1772100978.json"
+      "source_file": "04_PARTIAL_W7B7_1772101476.json"
     },
     "PROP-ff7df16a-inv-020": {
       "review_verdict": "CONFIRMED_POTENTIAL",
@@ -1221,14 +1310,6 @@
       "reviewer_notes": "Gate 3 (Code Verification): Phase 03's code reading is factually correct - the transaction pool validator in validate_one_no_state (L434-449) checks that EIP-7702 transactions have non-empty authorization lists but does NOT validate individual authorization chain_ids. Only the transaction-level chain_id is checked (L424-432). Gate 4 (Exploitability): An attacker can craft EIP-7702 transactions with valid tx.chain_id but invalid auth.chain_id values, which will pass pool validation and propagate through the P2P network. Gate 5 (Spec Cross-Reference): Per 01e_PARTIAL_W4B5_1771748579.json, EIP-7702 spec requires 'forall auth in tx.authorizations: auth.chain_id == current_chain_id || auth.chain_id == 0' for replay protection. However, the actual security impact depends on whether: (1) revm validates authorization chain_ids during execution, or (2) the signature recovery in recover_authority() intrinsically fails for wrong chain_ids. If validation occurs at execution time, the impact is limited to mempool pollution and wasted P2P bandwidth rather than cross-chain replay. Without confirming execution-time validation in revm, this remains a potential vulnerability. Severity downgraded from High to Medium: the attack requires creating transactions that pass pool validation but may still fail at execution, limiting impact to resource exhaustion rather than direct fund theft.",
       "branch": "reth_fusaka",
       "source_file": "04_PARTIAL_W2B2_1772031819.json"
-    },
-    "PROP-ff7df16a-asm-002": {
-      "review_verdict": "DISPUTED_FP",
-      "classification": "filtered",
-      "adjusted_severity": "Medium",
-      "reviewer_notes": "Gate 2 (Trust Boundary) triggered. The finding is factually correct: IPC transport bypasses JWT authentication (auth.rs:105-110 starts IPC server without AuthLayer). However, this requires local access to the Unix socket. Per BUG_BOUNTY_SCOPE.json trust_assumptions.engine_api, Engine API is for local EL-CL communication and classified as SEMI_TRUSTED. The 01e property (outputs/01e_PARTIAL_W4B5_1771748579.json:453-469) has bug_bounty_eligible=false and bug_bounty_scope='conditional'. Attack scenario requires compromised local process/container to access IPC socket, which falls outside the primary threat model (P2P network attacks). While a valid implementation gap, it requires local privilege escalation as a precondition.",
-      "branch": "reth_fusaka",
-      "source_file": "04_PARTIAL_W3B3_1772031774.json"
     },
     "PROP-57888860-inv-052": {
       "review_verdict": "PASS_THROUGH",
@@ -1256,20 +1337,18 @@
       "f1": 0.797
     },
     "phase_04": {
-      "total_findings": 69,
-      "recall": 0.9333,
-      "precision_auto": 0.6923,
-      "precision_conservative": 0.5217,
-      "f1": 0.7949,
-      "lost_recall_issues": [
-        "381"
-      ]
+      "total_findings": 88,
+      "recall": 1.0,
+      "precision_auto": 0.6714,
+      "precision_conservative": 0.5341,
+      "f1": 0.8034,
+      "lost_recall_issues": []
     },
     "delta": {
-      "findings_removed": 33,
-      "recall_delta": -0.0667,
-      "precision_auto_delta": 0.0298,
-      "f1_delta": -0.0021
+      "findings_removed": 14,
+      "recall_delta": 0.0,
+      "precision_auto_delta": 0.0089,
+      "f1_delta": 0.0064
     }
   }
 }
