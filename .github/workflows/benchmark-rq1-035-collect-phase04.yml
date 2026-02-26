@@ -37,6 +37,19 @@ jobs:
           echo "BRANCHES=${BRANCHES}" >> "$GITHUB_ENV"
           echo "Discovered branches: ${BRANCHES}"
 
+      - name: Reset Phase 04 Data
+        run: |
+          echo "Removing existing Phase 04 files from branch directories..."
+          for dir in "${RESULTS_DIR}"/*/; do
+            rm -f "${dir}"04_*.json "${dir}"04_PARTIAL_*.json "${dir}"manifest_04.json
+            branch=$(basename "$dir")
+            removed=$(ls "${dir}"04_*.json 2>/dev/null | wc -l || echo 0)
+            echo "  ${branch}: cleaned"
+          done
+          rm -f "${RESULTS_DIR}/collection_summary_04.json"
+          rm -f "${RESULTS_DIR}/phase_comparison.json"
+          echo "Phase 04 data reset complete."
+
       - name: Collect Phase 04 Outputs (merge into existing dirs)
         run: |
           uv run python benchmarks/scripts/collect_branch_outputs.py \
