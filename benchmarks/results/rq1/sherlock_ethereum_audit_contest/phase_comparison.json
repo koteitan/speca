@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-26T14:03:41.981874+00:00",
+  "generated_at": "2026-02-26T14:37:53.362936+00:00",
   "verdict_breakdown": {
     "total_findings": 647,
     "total_reviewed": 238,
@@ -1956,6 +1956,22 @@
       "recall_delta": 0.0,
       "precision_auto_delta": 0.0089,
       "f1_delta": 0.0064
+    }
+  },
+  "efficiency": {
+    "phase_03": {
+      "total_tokens": 1887905176,
+      "total_secs": 77409.3,
+      "total_findings": 647,
+      "tokens_per_finding": 2917937,
+      "secs_per_finding": 119.6
+    },
+    "phase_04": {
+      "total_tokens": 216302441,
+      "total_secs": 12126.1,
+      "total_reviews": 550,
+      "tokens_per_review": 393277,
+      "secs_per_review": 22.0
     }
   }
 }
