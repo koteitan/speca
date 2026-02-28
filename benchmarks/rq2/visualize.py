@@ -43,9 +43,14 @@ TOOL_COLORS = {
     "static_baseline": "#607D8B",
 }
 
+# Tools to include in graphs (ordered). Others are excluded from display.
+# Security Agent is always shown as a placeholder even when results are missing.
+DISPLAY_ORDER = ["semgrep", "cppcheck", "flawfinder", "security_agent"]
+
 STATUS_COLORS = {
     "ok": "#4CAF50",
     "missing_results": "#BDBDBD",
+    "pending": "#FFD54F",
     "invalid_results": "#FF9800",
 }
 
@@ -54,40 +59,49 @@ def load_metrics(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _display_tools(tools: dict) -> list[str]:
+    """Return ordered list of tool keys to display."""
+    return [t for t in DISPLAY_ORDER if t in tools or t == "security_agent"]
+
+
 def fig1_tool_comparison(data: dict, output_dir: Path) -> None:
-    """Bar chart comparing tool precision, recall, F1."""
+    """Bar chart comparing tool precision, recall, F1 — includes Security Agent placeholder."""
     tools = data.get("tools", {})
+    display = _display_tools(tools)
+
     tool_names = []
     precision_vals = []
     recall_vals = []
     f1_vals = []
-    coverage_vals = []
 
-    for name, metrics in tools.items():
-        if metrics.get("status") != "ok":
-            continue
+    for name in display:
+        metrics = tools.get(name, {})
         tool_names.append(TOOL_DISPLAY.get(name, name))
-        precision_vals.append(metrics.get("precision", 0))
-        recall_vals.append(metrics.get("recall", 0))
-        f1_vals.append(metrics.get("f1", 0))
-        coverage_vals.append(metrics.get("coverage", 0))
+        if metrics.get("status") == "ok":
+            precision_vals.append(metrics.get("precision", 0))
+            recall_vals.append(metrics.get("recall", 0))
+            f1_vals.append(metrics.get("f1", 0))
+        else:
+            # Placeholder (TBD)
+            precision_vals.append(0)
+            recall_vals.append(0)
+            f1_vals.append(0)
 
     if not tool_names:
-        print("  No tools with results to plot for fig1")
+        print("  No tools to plot for fig1")
         return
 
     x = np.arange(len(tool_names))
-    width = 0.2
+    width = 0.25
 
     fig, ax = plt.subplots(figsize=(10, 6))
-    bars1 = ax.bar(x - 1.5 * width, precision_vals, width, label="Precision", color="#2196F3")
-    bars2 = ax.bar(x - 0.5 * width, recall_vals, width, label="Recall", color="#FF5722")
-    bars3 = ax.bar(x + 0.5 * width, f1_vals, width, label="F1", color="#4CAF50")
-    bars4 = ax.bar(x + 1.5 * width, coverage_vals, width, label="Coverage", color="#9C27B0", alpha=0.6)
+    bars1 = ax.bar(x - width, precision_vals, width, label="Precision", color="#2196F3")
+    bars2 = ax.bar(x, recall_vals, width, label="Recall", color="#FF5722")
+    bars3 = ax.bar(x + width, f1_vals, width, label="F1", color="#4CAF50")
 
     ax.set_xlabel("Tool")
     ax.set_ylabel("Score")
-    ax.set_title("RQ2: Tool Performance Comparison (PrimeVul Dataset)")
+    ax.set_title("RQ2: Tool Performance Comparison (PrimeVul, n=868)")
     ax.set_xticks(x)
     ax.set_xticklabels(tool_names)
     ax.legend()
@@ -95,12 +109,18 @@ def fig1_tool_comparison(data: dict, output_dir: Path) -> None:
     ax.grid(axis="y", alpha=0.3)
 
     # Add value labels on bars
-    for bars in [bars1, bars2, bars3, bars4]:
+    for bars in [bars1, bars2, bars3]:
         for bar in bars:
             height = bar.get_height()
             if height > 0:
                 ax.annotate(f"{height:.2f}", xy=(bar.get_x() + bar.get_width() / 2, height),
-                            xytext=(0, 3), textcoords="offset points", ha="center", va="bottom", fontsize=8)
+                            xytext=(0, 3), textcoords="offset points", ha="center", va="bottom", fontsize=9)
+
+    # Mark Security Agent as TBD
+    for i, name in enumerate(display):
+        if tools.get(name, {}).get("status") != "ok":
+            ax.annotate("TBD", xy=(i, 0.02), ha="center", va="bottom",
+                        fontsize=11, fontweight="bold", color="#999", fontstyle="italic")
 
     fig.tight_layout()
     fig.savefig(output_dir / "fig1_tool_comparison.png", dpi=150)
@@ -111,23 +131,32 @@ def fig1_tool_comparison(data: dict, output_dir: Path) -> None:
 def fig2_confusion_matrix(data: dict, output_dir: Path) -> None:
     """Stacked bar chart showing confusion matrix breakdown for each tool."""
     tools = data.get("tools", {})
+    display = _display_tools(tools)
+
     tool_names = []
     tp_vals = []
     fp_vals = []
     tn_vals = []
     fn_vals = []
+    is_placeholder = []
 
-    for name, metrics in tools.items():
-        if metrics.get("status") != "ok":
-            continue
-        scored = metrics.get("tp", 0) + metrics.get("fp", 0) + metrics.get("tn", 0) + metrics.get("fn", 0)
-        if scored == 0:
-            continue
+    for name in display:
+        metrics = tools.get(name, {})
         tool_names.append(TOOL_DISPLAY.get(name, name))
-        tp_vals.append(metrics.get("tp", 0))
-        fp_vals.append(metrics.get("fp", 0))
-        tn_vals.append(metrics.get("tn", 0))
-        fn_vals.append(metrics.get("fn", 0))
+        if metrics.get("status") == "ok":
+            scored = metrics.get("tp", 0) + metrics.get("fp", 0) + metrics.get("tn", 0) + metrics.get("fn", 0)
+            if scored == 0:
+                tp_vals.append(0); fp_vals.append(0); tn_vals.append(0); fn_vals.append(0)
+                is_placeholder.append(True)
+            else:
+                tp_vals.append(metrics.get("tp", 0))
+                fp_vals.append(metrics.get("fp", 0))
+                tn_vals.append(metrics.get("tn", 0))
+                fn_vals.append(metrics.get("fn", 0))
+                is_placeholder.append(False)
+        else:
+            tp_vals.append(0); fp_vals.append(0); tn_vals.append(0); fn_vals.append(0)
+            is_placeholder.append(True)
 
     if not tool_names:
         print("  No tools with confusion data for fig2")
@@ -148,17 +177,20 @@ def fig2_confusion_matrix(data: dict, output_dir: Path) -> None:
 
     ax.set_xlabel("Tool")
     ax.set_ylabel("Number of Samples")
-    ax.set_title("RQ2: Confusion Matrix Breakdown")
+    ax.set_title("RQ2: Confusion Matrix Breakdown (n=868)")
     ax.set_xticks(x)
     ax.set_xticklabels(tool_names)
     ax.legend(loc="upper right")
     ax.grid(axis="y", alpha=0.3)
 
-    # Add total annotation
     for i, (tp, fp, tn, fn) in enumerate(zip(tp_vals, fp_vals, tn_vals, fn_vals)):
         total = tp + fp + tn + fn
-        ax.annotate(f"n={total}", xy=(i, total), xytext=(0, 5),
-                    textcoords="offset points", ha="center", fontsize=9, fontweight="bold")
+        if is_placeholder[i]:
+            ax.annotate("TBD", xy=(i, 50), ha="center", fontsize=11,
+                        fontweight="bold", color="#999", fontstyle="italic")
+        else:
+            ax.annotate(f"n={total}", xy=(i, total), xytext=(0, 5),
+                        textcoords="offset points", ha="center", fontsize=9, fontweight="bold")
 
     fig.tight_layout()
     fig.savefig(output_dir / "fig2_confusion_matrix.png", dpi=150)
@@ -176,20 +208,18 @@ def fig3_cwe_coverage(data: dict, output_dir: Path) -> None:
         print("  No CWE data for fig3")
         return
 
-    # Top 15 CWEs by count
     top_cwes = sorted(cwe_totals.items(), key=lambda x: x[1], reverse=True)[:15]
     cwe_names = [cwe for cwe, _ in top_cwes]
     cwe_counts = [count for _, count in top_cwes]
 
     fig, ax = plt.subplots(figsize=(12, 8))
 
-    # Background bars (total vulnerable count)
     y = np.arange(len(cwe_names))
-    bars = ax.barh(y, cwe_counts, color="#E0E0E0", label="Total Vulnerable")
+    ax.barh(y, cwe_counts, color="#E0E0E0", label="Total Vulnerable")
 
-    # Overlay per-tool TP counts
-    active_tools = [(name, metrics) for name, metrics in tools.items()
-                    if metrics.get("status") == "ok" and metrics.get("cwe_coverage")]
+    # Only overlay tools that have actual results + are in display order
+    active_tools = [(name, tools[name]) for name in DISPLAY_ORDER
+                    if name in tools and tools[name].get("status") == "ok" and tools[name].get("cwe_coverage")]
 
     for tool_idx, (tool_name, metrics) in enumerate(active_tools):
         cwe_cov = metrics.get("cwe_coverage", {})
@@ -200,7 +230,6 @@ def fig3_cwe_coverage(data: dict, output_dir: Path) -> None:
                     color=TOOL_COLORS.get(tool_name, "#999"),
                     label=f"{TOOL_DISPLAY.get(tool_name, tool_name)} TP")
 
-    # Labels
     for i, (cwe, count) in enumerate(zip(cwe_names, cwe_counts)):
         ax.text(count + 0.5, i, str(count), va="center", fontsize=9)
 
@@ -222,22 +251,36 @@ def fig4_tool_status(data: dict, output_dir: Path) -> None:
     """Summary diagram showing tool status and dataset overview."""
     tools = data.get("tools", {})
     dataset = data.get("dataset", {})
+    display = _display_tools(tools)
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
-    # Left: Tool status
+    # Left: Tool status (only display-order tools)
     ax1 = axes[0]
-    tool_names = list(tools.keys())
-    statuses = [tools[t].get("status", "unknown") for t in tool_names]
+    display_names = [TOOL_DISPLAY.get(t, t) for t in display]
+    statuses = []
+    for t in display:
+        s = tools.get(t, {}).get("status", "missing_results")
+        if s == "missing_results":
+            statuses.append("pending")
+        else:
+            statuses.append(s)
     colors = [STATUS_COLORS.get(s, "#999") for s in statuses]
-    display_names = [TOOL_DISPLAY.get(t, t) for t in tool_names]
 
-    y = np.arange(len(tool_names))
-    ax1.barh(y, [1] * len(tool_names), color=colors, height=0.6)
+    y_idx = np.arange(len(display))
+    ax1.barh(y_idx, [1] * len(display), color=colors, height=0.6)
     for i, (name, status) in enumerate(zip(display_names, statuses)):
-        label = "Ready" if status == "ok" else status.replace("_", " ").title()
+        if status == "ok":
+            label = "Ready"
+            text_color = "white"
+        elif status == "pending":
+            label = "Pending"
+            text_color = "#333"
+        else:
+            label = status.replace("_", " ").title()
+            text_color = "black"
         ax1.text(0.5, i, f"{name}\n({label})", ha="center", va="center",
-                fontsize=10, fontweight="bold", color="white" if status == "ok" else "black")
+                fontsize=11, fontweight="bold", color=text_color)
     ax1.set_xlim(0, 1)
     ax1.set_yticks([])
     ax1.set_xticks([])
@@ -246,28 +289,28 @@ def fig4_tool_status(data: dict, output_dir: Path) -> None:
 
     # Right: Dataset composition
     ax2 = axes[1]
-    gt_count = dataset.get("ground_truth_count", 0)
     total = dataset.get("sample_count", 0)
 
-    # Count vuln vs clean from tools data
-    semgrep = tools.get("semgrep", {})
-    tp = semgrep.get("tp", 0)
-    fn = semgrep.get("fn", 0)
-    fp = semgrep.get("fp", 0)
-    tn = semgrep.get("tn", 0)
-    vuln_count = tp + fn
-    clean_count = fp + tn
+    # Get vuln/clean from any ok tool
+    vuln_count = clean_count = 0
+    for t in display:
+        m = tools.get(t, {})
+        if m.get("status") == "ok":
+            vuln_count = m.get("tp", 0) + m.get("fn", 0)
+            clean_count = m.get("fp", 0) + m.get("tn", 0)
+            if vuln_count + clean_count > 0:
+                break
 
     if vuln_count + clean_count > 0:
         sizes = [vuln_count, clean_count]
         labels = [f"Vulnerable\n({vuln_count})", f"Clean\n({clean_count})"]
-        colors = ["#F44336", "#4CAF50"]
+        pie_colors = ["#F44336", "#4CAF50"]
         explode = (0.05, 0)
-        wedges, texts, autotexts = ax2.pie(sizes, labels=labels, colors=colors,
-                                            autopct="%1.1f%%", explode=explode,
-                                            startangle=90, textprops={"fontsize": 11})
+        ax2.pie(sizes, labels=labels, colors=pie_colors, autopct="%1.1f%%",
+                explode=explode, startangle=90, textprops={"fontsize": 11})
         ax2.set_title(f"Dataset Composition (n={total})")
     else:
+        gt_count = dataset.get("ground_truth_count", 0)
         ax2.text(0.5, 0.5, f"Total: {total} samples\nGround truth: {gt_count}",
                 ha="center", va="center", fontsize=14, transform=ax2.transAxes)
         ax2.set_title("Dataset Overview")
@@ -286,31 +329,24 @@ def fig5_cwe_treemap(data: dict, output_dir: Path) -> None:
         print("  No CWE data for fig5")
         return
 
-    # Sort by count
     sorted_cwes = sorted(cwe_totals.items(), key=lambda x: x[1], reverse=True)
     cwes = [c for c, _ in sorted_cwes[:20]]
     counts = [n for _, n in sorted_cwes[:20]]
 
     fig, ax = plt.subplots(figsize=(14, 8))
 
-    # Create bubble positions
-    np.random.seed(42)
     n = len(cwes)
     cols = 5
     rows = (n + cols - 1) // cols
-    x_pos = []
-    y_pos = []
-    for i in range(n):
-        x_pos.append((i % cols) * 3)
-        y_pos.append((i // cols) * 3)
+    x_pos = [(i % cols) * 3 for i in range(n)]
+    y_pos = [(i // cols) * 3 for i in range(n)]
 
     max_count = max(counts)
     sizes = [(c / max_count) * 3000 + 200 for c in counts]
 
-    # Color by severity (higher count = more red)
     colors = plt.cm.RdYlGn_r(np.array(counts) / max_count)
 
-    scatter = ax.scatter(x_pos, y_pos, s=sizes, c=colors, alpha=0.7, edgecolors="black", linewidth=0.5)
+    ax.scatter(x_pos, y_pos, s=sizes, c=colors, alpha=0.7, edgecolors="black", linewidth=0.5)
 
     for i, (cwe, count) in enumerate(zip(cwes, counts)):
         ax.annotate(f"{cwe}\n({count})", (x_pos[i], y_pos[i]),
@@ -326,6 +362,10 @@ def fig5_cwe_treemap(data: dict, output_dir: Path) -> None:
     fig.savefig(output_dir / "fig5_cwe_distribution.png", dpi=150)
     plt.close(fig)
     print(f"  Saved fig5_cwe_distribution.png")
+
+
+# Alias for consistent naming
+fig5_cwe_distribution = fig5_cwe_treemap
 
 
 def main() -> int:
@@ -351,10 +391,6 @@ def main() -> int:
 
     print(f"\nAll figures saved to {args.output_dir}/")
     return 0
-
-
-# Alias for consistent naming
-fig5_cwe_distribution = fig5_cwe_treemap
 
 
 if __name__ == "__main__":
