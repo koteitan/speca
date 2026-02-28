@@ -18,6 +18,19 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_METRICS = ROOT_DIR / "benchmarks" / "results" / "rq2" / "metrics.json"
 DEFAULT_REPORT = ROOT_DIR / "benchmarks" / "results" / "rq2" / "report.md"
 
+TOOL_DISPLAY = {
+    "semgrep": "Semgrep",
+    "cppcheck": "Cppcheck",
+    "flawfinder": "Flawfinder",
+    "codeql": "CodeQL",
+    "security_agent": "Security Agent",
+    "llm_baseline": "LLM Baseline",
+    "static_baseline": "Static Baseline",
+}
+
+# Tools to include in the report (ordered). Security Agent always shown.
+DISPLAY_ORDER = ["semgrep", "cppcheck", "flawfinder", "security_agent"]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate benchmark report.")
@@ -73,27 +86,27 @@ def main() -> int:
     lines.append("")
     lines.append("## Tool Metrics")
     lines.append("")
-    lines.append("| Tool | Precision | Recall | F1 | Coverage | TP | FP | TN | FN | Errors |")
-    lines.append("| ---- | --------- | ------ | -- | -------- | -- | -- | -- | -- | ------ |")
+    lines.append("| Tool | Precision | Recall | F1 | TP | FP | TN | FN |")
+    lines.append("| ---- | --------- | ------ | -- | -- | -- | -- | -- |")
 
-    for tool, metrics in tools.items():
-        if metrics.get("status") != "ok":
-            lines.append(f"| {tool} | n/a | n/a | n/a | 0.000 | 0 | 0 | 0 | 0 | 0 |")
-            continue
-        lines.append(
-            "| {tool} | {precision} | {recall} | {f1} | {coverage} | {tp} | {fp} | {tn} | {fn} | {errors} |".format(
-                tool=tool,
-                precision=format_metric(metrics.get("precision")),
-                recall=format_metric(metrics.get("recall")),
-                f1=format_metric(metrics.get("f1")),
-                coverage=format_metric(metrics.get("coverage")),
-                tp=metrics.get("tp", 0),
-                fp=metrics.get("fp", 0),
-                tn=metrics.get("tn", 0),
-                fn=metrics.get("fn", 0),
-                errors=metrics.get("error_count", 0),
+    for tool in DISPLAY_ORDER:
+        display = TOOL_DISPLAY.get(tool, tool)
+        metrics = tools.get(tool, {})
+        if metrics.get("status") == "ok":
+            lines.append(
+                "| {tool} | {precision} | {recall} | {f1} | {tp} | {fp} | {tn} | {fn} |".format(
+                    tool=display,
+                    precision=format_metric(metrics.get("precision")),
+                    recall=format_metric(metrics.get("recall")),
+                    f1=format_metric(metrics.get("f1")),
+                    tp=metrics.get("tp", 0),
+                    fp=metrics.get("fp", 0),
+                    tn=metrics.get("tn", 0),
+                    fn=metrics.get("fn", 0),
+                )
             )
-        )
+        else:
+            lines.append(f"| {display} | — | — | — | — | — | — | — |")
 
     lines.append("")
     lines.append("## Tool Metadata")
@@ -138,21 +151,22 @@ def main() -> int:
     else:
         lines.append("- n/a")
     lines.append("")
-    lines.append("| Tool | Accuracy | Correct | Scored | Total | Skipped |")
-    lines.append("| ---- | -------- | ------- | ------ | ----- | ------- |")
-    for tool, metrics in tools.items():
+    lines.append("| Tool | Accuracy | Correct | Scored | Total |")
+    lines.append("| ---- | -------- | ------- | ------ | ----- |")
+    for tool in DISPLAY_ORDER:
+        display = TOOL_DISPLAY.get(tool, tool)
+        metrics = tools.get(tool, {})
         pairwise = metrics.get("pairwise")
         if not pairwise:
-            lines.append(f"| {tool} | n/a | 0 | 0 | 0 | 0 |")
+            lines.append(f"| {display} | — | — | — | — |")
             continue
         lines.append(
-            "| {tool} | {accuracy} | {correct} | {scored} | {total} | {skipped} |".format(
-                tool=tool,
+            "| {tool} | {accuracy} | {correct} | {scored} | {total} |".format(
+                tool=display,
                 accuracy=format_metric(pairwise.get("accuracy")),
                 correct=pairwise.get("correct", 0),
                 scored=pairwise.get("scored", 0),
                 total=pairwise.get("total", 0),
-                skipped=pairwise.get("skipped", 0),
             )
         )
     lines.append("")
@@ -178,19 +192,10 @@ def main() -> int:
     cwe_totals = dataset.get("cwe_totals", {})
     if cwe_totals:
         top_cwes = sorted(cwe_totals.items(), key=lambda item: item[1], reverse=True)[:10]
-        # Dynamically build columns for tools that have CWE coverage data
-        TOOL_DISPLAY = {
-            "semgrep": "Semgrep",
-            "cppcheck": "Cppcheck",
-            "flawfinder": "Flawfinder",
-            "codeql": "CodeQL",
-            "security_agent": "Security Agent",
-            "llm_baseline": "LLM Baseline",
-            "static_baseline": "Static Baseline",
-        }
+        # Dynamically build columns for tools in DISPLAY_ORDER that have CWE coverage data
         active_tools = [
-            t for t in tools
-            if tools[t].get("status") == "ok" and tools[t].get("cwe_coverage")
+            t for t in DISPLAY_ORDER
+            if t in tools and tools[t].get("status") == "ok" and tools[t].get("cwe_coverage")
         ]
         header_cols = ["CWE", "Total"] + [f"{TOOL_DISPLAY.get(t, t)} Recall" for t in active_tools]
         lines.append("| " + " | ".join(header_cols) + " |")
@@ -207,14 +212,15 @@ def main() -> int:
     lines.append("## Tool Weaknesses (Top Missed CWEs)")
     lines.append("")
     has_missed = False
-    for tool in tools:
+    for tool in DISPLAY_ORDER:
         missed = tools.get(tool, {}).get("missed_by_cwe", {})
         if not missed:
             continue
         has_missed = True
+        display = TOOL_DISPLAY.get(tool, tool)
         top_missed = sorted(missed.items(), key=lambda item: item[1], reverse=True)[:5]
         entries = ", ".join(f"{cwe} ({count})" for cwe, count in top_missed)
-        lines.append(f"- {tool}: {entries}")
+        lines.append(f"- {display}: {entries}")
     if not has_missed:
         lines.append("- n/a")
     lines.append("")
@@ -253,19 +259,21 @@ def main() -> int:
     lines.append("")
     lines.append("## Notes")
     lines.append("")
-    for tool, metrics in tools.items():
+    for tool in DISPLAY_ORDER:
+        display = TOOL_DISPLAY.get(tool, tool)
+        metrics = tools.get(tool, {})
         if metrics.get("status") == "missing_results":
-            lines.append(f"- {tool}: results missing.")
+            lines.append(f"- {display}: results pending.")
             continue
-        if metrics.get("coverage", 0) == 0:
-            lines.append(f"- {tool}: no scored samples (check runner configuration).")
+        if metrics.get("status") != "ok":
+            lines.append(f"- {display}: results pending.")
             continue
 
         skipped_pred = metrics.get("skipped_missing_pred", 0)
         skipped_gt = metrics.get("skipped_missing_gt", 0)
         if skipped_pred or skipped_gt:
             lines.append(
-                f"- {tool}: skipped {skipped_pred} samples without predictions and {skipped_gt} samples missing ground truth."
+                f"- {display}: skipped {skipped_pred} samples without predictions and {skipped_gt} samples missing ground truth."
             )
 
     if rq1_data:

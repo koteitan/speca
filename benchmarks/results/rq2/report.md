@@ -1,6 +1,6 @@
 # Benchmark Report
 
-Generated: 2026-02-28T00:38:44.430976+00:00
+Generated: 2026-02-28T14:26:05.425017+00:00
 
 ## Dataset
 
@@ -11,15 +11,12 @@ Generated: 2026-02-28T00:38:44.430976+00:00
 
 ## Tool Metrics
 
-| Tool | Precision | Recall | F1 | Coverage | TP | FP | TN | FN | Errors |
-| ---- | --------- | ------ | -- | -------- | -- | -- | -- | -- | ------ |
-| semgrep | 0.000 | 0.000 | 0.000 | 1.000 | 0 | 0 | 433 | 435 | 0 |
-| cppcheck | 0.499 | 0.867 | 0.633 | 1.000 | 377 | 379 | 54 | 58 | 2 |
-| flawfinder | 0.508 | 0.290 | 0.369 | 1.000 | 126 | 122 | 311 | 309 | 0 |
-| codeql | n/a | n/a | n/a | 0.000 | 0 | 0 | 0 | 0 | 0 |
-| security_agent | n/a | n/a | n/a | 0.000 | 0 | 0 | 0 | 0 | 0 |
-| llm_baseline | 0.000 | 0.000 | 0.000 | 0.000 | 0 | 0 | 0 | 0 | 20 |
-| static_baseline | n/a | n/a | n/a | 0.000 | 0 | 0 | 0 | 0 | 0 |
+| Tool | Precision | Recall | F1 | TP | FP | TN | FN |
+| ---- | --------- | ------ | -- | -- | -- | -- | -- |
+| Semgrep | 0.000 | 0.000 | 0.000 | 0 | 0 | 433 | 435 |
+| Cppcheck | 0.499 | 0.867 | 0.633 | 377 | 379 | 54 | 58 |
+| Flawfinder | 0.508 | 0.290 | 0.369 | 126 | 122 | 311 | 309 |
+| Security Agent | — | — | — | — | — | — | — |
 
 ## Tool Metadata
 
@@ -36,15 +33,12 @@ Generated: 2026-02-28T00:38:44.430976+00:00
 
 - n/a
 
-| Tool | Accuracy | Correct | Scored | Total | Skipped |
-| ---- | -------- | ------- | ------ | ----- | ------- |
-| semgrep | 0.000 | 0 | 386 | 386 | 0 |
-| cppcheck | 0.003 | 1 | 386 | 386 | 0 |
-| flawfinder | 0.010 | 4 | 386 | 386 | 0 |
-| codeql | n/a | 0 | 0 | 0 | 0 |
-| security_agent | n/a | 0 | 0 | 0 | 0 |
-| llm_baseline | 0.000 | 0 | 0 | 386 | 386 |
-| static_baseline | n/a | 0 | 0 | 0 | 0 |
+| Tool | Accuracy | Correct | Scored | Total |
+| ---- | -------- | ------- | ------ | ----- |
+| Semgrep | 0.000 | 0 | 386 | 386 |
+| Cppcheck | 0.003 | 1 | 386 | 386 |
+| Flawfinder | 0.010 | 4 | 386 | 386 |
+| Security Agent | — | — | — | — |
 
 ## Unique Detections (Security Agent)
 
@@ -52,25 +46,24 @@ Generated: 2026-02-28T00:38:44.430976+00:00
 
 ## CWE Coverage (Top 10 by vulnerable count)
 
-| CWE | Total | Semgrep Recall | Cppcheck Recall | Flawfinder Recall | LLM Baseline Recall |
-| --- | --- | --- | --- | --- | --- |
-| CWE-787 | 72 | 0.000 | 0.972 | 0.292 | 0.000 |
-| CWE-125 | 47 | 0.000 | 0.872 | 0.234 | 0.000 |
-| CWE-703 | 47 | 0.000 | 0.745 | 0.213 | 0.000 |
-| CWE-476 | 39 | 0.000 | 0.846 | 0.256 | 0.000 |
-| CWE-416 | 29 | 0.000 | 0.931 | 0.207 | 0.000 |
-| CWE-200 | 16 | 0.000 | 0.938 | 0.312 | 0.000 |
-| CWE-369 | 14 | 0.000 | 0.643 | 0.071 | 0.000 |
-| CWE-20 | 14 | 0.000 | 1.000 | 0.429 | 0.000 |
-| CWE-119 | 14 | 0.000 | 1.000 | 0.357 | 0.000 |
-| CWE-617 | 12 | 0.000 | 0.583 | 0.333 | 0.000 |
+| CWE | Total | Semgrep Recall | Cppcheck Recall | Flawfinder Recall |
+| --- | --- | --- | --- | --- |
+| CWE-787 | 72 | 0.000 | 0.972 | 0.292 |
+| CWE-125 | 47 | 0.000 | 0.872 | 0.234 |
+| CWE-703 | 47 | 0.000 | 0.745 | 0.213 |
+| CWE-476 | 39 | 0.000 | 0.846 | 0.256 |
+| CWE-416 | 29 | 0.000 | 0.931 | 0.207 |
+| CWE-200 | 16 | 0.000 | 0.938 | 0.312 |
+| CWE-369 | 14 | 0.000 | 0.643 | 0.071 |
+| CWE-20 | 14 | 0.000 | 1.000 | 0.429 |
+| CWE-119 | 14 | 0.000 | 1.000 | 0.357 |
+| CWE-617 | 12 | 0.000 | 0.583 | 0.333 |
 
 ## Tool Weaknesses (Top Missed CWEs)
 
-- semgrep: CWE-787 (72), CWE-125 (47), CWE-703 (47), CWE-476 (39), CWE-416 (29)
-- cppcheck: CWE-703 (12), CWE-476 (6), CWE-125 (6), CWE-617 (5), CWE-369 (5)
-- flawfinder: CWE-787 (51), CWE-703 (37), CWE-125 (36), CWE-476 (29), CWE-416 (23)
-- llm_baseline: CWE-787 (72), CWE-125 (47), CWE-703 (47), CWE-476 (39), CWE-416 (29)
+- Semgrep: CWE-787 (72), CWE-125 (47), CWE-703 (47), CWE-476 (39), CWE-416 (29)
+- Cppcheck: CWE-703 (12), CWE-476 (6), CWE-125 (6), CWE-617 (5), CWE-369 (5)
+- Flawfinder: CWE-787 (51), CWE-703 (37), CWE-125 (36), CWE-476 (29), CWE-416 (23)
 
 ## Example Cases (Security Agent Only)
 
@@ -78,7 +71,4 @@ Generated: 2026-02-28T00:38:44.430976+00:00
 
 ## Notes
 
-- codeql: results missing.
-- security_agent: results missing.
-- llm_baseline: no scored samples (check runner configuration).
-- static_baseline: results missing.
+- Security Agent: results pending.
