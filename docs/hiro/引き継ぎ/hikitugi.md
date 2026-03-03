@@ -1,7 +1,7 @@
 # 引き継ぎ資料 — SPECA セキュリティエージェント
 
 > 次回セッション開始時にこのファイルを読んで状況を把握してください。
-> 最終更新: 2026-03-03
+> 最終更新: 2026-03-04
 
 ---
 
@@ -79,7 +79,8 @@ security-agent/
 ├── tests/                             # pytest テスト
 ├── benchmarks/                        # RQ1 & RQ2 ベンチマーク
 │   ├── rq1/                           # Sherlock 監査コンテスト評価
-│   ├── rq2/                           # PrimeVul ツール比較
+│   ├── rq2a/                          # RepoAudit 15プロジェクト比較 ★NEW
+│   ├── archive/rq2_primevul/          # 旧 PrimeVul 関数レベル比較（アーカイブ）
 │   ├── runners/                       # ツール実行ラッパー
 │   ├── datasets/builders/             # データセットビルダー
 │   └── results/                       # ベンチマーク結果
@@ -113,26 +114,46 @@ Critical 4件を修正済み（PR マージ済み）。
 
 ---
 
-## 5. RQ2 ベンチマーク結果（PrimeVul ベースライン）
+## 5. RQ 構成変更（2026-03-04）
 
-データセット: PrimeVul test paired (868 samples, 386 pairs)
+> **重要:** PrimeVul 等の関数レベルデータセットは廃止。
+> すべての RQ でリポジトリ/プロジェクトレベルのベンチマークを使用する。
+> 比較対象ツールの結果は論文記載の数値を引用し、SPECA の結果のみ新規実験で追加。
+> 詳細: https://github.com/NyxFoundation/security-agent/issues/96
 
-### 現在のベースライン結果
+### 新 RQ 構成
 
-| ツール | TP | FP | TN | FN | Precision | Recall | **F1** | Pairwise Acc |
-|--------|----|----|----|----|-----------|--------|--------|-------------|
-| **Semgrep** | 0 | 0 | 433 | 435 | 0.000 | 0.000 | **0.000** | 0.000 |
-| **Cppcheck** | 377 | 379 | 54 | 58 | 0.499 | 0.867 | **0.633** | 0.003 |
-| **Flawfinder** | 126 | 122 | 311 | 309 | 0.508 | 0.290 | **0.369** | 0.010 |
-| LLM Baseline | - | - | - | - | - | - | - | (全エラー、coverage=0) |
-| CodeQL | - | - | - | - | - | - | - | (未実行) |
-| Security Agent | - | - | - | - | - | - | - | (未実行) |
+| RQ | 内容 | ベンチマーク | 比較対象 |
+|----|------|-------------|---------|
+| **RQ2a** | リポジトリレベルバグ検出 | RepoAudit 15 C/C++ プロジェクト (ICML 2025) | RepoAudit, Meta Infer, CodeGuru |
+| **RQ2b** | 動的テストとの比較 | ProFuzzBench (ChatAFL, NDSS 2024) | ChatAFL, AFLNet, NSFuzz |
 
-### 考察
+### RQ2a: RepoAudit ベースライン（論文引用）
 
-- **Semgrep**: ルールマッチング方式のため C/C++ の低レベル脆弱性（メモリ安全性）を検出できず全滅
-- **Cppcheck**: 高 recall (86.7%) だが precision が低い (49.9%)。ほぼ全関数を vulnerable と判定する傾向
-- **Flawfinder**: パターンマッチベースで中間的な性能。precision は最も高い (50.8%)
+| ツール | TP | FP | Precision | 出典 |
+|--------|----|----|-----------|------|
+| RepoAudit (Claude 3.5 Sonnet) | 40 | 11 | 78.43% | Table 2, v3 |
+| RepoAudit (DeepSeek R1) | — | — | 88.46% | Appendix, v3 |
+| RepoAudit (Claude 3.7 Sonnet) | — | — | 86.79% | Appendix, v3 |
+| RepoAudit (o3-mini) | — | — | 82.35% | Appendix, v3 |
+| Meta Infer | 7 | 2 | 77.78% | Section 4.4 |
+| Amazon CodeGuru | 0 | 18 | 0.00% | Section 4.4 |
+| **SPECA** | **TBD** | **TBD** | **TBD** | This study |
+
+可視化済み: `benchmarks/results/rq2a/figures/` (5図)
+
+### RQ2b: ChatAFL ベースライン（手直し中）
+
+ChatAFL (NDSS 2024) の ProFuzzBench 対象プロトコル実装に対して、
+SPECA の仕様チェックとファジングの相補性を示す。
+→ バグ単位の突合せ比較（同一メトリクスでの直接比較は不可）
+
+**状態:** 設計中。後で変更の可能性あり。
+
+### 旧 RQ2（PrimeVul）→ アーカイブ
+
+旧 PrimeVul ベースラインは `benchmarks/archive/rq2_primevul/` に移動。
+コードは再利用可能な状態で残してある。
 
 ### RQ1 ベンチマーク結果（Sherlock Ethereum 監査）
 
@@ -146,11 +167,22 @@ Critical 4件を修正済み（PR マージ済み）。
 
 ## 6. 未完了タスク
 
-### 6.1 RQ2: Security Agent ベンチマーク実行（優先度: 高）
+### 6.1 RQ2a: SPECA 実験実行（優先度: 高）
 
-`invoke_security_agent.sh` の本体を実装し、SPECA を PrimeVul データセットで評価する。現在プレースホルダー。
+RepoAudit 15 プロジェクトに対して SPECA を実行し、`ground_truth_bugs.yaml` の `speca` フィールドを埋める。
+可視化は baselines-only で完成済み。SPECA 結果を `--speca-results` で渡せば自動でグラフに追加される。
 
-### 6.2 残りのセキュリティ脆弱性修正（優先度: 高）
+手順:
+1. `benchmarks/rq2a/ground_truth_bugs.yaml` のバグ詳細を RepoAudit GitHub から取得
+2. SPECA を 15 プロジェクトに実行
+3. 結果を `benchmarks/results/rq2a/speca/speca_summary.json` に保存
+4. `uv run python3 benchmarks/rq2a/visualize.py --speca-results ...` で再生成
+
+### 6.2 RQ2b: ChatAFL 比較の具体化（優先度: 中）
+
+設計中。ChatAFL 著者へのコンタクトが必要。
+
+### 6.3 残りのセキュリティ脆弱性修正（優先度: 高）
 
 `docs/hiro/kijaku.md` の残り 66件。優先度順:
 
@@ -213,8 +245,8 @@ uv run python3 scripts/run_phase.py --phase 01a 01b 01e
 uv run python3 scripts/run_phase.py --target 04 --workers 4
 uv run python3 scripts/run_phase.py --phase 03 --force --workers 4 --max-concurrent 64
 
-# ベンチマーク（ローカル）
-bash benchmarks/scripts/run_rq2_local.sh primevul semgrep
+# RQ2a 可視化（baselines-only）
+uv run python3 benchmarks/rq2a/visualize.py
 
 # MCP セットアップ
 bash scripts/setup_mcp.sh
@@ -243,14 +275,13 @@ bash scripts/setup_mcp.sh --verify
 | 出力 | `outputs/{phase_id}_PARTIAL_W{worker}B{batch}_{timestamp}.json` | `03_AUDITMAP_PARTIAL_W1B2_20260220.json` |
 | キュー | `outputs/{phase_id}_QUEUE_{worker_id}.json` | `03_QUEUE_w1.json` |
 | ログ | `outputs/logs/{phase_id}_W{worker}B{batch}_{timestamp}.jsonl` | |
-| ベンチマーク | `benchmarks/results/rq2/{dataset}/{tool}_results.json(l)` | `primevul/semgrep_results.json` |
+| ベンチマーク | `benchmarks/results/rq2a/figures/*.png` | `rq2a_precision_comparison.png` |
 
 ---
 
 ## 11. 既知の問題・注意点
 
-1. **`invoke_security_agent.sh`**: 本体未実装。`"error": "not_implemented"` を返すのみ
-2. **Docker 必須**: Semgrep ランナーは Docker コンテナ内実行。Docker なし環境ではスキップされる
-3. **`sweagent` 依存**: `pyproject.toml` に git 依存あり。ネットワーク次第で `uv sync` が遅い/失敗する可能性
-4. **LLM Baseline 全エラー**: coverage=0、全 868 サンプルが skipped。再実行が必要
-5. **CodeQL / Security Agent 未実行**: `missing_results` ステータス
+1. **RQ2a ground_truth_bugs.yaml**: バグの file/function/line が未記入 (null)。RepoAudit GitHub の BugReport.json から詳細を取得する必要あり
+2. **RQ2b 設計中**: ChatAFL 著者へのコンタクトが必要。変更の可能性あり
+3. **旧 PrimeVul コード**: `benchmarks/archive/rq2_primevul/` にアーカイブ済み。再利用可能
+4. **`sweagent` 依存**: `pyproject.toml` に git 依存あり。ネットワーク次第で `uv sync` が遅い/失敗する可能性

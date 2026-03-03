@@ -1,0 +1,212 @@
+# RQ2a: RepoAudit 15-Project Benchmark — Published Baselines
+# Source: RepoAudit (ICML 2025), arXiv v3 (camera-ready)
+# Paper: https://arxiv.org/abs/2501.18160
+# GitHub: https://github.com/PurCL/RepoAudit
+#
+# IMPORTANT: All numbers from v3 (camera-ready). v1 numbers differ.
+# Last updated: 2026-03-04
+
+metadata:
+  paper: "RepoAudit: An Autonomous LLM-Agent for Repository-Level Code Auditing"
+  venue: "ICML 2025"
+  arxiv: "2501.18160v3"
+  benchmark_size: 15  # C/C++ OSS projects
+  total_loc: 3_768_893
+  avg_loc: 251_259
+  bug_types: [NPD, MLK, UAF]
+  ground_truth_total: 40  # 21 old + 19 new
+
+# ============================================================
+# Per-Project Results (Table 2, v3)
+# ============================================================
+# New TP format: [detected, still_in_latest]
+#   detected = new bugs found by RepoAudit in benchmark versions
+#   still_in_latest = how many still exist in latest project version
+
+projects:
+  # --- NPD (Null Pointer Dereference) ---
+  - id: N1
+    name: sofa-pbrpc
+    bug_type: NPD
+    loc: 40723
+    old_tp: 1
+    new_tp: [3, 3]
+    fp: 2
+
+  - id: N2
+    name: ImageMagick/MagickCore
+    bug_type: NPD
+    loc: 242555
+    old_tp: 7
+    new_tp: [1, 0]
+    fp: 0
+
+  - id: N3
+    name: coturn/src/server
+    bug_type: NPD
+    loc: 8976
+    old_tp: 1
+    new_tp: [1, 0]
+    fp: 3
+
+  - id: N4
+    name: libfreenect
+    bug_type: NPD
+    loc: 37582
+    old_tp: 1
+    new_tp: [0, 0]
+    fp: 1
+
+  - id: N5
+    name: openldap
+    bug_type: NPD
+    loc: 442955
+    old_tp: 1
+    new_tp: [5, 4]
+    fp: 1
+
+  # --- MLK (Memory Leak) ---
+  - id: M1
+    name: libsass
+    bug_type: MLK
+    loc: 40934
+    old_tp: 1
+    new_tp: [2, 1]
+    fp: 1
+
+  - id: M2
+    name: memcached
+    bug_type: MLK
+    loc: 14654
+    old_tp: 1
+    new_tp: [6, 6]
+    fp: 2
+
+  - id: M3
+    name: linux/driver/net
+    bug_type: MLK
+    loc: 914025
+    old_tp: 1
+    new_tp: [0, 0]
+    fp: 0
+
+  - id: M4
+    name: linux/sound
+    bug_type: MLK
+    loc: 1378262
+    old_tp: 1
+    new_tp: [0, 0]
+    fp: 0
+
+  - id: M5
+    name: linux/mm
+    bug_type: MLK
+    loc: 171721
+    old_tp: 1
+    new_tp: [0, 0]
+    fp: 0
+
+  # --- UAF (Use-After-Free) ---
+  - id: U1
+    name: Redis
+    bug_type: UAF
+    loc: 179723
+    old_tp: 1
+    new_tp: [0, 0]
+    fp: 0
+
+  - id: U2
+    name: linux/drivers/peci
+    bug_type: UAF
+    loc: 2130
+    old_tp: 1
+    new_tp: [0, 0]
+    fp: 0
+
+  - id: U3
+    name: shadowsocks-libev
+    bug_type: UAF
+    loc: 71080
+    old_tp: 1
+    new_tp: [0, 0]
+    fp: 0
+
+  - id: U4
+    name: wabt-tool
+    bug_type: UAF
+    loc: 3214
+    old_tp: 1
+    new_tp: [0, 0]
+    fp: 0
+
+  - id: U5
+    name: icu/icu4c/source/i18n
+    bug_type: UAF
+    loc: 220359
+    old_tp: 1
+    new_tp: [1, 0]
+    fp: 1
+
+# ============================================================
+# Aggregate Tool Comparison
+# ============================================================
+
+tools:
+  repoaudit_claude35_sonnet:
+    display_name: "RepoAudit (Claude 3.5 Sonnet)"
+    tp: 40
+    fp: 11
+    precision: 78.43
+    inter_procedural_tp: 21
+    avg_hours_per_project: 0.44
+    avg_cost_per_project: 2.54
+    avg_prompt_rounds: 100.67
+    cost_per_bug: 0.95
+    source: "Table 2, v3"
+
+  repoaudit_deepseek_r1:
+    display_name: "RepoAudit (DeepSeek R1)"
+    precision: 88.46
+    # TP/FP counts not explicitly stated in v3 appendix
+    source: "Appendix, v3"
+
+  repoaudit_claude37_sonnet:
+    display_name: "RepoAudit (Claude 3.7 Sonnet)"
+    precision: 86.79
+    source: "Appendix, v3"
+
+  repoaudit_o3_mini:
+    display_name: "RepoAudit (o3-mini)"
+    precision: 82.35
+    source: "Appendix, v3"
+
+  meta_infer:
+    display_name: "Meta Infer"
+    tp: 7
+    fp: 2
+    precision: 77.78
+    notes: "NPD only; MLK/UAF detection zero. Requires compilation (8/15 projects compilable)."
+    source: "Section 4.4, v3"
+
+  amazon_codeguru:
+    display_name: "Amazon CodeGuru"
+    tp: 0
+    fp: 18
+    precision: 0.0
+    notes: "No true positives detected across all projects."
+    source: "Section 4.4, v3"
+
+  single_function_llm:
+    display_name: "Single-function LLM"
+    tp: 1
+    notes: "Intra-procedural NPD only. Cannot detect inter-procedural bugs."
+    source: "Section 4.3, v3"
+
+  # SPECA — to be filled after experiment
+  speca:
+    display_name: "SPECA"
+    tp: null
+    fp: null
+    precision: null
+    notes: "Pending SPECA execution on 15 benchmark projects"
+    source: "This study"

@@ -20,13 +20,13 @@
 
 ### 完了済み
 - RQ1 Sherlock Ethereum 評価: Recall 100% (15/15), Precision 66.3%
-- RQ2 PrimeVul ベースライン: Cppcheck F1=0.633, Flawfinder F1=0.369, Semgrep F1=0.000
-- ベースライングラフ 5 枚生成 (`benchmarks/results/rq2/figures/`)
+- ~~RQ2 PrimeVul ベースライン~~ → アーカイブ済み (`benchmarks/archive/rq2_primevul/`)
+- **RQ2a RepoAudit ベースライン可視化** (5図, `benchmarks/results/rq2a/figures/`)
 - ベンチマーク課題分析 + 考察 (issiuse.md)
 - SPECA 拡張構想 14 案 (ann.md)
 
 ### 未完了
-- Security Agent の PrimeVul 実行 (RQ2 の中心データ)
-- LLM Baseline の修正・再実行
-- Bootstrap CI / 統計検定の計算
+- **RQ2a: SPECA を RepoAudit 15 プロジェクトで実行** (最優先)
+- RQ2a: ground_truth_bugs.yaml のバグ詳細を埋める
+- **RQ2b: ChatAFL 比較の具体化** (設計中、変更の可能性あり)
 - Human label (22 件) の手動レビュー

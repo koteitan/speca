@@ -1,0 +1,427 @@
+# RQ2a: RepoAudit Ground Truth Bug List
+# Source: RepoAudit (ICML 2025) Table 2, GitHub bug list, Appendix B
+# Paper: https://arxiv.org/abs/2501.18160v3
+# Bug reports: https://repoaudit-home.github.io/bugreports.html
+#
+# Total: 40 TP (21 Old + 19 New)
+# Old = known bugs from prior research
+# New = newly discovered by RepoAudit (developer-confirmed)
+#
+# TODO: Fill file/function/line details from:
+#   1. RepoAudit GitHub bug list (BugReport.json)
+#   2. Paper Appendix B case studies
+#   3. Benchmark submodule git logs
+#
+# Last updated: 2026-03-04
+
+# ============================================================
+# NPD — Null Pointer Dereference (11 Old + 10 New = 21 TP)
+# ============================================================
+
+bugs:
+  # --- sofa-pbrpc (N1): 1 Old, 3 New ---
+  - id: RA-N1-O1
+    project: sofa-pbrpc
+    bug_type: NPD
+    source: old
+    file: null  # TODO: extract from paper Figure 1 / GitHub
+    function: null
+    line: null
+    inter_procedural: true
+    detected_by:
+      repoaudit_claude35: true
+      meta_infer: false
+      amazon_codeguru: false
+      speca: null
+
+  - id: RA-N1-N1
+    project: sofa-pbrpc
+    bug_type: NPD
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N1-N2
+    project: sofa-pbrpc
+    bug_type: NPD
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N1-N3
+    project: sofa-pbrpc
+    bug_type: NPD
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  # --- ImageMagick/MagickCore (N2): 7 Old, 1 New ---
+  - id: RA-N2-O1
+    project: ImageMagick/MagickCore
+    bug_type: NPD
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  - id: RA-N2-O2
+    project: ImageMagick/MagickCore
+    bug_type: NPD
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N2-O3
+    project: ImageMagick/MagickCore
+    bug_type: NPD
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N2-O4
+    project: ImageMagick/MagickCore
+    bug_type: NPD
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N2-O5
+    project: ImageMagick/MagickCore
+    bug_type: NPD
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N2-O6
+    project: ImageMagick/MagickCore
+    bug_type: NPD
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N2-O7
+    project: ImageMagick/MagickCore
+    bug_type: NPD
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N2-N1
+    project: ImageMagick/MagickCore
+    bug_type: NPD
+    source: new
+    still_in_latest: false
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  # --- coturn/src/server (N3): 1 Old, 1 New ---
+  - id: RA-N3-O1
+    project: coturn/src/server
+    bug_type: NPD
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  - id: RA-N3-N1
+    project: coturn/src/server
+    bug_type: NPD
+    source: new
+    still_in_latest: false
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  # --- libfreenect (N4): 1 Old, 0 New ---
+  - id: RA-N4-O1
+    project: libfreenect
+    bug_type: NPD
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  # --- openldap (N5): 1 Old, 5 New ---
+  - id: RA-N5-O1
+    project: openldap
+    bug_type: NPD
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  - id: RA-N5-N1
+    project: openldap
+    bug_type: NPD
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N5-N2
+    project: openldap
+    bug_type: NPD
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N5-N3
+    project: openldap
+    bug_type: NPD
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N5-N4
+    project: openldap
+    bug_type: NPD
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-N5-N5
+    project: openldap
+    bug_type: NPD
+    source: new
+    still_in_latest: false
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  # ============================================================
+  # MLK — Memory Leak (5 Old + 8 New = 13 TP)
+  # ============================================================
+
+  # --- libsass (M1): 1 Old, 2 New ---
+  - id: RA-M1-O1
+    project: libsass
+    bug_type: MLK
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  - id: RA-M1-N1
+    project: libsass
+    bug_type: MLK
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-M1-N2
+    project: libsass
+    bug_type: MLK
+    source: new
+    still_in_latest: false
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  # --- memcached (M2): 1 Old, 6 New ---
+  - id: RA-M2-O1
+    project: memcached
+    bug_type: MLK
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  - id: RA-M2-N1
+    project: memcached
+    bug_type: MLK
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-M2-N2
+    project: memcached
+    bug_type: MLK
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-M2-N3
+    project: memcached
+    bug_type: MLK
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-M2-N4
+    project: memcached
+    bug_type: MLK
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-M2-N5
+    project: memcached
+    bug_type: MLK
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  - id: RA-M2-N6
+    project: memcached
+    bug_type: MLK
+    source: new
+    still_in_latest: true
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
+
+  # --- linux/driver/net (M3): 1 Old, 0 New ---
+  - id: RA-M3-O1
+    project: linux/driver/net
+    bug_type: MLK
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  # --- linux/sound (M4): 1 Old, 0 New ---
+  - id: RA-M4-O1
+    project: linux/sound
+    bug_type: MLK
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  # --- linux/mm (M5): 1 Old, 0 New ---
+  - id: RA-M5-O1
+    project: linux/mm
+    bug_type: MLK
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  # ============================================================
+  # UAF — Use-After-Free (5 Old + 1 New = 6 TP)
+  # ============================================================
+
+  # --- Redis (U1): 1 Old, 0 New ---
+  - id: RA-U1-O1
+    project: Redis
+    bug_type: UAF
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  # --- linux/drivers/peci (U2): 1 Old, 0 New ---
+  - id: RA-U2-O1
+    project: linux/drivers/peci
+    bug_type: UAF
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  # --- shadowsocks-libev (U3): 1 Old, 0 New ---
+  - id: RA-U3-O1
+    project: shadowsocks-libev
+    bug_type: UAF
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  # --- wabt-tool (U4): 1 Old, 0 New ---
+  - id: RA-U4-O1
+    project: wabt-tool
+    bug_type: UAF
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  # --- icu/icu4c/source/i18n (U5): 1 Old, 1 New ---
+  - id: RA-U5-O1
+    project: icu/icu4c/source/i18n
+    bug_type: UAF
+    source: old
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: null }
+
+  - id: RA-U5-N1
+    project: icu/icu4c/source/i18n
+    bug_type: UAF
+    source: new
+    still_in_latest: false
+    file: null
+    function: null
+    line: null
+    detected_by: { repoaudit_claude35: true, speca: null }
