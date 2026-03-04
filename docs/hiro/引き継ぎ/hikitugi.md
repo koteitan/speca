@@ -301,7 +301,7 @@ bash scripts/setup_mcp.sh --verify
 
 ## 11. 既知の問題・注意点
 
-1. **RQ2a ground_truth_bugs.yaml**: バグの file/function/line が未記入 (null)。RepoAudit GitHub の BugReport.json から詳細を取得する必要あり
-2. **RQ2b 設計中**: ChatAFL 著者へのコンタクトが必要。変更の可能性あり
+1. **RQ2a ground_truth_bugs.yaml**: 80% 記入済み (32/40)。残り 8件は RepoAudit 新規発見バグで公開情報なし
+2. **RQ2b ドラフト作成済み**: ChatAFL 著者へのコンタクトが必要 (file/function/line 詳細)。変更の可能性あり
 3. **旧 PrimeVul コード**: `benchmarks/archive/rq2_primevul/` にアーカイブ済み。再利用可能
 4. **`sweagent` 依存**: `pyproject.toml` に git 依存あり。ネットワーク次第で `uv sync` が遅い/失敗する可能性
