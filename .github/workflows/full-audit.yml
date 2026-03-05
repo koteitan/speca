@@ -1,4 +1,4 @@
-name: "Full Audit Pipeline"
+name: "hiro Full Audit Pipeline"
 
 on:
   workflow_dispatch:
