@@ -11,6 +11,7 @@ on:
   push:
     paths:
       - "benchmarks/rq2b/published_baselines.yaml"
+      - "benchmarks/rq2b/ground_truth_bugs.yaml"
       - "benchmarks/rq2b/visualize.py"
 
 permissions:
@@ -27,11 +28,8 @@ jobs:
           ref: ${{ github.ref_name }}
           fetch-depth: 1
 
-      - name: Setup Python (uv)
-        run: uv sync --python 3.11
-
-      - name: Install visualization dependencies
-        run: uv pip install matplotlib pyyaml numpy
+      - name: Setup Python + benchmark deps (uv)
+        run: uv sync --python 3.11 --group benchmark
 
       - name: Generate Figures
         run: |
