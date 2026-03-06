@@ -180,6 +180,34 @@ export const ja = {
   wizard_token_scope_error: 'トークンに workflow スコープが必要です (Classic PAT) または Actions: write 権限 (Fine-grained)',
   wizard_elapsed: '経過時間',
 
+  // Wizard - Mode selection
+  wizard_mode_full: '全自動パイプライン',
+  wizard_mode_full_desc: 'バグバウンティURL + 対象リポジトリを入力し、01a〜04 を一括実行',
+  wizard_mode_phase: '個別フェーズ実行',
+  wizard_mode_phase_desc: '特定のフェーズだけを個別に実行',
+
+  // Wizard - Phase selection
+  wizard_phase_select: '実行するフェーズ',
+  wizard_phase_branch: 'ブランチ',
+  wizard_phase_branch_desc: '前フェーズの出力があるブランチ (01a は空欄で新規作成)',
+  wizard_phase_branch_placeholder: 'audit/go-ethereum/20250306-...',
+  wizard_phase_01a_keywords: 'キーワード (必須)',
+  wizard_phase_01a_keywords_placeholder: 'geth,ethereum client,execution specs,EIP',
+  wizard_phase_01a_spec_urls: '仕様書URL (必須)',
+  wizard_phase_01a_spec_urls_placeholder: 'https://ethereum.github.io/execution-specs/src/,...',
+  wizard_phase_01a_append_mode: '既存STATEに追記',
+  wizard_phase_02c_target_repo: '対象リポジトリ',
+  wizard_phase_02c_target_repo_placeholder: 'ethereum/go-ethereum',
+  wizard_phase_02c_target_ref_type: '対象Ref',
+  wizard_phase_02c_target_ref_latest: '最新デフォルトブランチ',
+  wizard_phase_02c_target_ref_fusaka: 'fusaka-audit',
+  wizard_phase_02c_audit_scope: '監査スコープ',
+  wizard_phase_force_execute: '強制再実行 (resume をスキップ)',
+  wizard_phase_confirm_title: '以下の内容でフェーズを実行します',
+  wizard_phase_dispatching: 'フェーズワークフローを起動中...',
+  wizard_phase_completed: 'フェーズが完了しました',
+  wizard_phase_failed: 'フェーズが失敗しました',
+
   // Misc
   items_count: '件',
   no_data: 'データなし',
