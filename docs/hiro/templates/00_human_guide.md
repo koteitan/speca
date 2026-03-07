@@ -1,8 +1,39 @@
-# Sherlock Bug Bounty 量産監査ガイド (人間用)
+# SPECA 量産監査ガイド (人間用)
 
 ## この文書は何か
 
-Sherlock Bug Bounty コンテストに対して、AI エージェントを大量並列起動して脆弱性を発見するワークフローの人間向け説明。各ステップで「何をするか」「なぜやるか」「どのテンプレートを使うか」を説明する。
+Sherlock Bug Bounty コンテストに対して、SPECA パイプライン (spec-to-property agentic auditing) を N 並列で実行し、脆弱性を効率的に発見するワークフローの人間向け説明。
+
+SPECA の正式パイプライン (01a→01b→01e→02c→03→04) を使い、定義済みスキーマで体系的に監査する。アドホックな「コード読んでバグ探せ」方式ではない。
+
+---
+
+## アーキテクチャ
+
+```
+01a (Spec Discovery) → 01b (Subgraph) → 01e (Property Gen)
+                                              |
+                    +-------------------------+
+                    |         共有 (1回実行)
+                    |
+          +---------+---------+---------+
+          |         |         |         |
+        inst_01   inst_02   inst_03   inst_04    ← N 並列
+          |         |         |         |
+        02c       02c       02c       02c        ← Code Pre-resolution
+          |         |         |         |
+        03        03        03        03         ← Audit Map
+          |         |         |         |
+        04        04        04        04         ← Review (FP Filter)
+          |         |         |         |
+          +----+----+----+----+
+               |
+         結果統合 + 重複チェック
+```
+
+- **01a-01e**: 仕様発見→サブグラフ→プロパティ生成。1回だけ実行して全インスタンスで共有
+- **02c-04**: コード解析→監査→レビュー。N 並列で独立実行 (各インスタンスが固有の output-dir)
+- **統合**: 全インスタンスの PARTIAL 結果を統合し、重複を排除
 
 ---
 
@@ -10,23 +41,19 @@ Sherlock Bug Bounty コンテストに対して、AI エージェントを大量
 
 ```
 main (master)
-  SPECA のソースコードのみ。レポートは置かない。
+  SPECA のソースコードのみ。監査成果物は入れない。
       |
       +-- hiro/<CONTEST_BRANCH> (作業ベースブランチ)
-            レポートを溜める場所。各 agent ブランチの PR マージ先。
+            監査結果を溜める場所。
             |
-            +-- <CONTEST_BRANCH>-agent-1  → PR → マージ
-            +-- <CONTEST_BRANCH>-agent-2  → PR → マージ
-            +-- <CONTEST_BRANCH>-agent-N  → PR → マージ
+            +-- <CONTEST_BRANCH>-speca-shared    → 01a-01e 共有結果
+            +-- <CONTEST_BRANCH>-speca-inst-01   → inst_01 の 02c-04 結果
+            +-- <CONTEST_BRANCH>-speca-inst-02   → inst_02 の 02c-04 結果
+            +-- <CONTEST_BRANCH>-speca-inst-N    → inst_N の 02c-04 結果
             |
             (マージ後)
-            +-- テンプレート 09 で重複チェック → 統合 or 削除
+            +-- テンプレート 09 で重複チェック → 統合
 ```
-
-- **main**: コードだけ。監査の成果物は入れない
-- **作業ブランチ**: コンテストごとに 1 本。全レポートが集約される場所
-- **agent ブランチ**: エージェントが作業して PR → 作業ブランチにマージ → 自動削除
-- **重複チェック**: 全 agent マージ後にテンプレート 09 を実行し、重複レポートを統合/削除
 
 ---
 
@@ -37,15 +64,14 @@ main (master)
 | 変数 | 説明 | 例 |
 |------|------|-----|
 | `{{PROTOCOL_NAME}}` | プロトコル名 | Current Finance |
-| `{{CONTEST_NUMBER}}` | Sherlock コンテスト番号 | 1256 |
-| `{{TARGET_PATH}}` | ターゲットコードのパス | /Users/hiro/Documents/xxx/sui-move-contract |
+| `{{CONTEST_NUMBER}}` | コンテスト番号 | 1256 |
+| `{{TARGET_REPO}}` | ターゲットリポジトリ URL | https://github.com/xxx/yyy |
+| `{{TARGET_PATH}}` | ローカルのターゲットコードパス | /Users/hiro/Documents/xxx |
 | `{{LANGUAGE}}` | プログラミング言語 | Sui Move |
 | `{{CHAIN}}` | ブロックチェーン名 | Sui |
-| `{{CONTRACT_DIR}}` | メインコントラクトディレクトリ | contracts/protocol/sources |
-| `{{MODULE_LIST}}` | 主要モジュール一覧 | market, obligation, reserve... |
+| `{{SPEC_URLS}}` | 仕様書 URL (カンマ区切り) | https://docs.example.com/... |
 | `{{BASE_BRANCH}}` | 作業ベースブランチ名 | elegant-wiles |
-| `{{BRANCH_PREFIX}}` | agent ブランチの prefix | elegant-wiles |
-| `{{LANGUAGE_SPECIFIC_CONCERNS}}` | 言語固有の注意点 | Move: phantom type, hot-potato... |
+| `{{NUM_INSTANCES}}` | 並列インスタンス数 | 4 |
 
 ---
 
@@ -55,24 +81,21 @@ main (master)
 Phase 0: 準備 (人間)
   ターゲット情報収集、コードクローン、作業ブランチ作成
       |
-Phase 1: 初回並列監査 (AI x N)
-  テンプレート 01 を N 個のセッションに投入
-  各 agent → PR → 作業ブランチにマージ
+Phase 1: 共有フェーズ実行 (1回)
+  run_phase.py --phase 01a 01b 01e
+  → outputs/ に共有データ生成
       |
-Phase 1.5: 重複チェック (AI x 1)
-  テンプレート 09 で重複レポート統合/削除
+Phase 2: BUG_BOUNTY_SCOPE + TARGET_INFO 作成 (人間/AI)
+  対象スコープ定義、ターゲット情報ファイル作成
       |
-Phase 2: オーケストレーター監査 (AI x 1)
-  テンプレート 02 → 内部で 12 並列エージェント → PR → マージ
+Phase 3: 並列インスタンス準備
+  テンプレート 07 でインスタンスディレクトリ作成 + シンボリックリンク
       |
-Phase 3: Codex クロスバリデーション (スクリプト)
-  テンプレート 08 のスクリプト直接実行
+Phase 4: N 並列 SPECA 実行
+  テンプレート 01 or 07 で 02c→03→04 を N 並列起動
       |
-Phase 4: 深堀り・最終洗い出し (AI x 1)
-  追加テンプレートで深堀り → PR → マージ
-      |
-Phase 4.5: 最終重複チェック (AI x 1)
-  テンプレート 09 で最終整理
+Phase 5: 結果統合 + 重複チェック (AI x 1)
+  テンプレート 09 で全インスタンスの結果を統合・整理
 ```
 
 ---
@@ -88,6 +111,7 @@ Sherlock のコンテストページから:
 - コンテスト期間、賞金プール
 - スコープ (対象ファイル/コントラクト)
 - 言語 (Solidity / Move / Rust / etc.)
+- 仕様書 URL
 
 ### 0-2. ターゲットコードをクローン
 
@@ -106,78 +130,140 @@ git push origin hiro/<CONTEST_BRANCH>
 
 ### 0-4. テンプレートをカスタマイズ
 
-`.template.md` / `.template.sh` ファイルの変数を置換して、コンテスト固有の `.md` / `.sh` を作成:
-
 ```bash
-# 例: テンプレートから固有ファイルを生成
 sed -e 's|{{PROTOCOL_NAME}}|Current Finance|g' \
     -e 's|{{CONTEST_NUMBER}}|1256|g' \
-    -e 's|{{TARGET_PATH}}|/Users/hiro/Documents/xxx/sui-move-contract|g' \
+    -e 's|{{TARGET_REPO}}|https://github.com/xxx/yyy|g' \
+    -e 's|{{TARGET_PATH}}|/Users/hiro/Documents/xxx|g' \
     -e 's|{{LANGUAGE}}|Sui Move|g' \
+    -e 's|{{CHAIN}}|Sui|g' \
+    -e 's|{{SPEC_URLS}}|https://docs.example.com/|g' \
     -e 's|{{BASE_BRANCH}}|elegant-wiles|g' \
-    -e 's|{{BRANCH_PREFIX}}|elegant-wiles|g' \
-    docs/hiro/templates/01_single_agent_audit.template.md \
-    > docs/hiro/templates/01_single_agent_audit.md
+    -e 's|{{NUM_INSTANCES}}|4|g' \
+    docs/hiro/templates/01_speca_pipeline.template.md \
+    > docs/hiro/templates/01_speca_pipeline.md
 ```
 
 ---
 
-## Phase 1: 量産セッション起動
+## Phase 1: 共有フェーズ実行 (01a→01b→01e)
 
-### 方法 A: happy コマンド (推奨、最も手軽)
-
-ターミナルを N 個開いて、全部同じコマンドを貼るだけ:
+仕様発見からプロパティ生成まで。1回だけ実行して全インスタンスで共有する。
 
 ```bash
 cd /Users/hiro/Documents/security-agent
-happy --yolo -p "docs/hiro/templates/01_single_agent_audit.md を読み込み、リモートブランチを確認して空いている最も若い番号を自身のエージェント番号として監査を実行して。既存レポートとの重複は避けること。"
+
+# 環境変数を設定
+export SPEC_URLS="<仕様書URL>"
+export KEYWORDS="<キーワード>"
+
+# 共有フェーズ実行
+uv run python3 scripts/run_phase.py --phase 01a 01b 01e --workers 4
 ```
 
-### 方法 B: claude コマンド
+### 出力
+
+- `outputs/01a_STATE.json` — 発見した仕様一覧
+- `outputs/01b_PARTIAL_*.json` — サブグラフ
+- `outputs/graphs/*.mmd` — Mermaid ダイアグラム
+- `outputs/01e_PARTIAL_*.json` — セキュリティプロパティ
+
+---
+
+## Phase 2: スコープ定義
+
+### BUG_BOUNTY_SCOPE.json
+
+Phase 01e が必要とするスコープ定義ファイル。共有フェーズ実行前に作成する。
+
+```bash
+cat > outputs/BUG_BOUNTY_SCOPE.json << 'EOF'
+{
+  "protocol": "<PROTOCOL_NAME>",
+  "scope": ["<対象ファイルパターン>"],
+  "out_of_scope": ["<対象外ファイルパターン>"]
+}
+EOF
+```
+
+### TARGET_INFO.json
+
+Phase 02c が必要とするターゲット情報。
+
+```bash
+cat > outputs/TARGET_INFO.json << 'EOF'
+{
+  "repository": "<TARGET_REPO_URL>",
+  "commit": "<COMMIT_HASH>",
+  "local_path": "<TARGET_PATH>",
+  "language": "<LANGUAGE>"
+}
+EOF
+```
+
+---
+
+## Phase 3: 並列インスタンス準備
+
+```bash
+NUM_INSTANCES=4
+
+# インスタンスディレクトリ作成 + 共有データのシンボリックリンク
+for i in $(seq -w 1 $NUM_INSTANCES); do
+  dir="outputs/inst_$i"
+  mkdir -p "$dir"
+
+  # 共有フェーズ出力をリンク
+  ln -sf ../01a_STATE.json "$dir/"
+  for f in ../01b_PARTIAL_*.json; do ln -sf "$f" "$dir/" 2>/dev/null; done
+  for f in ../01e_PARTIAL_*.json; do ln -sf "$f" "$dir/" 2>/dev/null; done
+  ln -sf ../graphs "$dir/"
+  ln -sf ../BUG_BOUNTY_SCOPE.json "$dir/"
+  ln -sf ../01b_SUBGRAPH_INDEX.json "$dir/" 2>/dev/null
+
+  # TARGET_INFO はコピー (インスタンス固有の可能性)
+  cp outputs/TARGET_INFO.json "$dir/"
+done
+```
+
+---
+
+## Phase 4: N 並列 SPECA 実行 (02c→03→04)
+
+### 方法 A: 直接コマンド (最も手軽)
 
 ```bash
 cd /Users/hiro/Documents/security-agent
-claude -p "docs/hiro/templates/01_single_agent_audit.md を読み込み実行してください。"
+
+# 各インスタンスを並列起動
+SPECA_OUTPUT_DIR=outputs/inst_01 uv run python3 scripts/run_phase.py --phase 02c 03 04 --workers 2 &
+SPECA_OUTPUT_DIR=outputs/inst_02 uv run python3 scripts/run_phase.py --phase 02c 03 04 --workers 2 &
+SPECA_OUTPUT_DIR=outputs/inst_03 uv run python3 scripts/run_phase.py --phase 02c 03 04 --workers 2 &
+SPECA_OUTPUT_DIR=outputs/inst_04 uv run python3 scripts/run_phase.py --phase 02c 03 04 --workers 2 &
+wait
 ```
 
-### 方法 C: スクリプト一括起動
+### 方法 B: スクリプト一括起動
 
 ```bash
-bash docs/hiro/templates/07_mass_launch.sh 10
+bash docs/hiro/templates/07_mass_launch.sh 4
 ```
 
-### 何が起きるか
+### 方法 C: AI に実行させる
 
-1. 各セッションが `git branch -r` を確認して空き番号を取得
-2. `hiro/<BRANCH_PREFIX>-agent-N` ブランチを作成
-3. ターゲットコードを読んで脆弱性を発見
-4. `outputs/reports/report_NNN_*.md` にレポートを作成
-5. PR を作成して即座にマージ
-6. ブランチ削除
+```bash
+# AI が docs/hiro/templates/01_speca_pipeline.md を読んで自動実行
+claude -p "docs/hiro/templates/01_speca_pipeline.md を読み込み実行してください。"
+```
 
 ---
 
-## Phase 2: オーケストレーター (1 セッションで 12 並列)
+## Phase 5: 結果統合 + 重複チェック
 
-テンプレート 02 を使う。1 つの Claude Code セッション内で 12 個の Agent ツール呼び出しを行い、攻撃面ごとに並列分析する。
-
-```bash
-claude -p "docs/hiro/templates/02_orchestrator_12_agents.md を読み込み実行してください。"
-```
-
-Phase 1 とは別のアプローチ:
-- Phase 1: 各セッションが独立に全コードを見る → 同じバグの独立確認が得られる
-- Phase 2: 1 セッションが攻撃面を分割して効率的に探索 → 網羅性が高い
-
----
-
-## Phase 3: Codex クロスバリデーション
-
-Claude とは異なる AI (OpenAI Codex) で同じ分析を行い、発見を比較する。
+全インスタンスの結果をマージし、重複を排除する。
 
 ```bash
-# スクリプト直接実行
-bash docs/hiro/templates/08_codex_launch.sh
+claude -p "docs/hiro/templates/09_dedup_results.md を読み込み実行してください。"
 ```
 
 ---
@@ -186,20 +272,21 @@ bash docs/hiro/templates/08_codex_launch.sh
 
 ```
 docs/hiro/templates/
-  00_human_guide.md                       ← この文書 (人間用ガイド)
-  01_single_agent_audit.template.md       ← AI用: 単体監査プロンプト (テンプレート)
-  02_orchestrator_12_agents.template.md   ← AI用: 12 並列オーケストレーター (テンプレート)
-  07_mass_launch.sh                       ← スクリプト: N 個のセッション一括起動
-  08_codex_launch.template.sh             ← スクリプト: 12 Codex エージェント起動 (テンプレート)
-  09_dedup_reports.template.md            ← AI用: マージ後の重複チェック・統合 (テンプレート)
+  00_human_guide.md                      -- この文書 (人間用ガイド)
+  01_speca_pipeline.template.md          -- AI用: SPECA パイプライン実行プロンプト
+  02_orchestrator_n_instances.template.md -- AI用: N 並列 SPECA オーケストレーター
+  07_mass_launch.sh                      -- スクリプト: N インスタンス一括起動
+  08_codex_launch.template.sh            -- スクリプト: Codex クロスバリデーション
+  09_dedup_results.template.md           -- AI用: 結果統合 + 重複チェック
 ```
 
 ---
 
 ## 注意事項
 
-- happy / claude は security-agent ディレクトリで起動すること
-- Codex は `--skip-git-repo-check` が必要
-- レポートは必ず `outputs/reports/` に配置
-- エージェント間の番号衝突は PR マージ時に自然解消 (squash merge)
-- `.template.md` の `{{変数}}` は使用前に sed 等で置換すること
+- `--output-dir` と `SPECA_OUTPUT_DIR` は同じ効果。CLI 引数が環境変数より優先
+- 共有フェーズ (01a-01e) は必ず先に完了させてからインスタンスを起動
+- シンボリックリンクにより共有データの重複コピーを回避
+- 各インスタンスの出力は完全に分離 (02c/03/04 の PARTIAL ファイルが独立)
+- SPECA のスキーマ (Pydantic) により出力フォーマットは一貫
+- 既存の GitHub Actions ワークフロー (grandchildrice 作成) は一切変更なし
