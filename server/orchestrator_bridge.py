@@ -24,6 +24,7 @@ from orchestrator.runner import CircuitBreakerTripped, BudgetExceeded
 
 from .progress import ProgressBus, ProgressEvent, EventType
 from .run_manager import RunManager, RunInfo, RunStatus
+from .discord import send_phase_result
 
 
 class InstrumentedOrchestrator:
@@ -222,14 +223,18 @@ async def _run_phase(run: RunInfo, manager: RunManager) -> None:
             "total_results": len(orch.results),
             "cost": cost_stats,
         })
+        await send_phase_result(run)
     except PhaseAbortError as e:
         manager.mark_complete(run.run_id, error=str(e))
+        await send_phase_result(run)
     except asyncio.CancelledError:
         run.status = RunStatus.CANCELLED
         run.completed_at = __import__("time").time()
         await run.bus.close()
+        await send_phase_result(run)
     except Exception as e:
         manager.mark_complete(run.run_id, error=str(e))
+        await send_phase_result(run)
         await run.bus.close()
 
 
