@@ -16,6 +16,21 @@ from typing import Callable, Any
 
 from pydantic import BaseModel, Field, computed_field, ConfigDict
 
+from .paths import get_output_root
+
+
+def resolve_pattern(pattern: str) -> str:
+    """Replace the ``outputs/`` prefix in a config pattern with the current OUTPUT_ROOT.
+
+    PHASE_CONFIGS patterns are kept as-is (templates with ``outputs/`` prefix).
+    This function resolves them at usage time, supporting ``SPECA_OUTPUT_DIR``.
+    """
+    if pattern.startswith("outputs/"):
+        return str(get_output_root()) + pattern[7:]  # len("outputs") == 7
+    if pattern.startswith("outputs\\"):
+        return str(get_output_root()) + pattern[7:]
+    return pattern
+
 
 class PhaseConfig(BaseModel):
     """Configuration for a single phase of the audit pipeline."""

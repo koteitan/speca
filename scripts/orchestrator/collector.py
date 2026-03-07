@@ -17,6 +17,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from .config import PhaseConfig
+from .paths import get_output_root
 from .schemas import (
     Phase01bPartial,
     Phase01ePartial,
@@ -50,7 +51,7 @@ class ResultCollector:
 
     def __init__(self, config: PhaseConfig):
         self.config = config
-        self.output_dir = Path("outputs")
+        self.output_dir = get_output_root()
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Validation statistics (accessible for monitoring / circuit breaker)

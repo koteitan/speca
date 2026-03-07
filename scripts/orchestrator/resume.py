@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import PhaseConfig
+from .paths import get_output_root
 
 
 class ResumeManager:
@@ -27,7 +28,7 @@ class ResumeManager:
 
     def __init__(self, config: PhaseConfig):
         self.config = config
-        self.output_dir = Path("outputs")
+        self.output_dir = get_output_root()
         self.logs_dir = self.output_dir / "logs"
 
     def get_processed_ids(self) -> set[str]:
