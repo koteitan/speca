@@ -166,19 +166,36 @@ tools:
 
   repoaudit_deepseek_r1:
     display_name: "RepoAudit (DeepSeek R1)"
-    precision: 88.46
-    # TP/FP counts not explicitly stated in v3 appendix
-    source: "Appendix, v3"
+    old_tp: 15
+    new_tp: 26
+    tp: 41  # 15 old + 26 new
+    fp: 6
+    precision: 87.23  # 41/(41+6), Table 8 calculated
+    precision_paper_text: 88.46  # stated in paper text (methodology unclear)
+    avg_cost_per_project: 0.57
+    source: "Table 8, v3"
 
   repoaudit_claude37_sonnet:
     display_name: "RepoAudit (Claude 3.7 Sonnet)"
-    precision: 86.79
-    source: "Appendix, v3"
+    old_tp: 15
+    new_tp: 25
+    tp: 40  # 15 old + 25 new
+    fp: 5
+    precision: 88.89  # 40/(40+5), Table 9 calculated
+    precision_paper_text: 86.79  # stated in paper text (methodology unclear)
+    avg_cost_per_project: 1.59
+    source: "Table 9, v3"
 
   repoaudit_o3_mini:
     display_name: "RepoAudit (o3-mini)"
-    precision: 82.35
-    source: "Appendix, v3"
+    old_tp: 15
+    new_tp: 21
+    tp: 36  # 15 old + 21 new
+    fp: 9
+    precision: 80.00  # 36/(36+9), Table 10 calculated
+    precision_paper_text: 82.35  # stated in paper text (methodology unclear)
+    avg_cost_per_project: 0.30
+    source: "Table 10, v3"
 
   meta_infer:
     display_name: "Meta Infer"

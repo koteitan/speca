@@ -8,7 +8,7 @@ import glob
 import json
 from typing import Any
 
-from .config import PhaseConfig
+from .config import PhaseConfig, resolve_pattern
 
 
 class QueueManager:
@@ -31,7 +31,7 @@ class QueueManager:
         items = []
         
         for pattern in self.config.input_patterns:
-            for filepath in sorted(glob.glob(pattern)):
+            for filepath in sorted(glob.glob(resolve_pattern(pattern))):
                 try:
                     items.extend(self._load_items_from_file(filepath))
                 except Exception as e:

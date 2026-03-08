@@ -19,6 +19,7 @@ from pydantic import ValidationError
 from tqdm import tqdm
 
 from .config import PhaseConfig, get_phase_config
+from .paths import get_output_root
 from .queue import QueueManager
 from .batch import BatchStrategy, TokenBasedBatch, CountBasedBatch
 from .runner import ClaudeRunner, CircuitBreaker, CircuitBreakerTripped, BudgetExceeded
@@ -111,7 +112,7 @@ def _is_safe_output_path(file_path: str) -> bool:
     Returns ``True`` when the path is safe, ``False`` otherwise.
     """
     try:
-        outputs_dir = Path("outputs").resolve()
+        outputs_dir = get_output_root().resolve()
         resolved = Path(file_path).resolve()
         return resolved.is_relative_to(outputs_dir)
     except (ValueError, OSError):
@@ -588,10 +589,11 @@ class Phase01Orchestrator(BaseOrchestrator):
     def _load_01b_items(self) -> list[dict[str, Any]]:
         """Load discovered specs from 01a_STATE.json with Pydantic validation."""
         import glob as glob_mod
+        from .config import resolve_pattern
 
         items: list[dict[str, Any]] = []
         for pattern in self.config.input_patterns:
-            for filepath in sorted(glob_mod.glob(pattern)):
+            for filepath in sorted(glob_mod.glob(resolve_pattern(pattern))):
                 try:
                     with open(filepath) as f:
                         data = json.load(f)
@@ -621,12 +623,13 @@ class Phase01Orchestrator(BaseOrchestrator):
     def _load_01e_items(self) -> list[dict[str, Any]]:
         """Load subgraph files for property generation with Pydantic validation."""
         import glob as glob_mod
+        from .config import resolve_pattern
 
         items: list[dict[str, Any]] = []
         validation_warnings = 0
 
         for pattern in self.config.input_patterns:
-            for filepath in sorted(glob_mod.glob(pattern)):
+            for filepath in sorted(glob_mod.glob(resolve_pattern(pattern))):
                 try:
                     with open(filepath) as f:
                         data = json.load(f)
@@ -738,7 +741,7 @@ class Phase01Orchestrator(BaseOrchestrator):
         The file is **required** — if missing or unparseable, the orchestrator
         aborts with a non-zero exit code.
         """
-        scope_path = Path("outputs/BUG_BOUNTY_SCOPE.json")
+        scope_path = get_output_root() / "BUG_BOUNTY_SCOPE.json"
         if not scope_path.exists():
             raise PhaseAbortError(
                 f"{scope_path} not found. "
@@ -820,7 +823,7 @@ class Phase02cOrchestrator(BaseOrchestrator):
         import glob as glob_mod
 
         index = []
-        for filepath in sorted(glob_mod.glob("outputs/01b_PARTIAL_*.json")):
+        for filepath in sorted(glob_mod.glob(str(get_output_root() / "01b_PARTIAL_*.json"))):
             try:
                 with open(filepath) as f:
                     data = json.load(f)
@@ -843,7 +846,7 @@ class Phase02cOrchestrator(BaseOrchestrator):
             except Exception as e:
                 print(f"Warning: Failed to read {filepath} for subgraph index: {e}", file=sys.stderr)
 
-        out_path = Path("outputs/01b_SUBGRAPH_INDEX.json")
+        out_path = get_output_root() / "01b_SUBGRAPH_INDEX.json"
         with open(out_path, "w") as f:
             json.dump(index, f, indent=2)
 
@@ -859,7 +862,7 @@ class Phase02cOrchestrator(BaseOrchestrator):
         items = {}  # Deduplication map
         validation_warnings = 0
 
-        for filepath in sorted(glob.glob("outputs/01e_PARTIAL_*.json")):
+        for filepath in sorted(glob.glob(str(get_output_root() / "01e_PARTIAL_*.json"))):
             try:
                 with open(filepath) as f:
                     data = json.load(f)
@@ -1003,7 +1006,7 @@ class Phase03Orchestrator(BaseOrchestrator):
         items = {}
         validation_warnings = 0
 
-        for filepath in sorted(glob.glob("outputs/02c_PARTIAL_*.json")):
+        for filepath in sorted(glob.glob(str(get_output_root() / "02c_PARTIAL_*.json"))):
             try:
                 with open(filepath) as f:
                     data = json.load(f)
@@ -1127,18 +1130,21 @@ class Phase03Orchestrator(BaseOrchestrator):
 class Phase04Orchestrator(BaseOrchestrator):
     """Orchestrator for Phase 04 (Audit Review)."""
 
-    _REQUIRED_FILES = [
-        "outputs/BUG_BOUNTY_SCOPE.json",
-        "outputs/TARGET_INFO.json",
-        "outputs/01b_SUBGRAPH_INDEX.json",
-    ]
+    @property
+    def _required_files(self) -> list[str]:
+        root = get_output_root()
+        return [
+            str(root / "BUG_BOUNTY_SCOPE.json"),
+            str(root / "TARGET_INFO.json"),
+            str(root / "01b_SUBGRAPH_INDEX.json"),
+        ]
 
     def load_items(self) -> list[dict[str, Any]]:
         """Load audit results from 03 partials with Pydantic validation."""
         import glob
 
         # Verify required context files exist before processing
-        for path in self._REQUIRED_FILES:
+        for path in self._required_files:
             if not Path(path).exists():
                 raise PhaseAbortError(
                     f"{path} not found. "
@@ -1147,7 +1153,7 @@ class Phase04Orchestrator(BaseOrchestrator):
 
         items_dict: dict[str, dict] = {}  # keyed by property_id for dedup
         validation_warnings = 0
-        for filepath in sorted(glob.glob("outputs/03_PARTIAL_*.json")):
+        for filepath in sorted(glob.glob(str(get_output_root() / "03_PARTIAL_*.json"))):
             try:
                 with open(filepath) as f:
                     data = json.load(f)
@@ -1224,7 +1230,7 @@ class Phase04Orchestrator(BaseOrchestrator):
 
         # Build property lookup from 02c PARTIALs
         prop_lookup: dict[str, dict[str, Any]] = {}
-        for filepath in sorted(glob_mod.glob("outputs/02c_PARTIAL_*.json")):
+        for filepath in sorted(glob_mod.glob(str(get_output_root() / "02c_PARTIAL_*.json"))):
             try:
                 with open(filepath) as f:
                     data = json.load(f)

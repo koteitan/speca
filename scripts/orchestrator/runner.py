@@ -26,6 +26,7 @@ from typing import Any
 import aiofiles
 
 from .config import PhaseConfig
+from .paths import get_output_root
 from .watchdog import (
     LogWatcher,
     LogWatcherConfig,
@@ -277,7 +278,7 @@ class ClaudeRunner:
         self.cost_tracker = cost_tracker
 
         # Ensure directories exist
-        self.output_dir = Path("outputs")
+        self.output_dir = get_output_root()
         self.log_dir = self.output_dir / "logs"
         self.log_dir.mkdir(parents=True, exist_ok=True)
         Path(".claude/debug").mkdir(parents=True, exist_ok=True)

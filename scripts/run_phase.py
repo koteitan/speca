@@ -30,7 +30,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from orchestrator import create_orchestrator
 from orchestrator.base import PhaseAbortError
-from orchestrator.config import get_phase_config, get_phase_chain, PHASE_CONFIGS
+from orchestrator.config import get_phase_config, get_phase_chain, PHASE_CONFIGS, resolve_pattern
+from orchestrator.paths import get_output_root
 from orchestrator.resume import ResumeManager
 
 
@@ -51,10 +52,11 @@ def check_dependencies(phase_id: str) -> bool:
 
     for pattern in config.input_patterns:
         # Simple glob check for now
-        # We need to handle glob patterns that might be empty if optional, 
+        # We need to handle glob patterns that might be empty if optional,
         # but generally input_patterns imply requirement.
         # Note: glob() returns a generator, list() consumes it.
-        matches = list(Path(".").glob(pattern))
+        resolved = resolve_pattern(pattern)
+        matches = list(Path(".").glob(resolved))
         if not matches:
             # Check if it's a "worker-sharded" pattern (contains *)
             # If so, it might be that the previous phase produced nothing, 
@@ -102,10 +104,10 @@ def patch_target_info(target_layer: str | None, out_of_scope_layers: list[str] |
     if not target_layer and not out_of_scope_layers:
         return
 
-    target_info_path = Path("outputs/TARGET_INFO.json")
+    target_info_path = get_output_root() / "TARGET_INFO.json"
     if not target_info_path.exists():
         print(
-            "⚠️  outputs/TARGET_INFO.json not found — skipping --target-layer / "
+            f"⚠️  {target_info_path} not found — skipping --target-layer / "
             "--out-of-scope-layers injection. Run phase 02c setup first.",
             file=sys.stderr,
         )
@@ -240,6 +242,12 @@ def main():
     parser.add_argument("--cleanup-dry-run", action="store_true", help="Show what would be cleaned up without executing")
     parser.add_argument("--workers", type=int, default=4, help="Number of parallel workers")
     parser.add_argument("--max-concurrent", type=int, default=8, help="Max concurrent Claude executions")
+    parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Output directory (default: 'outputs'). Also settable via SPECA_OUTPUT_DIR env var. "
+             "Enables parallel instances with isolated output directories.",
+    )
 
     # Phase 02c: target metadata for scope filtering
     parser.add_argument(
@@ -265,7 +273,11 @@ def main():
     )
 
     args = parser.parse_args()
-    
+
+    # Set output directory early, before any orchestrator import evaluates paths
+    if args.output_dir:
+        os.environ["SPECA_OUTPUT_DIR"] = args.output_dir
+
     # Determine execution order
     if args.target:
         phases = get_phase_chain(args.target)
@@ -277,6 +289,7 @@ def main():
     print(f"  Workers: {args.workers}")
     print(f"  Max Concurrent: {args.max_concurrent}")
     print(f"  Force: {args.force}")
+    print(f"  Output Dir: {get_output_root()}")
     print(f"  Phases: {phases}")
     if args.min_severity:
         print(f"  Min Severity: {args.min_severity}")

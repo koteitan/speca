@@ -128,7 +128,10 @@ def fig2_tp_fp(data: dict, speca: dict | None):
     entries = []
     # Only tools with known TP/FP
     for key, label in [
+        ("repoaudit_claude37_sonnet", "RepoAudit\n(Claude 3.7)"),
+        ("repoaudit_deepseek_r1", "RepoAudit\n(DeepSeek R1)"),
         ("repoaudit_claude35_sonnet", "RepoAudit\n(Claude 3.5)"),
+        ("repoaudit_o3_mini", "RepoAudit\n(o3-mini)"),
         ("meta_infer", "Meta Infer"),
         ("amazon_codeguru", "CodeGuru"),
         ("single_function_llm", "Single-fn\nLLM"),
@@ -146,7 +149,7 @@ def fig2_tp_fp(data: dict, speca: dict | None):
     tps = [e[1] for e in entries]
     fps = [e[2] for e in entries]
 
-    fig, ax = plt.subplots(figsize=(9, 5))
+    fig, ax = plt.subplots(figsize=(12, 5))
     x = np.arange(len(names))
     w = 0.35
     bars_tp = ax.bar(x - w / 2, tps, w, label="True Positives (TP)", color="#4C72B0", edgecolor="white")
