@@ -1,0 +1,4761 @@
+{
+  "properties_with_code": [
+    {
+      "property_id": "PROP-M2-mlk-001",
+      "text": "All dynamically allocated memory in assoc.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in assoc.c: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M2-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "assoc.c",
+            "symbol": "assoc_init",
+            "line_range": {
+              "start": 63,
+              "end": 63
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "assoc.c",
+            "symbol": "assoc_find",
+            "line_range": {
+              "start": 78,
+              "end": 78
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "assoc.c",
+            "symbol": "_hashitem_before",
+            "line_range": {
+              "start": 107,
+              "end": 107
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "assoc.c",
+            "symbol": "assoc_expand",
+            "line_range": {
+              "start": 126,
+              "end": 126
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "assoc.c",
+            "symbol": "assoc_start_expand",
+            "line_range": {
+              "start": 147,
+              "end": 147
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "assoc.c",
+            "symbol": "assoc_insert",
+            "line_range": {
+              "start": 156,
+              "end": 156
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "assoc.c",
+            "symbol": "hashsize",
+            "line_range": {
+              "start": 173,
+              "end": 173
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "assoc.c",
+            "symbol": "assoc_delete",
+            "line_range": {
+              "start": 182,
+              "end": 182
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "assoc.c",
+            "symbol": "assoc_maintenance_thread",
+            "line_range": {
+              "start": 210,
+              "end": 210
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "assoc.c",
+            "symbol": "start_assoc_maintenance_thread",
+            "line_range": {
+              "start": 279,
+              "end": 279
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "assoc.c",
+            "symbol": "stop_assoc_maintenance_thread",
+            "line_range": {
+              "start": 297,
+              "end": 297
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-002",
+      "text": "All dynamically allocated memory in cache.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in cache.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "cache.c",
+            "symbol": "cache_create",
+            "line_range": {
+              "start": 19,
+              "end": 19
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "cache.c",
+            "symbol": "get_object",
+            "line_range": {
+              "start": 48,
+              "end": 48
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "cache.c",
+            "symbol": "cache_destroy",
+            "line_range": {
+              "start": 57,
+              "end": 57
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "cache.c",
+            "symbol": "cache_alloc",
+            "line_range": {
+              "start": 71,
+              "end": 71
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "cache.c",
+            "symbol": "cache_free",
+            "line_range": {
+              "start": 106,
+              "end": 106
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-003",
+      "text": "All dynamically allocated memory in daemon.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in daemon.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "daemon.c",
+            "symbol": "daemonize",
+            "line_range": {
+              "start": 44,
+              "end": 44
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "daemon.c",
+            "symbol": "chdir",
+            "line_range": {
+              "start": 61,
+              "end": 61
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "daemon.c",
+            "symbol": "dup2",
+            "line_range": {
+              "start": 68,
+              "end": 68
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "daemon.c",
+            "symbol": "dup2",
+            "line_range": {
+              "start": 72,
+              "end": 72
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "daemon.c",
+            "symbol": "dup2",
+            "line_range": {
+              "start": 76,
+              "end": 76
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-004",
+      "text": "All dynamically allocated memory in hash.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in hash.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "hash.c",
+            "symbol": "hash_init",
+            "line_range": {
+              "start": 7,
+              "end": 7
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-005",
+      "text": "All dynamically allocated memory in items.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in items.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "items.c",
+            "symbol": "item_stats_reset",
+            "line_range": {
+              "start": 78,
+              "end": 78
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "get_cas_id",
+            "line_range": {
+              "start": 93,
+              "end": 93
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_is_flushed",
+            "line_range": {
+              "start": 101,
+              "end": 101
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "noexp_lru_size",
+            "line_range": {
+              "start": 114,
+              "end": 114
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_make_header",
+            "line_range": {
+              "start": 147,
+              "end": 147
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_alloc",
+            "line_range": {
+              "start": 154,
+              "end": 154
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_free",
+            "line_range": {
+              "start": 242,
+              "end": 242
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_size_ok",
+            "line_range": {
+              "start": 260,
+              "end": 260
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_link_q",
+            "line_range": {
+              "start": 273,
+              "end": 273
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_link_q",
+            "line_range": {
+              "start": 290,
+              "end": 290
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_unlink_q",
+            "line_range": {
+              "start": 296,
+              "end": 296
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_unlink_q",
+            "line_range": {
+              "start": 318,
+              "end": 318
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_link",
+            "line_range": {
+              "start": 324,
+              "end": 324
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_unlink",
+            "line_range": {
+              "start": 345,
+              "end": 345
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_unlink_nolock",
+            "line_range": {
+              "start": 360,
+              "end": 360
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_remove",
+            "line_range": {
+              "start": 374,
+              "end": 374
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "refcount_decr",
+            "line_range": {
+              "start": 379,
+              "end": 379
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_update_nolock",
+            "line_range": {
+              "start": 386,
+              "end": 386
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_update",
+            "line_range": {
+              "start": 400,
+              "end": 400
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_replace",
+            "line_range": {
+              "start": 415,
+              "end": 415
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_cachedump",
+            "line_range": {
+              "start": 432,
+              "end": 432
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_stats_totals",
+            "line_range": {
+              "start": 483,
+              "end": 483
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_stats",
+            "line_range": {
+              "start": 533,
+              "end": 533
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_stats_sizes",
+            "line_range": {
+              "start": 626,
+              "end": 626
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_get",
+            "line_range": {
+              "start": 663,
+              "end": 663
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_item_touch",
+            "line_range": {
+              "start": 733,
+              "end": 733
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "lru_pull_tail",
+            "line_range": {
+              "start": 746,
+              "end": 746
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "refcount_incr",
+            "line_range": {
+              "start": 779,
+              "end": 779
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "lru_maintainer_juggle",
+            "line_range": {
+              "start": 897,
+              "end": 897
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "lru_pull_tail",
+            "line_range": {
+              "start": 921,
+              "end": 921
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "lru_maintainer_crawler_check",
+            "line_range": {
+              "start": 947,
+              "end": 947
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "lru_maintainer_thread",
+            "line_range": {
+              "start": 1001,
+              "end": 1001
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "stop_lru_maintainer_thread",
+            "line_range": {
+              "start": 1048,
+              "end": 1048
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "start_lru_maintainer_thread",
+            "line_range": {
+              "start": 1062,
+              "end": 1062
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "lru_maintainer_pause",
+            "line_range": {
+              "start": 1081,
+              "end": 1081
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "lru_maintainer_resume",
+            "line_range": {
+              "start": 1085,
+              "end": 1085
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "init_lru_maintainer",
+            "line_range": {
+              "start": 1089,
+              "end": 1089
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "crawler_link_q",
+            "line_range": {
+              "start": 1099,
+              "end": 1099
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "crawler_unlink_q",
+            "line_range": {
+              "start": 1120,
+              "end": 1120
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "crawler_crawl_q",
+            "line_range": {
+              "start": 1143,
+              "end": 1143
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_crawler_evaluate",
+            "line_range": {
+              "start": 1200,
+              "end": 1200
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "item_crawler_thread",
+            "line_range": {
+              "start": 1240,
+              "end": 1240
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "stop_item_crawler_thread",
+            "line_range": {
+              "start": 1325,
+              "end": 1325
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "start_item_crawler_thread",
+            "line_range": {
+              "start": 1350,
+              "end": 1350
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "do_lru_crawler_start",
+            "line_range": {
+              "start": 1374,
+              "end": 1374
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "lru_crawler_start",
+            "line_range": {
+              "start": 1416,
+              "end": 1416
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "pthread_mutex_trylock",
+            "line_range": {
+              "start": 1418,
+              "end": 1418
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "lru_crawler_crawl",
+            "line_range": {
+              "start": 1434,
+              "end": 1434
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "pthread_mutex_trylock",
+            "line_range": {
+              "start": 1439,
+              "end": 1439
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "lru_crawler_pause",
+            "line_range": {
+              "start": 1478,
+              "end": 1478
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "lru_crawler_resume",
+            "line_range": {
+              "start": 1482,
+              "end": 1482
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "items.c",
+            "symbol": "init_lru_crawler",
+            "line_range": {
+              "start": 1486,
+              "end": 1486
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-006",
+      "text": "All dynamically allocated memory in jenkins_hash.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in jenkins_hash.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "jenkins_hash.c",
+            "symbol": "jenkins_hash",
+            "line_range": {
+              "start": 126,
+              "end": 126
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "jenkins_hash.c",
+            "symbol": "jenkins_hash",
+            "line_range": {
+              "start": 306,
+              "end": 306
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-007",
+      "text": "All dynamically allocated memory in memcached.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in memcached.c: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M2-007",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "memcached.c",
+            "symbol": "maxconns_handler",
+            "line_range": {
+              "start": 138,
+              "end": 138
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "realtime",
+            "line_range": {
+              "start": 159,
+              "end": 159
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "stats_init",
+            "line_range": {
+              "start": 179,
+              "end": 179
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "stats_reset",
+            "line_range": {
+              "start": 204,
+              "end": 204
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "settings_init",
+            "line_range": {
+              "start": 218,
+              "end": 218
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "add_msghdr",
+            "line_range": {
+              "start": 265,
+              "end": 265
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "conn_init",
+            "line_range": {
+              "start": 319,
+              "end": 319
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "getrlimit",
+            "line_range": {
+              "start": 328,
+              "end": 328
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "prot_text",
+            "line_range": {
+              "start": 344,
+              "end": 344
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "conn_new",
+            "line_range": {
+              "start": 360,
+              "end": 360
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "getpeername",
+            "line_range": {
+              "start": 432,
+              "end": 432
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "event_add",
+            "line_range": {
+              "start": 485,
+              "end": 485
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "conn_release_items",
+            "line_range": {
+              "start": 500,
+              "end": 500
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "conn_cleanup",
+            "line_range": {
+              "start": 526,
+              "end": 526
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "conn_free",
+            "line_range": {
+              "start": 550,
+              "end": 550
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "conn_close",
+            "line_range": {
+              "start": 575,
+              "end": 575
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "conn_shrink",
+            "line_range": {
+              "start": 609,
+              "end": 609
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "state_text",
+            "line_range": {
+              "start": 662,
+              "end": 662
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "conn_set_state",
+            "line_range": {
+              "start": 682,
+              "end": 682
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "ensure_iov_space",
+            "line_range": {
+              "start": 706,
+              "end": 706
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "add_iov",
+            "line_range": {
+              "start": 740,
+              "end": 740
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "build_udp_headers",
+            "line_range": {
+              "start": 793,
+              "end": 793
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "out_string",
+            "line_range": {
+              "start": 836,
+              "end": 836
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "out_of_memory",
+            "line_range": {
+              "start": 879,
+              "end": 879
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "complete_nread_ascii",
+            "line_range": {
+              "start": 898,
+              "end": 898
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "ITEM_data",
+            "line_range": {
+              "start": 909,
+              "end": 909
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "binary_get_request",
+            "line_range": {
+              "start": 970,
+              "end": 970
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "binary_get_key",
+            "line_range": {
+              "start": 982,
+              "end": 982
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "add_bin_header",
+            "line_range": {
+              "start": 986,
+              "end": 986
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "add_msghdr",
+            "line_range": {
+              "start": 994,
+              "end": 994
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "write_bin_error",
+            "line_range": {
+              "start": 1036,
+              "end": 1036
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "write_bin_response",
+            "line_range": {
+              "start": 1095,
+              "end": 1095
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "complete_incr_bin",
+            "line_range": {
+              "start": 1109,
+              "end": 1109
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "add_delta",
+            "line_range": {
+              "start": 1146,
+              "end": 1146
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "complete_update_bin",
+            "line_range": {
+              "start": 1208,
+              "end": 1208
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_bin_get_or_touch",
+            "line_range": {
+              "start": 1278,
+              "end": 1278
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "fwrite",
+            "line_range": {
+              "start": 1293,
+              "end": 1293
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "append_bin_stats",
+            "line_range": {
+              "start": 1397,
+              "end": 1397
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "append_ascii_stats",
+            "line_range": {
+              "start": 1426,
+              "end": 1426
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "grow_stats_buf",
+            "line_range": {
+              "start": 1445,
+              "end": 1445
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "append_stats",
+            "line_range": {
+              "start": 1478,
+              "end": 1478
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_bin_stat",
+            "line_range": {
+              "start": 1506,
+              "end": 1506
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "get_stats",
+            "line_range": {
+              "start": 1548,
+              "end": 1548
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "bin_read_key",
+            "line_range": {
+              "start": 1572,
+              "end": 1572
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "handle_binary_protocol_error",
+            "line_range": {
+              "start": 1625,
+              "end": 1625
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "init_sasl_conn",
+            "line_range": {
+              "start": 1634,
+              "end": 1634
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "bin_list_sasl_mechs",
+            "line_range": {
+              "start": 1657,
+              "end": 1657
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_bin_sasl_auth",
+            "line_range": {
+              "start": 1686,
+              "end": 1686
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_bin_complete_sasl_auth",
+            "line_range": {
+              "start": 1724,
+              "end": 1724
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "authenticated",
+            "line_range": {
+              "start": 1801,
+              "end": 1801
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "dispatch_bin_command",
+            "line_range": {
+              "start": 1824,
+              "end": 1824
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_bin_update",
+            "line_range": {
+              "start": 2010,
+              "end": 2010
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "ITEM_get_cas",
+            "line_range": {
+              "start": 2090,
+              "end": 2090
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_bin_append_prepend",
+            "line_range": {
+              "start": 2101,
+              "end": 2101
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_bin_flush",
+            "line_range": {
+              "start": 2154,
+              "end": 2154
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_bin_delete",
+            "line_range": {
+              "start": 2189,
+              "end": 2189
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "complete_nread_binary",
+            "line_range": {
+              "start": 2234,
+              "end": 2234
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "reset_cmd_handler",
+            "line_range": {
+              "start": 2278,
+              "end": 2278
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "complete_nread",
+            "line_range": {
+              "start": 2293,
+              "end": 2293
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "do_store_item",
+            "line_range": {
+              "start": 2311,
+              "end": 2311
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "ITEM_get_cas",
+            "line_range": {
+              "start": 2335,
+              "end": 2335
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "tokenize_command",
+            "line_range": {
+              "start": 2456,
+              "end": 2456
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "write_and_free",
+            "line_range": {
+              "start": 2501,
+              "end": 2501
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "set_noreply_maybe",
+            "line_range": {
+              "start": 2513,
+              "end": 2513
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "append_stat",
+            "line_range": {
+              "start": 2531,
+              "end": 2531
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_stats_detail",
+            "line_range": {
+              "start": 2549,
+              "end": 2549
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "server_stats",
+            "line_range": {
+              "start": 2571,
+              "end": 2571
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_stat_settings",
+            "line_range": {
+              "start": 2661,
+              "end": 2661
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "conn_to_str",
+            "line_range": {
+              "start": 2704,
+              "end": 2704
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_stats_conns",
+            "line_range": {
+              "start": 2782,
+              "end": 2782
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_stat",
+            "line_range": {
+              "start": 2811,
+              "end": 2811
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "get_stats",
+            "line_range": {
+              "start": 2865,
+              "end": 2865
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_get_command",
+            "line_range": {
+              "start": 2890,
+              "end": 2890
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_update_command",
+            "line_range": {
+              "start": 3065,
+              "end": 3065
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "safe_strtoul",
+            "line_range": {
+              "start": 3087,
+              "end": 3087
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_touch_command",
+            "line_range": {
+              "start": 3153,
+              "end": 3153
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_arithmetic_command",
+            "line_range": {
+              "start": 3196,
+              "end": 3196
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "add_delta",
+            "line_range": {
+              "start": 3219,
+              "end": 3219
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "do_add_delta",
+            "line_range": {
+              "start": 3256,
+              "end": 3256
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_delete_command",
+            "line_range": {
+              "start": 3352,
+              "end": 3352
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_verbosity_command",
+            "line_range": {
+              "start": 3404,
+              "end": 3404
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_slabs_automove_command",
+            "line_range": {
+              "start": 3417,
+              "end": 3417
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "process_command",
+            "line_range": {
+              "start": 3437,
+              "end": 3437
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "add_msghdr",
+            "line_range": {
+              "start": 3458,
+              "end": 3458
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "try_read_command",
+            "line_range": {
+              "start": 3689,
+              "end": 3689
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "try_read_udp",
+            "line_range": {
+              "start": 3824,
+              "end": 3824
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "try_read_network",
+            "line_range": {
+              "start": 3871,
+              "end": 3871
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "update_event",
+            "line_range": {
+              "start": 3933,
+              "end": 3933
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "do_accept_new_conns",
+            "line_range": {
+              "start": 3950,
+              "end": 3950
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "transmit",
+            "line_range": {
+              "start": 3999,
+              "end": 3999
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "drive_machine",
+            "line_range": {
+              "start": 4057,
+              "end": 4057
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "event_handler",
+            "line_range": {
+              "start": 4392,
+              "end": 4392
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "new_socket",
+            "line_range": {
+              "start": 4414,
+              "end": 4414
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "maximize_sndbuf",
+            "line_range": {
+              "start": 4435,
+              "end": 4435
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "getsockopt",
+            "line_range": {
+              "start": 4442,
+              "end": 4442
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "setsockopt",
+            "line_range": {
+              "start": 4454,
+              "end": 4454
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "server_socket",
+            "line_range": {
+              "start": 4475,
+              "end": 4475
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "bind",
+            "line_range": {
+              "start": 4547,
+              "end": 4547
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "server_sockets",
+            "line_range": {
+              "start": 4621,
+              "end": 4621
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "new_socket_unix",
+            "line_range": {
+              "start": 4683,
+              "end": 4683
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "server_socket_unix",
+            "line_range": {
+              "start": 4701,
+              "end": 4701
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "lstat",
+            "line_range": {
+              "start": 4720,
+              "end": 4720
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "bind",
+            "line_range": {
+              "start": 4739,
+              "end": 4739
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "listen",
+            "line_range": {
+              "start": 4746,
+              "end": 4746
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "clock_handler",
+            "line_range": {
+              "start": 4776,
+              "end": 4776
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "clock_gettime",
+            "line_range": {
+              "start": 4793,
+              "end": 4793
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "usage",
+            "line_range": {
+              "start": 4820,
+              "end": 4820
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "usage_license",
+            "line_range": {
+              "start": 4905,
+              "end": 4905
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "save_pid",
+            "line_range": {
+              "start": 4976,
+              "end": 4976
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "access",
+            "line_range": {
+              "start": 4978,
+              "end": 4978
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "rename",
+            "line_range": {
+              "start": 5009,
+              "end": 5009
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "remove_pidfile",
+            "line_range": {
+              "start": 5015,
+              "end": 5015
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "unlink",
+            "line_range": {
+              "start": 5019,
+              "end": 5019
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "sig_handler",
+            "line_range": {
+              "start": 5025,
+              "end": 5025
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "sigignore",
+            "line_range": {
+              "start": 5031,
+              "end": 5031
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "sigemptyset",
+            "line_range": {
+              "start": 5034,
+              "end": 5034
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "enable_large_pages",
+            "line_range": {
+              "start": 5046,
+              "end": 5046
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "memcntl",
+            "line_range": {
+              "start": 5066,
+              "end": 5066
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "sanitycheck",
+            "line_range": {
+              "start": 5089,
+              "end": 5089
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "main",
+            "line_range": {
+              "start": 5107,
+              "end": 5107
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "hash_init",
+            "line_range": {
+              "start": 5552,
+              "end": 5552
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "getrlimit",
+            "line_range": {
+              "start": 5590,
+              "end": 5590
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "getrlimit",
+            "line_range": {
+              "start": 5604,
+              "end": 5604
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "getrlimit",
+            "line_range": {
+              "start": 5615,
+              "end": 5615
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "setrlimit",
+            "line_range": {
+              "start": 5621,
+              "end": 5621
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "getuid",
+            "line_range": {
+              "start": 5628,
+              "end": 5628
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "setgid",
+            "line_range": {
+              "start": 5637,
+              "end": 5637
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "sigignore",
+            "line_range": {
+              "start": 5651,
+              "end": 5651
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "daemonize",
+            "line_range": {
+              "start": 5654,
+              "end": 5654
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "sigignore",
+            "line_range": {
+              "start": 5686,
+              "end": 5686
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "start_assoc_maintenance_thread",
+            "line_range": {
+              "start": 5693,
+              "end": 5693
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "server_socket_unix",
+            "line_range": {
+              "start": 5718,
+              "end": 5718
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "memcached.c",
+            "symbol": "event_base_loop",
+            "line_range": {
+              "start": 5791,
+              "end": 5791
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-008",
+      "text": "All dynamically allocated memory in murmur3_hash.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in murmur3_hash.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "murmur3_hash.c",
+            "symbol": "rotl32",
+            "line_range": {
+              "start": 33,
+              "end": 33
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "murmur3_hash.c",
+            "symbol": "getblock32",
+            "line_range": {
+              "start": 48,
+              "end": 48
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "murmur3_hash.c",
+            "symbol": "fmix32",
+            "line_range": {
+              "start": 56,
+              "end": 56
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "murmur3_hash.c",
+            "symbol": "MurmurHash3_x86_32",
+            "line_range": {
+              "start": 71,
+              "end": 71
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-009",
+      "text": "All dynamically allocated memory in sasl_defs.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sasl_defs.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "sasl_defs.c",
+            "symbol": "sasl_server_userdb_checkpass",
+            "line_range": {
+              "start": 30,
+              "end": 30
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "sasl_defs.c",
+            "symbol": "fgets",
+            "line_range": {
+              "start": 57,
+              "end": 57
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "sasl_defs.c",
+            "symbol": "sasl_getconf",
+            "line_range": {
+              "start": 86,
+              "end": 86
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "sasl_defs.c",
+            "symbol": "sasl_log",
+            "line_range": {
+              "start": 112,
+              "end": 112
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "sasl_defs.c",
+            "symbol": "init_sasl",
+            "line_range": {
+              "start": 160,
+              "end": 160
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "sasl_defs.c",
+            "symbol": "gethostname",
+            "line_range": {
+              "start": 175,
+              "end": 175
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "sasl_defs.c",
+            "symbol": "sasl_server_init",
+            "line_range": {
+              "start": 182,
+              "end": 182
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-010",
+      "text": "All dynamically allocated memory in sizes.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sizes.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "sizes.c",
+            "symbol": "display",
+            "line_range": {
+              "start": 5,
+              "end": 5
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "sizes.c",
+            "symbol": "main",
+            "line_range": {
+              "start": 9,
+              "end": 9
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-011",
+      "text": "All dynamically allocated memory in slabs.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in slabs.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-011",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_clsid",
+            "line_range": {
+              "start": 83,
+              "end": 83
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_init",
+            "line_range": {
+              "start": 98,
+              "end": 98
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_preallocate",
+            "line_range": {
+              "start": 154,
+              "end": 154
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "do_slabs_newslab",
+            "line_range": {
+              "start": 167,
+              "end": 167
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "grow_slab_list",
+            "line_range": {
+              "start": 177,
+              "end": 177
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "split_slab_page_into_freelist",
+            "line_range": {
+              "start": 189,
+              "end": 189
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "get_page_from_global_pool",
+            "line_range": {
+              "start": 199,
+              "end": 199
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "do_slabs_newslab",
+            "line_range": {
+              "start": 209,
+              "end": 209
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "grow_slab_list",
+            "line_range": {
+              "start": 223,
+              "end": 223
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "do_slabs_alloc",
+            "line_range": {
+              "start": 241,
+              "end": 241
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "do_slabs_free",
+            "line_range": {
+              "start": 288,
+              "end": 288
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "nz_strcmp",
+            "line_range": {
+              "start": 312,
+              "end": 312
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "get_stats",
+            "line_range": {
+              "start": 317,
+              "end": 317
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "nz_strcmp",
+            "line_range": {
+              "start": 334,
+              "end": 334
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "nz_strcmp",
+            "line_range": {
+              "start": 336,
+              "end": 336
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "nz_strcmp",
+            "line_range": {
+              "start": 338,
+              "end": 338
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "do_slabs_stats",
+            "line_range": {
+              "start": 351,
+              "end": 351
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "memory_allocate",
+            "line_range": {
+              "start": 407,
+              "end": 407
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_alloc",
+            "line_range": {
+              "start": 437,
+              "end": 437
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_free",
+            "line_range": {
+              "start": 447,
+              "end": 447
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_stats",
+            "line_range": {
+              "start": 453,
+              "end": 453
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_adjust_mem_requested",
+            "line_range": {
+              "start": 459,
+              "end": 459
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_available_chunks",
+            "line_range": {
+              "start": 473,
+              "end": 473
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slab_rebalance_start",
+            "line_range": {
+              "start": 498,
+              "end": 498
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slab_rebalance_alloc",
+            "line_range": {
+              "start": 551,
+              "end": 551
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slab_rebalance_move",
+            "line_range": {
+              "start": 601,
+              "end": 601
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slab_rebalance_finish",
+            "line_range": {
+              "start": 761,
+              "end": 761
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slab_rebalance_thread",
+            "line_range": {
+              "start": 838,
+              "end": 838
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_reassign_pick_any",
+            "line_range": {
+              "start": 875,
+              "end": 875
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "do_slabs_reassign",
+            "line_range": {
+              "start": 891,
+              "end": 891
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_reassign",
+            "line_range": {
+              "start": 920,
+              "end": 920
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "pthread_mutex_trylock",
+            "line_range": {
+              "start": 922,
+              "end": 922
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_rebalancer_pause",
+            "line_range": {
+              "start": 931,
+              "end": 931
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "slabs_rebalancer_resume",
+            "line_range": {
+              "start": 935,
+              "end": 935
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "start_slab_maintenance_thread",
+            "line_range": {
+              "start": 941,
+              "end": 941
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "slabs.c",
+            "symbol": "stop_slab_maintenance_thread",
+            "line_range": {
+              "start": 969,
+              "end": 969
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-012",
+      "text": "All dynamically allocated memory in solaris_priv.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in solaris_priv.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-012",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "solaris_priv.c",
+            "symbol": "drop_privileges",
+            "line_range": {
+              "start": 12,
+              "end": 12
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "solaris_priv.c",
+            "symbol": "setppriv",
+            "line_range": {
+              "start": 26,
+              "end": 26
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "solaris_priv.c",
+            "symbol": "setppriv",
+            "line_range": {
+              "start": 33,
+              "end": 33
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "solaris_priv.c",
+            "symbol": "setppriv",
+            "line_range": {
+              "start": 38,
+              "end": 38
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-013",
+      "text": "All dynamically allocated memory in stats.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in stats.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-013",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "stats.c",
+            "symbol": "stats_prefix_init",
+            "line_range": {
+              "start": 38,
+              "end": 38
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "stats_prefix_clear",
+            "line_range": {
+              "start": 46,
+              "end": 46
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "stats_prefix_find",
+            "line_range": {
+              "start": 67,
+              "end": 67
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "stats_prefix_record_get",
+            "line_range": {
+              "start": 122,
+              "end": 122
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "stats_prefix_record_delete",
+            "line_range": {
+              "start": 139,
+              "end": 139
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "stats_prefix_record_set",
+            "line_range": {
+              "start": 153,
+              "end": 153
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "stats_prefix_dump",
+            "line_range": {
+              "start": 168,
+              "end": 168
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "fail",
+            "line_range": {
+              "start": 226,
+              "end": 226
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "test_equals_int",
+            "line_range": {
+              "start": 227,
+              "end": 227
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "test_equals_ptr",
+            "line_range": {
+              "start": 228,
+              "end": 228
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "test_equals_str",
+            "line_range": {
+              "start": 229,
+              "end": 229
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "test_equals_ull",
+            "line_range": {
+              "start": 230,
+              "end": 230
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "test_notequals_ptr",
+            "line_range": {
+              "start": 231,
+              "end": 231
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "test_notnull_ptr",
+            "line_range": {
+              "start": 232,
+              "end": 232
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "test_prefix_find",
+            "line_range": {
+              "start": 234,
+              "end": 234
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "test_prefix_record_get",
+            "line_range": {
+              "start": 253,
+              "end": 253
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "test_prefix_record_delete",
+            "line_range": {
+              "start": 271,
+              "end": 271
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "test_prefix_record_set",
+            "line_range": {
+              "start": 284,
+              "end": 284
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "test_prefix_dump",
+            "line_range": {
+              "start": 297,
+              "end": 297
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "run_test",
+            "line_range": {
+              "start": 350,
+              "end": 350
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "mt_stats_lock",
+            "line_range": {
+              "start": 362,
+              "end": 362
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "mt_stats_unlock",
+            "line_range": {
+              "start": 363,
+              "end": 363
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "stats.c",
+            "symbol": "main",
+            "line_range": {
+              "start": 365,
+              "end": 365
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-014",
+      "text": "All dynamically allocated memory in testapp.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in testapp.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-014",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "testapp.c",
+            "symbol": "cache_create_test",
+            "line_range": {
+              "start": 35,
+              "end": 35
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "cache_constructor",
+            "line_range": {
+              "start": 46,
+              "end": 46
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "cache_constructor_test",
+            "line_range": {
+              "start": 52,
+              "end": 52
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "cache_fail_constructor",
+            "line_range": {
+              "start": 64,
+              "end": 64
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "cache_fail_constructor_test",
+            "line_range": {
+              "start": 68,
+              "end": 68
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "cache_destructor",
+            "line_range": {
+              "start": 85,
+              "end": 85
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "cache_destructor_test",
+            "line_range": {
+              "start": 89,
+              "end": 89
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "cache_reuse_test",
+            "line_range": {
+              "start": 101,
+              "end": 101
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "cache_bulkalloc",
+            "line_range": {
+              "start": 118,
+              "end": 118
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_issue_161",
+            "line_range": {
+              "start": 140,
+              "end": 140
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "cache_redzone_test",
+            "line_range": {
+              "start": 150,
+              "end": 150
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_safe_strtoul",
+            "line_range": {
+              "start": 185,
+              "end": 185
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_safe_strtoull",
+            "line_range": {
+              "start": 209,
+              "end": 209
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_safe_strtoll",
+            "line_range": {
+              "start": 228,
+              "end": 228
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_safe_strtol",
+            "line_range": {
+              "start": 257,
+              "end": 257
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "start_server",
+            "line_range": {
+              "start": 295,
+              "end": 295
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "getuid",
+            "line_range": {
+              "start": 343,
+              "end": 343
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "access",
+            "line_range": {
+              "start": 360,
+              "end": 360
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "fgets",
+            "line_range": {
+              "start": 373,
+              "end": 373
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "access",
+            "line_range": {
+              "start": 388,
+              "end": 388
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_issue_44",
+            "line_range": {
+              "start": 413,
+              "end": 413
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "lookuphost",
+            "line_range": {
+              "start": 423,
+              "end": 423
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "connect_server",
+            "line_range": {
+              "start": 444,
+              "end": 444
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_vperror",
+            "line_range": {
+              "start": 474,
+              "end": 474
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "send_ascii_command",
+            "line_range": {
+              "start": 518,
+              "end": 518
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "read_ascii_response",
+            "line_range": {
+              "start": 542,
+              "end": 542
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_issue_92",
+            "line_range": {
+              "start": 564,
+              "end": 564
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_issue_102",
+            "line_range": {
+              "start": 583,
+              "end": 583
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "start_memcached_server",
+            "line_range": {
+              "start": 632,
+              "end": 632
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "stop_memcached_server",
+            "line_range": {
+              "start": 638,
+              "end": 638
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "shutdown_memcached_server",
+            "line_range": {
+              "start": 647,
+              "end": 647
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "kill",
+            "line_range": {
+              "start": 660,
+              "end": 660
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "safe_send",
+            "line_range": {
+              "start": 667,
+              "end": 667
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "safe_recv",
+            "line_range": {
+              "start": 709,
+              "end": 709
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "safe_recv_packet",
+            "line_range": {
+              "start": 733,
+              "end": 733
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "storage_command",
+            "line_range": {
+              "start": 770,
+              "end": 770
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "ext_command",
+            "line_range": {
+              "start": 803,
+              "end": 803
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "raw_command",
+            "line_range": {
+              "start": 840,
+              "end": 840
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "flush_command",
+            "line_range": {
+              "start": 851,
+              "end": 851
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "touch_command",
+            "line_range": {
+              "start": 873,
+              "end": 873
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "arithmetic_command",
+            "line_range": {
+              "start": 899,
+              "end": 899
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "validate_response_header",
+            "line_range": {
+              "start": 927,
+              "end": 927
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_noop",
+            "line_range": {
+              "start": 1027,
+              "end": 1027
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_quit_impl",
+            "line_range": {
+              "start": 1046,
+              "end": 1046
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_quit",
+            "line_range": {
+              "start": 1070,
+              "end": 1070
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_quitq",
+            "line_range": {
+              "start": 1074,
+              "end": 1074
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_set_impl",
+            "line_range": {
+              "start": 1078,
+              "end": 1078
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_set",
+            "line_range": {
+              "start": 1118,
+              "end": 1118
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_setq",
+            "line_range": {
+              "start": 1122,
+              "end": 1122
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_add_impl",
+            "line_range": {
+              "start": 1127,
+              "end": 1127
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_add",
+            "line_range": {
+              "start": 1158,
+              "end": 1158
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_addq",
+            "line_range": {
+              "start": 1162,
+              "end": 1162
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_replace_impl",
+            "line_range": {
+              "start": 1166,
+              "end": 1166
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_replace",
+            "line_range": {
+              "start": 1208,
+              "end": 1208
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_replaceq",
+            "line_range": {
+              "start": 1213,
+              "end": 1213
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_delete_impl",
+            "line_range": {
+              "start": 1218,
+              "end": 1218
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_delete",
+            "line_range": {
+              "start": 1257,
+              "end": 1257
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_deleteq",
+            "line_range": {
+              "start": 1262,
+              "end": 1262
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_get_impl",
+            "line_range": {
+              "start": 1267,
+              "end": 1267
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_get",
+            "line_range": {
+              "start": 1322,
+              "end": 1322
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_getk",
+            "line_range": {
+              "start": 1326,
+              "end": 1326
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_gat",
+            "line_range": {
+              "start": 1330,
+              "end": 1330
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_gatk",
+            "line_range": {
+              "start": 1334,
+              "end": 1334
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_getq_impl",
+            "line_range": {
+              "start": 1338,
+              "end": 1338
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_getq",
+            "line_range": {
+              "start": 1382,
+              "end": 1382
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_getkq",
+            "line_range": {
+              "start": 1386,
+              "end": 1386
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_gatq",
+            "line_range": {
+              "start": 1390,
+              "end": 1390
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_gatkq",
+            "line_range": {
+              "start": 1394,
+              "end": 1394
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_incr_impl",
+            "line_range": {
+              "start": 1398,
+              "end": 1398
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_incr",
+            "line_range": {
+              "start": 1425,
+              "end": 1425
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_incrq",
+            "line_range": {
+              "start": 1430,
+              "end": 1430
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_decr_impl",
+            "line_range": {
+              "start": 1435,
+              "end": 1435
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_decr",
+            "line_range": {
+              "start": 1470,
+              "end": 1470
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_decrq",
+            "line_range": {
+              "start": 1475,
+              "end": 1475
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_version",
+            "line_range": {
+              "start": 1480,
+              "end": 1480
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_flush_impl",
+            "line_range": {
+              "start": 1499,
+              "end": 1499
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_flush",
+            "line_range": {
+              "start": 1565,
+              "end": 1565
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_flushq",
+            "line_range": {
+              "start": 1570,
+              "end": 1570
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_concat_impl",
+            "line_range": {
+              "start": 1575,
+              "end": 1575
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_append",
+            "line_range": {
+              "start": 1641,
+              "end": 1641
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_prepend",
+            "line_range": {
+              "start": 1646,
+              "end": 1646
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_appendq",
+            "line_range": {
+              "start": 1651,
+              "end": 1651
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_prependq",
+            "line_range": {
+              "start": 1656,
+              "end": 1656
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_stat",
+            "line_range": {
+              "start": 1661,
+              "end": 1661
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_illegal",
+            "line_range": {
+              "start": 1682,
+              "end": 1682
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "binary_hickup_recv_verification_thread",
+            "line_range": {
+              "start": 1704,
+              "end": 1704
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "safe_recv_packet",
+            "line_range": {
+              "start": 1707,
+              "end": 1707
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_pipeline_hickup_chunk",
+            "line_range": {
+              "start": 1720,
+              "end": 1720
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_binary_pipeline_hickup",
+            "line_range": {
+              "start": 1828,
+              "end": 1828
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "test_issue_101",
+            "line_range": {
+              "start": 1863,
+              "end": 1863
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "getenv",
+            "line_range": {
+              "start": 1870,
+              "end": 1870
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "testapp.c",
+            "symbol": "main",
+            "line_range": {
+              "start": 1995,
+              "end": 1995
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-015",
+      "text": "All dynamically allocated memory in thread.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in thread.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-015",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "thread.c",
+            "symbol": "refcount_incr",
+            "line_range": {
+              "start": 83,
+              "end": 83
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "refcount_decr",
+            "line_range": {
+              "start": 98,
+              "end": 98
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_lock",
+            "line_range": {
+              "start": 121,
+              "end": 121
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_trylock",
+            "line_range": {
+              "start": 125,
+              "end": 125
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "pthread_mutex_trylock",
+            "line_range": {
+              "start": 127,
+              "end": 127
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_trylock_unlock",
+            "line_range": {
+              "start": 133,
+              "end": 133
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_unlock",
+            "line_range": {
+              "start": 137,
+              "end": 137
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "wait_for_thread_registration",
+            "line_range": {
+              "start": 141,
+              "end": 141
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "register_thread_initialized",
+            "line_range": {
+              "start": 147,
+              "end": 147
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "pause_threads",
+            "line_range": {
+              "start": 158,
+              "end": 158
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "write",
+            "line_range": {
+              "start": 193,
+              "end": 193
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "cq_init",
+            "line_range": {
+              "start": 205,
+              "end": 205
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "cq_pop",
+            "line_range": {
+              "start": 216,
+              "end": 216
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "cq_push",
+            "line_range": {
+              "start": 234,
+              "end": 234
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "cqi_new",
+            "line_range": {
+              "start": 249,
+              "end": 249
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "cqi_free",
+            "line_range": {
+              "start": 291,
+              "end": 291
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "create_worker",
+            "line_range": {
+              "start": 302,
+              "end": 302
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "accept_new_conns",
+            "line_range": {
+              "start": 318,
+              "end": 318
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "setup_thread",
+            "line_range": {
+              "start": 328,
+              "end": 328
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "event_add",
+            "line_range": {
+              "start": 340,
+              "end": 340
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "worker_libevent",
+            "line_range": {
+              "start": 368,
+              "end": 368
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "thread_libevent_process",
+            "line_range": {
+              "start": 386,
+              "end": 386
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "dispatch_conn_new",
+            "line_range": {
+              "start": 434,
+              "end": 434
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "write",
+            "line_range": {
+              "start": 461,
+              "end": 461
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "is_listen_thread",
+            "line_range": {
+              "start": 469,
+              "end": 469
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_alloc",
+            "line_range": {
+              "start": 478,
+              "end": 478
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_get",
+            "line_range": {
+              "start": 489,
+              "end": 489
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_touch",
+            "line_range": {
+              "start": 499,
+              "end": 499
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_link",
+            "line_range": {
+              "start": 512,
+              "end": 512
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_remove",
+            "line_range": {
+              "start": 527,
+              "end": 527
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_replace",
+            "line_range": {
+              "start": 541,
+              "end": 541
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_unlink",
+            "line_range": {
+              "start": 548,
+              "end": 548
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "item_update",
+            "line_range": {
+              "start": 559,
+              "end": 559
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "add_delta",
+            "line_range": {
+              "start": 571,
+              "end": 571
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "store_item",
+            "line_range": {
+              "start": 588,
+              "end": 588
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "threadlocal_stats_reset",
+            "line_range": {
+              "start": 609,
+              "end": 609
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "threadlocal_stats_aggregate",
+            "line_range": {
+              "start": 645,
+              "end": 645
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "slab_stats_aggregate",
+            "line_range": {
+              "start": 694,
+              "end": 694
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "thread.c",
+            "symbol": "memcached_thread_init",
+            "line_range": {
+              "start": 724,
+              "end": 724
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-016",
+      "text": "All dynamically allocated memory in timedrun.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in timedrun.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-016",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "timedrun.c",
+            "symbol": "caught_signal",
+            "line_range": {
+              "start": 12,
+              "end": 12
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "timedrun.c",
+            "symbol": "wait_for_process",
+            "line_range": {
+              "start": 17,
+              "end": 17
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "timedrun.c",
+            "symbol": "spawn_and_wait",
+            "line_range": {
+              "start": 70,
+              "end": 70
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "timedrun.c",
+            "symbol": "main",
+            "line_range": {
+              "start": 91,
+              "end": 91
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2-mlk-017",
+      "text": "All dynamically allocated memory in util.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in util.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2-017",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "util.c",
+            "symbol": "safe_strtoull",
+            "line_range": {
+              "start": 14,
+              "end": 14
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "xisspace",
+            "line_range": {
+              "start": 24,
+              "end": 24
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "safe_strtoll",
+            "line_range": {
+              "start": 39,
+              "end": 39
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "xisspace",
+            "line_range": {
+              "start": 49,
+              "end": 49
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "safe_strtoul",
+            "line_range": {
+              "start": 56,
+              "end": 56
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "xisspace",
+            "line_range": {
+              "start": 69,
+              "end": 69
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "safe_strtol",
+            "line_range": {
+              "start": 85,
+              "end": 85
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "xisspace",
+            "line_range": {
+              "start": 95,
+              "end": 95
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "vperror",
+            "line_range": {
+              "start": 102,
+              "end": 102
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "vsnprintf",
+            "line_range": {
+              "start": 108,
+              "end": 108
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "mc_swap64",
+            "line_range": {
+              "start": 119,
+              "end": 119
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "ntohll",
+            "line_range": {
+              "start": 136,
+              "end": 136
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "util.c",
+            "symbol": "htonll",
+            "line_range": {
+              "start": 140,
+              "end": 140
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 17,
+    "total_locations": 433,
+    "by_resolution_status": {
+      "resolved": 17,
+      "not_found": 0,
+      "out_of_scope": 0,
+      "error": 0
+    },
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "memcached/memcached",
+    "target_commit": "e15e1d6b967eed53ddcfd61c0c90c38d0b017996",
+    "scan_dir": ".",
+    "primary_bug_type": "MLK",
+    "total_source_files": 17,
+    "total_functions": 433
+  }
+}

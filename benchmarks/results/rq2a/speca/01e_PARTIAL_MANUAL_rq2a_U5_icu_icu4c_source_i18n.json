@@ -1,0 +1,1549 @@
+{
+  "properties": [
+    {
+      "property_id": "PROP-U5-uaf-001",
+      "text": "No pointer in alphaindex.cpp..astro.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in alphaindex.cpp..astro.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-002",
+      "text": "No pointer in astro.h..bocsu.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in astro.h..bocsu.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-003",
+      "text": "No pointer in brktrans.cpp..calendar.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in brktrans.cpp..calendar.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-004",
+      "text": "No pointer in casetrn.cpp..chnsecal.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in casetrn.cpp..chnsecal.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-005",
+      "text": "No pointer in choicfmt.cpp..coll.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in choicfmt.cpp..coll.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-006",
+      "text": "No pointer in collation.cpp..collationbasedatabuilder.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collation.cpp..collationbasedatabuilder.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-007",
+      "text": "No pointer in collationbasedatabuilder.h..collationbuilder.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collationbasedatabuilder.h..collationbuilder.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-007",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-008",
+      "text": "No pointer in collationcompare.cpp..collationdata.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collationcompare.cpp..collationdata.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-009",
+      "text": "No pointer in collationdatabuilder.cpp..collationdatareader.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collationdatabuilder.cpp..collationdatareader.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-010",
+      "text": "No pointer in collationdatawriter.cpp..collationfastlatin.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collationdatawriter.cpp..collationfastlatin.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-011",
+      "text": "No pointer in collationfastlatinbuilder.cpp..collationfcd.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collationfastlatinbuilder.cpp..collationfcd.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-011",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-012",
+      "text": "No pointer in collationiterator.cpp..collationkeys.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collationiterator.cpp..collationkeys.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-012",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-013",
+      "text": "No pointer in collationkeys.h..collationrootelements.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collationkeys.h..collationrootelements.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-013",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-014",
+      "text": "No pointer in collationrootelements.h..collationruleparser.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collationrootelements.h..collationruleparser.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-014",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-015",
+      "text": "No pointer in collationsets.cpp..collationsettings.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collationsets.cpp..collationsettings.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-015",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-016",
+      "text": "No pointer in collationsettings.h..collationweights.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collationsettings.h..collationweights.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-016",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-017",
+      "text": "No pointer in collationweights.h..coptccal.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in collationweights.h..coptccal.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-017",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-018",
+      "text": "No pointer in cpdtrans.cpp..csmatch.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in cpdtrans.cpp..csmatch.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-018",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-019",
+      "text": "No pointer in csr2022.cpp..csrmbcs.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in csr2022.cpp..csrmbcs.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-019",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-020",
+      "text": "No pointer in csrsbcs.cpp..csrutf8.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in csrsbcs.cpp..csrutf8.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-020",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-021",
+      "text": "No pointer in curramt.cpp..currpinf.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in curramt.cpp..currpinf.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-021",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-022",
+      "text": "No pointer in currunit.cpp..datefmt.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in currunit.cpp..datefmt.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-022",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-023",
+      "text": "No pointer in dcfmtimp.h..decContext.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in dcfmtimp.h..decContext.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-023",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-024",
+      "text": "No pointer in decNumber.c..decimalformatpattern.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in decNumber.c..decimalformatpattern.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-024",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-025",
+      "text": "No pointer in decimfmt.cpp..digitlst.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in decimfmt.cpp..digitlst.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-025",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-026",
+      "text": "No pointer in dtfmtsym.cpp..dtitvinf.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in dtfmtsym.cpp..dtitvinf.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-026",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-027",
+      "text": "No pointer in dtptngen.cpp..dtrule.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in dtptngen.cpp..dtrule.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-027",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-028",
+      "text": "No pointer in esctrn.cpp..filteredbrk.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in esctrn.cpp..filteredbrk.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-028",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-029",
+      "text": "No pointer in fmtable.cpp..format.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in fmtable.cpp..format.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-029",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-030",
+      "text": "No pointer in fphdlimp.cpp..funcrepl.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in fphdlimp.cpp..funcrepl.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-030",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-031",
+      "text": "No pointer in gender.cpp..gregoimp.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in gender.cpp..gregoimp.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-031",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-032",
+      "text": "No pointer in gregoimp.h..identifier_info.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in gregoimp.h..identifier_info.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-032",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-033",
+      "text": "No pointer in indiancal.cpp..islamcal.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in indiancal.cpp..islamcal.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-033",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-034",
+      "text": "No pointer in japancal.cpp..measfmt.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in japancal.cpp..measfmt.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-034",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-035",
+      "text": "No pointer in measunit.cpp..msgfmt.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in measunit.cpp..msgfmt.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-035",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-036",
+      "text": "No pointer in name2uni.cpp..nfrs.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in name2uni.cpp..nfrs.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-036",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-037",
+      "text": "No pointer in nfrs.h..nfrule.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in nfrs.h..nfrule.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-037",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-038",
+      "text": "No pointer in nfsubs.cpp..nortrans.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in nfsubs.cpp..nortrans.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-038",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-039",
+      "text": "No pointer in nultrans.cpp..numsys.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in nultrans.cpp..numsys.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-039",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-040",
+      "text": "No pointer in olsontz.cpp..persncal.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in olsontz.cpp..persncal.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-040",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-041",
+      "text": "No pointer in plurfmt.cpp..quant.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in plurfmt.cpp..quant.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-041",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-042",
+      "text": "No pointer in quantityformatter.cpp..rbt.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in quantityformatter.cpp..rbt.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-042",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-043",
+      "text": "No pointer in rbt_data.cpp..rbt_rule.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in rbt_data.cpp..rbt_rule.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-043",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-044",
+      "text": "No pointer in rbt_set.cpp..regexcmp.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in rbt_set.cpp..regexcmp.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-044",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-045",
+      "text": "No pointer in regexcmp.h..regeximp.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in regexcmp.h..regeximp.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-045",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-046",
+      "text": "No pointer in regexst.cpp..region.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in regexst.cpp..region.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-046",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-047",
+      "text": "No pointer in reldatefmt.cpp..rematch.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in reldatefmt.cpp..rematch.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-047",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-048",
+      "text": "No pointer in remtrans.cpp..rulebasedcollator.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in remtrans.cpp..rulebasedcollator.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-048",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-049",
+      "text": "No pointer in scientificformathelper.cpp..search.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in scientificformathelper.cpp..search.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-049",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-050",
+      "text": "No pointer in selfmt.cpp..sharedbreakiterator.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in selfmt.cpp..sharedbreakiterator.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-050",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-051",
+      "text": "No pointer in sharednumberformat.h..simpletz.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in sharednumberformat.h..simpletz.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-051",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-052",
+      "text": "No pointer in smpdtfmt.cpp..sortkey.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in smpdtfmt.cpp..sortkey.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-052",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-053",
+      "text": "No pointer in strmatch.cpp..stsearch.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in strmatch.cpp..stsearch.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-053",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-054",
+      "text": "No pointer in taiwncal.cpp..titletrn.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in taiwncal.cpp..titletrn.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-054",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-055",
+      "text": "No pointer in tmunit.cpp..tmutfmt.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in tmunit.cpp..tmutfmt.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-055",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-056",
+      "text": "No pointer in tolowtrn.cpp..translit.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in tolowtrn.cpp..translit.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-056",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-057",
+      "text": "No pointer in transreg.cpp..tzfmt.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in transreg.cpp..tzfmt.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-057",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-058",
+      "text": "No pointer in tzgnames.cpp..tznames_impl.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in tzgnames.cpp..tznames_impl.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-058",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-059",
+      "text": "No pointer in tznames_impl.h..tztrans.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in tznames_impl.h..tztrans.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-059",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-060",
+      "text": "No pointer in ucal.cpp..ucol.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in ucal.cpp..ucol.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-060",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-061",
+      "text": "No pointer in ucol_res.cpp..ucoleitr.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in ucol_res.cpp..ucoleitr.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-061",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-062",
+      "text": "No pointer in ucsdet.cpp..udat.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in ucsdet.cpp..udat.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-062",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-063",
+      "text": "No pointer in udateintervalformat.cpp..uitercollationiterator.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in udateintervalformat.cpp..uitercollationiterator.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-063",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-064",
+      "text": "No pointer in ulocdata.c..unesctrn.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in ulocdata.c..unesctrn.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-064",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-065",
+      "text": "No pointer in uni2name.cpp..calendar.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in uni2name.cpp..calendar.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-065",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-066",
+      "text": "No pointer in coleitr.h..curramt.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in coleitr.h..curramt.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-066",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-067",
+      "text": "No pointer in currunit.h..decimfmt.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in currunit.h..decimfmt.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-067",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-068",
+      "text": "No pointer in fieldpos.h..locdspnm.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in fieldpos.h..locdspnm.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-068",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-069",
+      "text": "No pointer in measunit.h..numfmt.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in measunit.h..numfmt.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-069",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-070",
+      "text": "No pointer in rbnf.h..smpdtfmt.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in rbnf.h..smpdtfmt.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-070",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-071",
+      "text": "No pointer in sortkey.h..timezone.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in sortkey.h..timezone.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-071",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-072",
+      "text": "No pointer in translit.h..unumsys.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in translit.h..unumsys.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-072",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-073",
+      "text": "No pointer in upluralrules.cpp..uregexc.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in upluralrules.cpp..uregexc.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-073",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-074",
+      "text": "No pointer in uregion.cpp..uspoof.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in uregion.cpp..uspoof.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-074",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-075",
+      "text": "No pointer in uspoof_build.cpp..uspoof_impl.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in uspoof_build.cpp..uspoof_impl.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-075",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-076",
+      "text": "No pointer in uspoof_wsconf.cpp..utf16collationiterator.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in uspoof_wsconf.cpp..utf16collationiterator.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-076",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-077",
+      "text": "No pointer in utf8collationiterator.cpp..utrans.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in utf8collationiterator.cpp..utrans.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-077",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-078",
+      "text": "No pointer in vtzone.cpp..windtfmt.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in vtzone.cpp..windtfmt.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-078",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-079",
+      "text": "No pointer in winnmfmt.cpp..zonemeta.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in winnmfmt.cpp..zonemeta.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-U5-079",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U5-uaf-080",
+      "text": "No pointer in zrule.cpp..ztrans.cpp may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in zrule.cpp..ztrans.cpp: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U5-080",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "API",
+          "FileInput"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 80,
+    "by_severity": {
+      "CRITICAL": 1,
+      "HIGH": 79,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    },
+    "by_scope": {
+      "in_scope": 80,
+      "out_of_scope": 0,
+      "conditional": 0
+    },
+    "bug_bounty_eligible_count": 80,
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "unicode-org/icu",
+    "target_commit": "maint/maint-54",
+    "scan_dir": "icu4c/source/i18n",
+    "primary_bug_type": "UAF",
+    "total_source_files": 239,
+    "total_functions": 6612
+  }
+}

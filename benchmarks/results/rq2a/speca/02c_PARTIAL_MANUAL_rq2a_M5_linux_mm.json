@@ -1,0 +1,3947 @@
+{
+  "properties_with_code": [
+    {
+      "property_id": "PROP-M5-mlk-001",
+      "text": "All dynamically allocated memory in core-test.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in core-test.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "mm/damon/core-test.h",
+            "symbol": "damon_test_regions",
+            "line_range": {
+              "start": 17,
+              "end": 17
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core-test.h",
+            "symbol": "nr_damon_targets",
+            "line_range": {
+              "start": 39,
+              "end": 39
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core-test.h",
+            "symbol": "damon_test_target",
+            "line_range": {
+              "start": 50,
+              "end": 50
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core-test.h",
+            "symbol": "damon_test_aggregate",
+            "line_range": {
+              "start": 77,
+              "end": 77
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core-test.h",
+            "symbol": "damon_test_split_at",
+            "line_range": {
+              "start": 120,
+              "end": 120
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core-test.h",
+            "symbol": "damon_test_merge_two",
+            "line_range": {
+              "start": 141,
+              "end": 141
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core-test.h",
+            "symbol": "__nth_region_of",
+            "line_range": {
+              "start": 170,
+              "end": 170
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core-test.h",
+            "symbol": "damon_test_merge_regions_of",
+            "line_range": {
+              "start": 183,
+              "end": 183
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core-test.h",
+            "symbol": "damon_test_split_regions_of",
+            "line_range": {
+              "start": 213,
+              "end": 213
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core-test.h",
+            "symbol": "damon_test_ops_registration",
+            "line_range": {
+              "start": 235,
+              "end": 235
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M5-mlk-002",
+      "text": "All dynamically allocated memory in core.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in core.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "__damon_is_registered_ops",
+            "line_range": {
+              "start": 33,
+              "end": 33
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_is_registered_ops",
+            "line_range": {
+              "start": 48,
+              "end": 48
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_register_ops",
+            "line_range": {
+              "start": 69,
+              "end": 69
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "__damon_is_registered_ops",
+            "line_range": {
+              "start": 77,
+              "end": 77
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_select_ops",
+            "line_range": {
+              "start": 97,
+              "end": 97
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_new_region",
+            "line_range": {
+              "start": 118,
+              "end": 118
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_add_region",
+            "line_range": {
+              "start": 137,
+              "end": 137
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_del_region",
+            "line_range": {
+              "start": 143,
+              "end": 143
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_free_region",
+            "line_range": {
+              "start": 149,
+              "end": 149
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_destroy_region",
+            "line_range": {
+              "start": 154,
+              "end": 154
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_intersect",
+            "line_range": {
+              "start": 165,
+              "end": 165
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_set_regions",
+            "line_range": {
+              "start": 182,
+              "end": 182
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_new_scheme",
+            "line_range": {
+              "start": 233,
+              "end": 233
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_add_scheme",
+            "line_range": {
+              "start": 279,
+              "end": 279
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_del_scheme",
+            "line_range": {
+              "start": 284,
+              "end": 284
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_free_scheme",
+            "line_range": {
+              "start": 289,
+              "end": 289
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_destroy_scheme",
+            "line_range": {
+              "start": 294,
+              "end": 294
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_new_target",
+            "line_range": {
+              "start": 305,
+              "end": 305
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_add_target",
+            "line_range": {
+              "start": 320,
+              "end": 320
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_targets_empty",
+            "line_range": {
+              "start": 325,
+              "end": 325
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_del_target",
+            "line_range": {
+              "start": 330,
+              "end": 330
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_free_target",
+            "line_range": {
+              "start": 335,
+              "end": 335
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_destroy_target",
+            "line_range": {
+              "start": 344,
+              "end": 344
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_nr_regions",
+            "line_range": {
+              "start": 350,
+              "end": 350
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_new_ctx",
+            "line_range": {
+              "start": 355,
+              "end": 355
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_destroy_targets",
+            "line_range": {
+              "start": 381,
+              "end": 381
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_destroy_ctx",
+            "line_range": {
+              "start": 394,
+              "end": 394
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_set_attrs",
+            "line_range": {
+              "start": 420,
+              "end": 420
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_set_schemes",
+            "line_range": {
+              "start": 449,
+              "end": 449
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_nr_running_ctxs",
+            "line_range": {
+              "start": 465,
+              "end": 465
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_region_sz_limit",
+            "line_range": {
+              "start": 477,
+              "end": 477
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "__damon_start",
+            "line_range": {
+              "start": 506,
+              "end": 506
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_start",
+            "line_range": {
+              "start": 540,
+              "end": 540
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "__damon_stop",
+            "line_range": {
+              "start": 571,
+              "end": 571
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_stop",
+            "line_range": {
+              "start": 596,
+              "end": 596
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_check_reset_time_interval",
+            "line_range": {
+              "start": 619,
+              "end": 619
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_aggregate_interval_passed",
+            "line_range": {
+              "start": 635,
+              "end": 635
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_reset_aggregated",
+            "line_range": {
+              "start": 644,
+              "end": 644
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "__damos_valid_target",
+            "line_range": {
+              "start": 665,
+              "end": 665
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damos_valid_target",
+            "line_range": {
+              "start": 676,
+              "end": 676
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_do_apply_schemes",
+            "line_range": {
+              "start": 687,
+              "end": 687
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damos_set_effective_quota",
+            "line_range": {
+              "start": 774,
+              "end": 774
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_apply_schemes",
+            "line_range": {
+              "start": 796,
+              "end": 796
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "time_after_eq",
+            "line_range": {
+              "start": 814,
+              "end": 814
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "sz_damon_region",
+            "line_range": {
+              "start": 858,
+              "end": 858
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_merge_two_regions",
+            "line_range": {
+              "start": 866,
+              "end": 866
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_merge_regions_of",
+            "line_range": {
+              "start": 885,
+              "end": 885
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_merge_regions",
+            "line_range": {
+              "start": 916,
+              "end": 916
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_split_region_at",
+            "line_range": {
+              "start": 931,
+              "end": 931
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damon_split_regions_of",
+            "line_range": {
+              "start": 950,
+              "end": 950
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_split_regions",
+            "line_range": {
+              "start": 988,
+              "end": 988
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_need_update_operations",
+            "line_range": {
+              "start": 1018,
+              "end": 1018
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_need_stop",
+            "line_range": {
+              "start": 1032,
+              "end": 1032
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damos_wmark_metric_value",
+            "line_range": {
+              "start": 1050,
+              "end": 1050
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "damos_wmark_wait_us",
+            "line_range": {
+              "start": 1068,
+              "end": 1068
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_usleep",
+            "line_range": {
+              "start": 1098,
+              "end": 1098
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_wait_activation",
+            "line_range": {
+              "start": 1108,
+              "end": 1108
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_fn",
+            "line_range": {
+              "start": 1138,
+              "end": 1138
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_wait_activation",
+            "line_range": {
+              "start": 1157,
+              "end": 1157
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_aggregate_interval_passed",
+            "line_range": {
+              "start": 1175,
+              "end": 1175
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/core.c",
+            "symbol": "kdamond_need_update_operations",
+            "line_range": {
+              "start": 1191,
+              "end": 1191
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M5-mlk-003",
+      "text": "All dynamically allocated memory in dbgfs-test.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in dbgfs-test.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "mm/damon/dbgfs-test.h",
+            "symbol": "damon_dbgfs_test_str_to_ints",
+            "line_range": {
+              "start": 15,
+              "end": 15
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs-test.h",
+            "symbol": "damon_dbgfs_test_set_targets",
+            "line_range": {
+              "start": 71,
+              "end": 71
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs-test.h",
+            "symbol": "damon_dbgfs_test_set_init_regions",
+            "line_range": {
+              "start": 94,
+              "end": 94
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M5-mlk-004",
+      "text": "All dynamically allocated memory in dbgfs.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in dbgfs.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "user_input_str",
+            "line_range": {
+              "start": 26,
+              "end": 26
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_attrs_read",
+            "line_range": {
+              "start": 49,
+              "end": 49
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_attrs_write",
+            "line_range": {
+              "start": 66,
+              "end": 66
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "damos_action_to_dbgfs_scheme_action",
+            "line_range": {
+              "start": 105,
+              "end": 105
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "sprint_schemes",
+            "line_range": {
+              "start": 125,
+              "end": 125
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_schemes_read",
+            "line_range": {
+              "start": 156,
+              "end": 156
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "free_schemes_arr",
+            "line_range": {
+              "start": 179,
+              "end": 179
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_scheme_action_to_damos_action",
+            "line_range": {
+              "start": 192,
+              "end": 192
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "str_to_schemes",
+            "line_range": {
+              "start": 218,
+              "end": 218
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_schemes_write",
+            "line_range": {
+              "start": 276,
+              "end": 276
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "sprint_target_ids",
+            "line_range": {
+              "start": 314,
+              "end": 314
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_target_ids_read",
+            "line_range": {
+              "start": 340,
+              "end": 340
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "str_to_ints",
+            "line_range": {
+              "start": 362,
+              "end": 362
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_put_pids",
+            "line_range": {
+              "start": 385,
+              "end": 385
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "str_to_pids",
+            "line_range": {
+              "start": 399,
+              "end": 399
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_set_targets",
+            "line_range": {
+              "start": 442,
+              "end": 442
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_target_ids_write",
+            "line_range": {
+              "start": 471,
+              "end": 471
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "sprint_init_regions",
+            "line_range": {
+              "start": 533,
+              "end": 533
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_init_regions_read",
+            "line_range": {
+              "start": 555,
+              "end": 555
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "add_init_region",
+            "line_range": {
+              "start": 584,
+              "end": 584
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "set_init_regions",
+            "line_range": {
+              "start": 614,
+              "end": 614
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_init_regions_write",
+            "line_range": {
+              "start": 649,
+              "end": 649
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_kdamond_pid_read",
+            "line_range": {
+              "start": 678,
+              "end": 678
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "damon_dbgfs_open",
+            "line_range": {
+              "start": 704,
+              "end": 704
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_fill_ctx_dir",
+            "line_range": {
+              "start": 740,
+              "end": 740
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_before_terminate",
+            "line_range": {
+              "start": 752,
+              "end": 752
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_new_ctx",
+            "line_range": {
+              "start": 767,
+              "end": 767
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "damon_select_ops",
+            "line_range": {
+              "start": 775,
+              "end": 775
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_destroy_ctx",
+            "line_range": {
+              "start": 784,
+              "end": 784
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_mk_context",
+            "line_range": {
+              "start": 796,
+              "end": 796
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_mk_context_write",
+            "line_range": {
+              "start": 838,
+              "end": 838
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_rm_context",
+            "line_range": {
+              "start": 879,
+              "end": 879
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_rm_context_write",
+            "line_range": {
+              "start": 928,
+              "end": 928
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_monitor_on_read",
+            "line_range": {
+              "start": 962,
+              "end": 962
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "dbgfs_monitor_on_write",
+            "line_range": {
+              "start": 974,
+              "end": 974
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "__damon_dbgfs_init",
+            "line_range": {
+              "start": 1028,
+              "end": 1028
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/dbgfs.c",
+            "symbol": "damon_dbgfs_init",
+            "line_range": {
+              "start": 1058,
+              "end": 1058
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M5-mlk-005",
+      "text": "All dynamically allocated memory in lru_sort.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in lru_sort.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "walk_system_ram",
+            "line_range": {
+              "start": 265,
+              "end": 265
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "resource_size",
+            "line_range": {
+              "start": 269,
+              "end": 269
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "get_monitoring_region",
+            "line_range": {
+              "start": 280,
+              "end": 280
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "damon_lru_sort_new_hot_scheme",
+            "line_range": {
+              "start": 294,
+              "end": 294
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "damon_lru_sort_new_cold_scheme",
+            "line_range": {
+              "start": 334,
+              "end": 334
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "damon_lru_sort_apply_parameters",
+            "line_range": {
+              "start": 374,
+              "end": 374
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "damon_lru_sort_turn",
+            "line_range": {
+              "start": 415,
+              "end": 415
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "damon_lru_sort_timer_fn",
+            "line_range": {
+              "start": 438,
+              "end": 438
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "damon_lru_sort_enabled_store",
+            "line_range": {
+              "start": 455,
+              "end": 455
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "damon_lru_sort_handle_commit_inputs",
+            "line_range": {
+              "start": 480,
+              "end": 480
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "damon_lru_sort_after_aggregation",
+            "line_range": {
+              "start": 492,
+              "end": 492
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "damon_lru_sort_after_wmarks_check",
+            "line_range": {
+              "start": 516,
+              "end": 516
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "damon_lru_sort_init",
+            "line_range": {
+              "start": 521,
+              "end": 521
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/lru_sort.c",
+            "symbol": "damon_select_ops",
+            "line_range": {
+              "start": 527,
+              "end": 527
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M5-mlk-006",
+      "text": "All dynamically allocated memory in ops-common.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ops-common.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "mm/damon/ops-common.c",
+            "symbol": "damon_get_page",
+            "line_range": {
+              "start": 22,
+              "end": 22
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/ops-common.c",
+            "symbol": "damon_ptep_mkold",
+            "line_range": {
+              "start": 36,
+              "end": 36
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/ops-common.c",
+            "symbol": "pte_young",
+            "line_range": {
+              "start": 44,
+              "end": 44
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/ops-common.c",
+            "symbol": "damon_pmdp_mkold",
+            "line_range": {
+              "start": 61,
+              "end": 61
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/ops-common.c",
+            "symbol": "pmd_young",
+            "line_range": {
+              "start": 70,
+              "end": 70
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/ops-common.c",
+            "symbol": "damon_pageout_score",
+            "line_range": {
+              "start": 91,
+              "end": 91
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/ops-common.c",
+            "symbol": "damon_hot_score",
+            "line_range": {
+              "start": 134,
+              "end": 134
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M5-mlk-007",
+      "text": "All dynamically allocated memory in paddr.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in paddr.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-007",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "__damon_pa_mkold",
+            "line_range": {
+              "start": 19,
+              "end": 19
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "page_vma_mapped_walk",
+            "line_range": {
+              "start": 24,
+              "end": 24
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "damon_pa_mkold",
+            "line_range": {
+              "start": 34,
+              "end": 34
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "__damon_pa_prepare_access_check",
+            "line_range": {
+              "start": 66,
+              "end": 66
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "damon_pa_prepare_access_checks",
+            "line_range": {
+              "start": 74,
+              "end": 74
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "__damon_pa_young",
+            "line_range": {
+              "start": 90,
+              "end": 90
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "page_vma_mapped_walk",
+            "line_range": {
+              "start": 98,
+              "end": 98
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "damon_pa_young",
+            "line_range": {
+              "start": 124,
+              "end": 124
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "__damon_pa_check_access",
+            "line_range": {
+              "start": 169,
+              "end": 169
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "damon_pa_check_accesses",
+            "line_range": {
+              "start": 191,
+              "end": 191
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "damon_pa_pageout",
+            "line_range": {
+              "start": 207,
+              "end": 207
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "isolate_lru_page",
+            "line_range": {
+              "start": 220,
+              "end": 220
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "PageUnevictable",
+            "line_range": {
+              "start": 224,
+              "end": 224
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "damon_pa_mark_accessed",
+            "line_range": {
+              "start": 236,
+              "end": 236
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "damon_pa_deactivate_pages",
+            "line_range": {
+              "start": 252,
+              "end": 252
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "damon_pa_apply_scheme",
+            "line_range": {
+              "start": 268,
+              "end": 268
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "damon_pa_scheme_score",
+            "line_range": {
+              "start": 285,
+              "end": 285
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/paddr.c",
+            "symbol": "damon_pa_initcall",
+            "line_range": {
+              "start": 303,
+              "end": 303
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M5-mlk-008",
+      "text": "All dynamically allocated memory in reclaim.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in reclaim.c: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M5-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "walk_system_ram",
+            "line_range": {
+              "start": 237,
+              "end": 237
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "resource_size",
+            "line_range": {
+              "start": 241,
+              "end": 241
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "get_monitoring_region",
+            "line_range": {
+              "start": 252,
+              "end": 252
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "damon_reclaim_new_scheme",
+            "line_range": {
+              "start": 265,
+              "end": 265
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "damon_reclaim_apply_parameters",
+            "line_range": {
+              "start": 304,
+              "end": 304
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "damon_reclaim_turn",
+            "line_range": {
+              "start": 334,
+              "end": 334
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "damon_reclaim_timer_fn",
+            "line_range": {
+              "start": 357,
+              "end": 357
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "damon_reclaim_enabled_store",
+            "line_range": {
+              "start": 374,
+              "end": 374
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "damon_reclaim_handle_commit_inputs",
+            "line_range": {
+              "start": 399,
+              "end": 399
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "damon_reclaim_after_aggregation",
+            "line_range": {
+              "start": 411,
+              "end": 411
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "damon_reclaim_after_wmarks_check",
+            "line_range": {
+              "start": 427,
+              "end": 427
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/reclaim.c",
+            "symbol": "damon_reclaim_init",
+            "line_range": {
+              "start": 432,
+              "end": 432
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M5-mlk-009",
+      "text": "All dynamically allocated memory in sysfs.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sysfs.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_ul_range_alloc",
+            "line_range": {
+              "start": 26,
+              "end": 26
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "min_show",
+            "line_range": {
+              "start": 42,
+              "end": 42
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "min_store",
+            "line_range": {
+              "start": 51,
+              "end": 51
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "max_show",
+            "line_range": {
+              "start": 67,
+              "end": 67
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "max_store",
+            "line_range": {
+              "start": 76,
+              "end": 76
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_ul_range_release",
+            "line_range": {
+              "start": 92,
+              "end": 92
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_stats_alloc",
+            "line_range": {
+              "start": 129,
+              "end": 129
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_tried_show",
+            "line_range": {
+              "start": 134,
+              "end": 134
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "sz_tried_show",
+            "line_range": {
+              "start": 143,
+              "end": 143
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_applied_show",
+            "line_range": {
+              "start": 152,
+              "end": 152
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "sz_applied_show",
+            "line_range": {
+              "start": 161,
+              "end": 161
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "qt_exceeds_show",
+            "line_range": {
+              "start": 170,
+              "end": 170
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_stats_release",
+            "line_range": {
+              "start": 179,
+              "end": 179
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_watermarks_alloc",
+            "line_range": {
+              "start": 228,
+              "end": 228
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "metric_show",
+            "line_range": {
+              "start": 252,
+              "end": 252
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "metric_store",
+            "line_range": {
+              "start": 262,
+              "end": 262
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "sysfs_streq",
+            "line_range": {
+              "start": 270,
+              "end": 270
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "interval_us_show",
+            "line_range": {
+              "start": 278,
+              "end": 278
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "interval_us_store",
+            "line_range": {
+              "start": 287,
+              "end": 287
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "high_show",
+            "line_range": {
+              "start": 299,
+              "end": 299
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "high_store",
+            "line_range": {
+              "start": 308,
+              "end": 308
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "mid_show",
+            "line_range": {
+              "start": 320,
+              "end": 320
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "mid_store",
+            "line_range": {
+              "start": 329,
+              "end": 329
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "low_show",
+            "line_range": {
+              "start": 341,
+              "end": 341
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "low_store",
+            "line_range": {
+              "start": 350,
+              "end": 350
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_watermarks_release",
+            "line_range": {
+              "start": 362,
+              "end": 362
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_weights_alloc",
+            "line_range": {
+              "start": 409,
+              "end": 409
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "sz_permil_show",
+            "line_range": {
+              "start": 424,
+              "end": 424
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "sz_permil_store",
+            "line_range": {
+              "start": 433,
+              "end": 433
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_accesses_permil_show",
+            "line_range": {
+              "start": 445,
+              "end": 445
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_accesses_permil_store",
+            "line_range": {
+              "start": 454,
+              "end": 454
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "age_permil_show",
+            "line_range": {
+              "start": 466,
+              "end": 466
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "age_permil_store",
+            "line_range": {
+              "start": 475,
+              "end": 475
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_weights_release",
+            "line_range": {
+              "start": 487,
+              "end": 487
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_quotas_alloc",
+            "line_range": {
+              "start": 527,
+              "end": 527
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_quotas_add_dirs",
+            "line_range": {
+              "start": 532,
+              "end": 532
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_quotas_rm_dirs",
+            "line_range": {
+              "start": 550,
+              "end": 550
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "ms_show",
+            "line_range": {
+              "start": 555,
+              "end": 555
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "ms_store",
+            "line_range": {
+              "start": 564,
+              "end": 564
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "bytes_show",
+            "line_range": {
+              "start": 576,
+              "end": 576
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "bytes_store",
+            "line_range": {
+              "start": 585,
+              "end": 585
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "reset_interval_ms_show",
+            "line_range": {
+              "start": 597,
+              "end": 597
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "reset_interval_ms_store",
+            "line_range": {
+              "start": 606,
+              "end": 606
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_quotas_release",
+            "line_range": {
+              "start": 618,
+              "end": 618
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_access_pattern_alloc",
+            "line_range": {
+              "start": 658,
+              "end": 658
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_access_pattern_add_range_dir",
+            "line_range": {
+              "start": 669,
+              "end": 669
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_access_pattern_add_dirs",
+            "line_range": {
+              "start": 688,
+              "end": 688
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_access_pattern_rm_dirs",
+            "line_range": {
+              "start": 721,
+              "end": 721
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_access_pattern_release",
+            "line_range": {
+              "start": 729,
+              "end": 729
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_scheme_alloc",
+            "line_range": {
+              "start": 770,
+              "end": 770
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_scheme_set_access_pattern",
+            "line_range": {
+              "start": 783,
+              "end": 783
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_scheme_set_quotas",
+            "line_range": {
+              "start": 808,
+              "end": 808
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_scheme_set_watermarks",
+            "line_range": {
+              "start": 830,
+              "end": 830
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_scheme_set_stats",
+            "line_range": {
+              "start": 848,
+              "end": 848
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_scheme_add_dirs",
+            "line_range": {
+              "start": 864,
+              "end": 864
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_scheme_rm_dirs",
+            "line_range": {
+              "start": 894,
+              "end": 894
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "action_show",
+            "line_range": {
+              "start": 904,
+              "end": 904
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "action_store",
+            "line_range": {
+              "start": 914,
+              "end": 914
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "sysfs_streq",
+            "line_range": {
+              "start": 922,
+              "end": 922
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_scheme_release",
+            "line_range": {
+              "start": 930,
+              "end": 930
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_schemes_alloc",
+            "line_range": {
+              "start": 960,
+              "end": 960
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_schemes_rm_dirs",
+            "line_range": {
+              "start": 965,
+              "end": 965
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_schemes_add_dirs",
+            "line_range": {
+              "start": 979,
+              "end": 979
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_schemes_show",
+            "line_range": {
+              "start": 1022,
+              "end": 1022
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_schemes_store",
+            "line_range": {
+              "start": 1031,
+              "end": 1031
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_schemes_release",
+            "line_range": {
+              "start": 1052,
+              "end": 1052
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_region_alloc",
+            "line_range": {
+              "start": 1082,
+              "end": 1082
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "start_show",
+            "line_range": {
+              "start": 1097,
+              "end": 1097
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "start_store",
+            "line_range": {
+              "start": 1106,
+              "end": 1106
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "end_show",
+            "line_range": {
+              "start": 1118,
+              "end": 1118
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "end_store",
+            "line_range": {
+              "start": 1127,
+              "end": 1127
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_region_release",
+            "line_range": {
+              "start": 1139,
+              "end": 1139
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_regions_alloc",
+            "line_range": {
+              "start": 1173,
+              "end": 1173
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_regions_rm_dirs",
+            "line_range": {
+              "start": 1178,
+              "end": 1178
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_regions_add_dirs",
+            "line_range": {
+              "start": 1190,
+              "end": 1190
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_regions_show",
+            "line_range": {
+              "start": 1228,
+              "end": 1228
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_regions_store",
+            "line_range": {
+              "start": 1237,
+              "end": 1237
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_regions_release",
+            "line_range": {
+              "start": 1259,
+              "end": 1259
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_target_alloc",
+            "line_range": {
+              "start": 1289,
+              "end": 1289
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_target_add_dirs",
+            "line_range": {
+              "start": 1294,
+              "end": 1294
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_target_rm_dirs",
+            "line_range": {
+              "start": 1311,
+              "end": 1311
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "pid_target_show",
+            "line_range": {
+              "start": 1317,
+              "end": 1317
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "pid_target_store",
+            "line_range": {
+              "start": 1326,
+              "end": 1326
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_target_release",
+            "line_range": {
+              "start": 1338,
+              "end": 1338
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_targets_alloc",
+            "line_range": {
+              "start": 1368,
+              "end": 1368
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_targets_rm_dirs",
+            "line_range": {
+              "start": 1373,
+              "end": 1373
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_targets_add_dirs",
+            "line_range": {
+              "start": 1387,
+              "end": 1387
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_targets_show",
+            "line_range": {
+              "start": 1431,
+              "end": 1431
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_targets_store",
+            "line_range": {
+              "start": 1440,
+              "end": 1440
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_targets_release",
+            "line_range": {
+              "start": 1462,
+              "end": 1462
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_intervals_alloc",
+            "line_range": {
+              "start": 1493,
+              "end": 1493
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "sample_us_show",
+            "line_range": {
+              "start": 1510,
+              "end": 1510
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "sample_us_store",
+            "line_range": {
+              "start": 1519,
+              "end": 1519
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "aggr_us_show",
+            "line_range": {
+              "start": 1534,
+              "end": 1534
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "aggr_us_store",
+            "line_range": {
+              "start": 1543,
+              "end": 1543
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "update_us_show",
+            "line_range": {
+              "start": 1558,
+              "end": 1558
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "update_us_store",
+            "line_range": {
+              "start": 1567,
+              "end": 1567
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_intervals_release",
+            "line_range": {
+              "start": 1582,
+              "end": 1582
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_attrs_alloc",
+            "line_range": {
+              "start": 1620,
+              "end": 1620
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_attrs_add_dirs",
+            "line_range": {
+              "start": 1630,
+              "end": 1630
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_attrs_rm_dirs",
+            "line_range": {
+              "start": 1670,
+              "end": 1670
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_attrs_release",
+            "line_range": {
+              "start": 1676,
+              "end": 1676
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_context_alloc",
+            "line_range": {
+              "start": 1711,
+              "end": 1711
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_context_set_attrs",
+            "line_range": {
+              "start": 1724,
+              "end": 1724
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_context_set_targets",
+            "line_range": {
+              "start": 1746,
+              "end": 1746
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_context_set_schemes",
+            "line_range": {
+              "start": 1763,
+              "end": 1763
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_context_add_dirs",
+            "line_range": {
+              "start": 1780,
+              "end": 1780
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_context_rm_dirs",
+            "line_range": {
+              "start": 1806,
+              "end": 1806
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "avail_operations_show",
+            "line_range": {
+              "start": 1816,
+              "end": 1816
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "operations_show",
+            "line_range": {
+              "start": 1831,
+              "end": 1831
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "operations_store",
+            "line_range": {
+              "start": 1840,
+              "end": 1840
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "sysfs_streq",
+            "line_range": {
+              "start": 1848,
+              "end": 1848
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_context_release",
+            "line_range": {
+              "start": 1856,
+              "end": 1856
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_contexts_alloc",
+            "line_range": {
+              "start": 1890,
+              "end": 1890
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_contexts_rm_dirs",
+            "line_range": {
+              "start": 1895,
+              "end": 1895
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_contexts_add_dirs",
+            "line_range": {
+              "start": 1909,
+              "end": 1909
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_contexts_show",
+            "line_range": {
+              "start": 1953,
+              "end": 1953
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_contexts_store",
+            "line_range": {
+              "start": 1962,
+              "end": 1962
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_contexts_release",
+            "line_range": {
+              "start": 1986,
+              "end": 1986
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_kdamond_alloc",
+            "line_range": {
+              "start": 2016,
+              "end": 2016
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_kdamond_add_dirs",
+            "line_range": {
+              "start": 2021,
+              "end": 2021
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_kdamond_rm_dirs",
+            "line_range": {
+              "start": 2042,
+              "end": 2042
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_ctx_running",
+            "line_range": {
+              "start": 2048,
+              "end": 2048
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "state_show",
+            "line_range": {
+              "start": 2106,
+              "end": 2106
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_set_attrs",
+            "line_range": {
+              "start": 2124,
+              "end": 2124
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_destroy_targets",
+            "line_range": {
+              "start": 2136,
+              "end": 2136
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_set_regions",
+            "line_range": {
+              "start": 2147,
+              "end": 2147
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_add_target",
+            "line_range": {
+              "start": 2177,
+              "end": 2177
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_target_has_pid",
+            "line_range": {
+              "start": 2185,
+              "end": 2185
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_existing_target",
+            "line_range": {
+              "start": 2207,
+              "end": 2207
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_set_targets",
+            "line_range": {
+              "start": 2234,
+              "end": 2234
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_mk_scheme",
+            "line_range": {
+              "start": 2259,
+              "end": 2259
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_set_schemes",
+            "line_range": {
+              "start": 2289,
+              "end": 2289
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_before_terminate",
+            "line_range": {
+              "start": 2308,
+              "end": 2308
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_upd_schemes_stats",
+            "line_range": {
+              "start": 2332,
+              "end": 2332
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_kdamond_running",
+            "line_range": {
+              "start": 2355,
+              "end": 2355
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_apply_inputs",
+            "line_range": {
+              "start": 2362,
+              "end": 2362
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_commit_input",
+            "line_range": {
+              "start": 2385,
+              "end": 2385
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_cmd_request_callback",
+            "line_range": {
+              "start": 2404,
+              "end": 2404
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_build_ctx",
+            "line_range": {
+              "start": 2432,
+              "end": 2432
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_turn_damon_on",
+            "line_range": {
+              "start": 2453,
+              "end": 2453
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_turn_damon_off",
+            "line_range": {
+              "start": 2483,
+              "end": 2483
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_handle_cmd",
+            "line_range": {
+              "start": 2508,
+              "end": 2508
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "state_store",
+            "line_range": {
+              "start": 2554,
+              "end": 2554
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "sysfs_streq",
+            "line_range": {
+              "start": 2565,
+              "end": 2565
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "pid_show",
+            "line_range": {
+              "start": 2576,
+              "end": 2576
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_kdamond_release",
+            "line_range": {
+              "start": 2602,
+              "end": 2602
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_kdamonds_alloc",
+            "line_range": {
+              "start": 2641,
+              "end": 2641
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_kdamonds_rm_dirs",
+            "line_range": {
+              "start": 2646,
+              "end": 2646
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_nr_running_ctxs",
+            "line_range": {
+              "start": 2660,
+              "end": 2660
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_kdamonds_add_dirs",
+            "line_range": {
+              "start": 2679,
+              "end": 2679
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_kdamonds_show",
+            "line_range": {
+              "start": 2732,
+              "end": 2732
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "nr_kdamonds_store",
+            "line_range": {
+              "start": 2741,
+              "end": 2741
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_kdamonds_release",
+            "line_range": {
+              "start": 2764,
+              "end": 2764
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_ui_dir_alloc",
+            "line_range": {
+              "start": 2793,
+              "end": 2793
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_ui_dir_add_dirs",
+            "line_range": {
+              "start": 2798,
+              "end": 2798
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_ui_dir_release",
+            "line_range": {
+              "start": 2818,
+              "end": 2818
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/sysfs.c",
+            "symbol": "damon_sysfs_init",
+            "line_range": {
+              "start": 2834,
+              "end": 2834
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M5-mlk-010",
+      "text": "All dynamically allocated memory in vaddr-test.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in vaddr-test.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "mm/damon/vaddr-test.h",
+            "symbol": "__link_vmas",
+            "line_range": {
+              "start": 17,
+              "end": 17
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr-test.h",
+            "symbol": "damon_test_three_regions_in_vmas",
+            "line_range": {
+              "start": 73,
+              "end": 73
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr-test.h",
+            "symbol": "__nth_region_of",
+            "line_range": {
+              "start": 98,
+              "end": 98
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr-test.h",
+            "symbol": "damon_do_test_apply_three_regions",
+            "line_range": {
+              "start": 133,
+              "end": 133
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr-test.h",
+            "symbol": "damon_test_apply_three_regions1",
+            "line_range": {
+              "start": 163,
+              "end": 163
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr-test.h",
+            "symbol": "damon_test_apply_three_regions2",
+            "line_range": {
+              "start": 185,
+              "end": 185
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr-test.h",
+            "symbol": "damon_test_apply_three_regions3",
+            "line_range": {
+              "start": 209,
+              "end": 209
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr-test.h",
+            "symbol": "damon_test_apply_three_regions4",
+            "line_range": {
+              "start": 234,
+              "end": 234
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr-test.h",
+            "symbol": "damon_test_split_evenly_fail",
+            "line_range": {
+              "start": 251,
+              "end": 251
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr-test.h",
+            "symbol": "damon_test_split_evenly_succ",
+            "line_range": {
+              "start": 270,
+              "end": 270
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr-test.h",
+            "symbol": "damon_test_split_evenly",
+            "line_range": {
+              "start": 297,
+              "end": 297
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M5-mlk-011",
+      "text": "All dynamically allocated memory in vaddr.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in vaddr.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-011",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_get_task_struct",
+            "line_range": {
+              "start": 29,
+              "end": 29
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_get_mm",
+            "line_range": {
+              "start": 41,
+              "end": 41
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_evenly_split_region",
+            "line_range": {
+              "start": 64,
+              "end": 64
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "sz_range",
+            "line_range": {
+              "start": 98,
+              "end": 98
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "__damon_va_three_regions",
+            "line_range": {
+              "start": 116,
+              "end": 116
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "sz_range",
+            "line_range": {
+              "start": 140,
+              "end": 140
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_three_regions",
+            "line_range": {
+              "start": 172,
+              "end": 172
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "__damon_va_init_regions",
+            "line_range": {
+              "start": 232,
+              "end": 232
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_three_regions",
+            "line_range": {
+              "start": 241,
+              "end": 241
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_init",
+            "line_range": {
+              "start": 273,
+              "end": 273
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_update",
+            "line_range": {
+              "start": 287,
+              "end": 287
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_mkold_pmd_entry",
+            "line_range": {
+              "start": 299,
+              "end": 299
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "pmd_huge",
+            "line_range": {
+              "start": 305,
+              "end": 305
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "pmd_huge",
+            "line_range": {
+              "start": 307,
+              "end": 307
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_hugetlb_mkold",
+            "line_range": {
+              "start": 327,
+              "end": 327
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "pte_young",
+            "line_range": {
+              "start": 336,
+              "end": 336
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_mkold_hugetlb_entry",
+            "line_range": {
+              "start": 356,
+              "end": 356
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_mkold",
+            "line_range": {
+              "start": 384,
+              "end": 384
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "__damon_va_prepare_access_check",
+            "line_range": {
+              "start": 395,
+              "end": 395
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_prepare_access_checks",
+            "line_range": {
+              "start": 403,
+              "end": 403
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_young_pmd_entry",
+            "line_range": {
+              "start": 424,
+              "end": 424
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "pmd_huge",
+            "line_range": {
+              "start": 433,
+              "end": 433
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "pmd_young",
+            "line_range": {
+              "start": 442,
+              "end": 442
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "pte_young",
+            "line_range": {
+              "start": 465,
+              "end": 465
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_young_hugetlb_entry",
+            "line_range": {
+              "start": 477,
+              "end": 477
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "pte_young",
+            "line_range": {
+              "start": 495,
+              "end": 495
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_young",
+            "line_range": {
+              "start": 516,
+              "end": 516
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "__damon_va_check_access",
+            "line_range": {
+              "start": 536,
+              "end": 536
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_check_accesses",
+            "line_range": {
+              "start": 560,
+              "end": 560
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_target_valid",
+            "line_range": {
+              "start": 585,
+              "end": 585
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damos_madvise",
+            "line_range": {
+              "start": 600,
+              "end": 600
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damos_madvise",
+            "line_range": {
+              "start": 606,
+              "end": 606
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_apply_scheme",
+            "line_range": {
+              "start": 625,
+              "end": 625
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_scheme_score",
+            "line_range": {
+              "start": 656,
+              "end": 656
+            },
+            "role": "primary",
+            "note": ""
+          },
+          {
+            "file": "mm/damon/vaddr.c",
+            "symbol": "damon_va_initcall",
+            "line_range": {
+              "start": 671,
+              "end": 671
+            },
+            "role": "primary",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved"
+      },
+      "code_excerpt": ""
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 11,
+    "total_locations": 366,
+    "by_resolution_status": {
+      "resolved": 11,
+      "not_found": 0,
+      "out_of_scope": 0,
+      "error": 0
+    },
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "torvalds/linux",
+    "target_commit": "73b73bac90d97400e29e585c678c4d0ebfd2680d",
+    "scan_dir": "mm/damon",
+    "primary_bug_type": "MLK",
+    "total_source_files": 11,
+    "total_functions": 366
+  }
+}

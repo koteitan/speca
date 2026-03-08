@@ -1,0 +1,137 @@
+{
+  "properties": [
+    {
+      "property_id": "PROP-N3-npd-001",
+      "text": "No null pointer may be dereferenced in ns_turn_allocation.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ns_turn_allocation.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N3-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N3-npd-002",
+      "text": "No null pointer may be dereferenced in ns_turn_allocation.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ns_turn_allocation.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N3-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N3-npd-003",
+      "text": "No null pointer may be dereferenced in ns_turn_khash.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ns_turn_khash.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N3-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N3-npd-004",
+      "text": "No null pointer may be dereferenced in ns_turn_maps.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ns_turn_maps.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N3-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N3-npd-005",
+      "text": "No null pointer may be dereferenced in ns_turn_maps_rtcp.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ns_turn_maps_rtcp.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N3-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N3-npd-006",
+      "text": "No null pointer may be dereferenced in ns_turn_server.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ns_turn_server.c: p != NULL before deref(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-N3-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 6,
+    "by_severity": {
+      "CRITICAL": 1,
+      "HIGH": 5,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    },
+    "by_scope": {
+      "in_scope": 6,
+      "out_of_scope": 0,
+      "conditional": 0
+    },
+    "bug_bounty_eligible_count": 6,
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "coturn/coturn",
+    "target_commit": "47008229cefaff6bfc4b231642d342f99712a5ad",
+    "scan_dir": "src/server",
+    "primary_bug_type": "NPD",
+    "total_source_files": 6,
+    "total_functions": 271
+  }
+}

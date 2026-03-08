@@ -1,0 +1,407 @@
+{
+  "properties": [
+    {
+      "property_id": "PROP-U3-uaf-001",
+      "text": "No pointer in acl.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in acl.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-002",
+      "text": "No pointer in android.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in android.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-003",
+      "text": "No pointer in cache.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in cache.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-004",
+      "text": "No pointer in encrypt.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in encrypt.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-005",
+      "text": "No pointer in http.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in http.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-006",
+      "text": "No pointer in jconf.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in jconf.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-007",
+      "text": "No pointer in json.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in json.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-007",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-008",
+      "text": "No pointer in json.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in json.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-009",
+      "text": "No pointer in local.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in local.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-U3-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-010",
+      "text": "No pointer in manager.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in manager.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-011",
+      "text": "No pointer in netutils.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in netutils.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-011",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-012",
+      "text": "No pointer in redir.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in redir.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-012",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-013",
+      "text": "No pointer in resolv.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in resolv.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-013",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-014",
+      "text": "No pointer in rule.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in rule.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-014",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-015",
+      "text": "No pointer in server.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in server.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-015",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-016",
+      "text": "No pointer in tls.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in tls.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-016",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-017",
+      "text": "No pointer in tunnel.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in tunnel.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-017",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-018",
+      "text": "No pointer in udprelay.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in udprelay.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-018",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-019",
+      "text": "No pointer in uthash.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in uthash.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-019",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-020",
+      "text": "No pointer in utils.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in utils.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-020",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U3-uaf-021",
+      "text": "No pointer in win32.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in win32.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U3-021",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 21,
+    "by_severity": {
+      "CRITICAL": 1,
+      "HIGH": 20,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    },
+    "by_scope": {
+      "in_scope": 21,
+      "out_of_scope": 0,
+      "conditional": 0
+    },
+    "bug_bounty_eligible_count": 21,
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "shadowsocks/shadowsocks-libev",
+    "target_commit": "8e52029d311df3880ffb1c5bea922f6e0e3cecdd",
+    "scan_dir": "src",
+    "primary_bug_type": "UAF",
+    "total_source_files": 21,
+    "total_functions": 332
+  }
+}

@@ -1,0 +1,1112 @@
+{
+  "properties": [
+    {
+      "property_id": "PROP-M2b-mlk-001",
+      "text": "All dynamically allocated memory in assoc.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in assoc.c: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M2b-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-002",
+      "text": "All dynamically allocated memory in authfile.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in authfile.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-003",
+      "text": "All dynamically allocated memory in base64.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in base64.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-004",
+      "text": "All dynamically allocated memory in bipbuffer.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in bipbuffer.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-005",
+      "text": "All dynamically allocated memory in cache.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in cache.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-006",
+      "text": "All dynamically allocated memory in crawler.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in crawler.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-007",
+      "text": "All dynamically allocated memory in crc32c.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in crc32c.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-007",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-008",
+      "text": "All dynamically allocated memory in daemon.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in daemon.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-009",
+      "text": "All dynamically allocated memory in darwin_priv.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in darwin_priv.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-010",
+      "text": "All dynamically allocated memory in extstore.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in extstore.c: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M2b-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-011",
+      "text": "All dynamically allocated memory in freebsd_priv.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in freebsd_priv.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-011",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-012",
+      "text": "All dynamically allocated memory in hash.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in hash.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-012",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-013",
+      "text": "All dynamically allocated memory in items.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in items.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-013",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-014",
+      "text": "All dynamically allocated memory in itoa_ljust.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in itoa_ljust.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-014",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-015",
+      "text": "All dynamically allocated memory in jenkins_hash.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in jenkins_hash.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-015",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-016",
+      "text": "All dynamically allocated memory in linux_priv.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in linux_priv.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-016",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-017",
+      "text": "All dynamically allocated memory in logger.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in logger.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-017",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-018",
+      "text": "All dynamically allocated memory in md5.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in md5.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-018",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-019",
+      "text": "All dynamically allocated memory in memcached.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in memcached.c: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M2b-019",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-020",
+      "text": "All dynamically allocated memory in memcached.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in memcached.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-020",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-021",
+      "text": "All dynamically allocated memory in murmur3_hash.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in murmur3_hash.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-021",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-022",
+      "text": "All dynamically allocated memory in openbsd_priv.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in openbsd_priv.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-022",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-023",
+      "text": "All dynamically allocated memory in proto_bin.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proto_bin.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-023",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-024",
+      "text": "All dynamically allocated memory in proto_proxy.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proto_proxy.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-024",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-025",
+      "text": "All dynamically allocated memory in proto_text.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proto_text.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-025",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-026",
+      "text": "All dynamically allocated memory in proxy.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-026",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-027",
+      "text": "All dynamically allocated memory in proxy_config.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_config.c: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M2b-027",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-028",
+      "text": "All dynamically allocated memory in proxy_inspector.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_inspector.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-028",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-029",
+      "text": "All dynamically allocated memory in proxy_internal.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_internal.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-029",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-030",
+      "text": "All dynamically allocated memory in proxy_jump_hash.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_jump_hash.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-030",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-031",
+      "text": "All dynamically allocated memory in proxy_lua.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_lua.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-031",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-032",
+      "text": "All dynamically allocated memory in proxy_luafgen.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_luafgen.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-032",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-033",
+      "text": "All dynamically allocated memory in proxy_mutator.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_mutator.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-033",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-034",
+      "text": "All dynamically allocated memory in proxy_network.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_network.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-034",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-035",
+      "text": "All dynamically allocated memory in proxy_ratelim.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_ratelim.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-035",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-036",
+      "text": "All dynamically allocated memory in proxy_request.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_request.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-036",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-037",
+      "text": "All dynamically allocated memory in proxy_result.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_result.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-037",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-038",
+      "text": "All dynamically allocated memory in proxy_ring_hash.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_ring_hash.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-038",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-039",
+      "text": "All dynamically allocated memory in proxy_tls.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_tls.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-039",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-040",
+      "text": "All dynamically allocated memory in proxy_ustats.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_ustats.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-040",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-041",
+      "text": "All dynamically allocated memory in proxy_xxhash.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in proxy_xxhash.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-041",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-042",
+      "text": "All dynamically allocated memory in restart.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in restart.c: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M2b-042",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-043",
+      "text": "All dynamically allocated memory in sasl_defs.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sasl_defs.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-043",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-044",
+      "text": "All dynamically allocated memory in sizes.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sizes.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-044",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-045",
+      "text": "All dynamically allocated memory in slab_automove.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in slab_automove.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-045",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-046",
+      "text": "All dynamically allocated memory in slab_automove_extstore.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in slab_automove_extstore.c: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M2b-046",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-047",
+      "text": "All dynamically allocated memory in slabs.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in slabs.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-047",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-048",
+      "text": "All dynamically allocated memory in slabs_mover.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in slabs_mover.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-048",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-049",
+      "text": "All dynamically allocated memory in solaris_priv.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in solaris_priv.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-049",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-050",
+      "text": "All dynamically allocated memory in stats_prefix.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in stats_prefix.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-050",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-051",
+      "text": "All dynamically allocated memory in storage.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in storage.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-051",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-052",
+      "text": "All dynamically allocated memory in testapp.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in testapp.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-052",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-053",
+      "text": "All dynamically allocated memory in thread.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in thread.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-053",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-054",
+      "text": "All dynamically allocated memory in timedrun.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in timedrun.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-054",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-055",
+      "text": "All dynamically allocated memory in tls.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in tls.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-055",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-056",
+      "text": "All dynamically allocated memory in util.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in util.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-056",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M2b-mlk-057",
+      "text": "All dynamically allocated memory in xxhash.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in xxhash.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M2b-057",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "NetworkPacket",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 57,
+    "by_severity": {
+      "CRITICAL": 6,
+      "HIGH": 51,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    },
+    "by_scope": {
+      "in_scope": 57,
+      "out_of_scope": 0,
+      "conditional": 0
+    },
+    "bug_bounty_eligible_count": 57,
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "memcached/memcached",
+    "target_commit": "dfe439d4cba3748bad5b0c8adaf1b7fb0c98ea40",
+    "scan_dir": ".",
+    "primary_bug_type": "MLK",
+    "total_source_files": 57,
+    "total_functions": 1517
+  }
+}

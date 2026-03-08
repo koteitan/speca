@@ -1,0 +1,2981 @@
+{
+  "properties": [
+    {
+      "property_id": "PROP-N5-npd-001",
+      "text": "No null pointer may be dereferenced in common.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in common.c: p != NULL before deref(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-N5-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-002",
+      "text": "No null pointer may be dereferenced in ldapcompare.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldapcompare.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-003",
+      "text": "No null pointer may be dereferenced in ldapdelete.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldapdelete.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-004",
+      "text": "No null pointer may be dereferenced in ldapexop.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldapexop.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-005",
+      "text": "No null pointer may be dereferenced in ldapmodify.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldapmodify.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-006",
+      "text": "No null pointer may be dereferenced in ldapmodrdn.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldapmodrdn.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-007",
+      "text": "No null pointer may be dereferenced in ldappasswd.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldappasswd.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-007",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-008",
+      "text": "No null pointer may be dereferenced in ldapsearch.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldapsearch.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-009",
+      "text": "No null pointer may be dereferenced in ldapurl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldapurl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-010",
+      "text": "No null pointer may be dereferenced in ldapvc.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldapvc.c: p != NULL before deref(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-N5-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-011",
+      "text": "No null pointer may be dereferenced in ldapwhoami.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldapwhoami.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-011",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-012",
+      "text": "No null pointer may be dereferenced in assert.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in assert.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-012",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-013",
+      "text": "No null pointer may be dereferenced in bprint.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in bprint.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-013",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-014",
+      "text": "No null pointer may be dereferenced in debug.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in debug.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-014",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-015",
+      "text": "No null pointer may be dereferenced in decode.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in decode.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-015",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-016",
+      "text": "No null pointer may be dereferenced in dtest.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in dtest.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-016",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-017",
+      "text": "No null pointer may be dereferenced in encode.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in encode.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-017",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-018",
+      "text": "No null pointer may be dereferenced in etest.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in etest.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-018",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-019",
+      "text": "No null pointer may be dereferenced in idtest.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in idtest.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-019",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-020",
+      "text": "No null pointer may be dereferenced in io.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in io.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-020",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-021",
+      "text": "No null pointer may be dereferenced in memory.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in memory.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-021",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-022",
+      "text": "No null pointer may be dereferenced in nt_err.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in nt_err.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-022",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-023",
+      "text": "No null pointer may be dereferenced in options.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in options.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-023",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-024",
+      "text": "No null pointer may be dereferenced in sockbuf.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in sockbuf.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-024",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-025",
+      "text": "No null pointer may be dereferenced in stdio.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in stdio.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-025",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-026",
+      "text": "No null pointer may be dereferenced in abandon.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in abandon.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-026",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-027",
+      "text": "No null pointer may be dereferenced in account_usability.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in account_usability.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-027",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-028",
+      "text": "No null pointer may be dereferenced in add.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in add.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-028",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-029",
+      "text": "No null pointer may be dereferenced in addentry.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in addentry.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-029",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-030",
+      "text": "No null pointer may be dereferenced in apitest.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in apitest.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-030",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-031",
+      "text": "No null pointer may be dereferenced in assertion.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in assertion.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-031",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-032",
+      "text": "No null pointer may be dereferenced in avl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in avl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-032",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-033",
+      "text": "No null pointer may be dereferenced in bind.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in bind.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-033",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-034",
+      "text": "No null pointer may be dereferenced in cancel.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in cancel.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-034",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-035",
+      "text": "No null pointer may be dereferenced in charray.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in charray.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-035",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-036",
+      "text": "No null pointer may be dereferenced in compare.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in compare.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-036",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-037",
+      "text": "No null pointer may be dereferenced in controls.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in controls.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-037",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-038",
+      "text": "No null pointer may be dereferenced in cyrus.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in cyrus.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-038",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-039",
+      "text": "No null pointer may be dereferenced in dds.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in dds.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-039",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-040",
+      "text": "No null pointer may be dereferenced in delete.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in delete.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-040",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-041",
+      "text": "No null pointer may be dereferenced in deref.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in deref.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-041",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-042",
+      "text": "No null pointer may be dereferenced in dnssrv.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in dnssrv.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-042",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-043",
+      "text": "No null pointer may be dereferenced in dntest.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in dntest.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-043",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-044",
+      "text": "No null pointer may be dereferenced in error.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in error.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-044",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-045",
+      "text": "No null pointer may be dereferenced in extended.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in extended.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-045",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-046",
+      "text": "No null pointer may be dereferenced in fetch.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in fetch.c: p != NULL before deref(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-N5-046",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-047",
+      "text": "No null pointer may be dereferenced in filter.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in filter.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-047",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-048",
+      "text": "No null pointer may be dereferenced in free.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in free.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-048",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-049",
+      "text": "No null pointer may be dereferenced in ftest.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ftest.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-049",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-050",
+      "text": "No null pointer may be dereferenced in getattr.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in getattr.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-050",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-051",
+      "text": "No null pointer may be dereferenced in getdn.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in getdn.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-051",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-052",
+      "text": "No null pointer may be dereferenced in getentry.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in getentry.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-052",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-053",
+      "text": "No null pointer may be dereferenced in getvalues.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in getvalues.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-053",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-054",
+      "text": "No null pointer may be dereferenced in init.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in init.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-054",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-055",
+      "text": "No null pointer may be dereferenced in lbase64.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in lbase64.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-055",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-056",
+      "text": "No null pointer may be dereferenced in ldap_sync.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldap_sync.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-056",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-057",
+      "text": "No null pointer may be dereferenced in ldif.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldif.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-057",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-058",
+      "text": "No null pointer may be dereferenced in ldifutil.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldifutil.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-058",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-059",
+      "text": "No null pointer may be dereferenced in messages.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in messages.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-059",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-060",
+      "text": "No null pointer may be dereferenced in modify.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in modify.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-060",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-061",
+      "text": "No null pointer may be dereferenced in modrdn.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in modrdn.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-061",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-062",
+      "text": "No null pointer may be dereferenced in msctrl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in msctrl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-062",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-063",
+      "text": "No null pointer may be dereferenced in open.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in open.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-063",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-064",
+      "text": "No null pointer may be dereferenced in options.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in options.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-064",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-065",
+      "text": "No null pointer may be dereferenced in os-ip.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in os-ip.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-065",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-066",
+      "text": "No null pointer may be dereferenced in os-local.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in os-local.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-066",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-067",
+      "text": "No null pointer may be dereferenced in pagectrl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in pagectrl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-067",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-068",
+      "text": "No null pointer may be dereferenced in passwd.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in passwd.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-068",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-069",
+      "text": "No null pointer may be dereferenced in ppolicy.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ppolicy.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-069",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-070",
+      "text": "No null pointer may be dereferenced in print.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in print.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-070",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-071",
+      "text": "No null pointer may be dereferenced in psearchctrl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in psearchctrl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-071",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-072",
+      "text": "No null pointer may be dereferenced in rdwr.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in rdwr.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-072",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-073",
+      "text": "No null pointer may be dereferenced in references.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in references.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-073",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-074",
+      "text": "No null pointer may be dereferenced in request.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in request.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-074",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-075",
+      "text": "No null pointer may be dereferenced in result.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in result.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-075",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-076",
+      "text": "No null pointer may be dereferenced in rq.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in rq.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-076",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-077",
+      "text": "No null pointer may be dereferenced in sasl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in sasl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-077",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-078",
+      "text": "No null pointer may be dereferenced in sbind.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in sbind.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-078",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-079",
+      "text": "No null pointer may be dereferenced in schema.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in schema.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-079",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-080",
+      "text": "No null pointer may be dereferenced in search.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in search.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-080",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-081",
+      "text": "No null pointer may be dereferenced in sort.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in sort.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-081",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-082",
+      "text": "No null pointer may be dereferenced in sortctrl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in sortctrl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-082",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-083",
+      "text": "No null pointer may be dereferenced in stctrl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in stctrl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-083",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-084",
+      "text": "No null pointer may be dereferenced in string.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in string.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-084",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-085",
+      "text": "No null pointer may be dereferenced in t61.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in t61.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-085",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-086",
+      "text": "No null pointer may be dereferenced in tavl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in tavl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-086",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-087",
+      "text": "No null pointer may be dereferenced in test.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in test.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-087",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-088",
+      "text": "No null pointer may be dereferenced in testavl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in testavl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-088",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-089",
+      "text": "No null pointer may be dereferenced in testtavl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in testtavl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-089",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-090",
+      "text": "No null pointer may be dereferenced in thr_debug.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in thr_debug.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-090",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-091",
+      "text": "No null pointer may be dereferenced in thr_nt.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in thr_nt.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-091",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-092",
+      "text": "No null pointer may be dereferenced in thr_posix.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in thr_posix.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-092",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-093",
+      "text": "No null pointer may be dereferenced in thr_pth.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in thr_pth.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-093",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-094",
+      "text": "No null pointer may be dereferenced in thr_thr.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in thr_thr.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-094",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-095",
+      "text": "No null pointer may be dereferenced in threads.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in threads.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-095",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-096",
+      "text": "No null pointer may be dereferenced in tls2.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in tls2.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-096",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-097",
+      "text": "No null pointer may be dereferenced in tls_g.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in tls_g.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-097",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-098",
+      "text": "No null pointer may be dereferenced in tls_o.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in tls_o.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-098",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-099",
+      "text": "No null pointer may be dereferenced in tpool.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in tpool.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-099",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-100",
+      "text": "No null pointer may be dereferenced in turn.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in turn.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-100",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-101",
+      "text": "No null pointer may be dereferenced in txn.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in txn.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-101",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-102",
+      "text": "No null pointer may be dereferenced in unbind.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in unbind.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-102",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-103",
+      "text": "No null pointer may be dereferenced in url.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in url.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-103",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-104",
+      "text": "No null pointer may be dereferenced in urltest.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in urltest.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-104",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-105",
+      "text": "No null pointer may be dereferenced in utf-8-conv.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in utf-8-conv.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-105",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-106",
+      "text": "No null pointer may be dereferenced in utf-8.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in utf-8.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-106",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-107",
+      "text": "No null pointer may be dereferenced in util-int.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in util-int.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-107",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-108",
+      "text": "No null pointer may be dereferenced in vc.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in vc.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-108",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-109",
+      "text": "No null pointer may be dereferenced in vlvctrl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in vlvctrl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-109",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-110",
+      "text": "No null pointer may be dereferenced in whoami.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in whoami.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-110",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-111",
+      "text": "No null pointer may be dereferenced in mdb.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in mdb.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-111",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-112",
+      "text": "No null pointer may be dereferenced in mdb_copy.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in mdb_copy.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-112",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-113",
+      "text": "No null pointer may be dereferenced in mdb_dump.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in mdb_dump.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-113",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-114",
+      "text": "No null pointer may be dereferenced in mdb_load.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in mdb_load.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-114",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-115",
+      "text": "No null pointer may be dereferenced in mdb_stat.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in mdb_stat.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-115",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-116",
+      "text": "No null pointer may be dereferenced in midl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in midl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-116",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-117",
+      "text": "No null pointer may be dereferenced in mtest.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in mtest.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-117",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-118",
+      "text": "No null pointer may be dereferenced in mtest2.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in mtest2.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-118",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-119",
+      "text": "No null pointer may be dereferenced in mtest3.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in mtest3.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-119",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-120",
+      "text": "No null pointer may be dereferenced in mtest4.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in mtest4.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-120",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-121",
+      "text": "No null pointer may be dereferenced in mtest5.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in mtest5.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-121",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-122",
+      "text": "No null pointer may be dereferenced in mtest6.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in mtest6.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-122",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-123",
+      "text": "No null pointer may be dereferenced in ucdata.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ucdata.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-123",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-124",
+      "text": "No null pointer may be dereferenced in ucgendat.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ucgendat.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-124",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-125",
+      "text": "No null pointer may be dereferenced in ucpgba.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ucpgba.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-125",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-126",
+      "text": "No null pointer may be dereferenced in ucstr.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ucstr.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-126",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-127",
+      "text": "No null pointer may be dereferenced in ure.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ure.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-127",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-128",
+      "text": "No null pointer may be dereferenced in urestubs.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in urestubs.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-128",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-129",
+      "text": "No null pointer may be dereferenced in utbm.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in utbm.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-129",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-130",
+      "text": "No null pointer may be dereferenced in utbmstub.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in utbmstub.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-130",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-131",
+      "text": "No null pointer may be dereferenced in base64.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in base64.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-131",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-132",
+      "text": "No null pointer may be dereferenced in detach.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in detach.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-132",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-133",
+      "text": "No null pointer may be dereferenced in entropy.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in entropy.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-133",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-134",
+      "text": "No null pointer may be dereferenced in getopt.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in getopt.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-134",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-135",
+      "text": "No null pointer may be dereferenced in getpass.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in getpass.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-135",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-136",
+      "text": "No null pointer may be dereferenced in getpeereid.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in getpeereid.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-136",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-137",
+      "text": "No null pointer may be dereferenced in hash.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in hash.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-137",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-138",
+      "text": "No null pointer may be dereferenced in lockf.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in lockf.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-138",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-139",
+      "text": "No null pointer may be dereferenced in md5.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in md5.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-139",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-140",
+      "text": "No null pointer may be dereferenced in meter.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in meter.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-140",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-141",
+      "text": "No null pointer may be dereferenced in ntservice.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ntservice.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-141",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-142",
+      "text": "No null pointer may be dereferenced in passfile.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in passfile.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-142",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-143",
+      "text": "No null pointer may be dereferenced in passwd.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in passwd.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-143",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-144",
+      "text": "No null pointer may be dereferenced in ptest.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ptest.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-144",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-145",
+      "text": "No null pointer may be dereferenced in sasl.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in sasl.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-145",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-146",
+      "text": "No null pointer may be dereferenced in sha1.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in sha1.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-146",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-147",
+      "text": "No null pointer may be dereferenced in signal.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in signal.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-147",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-148",
+      "text": "No null pointer may be dereferenced in sockpair.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in sockpair.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-148",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-149",
+      "text": "No null pointer may be dereferenced in utils.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in utils.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-149",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-150",
+      "text": "No null pointer may be dereferenced in uuid.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in uuid.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-150",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-151",
+      "text": "No null pointer may be dereferenced in config.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in config.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-151",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-152",
+      "text": "No null pointer may be dereferenced in context.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in context.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-152",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-153",
+      "text": "No null pointer may be dereferenced in escapemap.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in escapemap.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-153",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-154",
+      "text": "No null pointer may be dereferenced in info.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in info.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-154",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-155",
+      "text": "No null pointer may be dereferenced in ldapmap.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in ldapmap.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-155",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-156",
+      "text": "No null pointer may be dereferenced in map.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in map.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-156",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-157",
+      "text": "No null pointer may be dereferenced in params.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in params.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-157",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-158",
+      "text": "No null pointer may be dereferenced in parse.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in parse.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-158",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-159",
+      "text": "No null pointer may be dereferenced in rewrite.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in rewrite.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-159",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-160",
+      "text": "No null pointer may be dereferenced in rule.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in rule.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-160",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-161",
+      "text": "No null pointer may be dereferenced in session.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in session.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-161",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-162",
+      "text": "No null pointer may be dereferenced in subst.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in subst.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-162",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-163",
+      "text": "No null pointer may be dereferenced in var.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in var.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-163",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N5-npd-164",
+      "text": "No null pointer may be dereferenced in xmap.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in xmap.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N5-164",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "LDAP"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 164,
+    "by_severity": {
+      "CRITICAL": 3,
+      "HIGH": 161,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    },
+    "by_scope": {
+      "in_scope": 164,
+      "out_of_scope": 0,
+      "conditional": 0
+    },
+    "bug_bounty_eligible_count": 164,
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "openldap/openldap",
+    "target_commit": "519e0c94c9f3804813f691de487283ad7586f510",
+    "scan_dir": "libraries,clients/tools",
+    "primary_bug_type": "NPD",
+    "total_source_files": 164,
+    "total_functions": 2227
+  }
+}

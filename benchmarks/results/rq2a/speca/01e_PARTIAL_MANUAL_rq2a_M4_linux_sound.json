@@ -1,0 +1,333 @@
+{
+  "properties": [
+    {
+      "property_id": "PROP-M4-mlk-001",
+      "text": "All dynamically allocated memory in audioreach.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in audioreach.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-002",
+      "text": "All dynamically allocated memory in q6adm.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6adm.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-003",
+      "text": "All dynamically allocated memory in q6afe-dai.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6afe-dai.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-004",
+      "text": "All dynamically allocated memory in q6afe.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6afe.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-005",
+      "text": "All dynamically allocated memory in q6apm-dai.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6apm-dai.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-006",
+      "text": "All dynamically allocated memory in q6apm-lpass-dais.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6apm-lpass-dais.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-007",
+      "text": "All dynamically allocated memory in q6apm.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6apm.c: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M4-007",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-008",
+      "text": "All dynamically allocated memory in q6asm-dai.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6asm-dai.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-009",
+      "text": "All dynamically allocated memory in q6asm.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6asm.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-010",
+      "text": "All dynamically allocated memory in q6core.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6core.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-011",
+      "text": "All dynamically allocated memory in q6dsp-common.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6dsp-common.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-011",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-012",
+      "text": "All dynamically allocated memory in q6dsp-lpass-clocks.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6dsp-lpass-clocks.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-012",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-013",
+      "text": "All dynamically allocated memory in q6dsp-lpass-ports.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6dsp-lpass-ports.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-013",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-014",
+      "text": "All dynamically allocated memory in q6prm.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6prm.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-014",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-015",
+      "text": "All dynamically allocated memory in q6routing.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6routing.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-015",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M4-mlk-016",
+      "text": "All dynamically allocated memory in topology.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in topology.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M4-016",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Ioctl",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 16,
+    "by_severity": {
+      "CRITICAL": 1,
+      "HIGH": 15,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    },
+    "by_scope": {
+      "in_scope": 16,
+      "out_of_scope": 0,
+      "conditional": 0
+    },
+    "bug_bounty_eligible_count": 16,
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "torvalds/linux",
+    "target_commit": "1c4f29ec878bbf1cc0a1eb54ae7da5ff98e19641",
+    "scan_dir": "sound/soc/qcom/qdsp6",
+    "primary_bug_type": "MLK",
+    "total_source_files": 16,
+    "total_functions": 301
+  }
+}

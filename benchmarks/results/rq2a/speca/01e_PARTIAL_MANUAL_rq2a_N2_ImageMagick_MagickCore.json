@@ -1,0 +1,1131 @@
+{
+  "properties": [
+    {
+      "property_id": "PROP-N2-npd-001",
+      "text": "No null pointer may be dereferenced in accelerate-kernels-private.h..accelerate.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in accelerate-kernels-private.h..accelerate.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-002",
+      "text": "No null pointer may be dereferenced in animate.c..annotate.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in animate.c..annotate.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-003",
+      "text": "No null pointer may be dereferenced in artifact.c..attribute.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in artifact.c..attribute.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-004",
+      "text": "No null pointer may be dereferenced in blob.c..cache-view.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in blob.c..cache-view.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-005",
+      "text": "No null pointer may be dereferenced in cache.c..channel.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in cache.c..channel.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-006",
+      "text": "No null pointer may be dereferenced in cipher.c..client.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in cipher.c..client.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-007",
+      "text": "No null pointer may be dereferenced in coder.c..color-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in coder.c..color-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-007",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-008",
+      "text": "No null pointer may be dereferenced in color.c..colormap-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in color.c..colormap-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-009",
+      "text": "No null pointer may be dereferenced in colormap.c..colorspace-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in colormap.c..colorspace-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-010",
+      "text": "No null pointer may be dereferenced in colorspace.c..compare.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in colorspace.c..compare.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-011",
+      "text": "No null pointer may be dereferenced in composite-private.h..composite.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in composite-private.h..composite.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-011",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-012",
+      "text": "No null pointer may be dereferenced in compress.c..configure.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in compress.c..configure.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-012",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-013",
+      "text": "No null pointer may be dereferenced in constitute.c..decorate.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in constitute.c..decorate.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-013",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-014",
+      "text": "No null pointer may be dereferenced in delegate.c..deprecate.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in delegate.c..deprecate.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-014",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-015",
+      "text": "No null pointer may be dereferenced in display.c..distort.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in display.c..distort.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-015",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-016",
+      "text": "No null pointer may be dereferenced in distribute-cache.c..draw-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in distribute-cache.c..draw-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-016",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-017",
+      "text": "No null pointer may be dereferenced in draw.c..effect.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in draw.c..effect.c: p != NULL before deref(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-N2-017",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-018",
+      "text": "No null pointer may be dereferenced in enhance.c..exception-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in enhance.c..exception-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-018",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-019",
+      "text": "No null pointer may be dereferenced in exception.c..feature.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in exception.c..feature.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-019",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-020",
+      "text": "No null pointer may be dereferenced in fourier.c..fx.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in fourier.c..fx.c: p != NULL before deref(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-N2-020",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-021",
+      "text": "No null pointer may be dereferenced in gem-private.h..gem.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in gem-private.h..gem.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-021",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-022",
+      "text": "No null pointer may be dereferenced in geometry.c..histogram.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in geometry.c..histogram.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-022",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-023",
+      "text": "No null pointer may be dereferenced in identify.c..image-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in identify.c..image-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-023",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-024",
+      "text": "No null pointer may be dereferenced in image-view.c..image.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in image-view.c..image.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-024",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-025",
+      "text": "No null pointer may be dereferenced in layer.c..linked-list.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in layer.c..linked-list.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-025",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-026",
+      "text": "No null pointer may be dereferenced in list.c..locale.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in list.c..locale.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-026",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-027",
+      "text": "No null pointer may be dereferenced in log.c..magic.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in log.c..magic.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-027",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-028",
+      "text": "No null pointer may be dereferenced in magick.c..matrix.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in magick.c..matrix.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-028",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-029",
+      "text": "No null pointer may be dereferenced in memory.c..mime.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in memory.c..mime.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-029",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-030",
+      "text": "No null pointer may be dereferenced in module.c..monitor-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in module.c..monitor-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-030",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-031",
+      "text": "No null pointer may be dereferenced in monitor.c..monitor.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in monitor.c..monitor.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-031",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-032",
+      "text": "No null pointer may be dereferenced in montage.c..morphology.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in montage.c..morphology.c: p != NULL before deref(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-N2-032",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-033",
+      "text": "No null pointer may be dereferenced in nt-base.c..nt-feature.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in nt-base.c..nt-feature.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-033",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-034",
+      "text": "No null pointer may be dereferenced in opencl.c..option.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in opencl.c..option.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-034",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-035",
+      "text": "No null pointer may be dereferenced in paint.c..pixel-accessor.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in paint.c..pixel-accessor.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-035",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-036",
+      "text": "No null pointer may be dereferenced in pixel.c..policy.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in pixel.c..policy.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-036",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-037",
+      "text": "No null pointer may be dereferenced in prepress.c..profile.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in prepress.c..profile.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-037",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-038",
+      "text": "No null pointer may be dereferenced in property.c..quantize.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in property.c..quantize.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-038",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-039",
+      "text": "No null pointer may be dereferenced in quantum-export.c..quantum-import.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in quantum-export.c..quantum-import.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-039",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-040",
+      "text": "No null pointer may be dereferenced in quantum-private.h..quantum.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in quantum-private.h..quantum.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-040",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-041",
+      "text": "No null pointer may be dereferenced in quantum.h..random-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in quantum.h..random-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-041",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-042",
+      "text": "No null pointer may be dereferenced in random.c..registry.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in random.c..registry.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-042",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-043",
+      "text": "No null pointer may be dereferenced in resample-private.h..resample.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in resample-private.h..resample.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-043",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-044",
+      "text": "No null pointer may be dereferenced in resize.c..resource.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in resize.c..resource.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-044",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-045",
+      "text": "No null pointer may be dereferenced in segment.c..semaphore-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in segment.c..semaphore-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-045",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-046",
+      "text": "No null pointer may be dereferenced in semaphore.c..shear.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in semaphore.c..shear.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-046",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-047",
+      "text": "No null pointer may be dereferenced in signature.c..splay-tree.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in signature.c..splay-tree.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-047",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-048",
+      "text": "No null pointer may be dereferenced in static.c..statistic.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in static.c..statistic.c: p != NULL before deref(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-N2-048",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-049",
+      "text": "No null pointer may be dereferenced in stream.c..string-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in stream.c..string-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-049",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-050",
+      "text": "No null pointer may be dereferenced in string.c..thread-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in string.c..thread-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-050",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-051",
+      "text": "No null pointer may be dereferenced in thread.c..threshold.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in thread.c..threshold.c: p != NULL before deref(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-N2-051",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-052",
+      "text": "No null pointer may be dereferenced in timer.c..token-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in timer.c..token-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-052",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-053",
+      "text": "No null pointer may be dereferenced in token.c..transform.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in token.c..transform.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-053",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-054",
+      "text": "No null pointer may be dereferenced in type.c..utility-private.h.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in type.c..utility-private.h: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-054",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-055",
+      "text": "No null pointer may be dereferenced in utility.c..version.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in utility.c..version.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-055",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-056",
+      "text": "No null pointer may be dereferenced in vision.c..vms.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in vision.c..vms.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-056",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-057",
+      "text": "No null pointer may be dereferenced in widget.c..xml-tree.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in widget.c..xml-tree.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-057",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-N2-npd-058",
+      "text": "No null pointer may be dereferenced in xwindow-private.h..xwindow.c.",
+      "type": "invariant",
+      "assertion": "forall ptr_deref(p) in xwindow-private.h..xwindow.c: p != NULL before deref(p)",
+      "severity": "HIGH",
+      "covers": "FILE-N2-058",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileInput",
+          "CLI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 58,
+    "by_severity": {
+      "CRITICAL": 5,
+      "HIGH": 53,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    },
+    "by_scope": {
+      "in_scope": 58,
+      "out_of_scope": 0,
+      "conditional": 0
+    },
+    "bug_bounty_eligible_count": 58,
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "ImageMagick/ImageMagick",
+    "target_commit": "6e167ed083e252cb318b4db3316854be80de1693",
+    "scan_dir": "MagickCore",
+    "primary_bug_type": "NPD",
+    "total_source_files": 116,
+    "total_functions": 4089
+  }
+}

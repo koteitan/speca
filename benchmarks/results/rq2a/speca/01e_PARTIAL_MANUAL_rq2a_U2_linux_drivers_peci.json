@@ -1,0 +1,162 @@
+{
+  "properties": [
+    {
+      "property_id": "PROP-U2-uaf-001",
+      "text": "No pointer in peci-aspeed.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in peci-aspeed.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U2-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Sysfs",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U2-uaf-002",
+      "text": "No pointer in core.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in core.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U2-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Sysfs",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U2-uaf-003",
+      "text": "No pointer in cpu.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in cpu.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "CRITICAL",
+      "covers": "FILE-U2-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Sysfs",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U2-uaf-004",
+      "text": "No pointer in device.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in device.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U2-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Sysfs",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U2-uaf-005",
+      "text": "No pointer in internal.h may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in internal.h: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U2-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Sysfs",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U2-uaf-006",
+      "text": "No pointer in request.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in request.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U2-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Sysfs",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U2-uaf-007",
+      "text": "No pointer in sysfs.c may be dereferenced after being freed.",
+      "type": "invariant",
+      "assertion": "forall free(p) in sysfs.c: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FILE-U2-007",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Sysfs",
+          "Driver"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 7,
+    "by_severity": {
+      "CRITICAL": 1,
+      "HIGH": 6,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    },
+    "by_scope": {
+      "in_scope": 7,
+      "out_of_scope": 0,
+      "conditional": 0
+    },
+    "bug_bounty_eligible_count": 7,
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "torvalds/linux",
+    "target_commit": "e79b548b7202bb3accdfe64f113129a4340bc2f9",
+    "scan_dir": "drivers/peci",
+    "primary_bug_type": "UAF",
+    "total_source_files": 7,
+    "total_functions": 81
+  }
+}

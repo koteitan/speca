@@ -179,11 +179,12 @@ bugs:
     bug_type: NPD
     source: new
     still_in_latest: false
-    file: null  # Not in BugReport.json; detected in historic version, already fixed
-    function: null
-    line: null
-    description: "New NPD found in historic version, already fixed in latest commit"
+    file: MagickCore/random-private.h  # Best guess: DestroyRandomInfoThreadSet receives NULL from AcquireRandomInfoThreadSet failure
+    function: DestroyRandomInfoThreadSet
+    line: 39
+    description: "NULL pointer from failed AcquireRandomInfoThreadSet() passed to DestroyRandomInfoThreadSet(), dereferenced in for loop without NULL guard. Renamed to DestroyRandomInfoTLS in latest."
     inter_procedural: true  # N2 has 4 inter total; 3 old inter + 1 new inter = 4
+    uncertain: true  # Inferred from C_MagickCore.json entries 7/9; no PR/issue link available
     detected_by: { repoaudit_claude35: true, speca: null }
 
   # --- coturn/src/server (N3): 1 Old, 1 New, 3 FP, 1 Intra, 1 Inter ---
@@ -205,11 +206,12 @@ bugs:
     bug_type: NPD
     source: new
     still_in_latest: false
-    file: null  # Detected in historic version, already fixed
-    function: null
-    line: null
-    description: "New NPD found in historic version, already fixed in latest commit"
+    file: src/server/ns_turn_maps.c
+    function: addr_list_add
+    line: 623
+    description: "realloc failure leaves extra_list as NULL, subsequent array access dereferences NULL pointer"
     inter_procedural: false  # N3 total: 1 intra + 1 inter = 2
+    reference: https://repoaudit-home.github.io/static/bug/old/NPD/C_coturn_server.md
     detected_by: { repoaudit_claude35: true, speca: null }
 
   # --- libfreenect (N4): 1 Old, 0 New, 1 FP, 0 Intra, 1 Inter ---
@@ -219,7 +221,7 @@ bugs:
     bug_type: NPD
     source: old
     file: wrappers/c_sync/libfreenect_sync.c
-    function: freenect_init / freenect_select_subdevices
+    function: init_thread / freenect_init / freenect_select_subdevices
     line: 220
     description: "freenect_init() returns with NULL ctx, passed to freenect_select_subdevices() which dereferences it"
     inter_procedural: true
@@ -260,11 +262,12 @@ bugs:
     bug_type: NPD
     source: new
     still_in_latest: true
-    file: null
-    function: null
-    line: null
-    description: "Additional NPD from unchecked ber_strdup return value"
+    file: libraries/libldap/fetch.c
+    function: ldif_open_url
+    line: 71
+    description: "NULL from ber_strdup() at fetch.c:71 flows to strchr dereference without NULL check"
     inter_procedural: true
+    reference: https://repoaudit-home.github.io/static/bug/old/NPD/C_openldap.md
     detected_by: { repoaudit_claude35: true, speca: null }
 
   - id: RA-N5-N3
@@ -272,11 +275,13 @@ bugs:
     bug_type: NPD
     source: new
     still_in_latest: true
-    file: null
-    function: null
-    line: null
-    description: "Additional NPD from unchecked ber_strdup return value"
+    file: clients/tools/common.c  # Outside scan_dir=libraries
+    function: tool_bind
+    line: 1397
+    description: "NULL from ber_strdup(pw) assigned to passwd.bv_val, dereferenced without NULL check"
     inter_procedural: true
+    reference: https://repoaudit-home.github.io/static/bug/old/NPD/C_openldap.md
+    # scan_dir expanded to include clients/tools/
     detected_by: { repoaudit_claude35: true, speca: null }
 
   - id: RA-N5-N4
@@ -284,11 +289,13 @@ bugs:
     bug_type: NPD
     source: new
     still_in_latest: true
-    file: null
-    function: null
-    line: null
-    description: "Additional NPD from unchecked ber_strdup return value"
+    file: clients/tools/common.c  # Outside scan_dir=libraries
+    function: tool_args
+    line: 415
+    description: "NULL from ber_strdup() flows to passwd.bv_val, dereferenced via strlen in tool_args"
     inter_procedural: true
+    reference: https://repoaudit-home.github.io/static/bug/old/NPD/C_openldap.md
+    # scan_dir expanded to include clients/tools/
     detected_by: { repoaudit_claude35: true, speca: null }
 
   - id: RA-N5-N5
@@ -296,11 +303,13 @@ bugs:
     bug_type: NPD
     source: new
     still_in_latest: false
-    file: null
-    function: null
+    file: clients/tools/ldapvc.c  # Outside scan_dir=libraries; fixed via ITS#10309
+    function: handle_private_option
     line: null
-    description: "NPD from unchecked ber_strdup return value, fixed in latest"
+    description: "NULL from ber_strdup() for SASL options (mech/realm/authcid/authzid/secprops), fixed via ITS#10309 MR748"
     inter_procedural: true
+    reference: https://bugs.openldap.org/show_bug.cgi?id=10309
+    # scan_dir expanded to include clients/tools/
     detected_by: { repoaudit_claude35: true, speca: null }
 
   # ============================================================
@@ -326,11 +335,12 @@ bugs:
     bug_type: MLK
     source: new
     still_in_latest: true
-    file: null
-    function: null
-    line: null
-    description: "New memory leak found in historic version, still present"
+    file: src/permutate.hpp
+    function: permutateAlt
+    line: 79
+    description: "Dynamically allocated 'size_t* state = new size_t[L+1]' not freed on early return"
     inter_procedural: false
+    reference: https://repoaudit-home.github.io/static/bug/old/ML/C++_libsass.md
     detected_by: { repoaudit_claude35: true, speca: null }
 
   - id: RA-M1-N2
@@ -571,9 +581,10 @@ bugs:
     bug_type: UAF
     source: new
     still_in_latest: false
-    file: null  # Detected in historic version, already fixed
-    function: null
-    line: null
-    description: "New UAF found in historic version, already fixed in latest commit"
+    file: icu4c/source/i18n/tznames_impl.cpp
+    function: createInstance
+    line: 1557
+    description: "Use-after-free: alias 'regions' pointing to same memory as 'p' freed again after partial deallocation"
     inter_procedural: true  # U5 total: 1 intra + 1 inter = 2
+    reference: https://repoaudit-home.github.io/static/bug/old/UAF/C++_i18n.md
     detected_by: { repoaudit_claude35: true, speca: null }

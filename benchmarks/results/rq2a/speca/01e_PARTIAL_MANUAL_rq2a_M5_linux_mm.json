@@ -1,0 +1,238 @@
+{
+  "properties": [
+    {
+      "property_id": "PROP-M5-mlk-001",
+      "text": "All dynamically allocated memory in core-test.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in core-test.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M5-mlk-002",
+      "text": "All dynamically allocated memory in core.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in core.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M5-mlk-003",
+      "text": "All dynamically allocated memory in dbgfs-test.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in dbgfs-test.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M5-mlk-004",
+      "text": "All dynamically allocated memory in dbgfs.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in dbgfs.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M5-mlk-005",
+      "text": "All dynamically allocated memory in lru_sort.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in lru_sort.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M5-mlk-006",
+      "text": "All dynamically allocated memory in ops-common.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ops-common.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M5-mlk-007",
+      "text": "All dynamically allocated memory in paddr.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in paddr.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-007",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M5-mlk-008",
+      "text": "All dynamically allocated memory in reclaim.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in reclaim.c: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M5-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M5-mlk-009",
+      "text": "All dynamically allocated memory in sysfs.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sysfs.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M5-mlk-010",
+      "text": "All dynamically allocated memory in vaddr-test.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in vaddr-test.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M5-mlk-011",
+      "text": "All dynamically allocated memory in vaddr.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in vaddr.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M5-011",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Syscall",
+          "Sysfs"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 11,
+    "by_severity": {
+      "CRITICAL": 1,
+      "HIGH": 10,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    },
+    "by_scope": {
+      "in_scope": 11,
+      "out_of_scope": 0,
+      "conditional": 0
+    },
+    "bug_bounty_eligible_count": 11,
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "torvalds/linux",
+    "target_commit": "73b73bac90d97400e29e585c678c4d0ebfd2680d",
+    "scan_dir": "mm/damon",
+    "primary_bug_type": "MLK",
+    "total_source_files": 11,
+    "total_functions": 366
+  }
+}

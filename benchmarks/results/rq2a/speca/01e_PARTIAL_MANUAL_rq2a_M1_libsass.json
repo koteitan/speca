@@ -1,0 +1,1986 @@
+{
+  "properties": [
+    {
+      "property_id": "PROP-M1-mlk-001",
+      "text": "All dynamically allocated memory in ast.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-001",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-002",
+      "text": "All dynamically allocated memory in ast.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-003",
+      "text": "All dynamically allocated memory in ast2c.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast2c.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-004",
+      "text": "All dynamically allocated memory in ast2c.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast2c.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-005",
+      "text": "All dynamically allocated memory in ast_def_macros.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_def_macros.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-006",
+      "text": "All dynamically allocated memory in ast_fwd_decl.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_fwd_decl.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-006",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-007",
+      "text": "All dynamically allocated memory in ast_helpers.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_helpers.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-007",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-008",
+      "text": "All dynamically allocated memory in ast_sel_cmp.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_sel_cmp.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-009",
+      "text": "All dynamically allocated memory in ast_sel_super.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_sel_super.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-010",
+      "text": "All dynamically allocated memory in ast_sel_unify.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_sel_unify.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-011",
+      "text": "All dynamically allocated memory in ast_sel_weave.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_sel_weave.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-011",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-012",
+      "text": "All dynamically allocated memory in ast_selectors.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_selectors.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-012",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-013",
+      "text": "All dynamically allocated memory in ast_selectors.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_selectors.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-013",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-014",
+      "text": "All dynamically allocated memory in ast_supports.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_supports.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-014",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-015",
+      "text": "All dynamically allocated memory in ast_supports.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_supports.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-015",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-016",
+      "text": "All dynamically allocated memory in ast_values.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_values.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-016",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-017",
+      "text": "All dynamically allocated memory in ast_values.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ast_values.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-017",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-018",
+      "text": "All dynamically allocated memory in encode.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in encode.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-018",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-019",
+      "text": "All dynamically allocated memory in backtrace.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in backtrace.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-019",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-020",
+      "text": "All dynamically allocated memory in backtrace.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in backtrace.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-020",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-021",
+      "text": "All dynamically allocated memory in base64vlq.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in base64vlq.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-021",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-022",
+      "text": "All dynamically allocated memory in bind.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in bind.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-022",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-023",
+      "text": "All dynamically allocated memory in c2ast.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in c2ast.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-023",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-024",
+      "text": "All dynamically allocated memory in c99func.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in c99func.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-024",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-025",
+      "text": "All dynamically allocated memory in cencode.c must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in cencode.c: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-025",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-026",
+      "text": "All dynamically allocated memory in check_nesting.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in check_nesting.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-026",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-027",
+      "text": "All dynamically allocated memory in check_nesting.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in check_nesting.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-027",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-028",
+      "text": "All dynamically allocated memory in color_maps.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in color_maps.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-028",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-029",
+      "text": "All dynamically allocated memory in context.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in context.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-029",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-030",
+      "text": "All dynamically allocated memory in context.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in context.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-030",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-031",
+      "text": "All dynamically allocated memory in cssize.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in cssize.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-031",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-032",
+      "text": "All dynamically allocated memory in cssize.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in cssize.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-032",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-033",
+      "text": "All dynamically allocated memory in dart_helpers.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in dart_helpers.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-033",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-034",
+      "text": "All dynamically allocated memory in debugger.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in debugger.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-034",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-035",
+      "text": "All dynamically allocated memory in emitter.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in emitter.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-035",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-036",
+      "text": "All dynamically allocated memory in emitter.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in emitter.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-036",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-037",
+      "text": "All dynamically allocated memory in environment.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in environment.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-037",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-038",
+      "text": "All dynamically allocated memory in environment.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in environment.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-038",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-039",
+      "text": "All dynamically allocated memory in error_handling.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in error_handling.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-039",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-040",
+      "text": "All dynamically allocated memory in error_handling.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in error_handling.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-040",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-041",
+      "text": "All dynamically allocated memory in eval.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in eval.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-041",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-042",
+      "text": "All dynamically allocated memory in eval.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in eval.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-042",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-043",
+      "text": "All dynamically allocated memory in eval_selectors.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in eval_selectors.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-043",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-044",
+      "text": "All dynamically allocated memory in expand.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in expand.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-044",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-045",
+      "text": "All dynamically allocated memory in extender.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in extender.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-045",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-046",
+      "text": "All dynamically allocated memory in extension.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in extension.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-046",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-047",
+      "text": "All dynamically allocated memory in file.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in file.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-047",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-048",
+      "text": "All dynamically allocated memory in file.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in file.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-048",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-049",
+      "text": "All dynamically allocated memory in fn_colors.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in fn_colors.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-049",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-050",
+      "text": "All dynamically allocated memory in fn_maps.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in fn_maps.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-050",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-051",
+      "text": "All dynamically allocated memory in fn_miscs.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in fn_miscs.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-051",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-052",
+      "text": "All dynamically allocated memory in fn_numbers.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in fn_numbers.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-052",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-053",
+      "text": "All dynamically allocated memory in fn_selectors.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in fn_selectors.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-053",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-054",
+      "text": "All dynamically allocated memory in fn_strings.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in fn_strings.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-054",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-055",
+      "text": "All dynamically allocated memory in fn_utils.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in fn_utils.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-055",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-056",
+      "text": "All dynamically allocated memory in fn_utils.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in fn_utils.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-056",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-057",
+      "text": "All dynamically allocated memory in inspect.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in inspect.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-057",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-058",
+      "text": "All dynamically allocated memory in json.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in json.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-058",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-059",
+      "text": "All dynamically allocated memory in kwd_arg_macros.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in kwd_arg_macros.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-059",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-060",
+      "text": "All dynamically allocated memory in lexer.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in lexer.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-060",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-061",
+      "text": "All dynamically allocated memory in lexer.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in lexer.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-061",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-062",
+      "text": "All dynamically allocated memory in listize.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in listize.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-062",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-063",
+      "text": "All dynamically allocated memory in listize.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in listize.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-063",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-064",
+      "text": "All dynamically allocated memory in mapping.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in mapping.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-064",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-065",
+      "text": "All dynamically allocated memory in SharedPtr.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in SharedPtr.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-065",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-066",
+      "text": "All dynamically allocated memory in SharedPtr.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in SharedPtr.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-066",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-067",
+      "text": "All dynamically allocated memory in operation.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in operation.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-067",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-068",
+      "text": "All dynamically allocated memory in operators.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in operators.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-068",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-069",
+      "text": "All dynamically allocated memory in ordered_map.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in ordered_map.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-069",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-070",
+      "text": "All dynamically allocated memory in output.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in output.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-070",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-071",
+      "text": "All dynamically allocated memory in parser.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in parser.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-071",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-072",
+      "text": "All dynamically allocated memory in parser.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in parser.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-072",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-073",
+      "text": "All dynamically allocated memory in parser_selectors.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in parser_selectors.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-073",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-074",
+      "text": "All dynamically allocated memory in permutate.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in permutate.hpp: exists free(p) on all paths",
+      "severity": "CRITICAL",
+      "covers": "FILE-M1-074",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-075",
+      "text": "All dynamically allocated memory in plugins.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in plugins.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-075",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-076",
+      "text": "All dynamically allocated memory in plugins.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in plugins.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-076",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-077",
+      "text": "All dynamically allocated memory in position.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in position.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-077",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-078",
+      "text": "All dynamically allocated memory in position.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in position.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-078",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-079",
+      "text": "All dynamically allocated memory in prelexer.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in prelexer.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-079",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-080",
+      "text": "All dynamically allocated memory in prelexer.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in prelexer.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-080",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-081",
+      "text": "All dynamically allocated memory in remove_placeholders.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in remove_placeholders.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-081",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-082",
+      "text": "All dynamically allocated memory in remove_placeholders.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in remove_placeholders.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-082",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-083",
+      "text": "All dynamically allocated memory in sass.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sass.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-083",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-084",
+      "text": "All dynamically allocated memory in sass.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sass.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-084",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-085",
+      "text": "All dynamically allocated memory in sass2scss.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sass2scss.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-085",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-086",
+      "text": "All dynamically allocated memory in sass_context.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sass_context.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-086",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-087",
+      "text": "All dynamically allocated memory in sass_functions.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sass_functions.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-087",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-088",
+      "text": "All dynamically allocated memory in sass_values.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in sass_values.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-088",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-089",
+      "text": "All dynamically allocated memory in source_map.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in source_map.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-089",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-090",
+      "text": "All dynamically allocated memory in source_map.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in source_map.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-090",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-091",
+      "text": "All dynamically allocated memory in to_value.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in to_value.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-091",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-092",
+      "text": "All dynamically allocated memory in to_value.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in to_value.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-092",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-093",
+      "text": "All dynamically allocated memory in units.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in units.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-093",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-094",
+      "text": "All dynamically allocated memory in units.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in units.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-094",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-095",
+      "text": "All dynamically allocated memory in checked.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in checked.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-095",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-096",
+      "text": "All dynamically allocated memory in core.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in core.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-096",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-097",
+      "text": "All dynamically allocated memory in unchecked.h must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in unchecked.h: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-097",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-098",
+      "text": "All dynamically allocated memory in utf8_string.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in utf8_string.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-098",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-099",
+      "text": "All dynamically allocated memory in util.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in util.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-099",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-100",
+      "text": "All dynamically allocated memory in util.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in util.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-100",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-101",
+      "text": "All dynamically allocated memory in util_string.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in util_string.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-101",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-102",
+      "text": "All dynamically allocated memory in util_string.hpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in util_string.hpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-102",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-103",
+      "text": "All dynamically allocated memory in values.cpp must be freed on every execution path.",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in values.cpp: exists free(p) on all paths",
+      "severity": "HIGH",
+      "covers": "FILE-M1-103",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FileParser",
+          "LibraryAPI"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-03-06T14:00:00Z",
+    "total_properties": 103,
+    "by_severity": {
+      "CRITICAL": 1,
+      "HIGH": 102,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    },
+    "by_scope": {
+      "in_scope": 103,
+      "out_of_scope": 0,
+      "conditional": 0
+    },
+    "bug_bounty_eligible_count": 103,
+    "benchmark": "rq2a",
+    "source": "manual",
+    "target_repo": "sass/libsass",
+    "target_commit": "4da7c4bd13b8e9e5cd034f358dceda0bbba917d2",
+    "scan_dir": "src",
+    "primary_bug_type": "MLK",
+    "total_source_files": 103,
+    "total_functions": 2364
+  }
+}
