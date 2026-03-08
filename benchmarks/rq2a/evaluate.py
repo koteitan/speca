@@ -13,6 +13,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import os
 import re
@@ -145,6 +146,29 @@ def load_findings(project_dir: Path) -> list[dict]:
         data = json.loads(f.read_text())
         findings.extend(data.get("audit_items", []))
     return findings
+
+
+def load_human_review(results_dir: Path) -> dict[str, dict[str, str]]:
+    """Load human review verdicts from per-project CSVs.
+
+    Returns {property_id: {"result": "TP"/"FP", "reason": "..."}}.
+    """
+    verdicts: dict[str, dict[str, str]] = {}
+    for project_dir in sorted(results_dir.iterdir()):
+        if not project_dir.is_dir():
+            continue
+        csv_path = project_dir / "human_review.csv"
+        if not csv_path.exists():
+            continue
+        with csv_path.open("r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                pid = row.get("property_id", "").strip()
+                result = row.get("result", "").strip().upper()
+                reason = row.get("reason", "").strip()
+                if pid and result in ("TP", "FP"):
+                    verdicts[pid] = {"result": result, "reason": reason}
+    return verdicts
 
 
 # ── Recall matching: bug → findings ────────────────────────────────
@@ -436,25 +460,48 @@ def evaluate(results_dir: Path, output_path: Path, reparse: bool = False) -> dic
         recall_matches, llm_calls = match_bugs(bugs, project_findings, cache_recall)
         print(f"LLM calls: {llm_calls}")
 
-    # ── Step 2: FP detection — finding → bugs ─────────────────────
+    # ── Step 2: Human review + FP detection ─────────────────────────
     matched_pids = {m["finding_id"] for m in recall_matches.values() if m.get("finding_id")}
     unmatched = [f for f in all_positive if f.get("property_id") not in matched_pids]
 
-    # Group bugs by project for FP check
+    # Load human review verdicts
+    human_verdicts = load_human_review(results_dir)
+    human_reviewed_tp_pids: list[str] = []
+    human_reviewed_fp_pids: list[str] = []
+    still_unreviewed: list[dict] = []
+
+    for f in unmatched:
+        pid = f.get("property_id", "")
+        verdict = human_verdicts.get(pid)
+        if verdict and verdict["result"] == "TP":
+            human_reviewed_tp_pids.append(pid)
+        elif verdict and verdict["result"] == "FP":
+            human_reviewed_fp_pids.append(pid)
+        else:
+            still_unreviewed.append(f)
+
+    print(f"\n=== Step 2: Human review ({len(unmatched)} unmatched findings) ===")
+    print(f"  Human TP: {len(human_reviewed_tp_pids)}")
+    print(f"  Human FP: {len(human_reviewed_fp_pids)}")
+    print(f"  Unreviewed: {len(still_unreviewed)}")
+
+    # Group bugs by project for LLM FP fallback on unreviewed findings
     bugs_by_project: dict[str, list[dict]] = defaultdict(list)
     for bug in bugs:
         bugs_by_project[bug["project"]].append(bug)
 
     cache_fp = results_dir / "llm_cache_fp.jsonl"
-    print(f"\n=== Step 2: FP detection ({len(unmatched)} unmatched findings) ===")
+    fp_matches: dict[str, dict] = {}
 
-    if reparse and cache_fp.exists():
-        print(f"Re-parsing cache: {cache_fp}")
-        fp_matches = reparse_fp_cache(cache_fp)
-    else:
-        fp_matches = check_findings_fp(unmatched, bugs_by_project, cache_fp)
+    if still_unreviewed:
+        print(f"\n=== Step 2b: LLM FP fallback ({len(still_unreviewed)} unreviewed) ===")
+        if reparse and cache_fp.exists():
+            print(f"Re-parsing cache: {cache_fp}")
+            fp_matches = reparse_fp_cache(cache_fp)
+        else:
+            fp_matches = check_findings_fp(still_unreviewed, bugs_by_project, cache_fp)
 
-    # FP matches found in step 2 → also count as TP (the recall step missed them)
+    # FP matches found via LLM → also count as TP (the recall step missed them)
     for pid, info in fp_matches.items():
         bug_id = info.get("bug_id")
         if bug_id and bug_id not in recall_matches:
@@ -462,9 +509,16 @@ def evaluate(results_dir: Path, output_path: Path, reparse: bool = False) -> dic
 
     # ── Compute metrics ───────────────────────────────────────────
     detected_bugs = set(recall_matches.keys())
-    matched_finding_pids = matched_pids | set(fp_matches.keys())
-    fp = total_positive - len(matched_finding_pids)
-    tp = len(detected_bugs)
+    gt_tp = len(detected_bugs)
+    new_tp = len(human_reviewed_tp_pids)
+    tp = gt_tp + new_tp
+
+    # FP = human-FP + unreviewed-unmatched (LLM couldn't match to GT either)
+    unreviewed_unmatched_pids = [
+        f.get("property_id", "") for f in still_unreviewed
+        if f.get("property_id", "") not in fp_matches
+    ]
+    fp = len(human_reviewed_fp_pids) + len(unreviewed_unmatched_pids)
 
     per_project: dict[str, int] = defaultdict(int)
     bug_type_tp: dict[str, int] = defaultdict(int)
@@ -487,6 +541,10 @@ def evaluate(results_dir: Path, output_path: Path, reparse: bool = False) -> dic
     summary = {
         "tp": tp,
         "fp": fp,
+        "gt_tp": gt_tp,
+        "new_tp": new_tp,
+        "human_reviewed": len(human_reviewed_tp_pids) + len(human_reviewed_fp_pids),
+        "unreviewed": len(unreviewed_unmatched_pids),
         "precision": precision,
         "recall": recall,
         "f1": f1,
@@ -498,6 +556,7 @@ def evaluate(results_dir: Path, output_path: Path, reparse: bool = False) -> dic
         "detected_bugs": sorted(detected_bugs),
         "missed_bugs": sorted(set(b["id"] for b in bugs) - detected_bugs),
         "matches": {k: v for k, v in recall_matches.items()},
+        "new_tp_findings": sorted(human_reviewed_tp_pids),
         "llm_model": os.environ.get("RQ2A_MODEL", "haiku"),
     }
 
@@ -511,11 +570,14 @@ def evaluate(results_dir: Path, output_path: Path, reparse: bool = False) -> dic
 
 def _empty_summary(bugs: list[dict], total_gt: int, output_path: Path) -> dict:
     summary = {
-        "tp": 0, "fp": 0, "precision": 0.0, "recall": 0.0, "f1": 0.0,
+        "tp": 0, "fp": 0, "gt_tp": 0, "new_tp": 0,
+        "human_reviewed": 0, "unreviewed": 0,
+        "precision": 0.0, "recall": 0.0, "f1": 0.0,
         "total_ground_truth": total_gt, "total_positive_findings": 0,
         "total_cost": None, "bug_type_breakdown": {}, "per_project": {},
         "detected_bugs": [], "missed_bugs": sorted(b["id"] for b in bugs),
-        "matches": {}, "llm_model": os.environ.get("RQ2A_MODEL", "haiku"),
+        "matches": {}, "new_tp_findings": [],
+        "llm_model": os.environ.get("RQ2A_MODEL", "haiku"),
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(summary, indent=2) + "\n")
@@ -530,8 +592,10 @@ def _print_report(summary: dict, bugs: list[dict]) -> None:
     print(f"  Model             : {summary.get('llm_model', '?')}")
     print(f"  Ground truth bugs : {summary['total_ground_truth']}")
     print(f"  Positive findings : {summary['total_positive_findings']}")
-    print(f"  True Positives    : {summary['tp']}")
+    print(f"  True Positives    : {summary['tp']}  (GT={summary.get('gt_tp', summary['tp'])}, new={summary.get('new_tp', 0)})")
     print(f"  False Positives   : {summary['fp']}")
+    print(f"  Human reviewed    : {summary.get('human_reviewed', 0)}")
+    print(f"  Unreviewed        : {summary.get('unreviewed', 0)}")
     print(f"  Precision         : {summary['precision']:.2f}%")
     print(f"  Recall            : {summary['recall']:.2f}%")
     print(f"  F1                : {summary['f1']:.2f}%")

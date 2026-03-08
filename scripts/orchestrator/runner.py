@@ -705,6 +705,33 @@ class ClaudeRunner:
             f"subtype=success but no parseable results found",
             file=sys.stderr,
         )
+
+        # Dump diagnostic info for CI debugging
+        result_text = result_info.get("result", "")
+        if result_text:
+            snippet = str(result_text)[:500]
+            print(
+                f"[W{worker_id}] Batch {batch_index} result snippet: {snippet}",
+                file=sys.stderr,
+            )
+        # Show stderr from log if available
+        try:
+            if log_file.exists():
+                with open(log_file, errors="replace") as lf:
+                    for line in lf:
+                        try:
+                            obj = json.loads(line)
+                            if isinstance(obj, dict) and obj.get("type") == "stderr":
+                                stderr_text = str(obj.get("text", ""))[:500]
+                                print(
+                                    f"[W{worker_id}] Batch {batch_index} stderr: {stderr_text}",
+                                    file=sys.stderr,
+                                )
+                        except json.JSONDecodeError:
+                            continue
+        except Exception:
+            pass
+
         return None
 
     @staticmethod

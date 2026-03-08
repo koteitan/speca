@@ -179,6 +179,25 @@ jobs:
         env:
           GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Dump failure diagnostics
+        if: failure()
+        run: |
+          echo "=== Error logs ==="
+          for f in outputs/logs/03_*.error.log; do
+            [ -f "$f" ] || continue
+            echo "--- $(basename "$f") ---"
+            head -50 "$f"
+            echo ""
+          done | head -200
+
+          echo "=== Last result events from stream logs ==="
+          for f in outputs/logs/03_*.log.jsonl; do
+            [ -f "$f" ] || continue
+            echo "--- $(basename "$f") ---"
+            grep -m1 '"type":"result"' "$f" 2>/dev/null || grep -m1 '"type": "result"' "$f" 2>/dev/null || echo "  (no result event)"
+            grep '"type":"stderr"' "$f" 2>/dev/null || grep '"type": "stderr"' "$f" 2>/dev/null || true
+          done | head -200
+
       - name: Prepare results for upload
         if: always()
         run: |
@@ -250,19 +269,33 @@ jobs:
               rm -rf "${TARGET}"
             fi
 
-            # Copy new results (skip if job failed and produced nothing)
+            mkdir -p "${TARGET}"
+
+            # Always copy logs (even for failed projects — crucial for debugging)
+            if [ -d "${dir}logs" ] && compgen -G "${dir}logs/*" >/dev/null 2>&1; then
+              mkdir -p "${TARGET}/logs"
+              cp "${dir}"logs/* "${TARGET}/logs/"
+            fi
+
+            # Copy results if available
             if compgen -G "${dir}03_PARTIAL_*.json" >/dev/null 2>&1; then
-              mkdir -p "${TARGET}"
               cp "${dir}"03_PARTIAL_*.json "${TARGET}/"
-              if [ -d "${dir}logs" ] && compgen -G "${dir}logs/*" >/dev/null 2>&1; then
-                mkdir -p "${TARGET}/logs"
-                cp "${dir}"logs/* "${TARGET}/logs/"
-              fi
               echo "  ${PROJECT_ID}: $(ls "${TARGET}"/03_PARTIAL_*.json | wc -l) result files"
             else
               echo "  ${PROJECT_ID}: no results (job may have failed)"
+              # Dump first error log for quick diagnosis in CI
+              FIRST_ERR=$(ls "${TARGET}"/logs/*.error.log 2>/dev/null | head -1)
+              if [ -n "${FIRST_ERR}" ]; then
+                echo "    First error log ($(basename "${FIRST_ERR}")):"
+                head -20 "${FIRST_ERR}" | sed 's/^/      /'
+              fi
             fi
           done
+
+      - name: Generate human review CSVs
+        run: |
+          uv run python3 benchmarks/rq2a/generate_human_review.py \
+            --results-dir benchmarks/results/rq2a/speca
 
       - name: Push to master
         run: |
