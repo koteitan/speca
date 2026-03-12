@@ -1,0 +1,22 @@
+{
+  "audit_items": [
+    {
+      "property_id": "PROP-M2-mlk-013",
+      "classification": "vulnerability",
+      "code_path": "memcached.c::main::L5733-5771",
+      "proof_trace": "temp_portnumber_filename is malloc'd at L5733 when portnumber_filename != NULL, but the only free() call (L5770) is guarded by if (portnumber_file), which is NULL when fopen() fails (L5739). On the path where fopen() returns NULL, execution continues through socket setup and into the event loop without ever freeing the allocation \u2014 a confirmed memory leak for the process lifetime.",
+      "attack_scenario": "Start memcached with MEMCACHED_PORT_FILENAME set to a path the process cannot write (e.g., /root/portfile in an unprivileged context): fopen() returns NULL, the error is only logged to stderr, and the malloc'd temp_portnumber_filename buffer is leaked for the entire server lifetime.",
+      "checklist_id": "PROP-M2-mlk-013"
+    }
+  ],
+  "metadata": {
+    "phase": "03",
+    "worker_id": 7,
+    "batch_index": 7,
+    "item_count": 1,
+    "timestamp": 1773308781,
+    "processed_ids": [
+      "PROP-M2-mlk-013"
+    ]
+  }
+}

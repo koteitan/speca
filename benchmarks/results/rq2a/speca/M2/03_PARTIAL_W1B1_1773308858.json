@@ -1,0 +1,22 @@
+{
+  "audit_items": [
+    {
+      "property_id": "PROP-M2-mlk-005",
+      "classification": "potential-vulnerability",
+      "code_path": "cache.c::cache_free::L106-147",
+      "proof_trace": "In debug builds, both redzone-check failure branches (L113-116 and L121-124) call `raise(SIGABRT)` but then set `cache_error` and `return` without freeing or re-pooling `ptr`, producing a memory leak whenever SIGABRT is caught or ignored. This exact scenario is confirmed by `testapp.c:150-183`, which installs `SIG_IGN` for SIGABRT and calls `cache_free` with corrupted redzones \u2014 execution continues past `raise(SIGABRT)` and `ptr` is neither freed by `cache_free` nor reclaimed by the subsequent `cache_destroy`. Release builds (NDEBUG) are unaffected as these paths are compiled out.",
+      "attack_scenario": "In a debug-mode memcached instance where SIGABRT is caught or ignored (as explicitly exercised in testapp.c), repeated invocations of `cache_free` with redzone-corrupted buffers cause `ptr` to be silently discarded \u2014 not freed and not returned to the pool \u2014 causing unbounded memory growth that can contribute to OOM-based denial of service.",
+      "checklist_id": "PROP-M2-mlk-005"
+    }
+  ],
+  "metadata": {
+    "phase": "03",
+    "worker_id": 1,
+    "batch_index": 1,
+    "item_count": 1,
+    "timestamp": 1773308858,
+    "processed_ids": [
+      "PROP-M2-mlk-005"
+    ]
+  }
+}

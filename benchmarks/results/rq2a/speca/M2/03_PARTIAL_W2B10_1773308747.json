@@ -1,0 +1,22 @@
+{
+  "audit_items": [
+    {
+      "property_id": "PROP-M2-mlk-016",
+      "classification": "out-of-scope",
+      "code_path": "restart.c::restart_get_kv::L1-1",
+      "proof_trace": "The file restart.c does not exist in the target workspace at commit e15e1d6b967eed53ddcfd61c0c90c38d0b017996; the restart feature (restart_get_kv, RESTART_NOTAG) was added in a later version of memcached. Phase 02c resolution_status 'resolved' was erroneous \u2014 the code is not present at the audited commit.",
+      "attack_scenario": "",
+      "checklist_id": "PROP-M2-mlk-016"
+    }
+  ],
+  "metadata": {
+    "phase": "03",
+    "worker_id": 2,
+    "batch_index": 10,
+    "item_count": 1,
+    "timestamp": 1773308747,
+    "processed_ids": [
+      "PROP-M2-mlk-016"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "audit_items": [
+    {
+      "property_id": "PROP-M2-mlk-012",
+      "classification": "not-a-vulnerability",
+      "code_path": "memcached.c::main::L5416-5539",
+      "proof_trace": "free(subopts_orig) at L5539 is indeed bypassed by 14+ return 1 statements on error paths inside the sub-option parsing loop (L5427-L5535). However, all bypassing paths are return statements from main(), meaning the process exits immediately; the OS unconditionally reclaims all heap memory on process termination, so no persistent leak occurs. This is a memory hygiene issue visible to static analyzers but not a security vulnerability.",
+      "attack_scenario": "",
+      "checklist_id": "PROP-M2-mlk-012"
+    }
+  ],
+  "metadata": {
+    "phase": "03",
+    "worker_id": 6,
+    "batch_index": 6,
+    "item_count": 1,
+    "timestamp": 1773308755,
+    "processed_ids": [
+      "PROP-M2-mlk-012"
+    ]
+  }
+}
