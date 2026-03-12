@@ -165,62 +165,6 @@
       "bug_bounty_eligible": true
     },
     {
-      "property_id": "PROP-N5-npd-010",
-      "text": "Return value of print_search_entry() in test.c must be NULL-checked before dereference by all callers",
-      "type": "invariant",
-      "assertion": "forall call(r, print_search_entry): r != NULL before deref(r) OR error_handled(r == NULL)",
-      "severity": "CRITICAL",
-      "covers": "FN-N5-010",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "ProgramEntry",
-          "CallbackHandler"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N5-npd-011",
-      "text": "Return value of add_thread_info() in thr_debug.c must be NULL-checked before dereference by all callers",
-      "type": "invariant",
-      "assertion": "forall call(r, add_thread_info): r != NULL before deref(r) OR error_handled(r == NULL)",
-      "severity": "CRITICAL",
-      "covers": "FN-N5-011",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "CallbackHandler"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N5-npd-012",
-      "text": "Return value of ldap_pvt_thread_key_setdata() in thr_nt.c must be NULL-checked before dereference by all callers",
-      "type": "invariant",
-      "assertion": "forall call(r, ldap_pvt_thread_key_setdata): r != NULL before deref(r) OR error_handled(r == NULL)",
-      "severity": "CRITICAL",
-      "covers": "FN-N5-012",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "CallbackHandler",
-          "Initialization"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
       "property_id": "PROP-N5-npd-013",
       "text": "Return value of ber_strdup_x() must be NULL-checked by all callers before dereference",
       "type": "invariant",
@@ -331,9 +275,9 @@
   ],
   "metadata": {
     "timestamp": "2026-03-12T07:15:48Z",
-    "total_properties": 18,
+    "total_properties": 15,
     "by_severity": {
-      "CRITICAL": 12,
+      "CRITICAL": 9,
       "HIGH": 6,
       "MEDIUM": 0,
       "LOW": 0,
