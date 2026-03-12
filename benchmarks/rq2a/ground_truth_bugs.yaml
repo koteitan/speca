@@ -335,7 +335,7 @@ bugs:
     description: "Dynamically allocated 'size_t* state = new size_t[L+1]' not freed on early return at line 12"
     inter_procedural: false
     reproducible: true
-    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: false }
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: true }
 
   - id: RA-M1-N1
     project: libsass

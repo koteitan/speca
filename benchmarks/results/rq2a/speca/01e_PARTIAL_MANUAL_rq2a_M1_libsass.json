@@ -219,9 +219,27 @@
     },
     {
       "property_id": "PROP-M1-mlk-013",
-      "text": "Allocations in register_resource() must be freed before exception throw to prevent leak on recovery",
+      "text": "Each throw-site in register_resource() must free import entry and source before throwing",
       "type": "invariant",
-      "assertion": "forall alloc in register_resource: free before throw OR exception-safe ownership transfer",
+      "assertion": "forall throw-site T in register_resource: forall alloc A live at T: A is explicitly freed before T",
+      "severity": "MEDIUM",
+      "covers": "FN-M1-GT03",
+      "reachability": {
+        "classification": "internal",
+        "entry_points": [
+          "ProgramEntry"
+        ],
+        "attacker_controlled": false,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "local-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-M1-mlk-014",
+      "text": "No aliased ownership between import_stack and resources at throw-sites in register_resource()",
+      "type": "invariant",
+      "assertion": "forall throw-site T in register_resource: forall alloc A live at T: A has exactly one cleanup owner (no aliased pointers)",
       "severity": "MEDIUM",
       "covers": "FN-M1-GT03",
       "reachability": {
@@ -238,7 +256,7 @@
   ],
   "metadata": {
     "timestamp": "2026-03-12T07:15:48Z",
-    "total_properties": 13,
+    "total_properties": 14,
     "by_severity": {
       "CRITICAL": 4,
       "HIGH": 8,

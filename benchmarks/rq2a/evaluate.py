@@ -89,6 +89,16 @@ def extract_json_from_text(text: str) -> dict | None:
             return payload
     except json.JSONDecodeError:
         pass
+    # Try markdown code block first (avoids greedy regex capturing braces in prose)
+    md_match = re.search(r"```(?:json)?\s*\n?(.*?)\n?\s*```", text, flags=re.DOTALL)
+    if md_match:
+        try:
+            payload = json.loads(md_match.group(1))
+            if isinstance(payload, dict):
+                return payload
+        except json.JSONDecodeError:
+            pass
+    # Fallback: greedy brace match (may fail if prose contains braces like `return {}`)
     match = re.search(r"\{.*\}", text, flags=re.DOTALL)
     if match:
         try:
