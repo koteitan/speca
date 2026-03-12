@@ -1,22 +1,23 @@
 {
-  "tp": 9,
-  "fp": 0,
-  "gt_tp": 9,
+  "tp": 17,
+  "fp": 1,
+  "gt_tp": 17,
   "new_tp": 0,
   "human_reviewed": 0,
-  "unreviewed": 0,
-  "precision": 100.0,
-  "recall": 25.0,
-  "f1": 40.0,
+  "unreviewed": 1,
+  "precision": 94.44,
+  "recall": 47.22,
+  "f1": 62.96,
   "total_ground_truth": 36,
   "total_ground_truth_incl_disputed": 40,
-  "total_positive_findings": 9,
+  "total_positive_findings": 17,
   "total_cost": null,
   "bug_type_breakdown": {
-    "NPD": 5,
+    "NPD": 13,
     "MLK": 4
   },
   "per_project": {
+    "N2": 8,
     "N5": 5,
     "M2": 4
   },
@@ -25,6 +26,14 @@
     "RA-M2-N4",
     "RA-M2-N5",
     "RA-M2-N6",
+    "RA-N2-N1",
+    "RA-N2-O1",
+    "RA-N2-O2",
+    "RA-N2-O3",
+    "RA-N2-O4",
+    "RA-N2-O5",
+    "RA-N2-O6",
+    "RA-N2-O7",
     "RA-N5-N1",
     "RA-N5-N2",
     "RA-N5-N3",
@@ -42,14 +51,6 @@
     "RA-N1-N2",
     "RA-N1-N3",
     "RA-N1-O1",
-    "RA-N2-N1",
-    "RA-N2-O1",
-    "RA-N2-O2",
-    "RA-N2-O3",
-    "RA-N2-O4",
-    "RA-N2-O5",
-    "RA-N2-O6",
-    "RA-N2-O7",
     "RA-N3-N1",
     "RA-N3-O1",
     "RA-N4-O1",
@@ -73,6 +74,38 @@
     "note": "Disputed bugs have no exploit path; not detecting them is correct (TN)"
   },
   "matches": {
+    "RA-N2-O1": {
+      "finding_id": "PROP-N2-npd-012",
+      "confidence": 0.98
+    },
+    "RA-N2-O2": {
+      "finding_id": "PROP-N2-npd-013",
+      "confidence": 0.92
+    },
+    "RA-N2-O3": {
+      "finding_id": "PROP-N2-npd-014",
+      "confidence": 0.98
+    },
+    "RA-N2-O4": {
+      "finding_id": "PROP-N2-npd-014",
+      "confidence": 1.0
+    },
+    "RA-N2-O5": {
+      "finding_id": "PROP-N2-npd-015",
+      "confidence": 0.99
+    },
+    "RA-N2-O6": {
+      "finding_id": "PROP-N2-npd-016",
+      "confidence": 0.98
+    },
+    "RA-N2-O7": {
+      "finding_id": "PROP-N2-npd-018",
+      "confidence": 0.95
+    },
+    "RA-N2-N1": {
+      "finding_id": "PROP-N2-npd-017",
+      "confidence": 0.95
+    },
     "RA-N5-O1": {
       "finding_id": "PROP-N5-npd-015",
       "confidence": 0.95
