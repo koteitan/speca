@@ -177,11 +177,28 @@ def match_bugs(
     bugs: list[dict],
     project_findings: dict[str, list[dict]],
     cache_path: Path | None = None,
+    target_project_names: set[str] | None = None,
 ) -> tuple[dict[str, dict], int]:
     """For each ground truth bug, ask Claude if any SPECA finding detects it.
 
+    If target_project_names is set, only call LLM for bugs in those projects;
+    reuse cached responses for other projects (incremental mode).
+
     Returns (matches, llm_calls) where matches = {bug_id: {finding_id, confidence}}.
     """
+    # Load existing cache for incremental mode
+    existing_cache: dict[str, dict] = {}
+    if target_project_names is not None and cache_path and cache_path.exists():
+        for line in cache_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+                existing_cache[record["bug_id"]] = record
+            except (json.JSONDecodeError, KeyError):
+                pass
+        print(f"  Loaded {len(existing_cache)} cached recall entries (incremental mode)")
+
     matches: dict[str, dict] = {}
     llm_calls = 0
     cache_handle = None
@@ -194,7 +211,29 @@ def match_bugs(
             project_name = bug["project"]
             findings = project_findings.get(project_name, [])
             if not findings:
+                if cache_handle and bug["id"] in existing_cache:
+                    cache_handle.write(json.dumps(existing_cache[bug["id"]], ensure_ascii=False) + "\n")
+                    cache_handle.flush()
                 print(f"  {bug['id']}: SKIP (no findings for {project_name})")
+                continue
+
+            # Incremental: use cache for non-target projects
+            if (
+                target_project_names is not None
+                and project_name not in target_project_names
+                and bug["id"] in existing_cache
+            ):
+                cached = existing_cache[bug["id"]]
+                if cache_handle:
+                    cache_handle.write(json.dumps(cached, ensure_ascii=False) + "\n")
+                    cache_handle.flush()
+                cached_fids = cached.get("finding_ids", [])
+                matched, finding_id, confidence = _parse_response(cached["raw"], cached_fids)
+                if matched:
+                    matches[bug["id"]] = {"finding_id": finding_id, "confidence": confidence}
+                    print(f"  {bug['id']}: CACHED -> {finding_id} (conf={confidence})")
+                else:
+                    print(f"  {bug['id']}: CACHED no match")
                 continue
 
             # Build findings block
@@ -270,11 +309,28 @@ def check_findings_fp(
     unmatched_findings: list[dict],
     project_bugs: dict[str, list[dict]],
     cache_path: Path | None = None,
+    target_project_names: set[str] | None = None,
 ) -> dict[str, dict]:
     """For each unmatched finding, ask Claude if it matches any known bug.
 
+    If target_project_names is set, only call LLM for findings in those projects;
+    reuse cached responses for other projects (incremental mode).
+
     Returns {property_id: {bug_id, confidence}} for matched findings (→ not FP).
     """
+    # Load existing cache for incremental mode
+    existing_cache: dict[str, dict] = {}
+    if target_project_names is not None and cache_path and cache_path.exists():
+        for line in cache_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+                existing_cache[record["finding_id"]] = record
+            except (json.JSONDecodeError, KeyError):
+                pass
+        print(f"  Loaded {len(existing_cache)} cached FP entries (incremental mode)")
+
     results: dict[str, dict] = {}
     cache_handle = None
     if cache_path:
@@ -286,6 +342,27 @@ def check_findings_fp(
             project_name = finding.get("_project", "")
             bugs = project_bugs.get(project_name, [])
             if not bugs:
+                continue
+
+            pid = finding.get("property_id", "")
+
+            # Incremental: use cache for non-target projects
+            if (
+                target_project_names is not None
+                and project_name not in target_project_names
+                and pid in existing_cache
+            ):
+                cached = existing_cache[pid]
+                if cache_handle:
+                    cache_handle.write(json.dumps(cached, ensure_ascii=False) + "\n")
+                    cache_handle.flush()
+                cached_bids = cached.get("bug_ids", [])
+                matched, bug_id, confidence = _parse_response(cached["raw"], cached_bids, index_key="bug_index")
+                if matched and bug_id:
+                    results[pid] = {"bug_id": bug_id, "confidence": confidence}
+                    print(f"  fp-check {pid}: CACHED -> {bug_id} (conf={confidence})")
+                else:
+                    print(f"  fp-check {pid}: CACHED FP")
                 continue
 
             # Build bugs block
@@ -409,7 +486,22 @@ def update_baselines(summary: dict) -> None:
 
 # ── Main evaluation ───────────────────────────────────────────────
 
-def evaluate(results_dir: Path, output_path: Path, reparse: bool = False) -> dict:
+def evaluate(results_dir: Path, output_path: Path, reparse: bool = False,
+             target_project_ids: list[str] | None = None) -> dict:
+    # Compute target project names for incremental mode
+    target_pnames: set[str] | None = None
+    if target_project_ids:
+        target_pnames = set()
+        for pid in target_project_ids:
+            if pid in PROJECT_ID_TO_NAME:
+                target_pnames.add(PROJECT_ID_TO_NAME[pid])
+            else:
+                print(f"  WARNING: Unknown project ID '{pid}', skipping")
+        if not target_pnames:
+            target_pnames = None
+        else:
+            print(f"  Incremental mode: targeting {sorted(target_pnames)}")
+
     # Load ground truth
     gt = yaml.safe_load(GROUND_TRUTH_PATH.read_text())
     bugs = gt["bugs"]
@@ -457,7 +549,7 @@ def evaluate(results_dir: Path, output_path: Path, reparse: bool = False) -> dic
         print(f"Re-parsing cache: {cache_recall}")
         recall_matches, _ = reparse_recall_cache(cache_recall)
     else:
-        recall_matches, llm_calls = match_bugs(bugs, project_findings, cache_recall)
+        recall_matches, llm_calls = match_bugs(bugs, project_findings, cache_recall, target_pnames)
         print(f"LLM calls: {llm_calls}")
 
     # ── Step 2: Human review + FP detection ─────────────────────────
@@ -499,7 +591,7 @@ def evaluate(results_dir: Path, output_path: Path, reparse: bool = False) -> dic
             print(f"Re-parsing cache: {cache_fp}")
             fp_matches = reparse_fp_cache(cache_fp)
         else:
-            fp_matches = check_findings_fp(still_unreviewed, bugs_by_project, cache_fp)
+            fp_matches = check_findings_fp(still_unreviewed, bugs_by_project, cache_fp, target_pnames)
 
     # FP matches found via LLM → also count as TP (the recall step missed them)
     for pid, info in fp_matches.items():
@@ -630,10 +722,16 @@ def main():
                         help="Update ground_truth_bugs.yaml with detection results")
     parser.add_argument("--update-baselines", action="store_true",
                         help="Update published_baselines.yaml with SPECA metrics")
+    parser.add_argument("--projects", type=str, default=None,
+                        help="Comma-separated project IDs to re-evaluate (incremental mode; "
+                             "only calls LLM for these projects, reuses cache for others)")
     args = parser.parse_args()
 
+    project_ids = [p.strip() for p in args.projects.split(",")] if args.projects else None
+
     print("RQ2a Evaluation (LLM-based matching)\n")
-    summary = evaluate(args.results_dir, args.output, reparse=args.reparse)
+    summary = evaluate(args.results_dir, args.output, reparse=args.reparse,
+                       target_project_ids=project_ids)
 
     if args.update_ground_truth:
         update_ground_truth(set(summary["detected_bugs"]))

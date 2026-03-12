@@ -3,6 +3,28 @@ name: "RQ2a: 04 Evaluate & Visualize"
 on:
   workflow_dispatch:
     inputs:
+      projects:
+        description: 'Projects to evaluate (all = reset & re-evaluate everything)'
+        required: true
+        type: choice
+        options:
+          - all
+          - N1
+          - N2
+          - N3
+          - N4
+          - N5
+          - M1
+          - M2
+          - M2b
+          - M3
+          - M4
+          - M5
+          - U1
+          - U2
+          - U3
+          - U4
+          - U5
       results_dir:
         description: 'Path to SPECA results directory'
         required: false
@@ -77,12 +99,17 @@ jobs:
           if [ "${{ inputs.reparse }}" = "true" ]; then
             REPARSE_FLAG="--reparse"
           fi
+          PROJECTS_FLAG=""
+          if [ "${{ inputs.projects }}" != "all" ]; then
+            PROJECTS_FLAG="--projects ${{ inputs.projects }}"
+          fi
           uv run python3 benchmarks/rq2a/evaluate.py \
             --results-dir "${{ inputs.results_dir }}" \
             --output "${{ inputs.results_dir }}/speca_summary.json" \
             --update-ground-truth \
             --update-baselines \
-            ${REPARSE_FLAG}
+            ${REPARSE_FLAG} \
+            ${PROJECTS_FLAG}
         env:
           CLAUDE_CODE_PERMISSIONS: bypassPermissions
           RQ2A_MODEL: ${{ inputs.model }}
