@@ -1,21 +1,21 @@
 {
-  "tp": 31,
+  "tp": 35,
   "fp": 2,
-  "gt_tp": 31,
+  "gt_tp": 35,
   "new_tp": 0,
   "human_reviewed": 0,
-  "unreviewed": 15,
-  "precision": 93.94,
-  "recall": 88.57,
-  "f1": 91.17,
+  "unreviewed": 16,
+  "precision": 94.59,
+  "recall": 100.0,
+  "f1": 97.22,
   "total_ground_truth": 35,
   "total_ground_truth_incl_disputed": 40,
-  "total_positive_findings": 45,
+  "total_positive_findings": 50,
   "total_cost": null,
   "bug_type_breakdown": {
     "NPD": 20,
     "MLK": 9,
-    "UAF": 2
+    "UAF": 6
   },
   "per_project": {
     "N1": 4,
@@ -29,7 +29,10 @@
     "M4": 1,
     "M5": 1,
     "U1": 1,
-    "U3": 1
+    "U2": 1,
+    "U3": 1,
+    "U4": 1,
+    "U5": 2
   },
   "detected_bugs": [
     "RA-M1-N1",
@@ -62,14 +65,13 @@
     "RA-N5-N4",
     "RA-N5-O1",
     "RA-U1-O1",
-    "RA-U3-O1"
-  ],
-  "missed_bugs": [
     "RA-U2-O1",
+    "RA-U3-O1",
     "RA-U4-O1",
     "RA-U5-N1",
     "RA-U5-O1"
   ],
+  "missed_bugs": [],
   "disputed_bugs": {
     "total": 5,
     "tn": [
@@ -208,9 +210,25 @@
       "finding_id": "PROP-U3-uaf-011",
       "confidence": 0.99
     },
+    "RA-U4-O1": {
+      "finding_id": "PROP-U4-uaf-008",
+      "confidence": 0.75
+    },
+    "RA-U5-O1": {
+      "finding_id": "PROP-U5-uaf-001",
+      "confidence": 1.0
+    },
+    "RA-U5-N1": {
+      "finding_id": "PROP-U5-uaf-011",
+      "confidence": 0.95
+    },
     "RA-U1-O1": {
       "finding_id": "PROP-U1-uaf-011",
       "confidence": 0.8
+    },
+    "RA-U2-O1": {
+      "finding_id": "PROP-U2-uaf-003",
+      "confidence": 0.95
     }
   },
   "new_tp_findings": [],
