@@ -141,9 +141,9 @@
     },
     {
       "property_id": "PROP-U2-uaf-003",
-      "text": "No pointer may be dereferenced in adev_release() in cpu.c after being freed",
+      "text": "auxiliary_device_uninit() in adev_release() calls put_device() which frees the containing struct when refcount reaches 0 via the release callback; any subsequent access to adev->name or kfree(adev) is a use-after-free",
       "type": "invariant",
-      "assertion": "forall free(p) in adev_release: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall callee(f) in adev_release where f transitively calls put_device/kobject_put that may free(adev): no_use(adev) AND no_use(adev->name) after call(f)",
       "severity": "HIGH",
       "covers": "FN-U2-003",
       "reachability": {
@@ -162,20 +162,30 @@
             "symbol": "adev_release",
             "line_range": {
               "start": 187,
-              "end": 187
+              "end": 195
             },
             "role": "primary",
-            "note": "Target function for UAF analysis"
+            "note": "L189: auxiliary_device_uninit(adev) may free adev via put_device; L191: kfree(adev->name) dereferences potentially-freed adev; L192: kfree(adev) double-frees"
+          },
+          {
+            "file": "drivers/auxiliary/bus.c",
+            "symbol": "auxiliary_device_uninit",
+            "line_range": {
+              "start": 1,
+              "end": 50
+            },
+            "role": "callee-free",
+            "note": "Called by adev_release — calls put_device(&adev->dev) which drops refcount and may trigger release callback that frees the containing struct"
           },
           {
             "file": "drivers/peci/cpu.c",
             "symbol": "adev_alloc",
             "line_range": {
               "start": 197,
-              "end": 197
+              "end": 220
             },
             "role": "related",
-            "note": ""
+            "note": "Allocates adev and sets up adev->name — shows ownership structure"
           }
         ],
         "resolution_status": "resolved",
