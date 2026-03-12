@@ -424,7 +424,7 @@ bugs:
     description: "st.page_data from calloc() passed to extstore_get_page_data but never freed before return"
     inter_procedural: true
     reference: https://github.com/memcached/memcached/pull/1214
-    detected_by: { repoaudit_claude35: true, speca: false }
+    detected_by: { repoaudit_claude35: true, speca: true }
 
   - id: RA-M2-N4
     project: memcached
@@ -437,7 +437,7 @@ bugs:
     description: "flist, db, db->buf, db->fname not freed in error handling branches"
     inter_procedural: true
     reference: https://github.com/memcached/memcached/pull/1215
-    detected_by: { repoaudit_claude35: true, speca: false }
+    detected_by: { repoaudit_claude35: true, speca: true }
 
   - id: RA-M2-N5
     project: memcached
@@ -450,7 +450,7 @@ bugs:
     description: "getline() allocated 'line' not freed in RESTART_NOTAG and EOF error branches"
     inter_procedural: true
     reference: https://github.com/memcached/memcached/pull/1216
-    detected_by: { repoaudit_claude35: true, speca: false }
+    detected_by: { repoaudit_claude35: true, speca: true }
 
   - id: RA-M2-N6
     project: memcached
@@ -463,7 +463,7 @@ bugs:
     description: "iter from calloc() not freed when mutex_trylock fails and function returns NULL"
     inter_procedural: false
     reference: https://github.com/memcached/memcached/pull/1217
-    detected_by: { repoaudit_claude35: true, speca: false }
+    detected_by: { repoaudit_claude35: true, speca: true }
 
   # --- linux/driver/net (M3): 1 Old, 0 New, 0 FP, 1 Intra, 0 Inter ---
   # Old bug source: static/bug/old/ML/C_net_4cd8371.json
