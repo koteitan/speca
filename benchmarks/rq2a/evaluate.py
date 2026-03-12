@@ -611,6 +611,40 @@ def evaluate(results_dir: Path, output_path: Path, reparse: bool = False,
         if bug_id and bug_id not in recall_matches:
             recall_matches[bug_id] = {"finding_id": pid, "confidence": info.get("confidence", 0.0)}
 
+    # ── Step 2c: Cross-check against RA false positives ────────────
+    ra_fps = gt.get("false_positives", [])
+    ra_fp_matched_pids: list[str] = []
+
+    if ra_fps and still_unreviewed:
+        # Build RA FP lookup by project
+        ra_fps_by_project: dict[str, list[dict]] = defaultdict(list)
+        for fp_entry in ra_fps:
+            ra_fps_by_project[fp_entry["project"]].append(fp_entry)
+
+        # Remaining unreviewed after LLM FP check (not matched to GT bugs)
+        still_unreviewed_after_fp = [
+            f for f in still_unreviewed
+            if f.get("property_id", "") not in fp_matches
+        ]
+
+        if still_unreviewed_after_fp:
+            cache_ra_fp = results_dir / "llm_cache_ra_fp.jsonl"
+            print(f"\n=== Step 2c: RA FP cross-check ({len(still_unreviewed_after_fp)} findings vs {len(ra_fps)} RA FPs) ===")
+
+            if reparse and cache_ra_fp.exists():
+                print(f"Re-parsing cache: {cache_ra_fp}")
+                ra_fp_results = reparse_fp_cache(cache_ra_fp)
+            else:
+                ra_fp_results = check_findings_fp(
+                    still_unreviewed_after_fp, ra_fps_by_project, cache_ra_fp, target_pnames,
+                )
+
+            for pid, info in ra_fp_results.items():
+                ra_fp_id = info.get("bug_id")
+                if ra_fp_id:
+                    ra_fp_matched_pids.append(pid)
+                    print(f"  RA-FP match: {pid} → {ra_fp_id} (SPECA FP)")
+
     # ── Compute metrics ───────────────────────────────────────────
     disputed_ids = {b["id"] for b in disputed_bugs}
     detected_bugs = set(recall_matches.keys()) - disputed_ids  # exclude disputed from TP
@@ -622,9 +656,10 @@ def evaluate(results_dir: Path, output_path: Path, reparse: bool = False,
     unreviewed_unmatched_pids = [
         f.get("property_id", "") for f in still_unreviewed
         if f.get("property_id", "") not in fp_matches
+        and f.get("property_id", "") not in ra_fp_matched_pids
     ]
-    # FP = human-FP only; unreviewed stays separate (not counted as FP)
-    fp = len(human_reviewed_fp_pids)
+    # FP = human-FP + RA-FP matched; unreviewed stays separate
+    fp = len(human_reviewed_fp_pids) + len(ra_fp_matched_pids)
 
     per_project: dict[str, int] = defaultdict(int)
     bug_type_tp: dict[str, int] = defaultdict(int)
@@ -675,6 +710,7 @@ def evaluate(results_dir: Path, output_path: Path, reparse: bool = False,
         },
         "matches": {k: v for k, v in recall_matches.items()},
         "new_tp_findings": sorted(human_reviewed_tp_pids),
+        "ra_fp_matched": sorted(ra_fp_matched_pids),
         "llm_model": os.environ.get("RQ2A_MODEL", "haiku"),
     }
 

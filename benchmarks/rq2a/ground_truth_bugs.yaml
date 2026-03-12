@@ -607,3 +607,95 @@ bugs:
     inter_procedural: true  # U5 total: 1 intra + 1 inter = 2
     reference: https://repoaudit-home.github.io/static/bug/old/UAF/C++_i18n.md
     detected_by: { repoaudit_claude35: true, speca: false }
+
+# ============================================================
+# RepoAudit False Positives (from old JSON analysis)
+# ============================================================
+# Source: https://repoaudit-home.github.io/static/bug/old/
+# These are findings RepoAudit's LLM reported as potential bugs,
+# but human verification found them non-reproducible (Is Reproduce: No).
+# Some initial FPs were later reclassified as TP (marked below).
+# Remaining FPs are grouped by root cause to match paper FP counts.
+#
+# Purpose: cross-reference with SPECA findings to classify SPECA FPs.
+
+false_positives:
+  # --- sofa-pbrpc (N1): 7 initial FPs, 3 reclassified → 4 remaining (2 root causes = paper's 2 FP) ---
+  # Entries 1,3,4 (pbjson.cc) reclassified as TP → RA-N1-N1/N2/N3 via PRs 248-250
+  - id: RA-N1-FP1
+    project: sofa-pbrpc
+    bug_type: NPD
+    source: fp
+    file: src/sofa/pbrpc/compressed_stream.cc
+    function: get_compressed_input_stream
+    callers: [DoneCallback (rpc_client_impl.cc), ProcessRequest (binary_rpc_request.cc)]
+    description: "NULL returned from get_compressed_input_stream() on default switch case; callers dereference without NULL check. Non-reproducible: CompressType enum fully covered in practice."
+    json_entries: [5, 6]
+    reference: https://repoaudit-home.github.io/static/bug/old/NPD/C++_sofa-pbrpc.json
+
+  - id: RA-N1-FP2
+    project: sofa-pbrpc
+    bug_type: NPD
+    source: fp
+    file: src/sofa/pbrpc/compressed_stream.cc
+    function: get_compressed_output_stream
+    callers: [CallMethod (rpc_client_impl.cc), AssembleSucceedResponse (binary_rpc_request.cc)]
+    description: "NULL returned from get_compressed_output_stream() on default switch case; callers dereference without NULL check. Non-reproducible: CompressType enum fully covered in practice."
+    json_entries: [7, 8]
+    reference: https://repoaudit-home.github.io/static/bug/old/NPD/C++_sofa-pbrpc.json
+
+  # --- coturn (N3): 2 initial FPs, 1 reclassified → 1 remaining (paper has 3 FP; 2 more from separate analysis) ---
+  # Entry 3 (addr_list_add) reclassified as TP → RA-N3-N1
+  - id: RA-N3-FP1
+    project: coturn/src/server
+    bug_type: NPD
+    source: fp
+    file: src/server/ns_turn_allocation.c
+    function: allocation_get_new_ch_info
+    description: "ch_map_get() returns NULL due to NULL map parameter; dereference in allocation_get_new_ch_info without NULL check. Non-reproducible: map always initialized before use."
+    json_entries: [1]
+    reference: https://repoaudit-home.github.io/static/bug/old/NPD/C_coturn_server.json
+
+  # --- libsass (M1): 5 initial FPs, 2 reclassified → 3 remaining (paper counts 1 FP, same root cause) ---
+  # Entry 2 (permutateAlt) → RA-M1-N1, Entry 3 (register_resource) → RA-M1-N2
+  - id: RA-M1-FP1
+    project: libsass
+    bug_type: MLK
+    source: fp
+    file: src/sass_context.cpp
+    function: sass_make_data_compiler / sass_prepare_context
+    description: "cpp_ctx allocated via new not freed when calloc fails in sass_prepare_context. Non-reproducible: calloc failure path not reachable in practice."
+    json_entries: [4, 5]
+    reference: https://repoaudit-home.github.io/static/bug/old/ML/C++_libsass.json
+
+  - id: RA-M1-FP2
+    project: libsass
+    bug_type: MLK
+    source: fp
+    file: src/sass_functions.cpp
+    function: sass_make_import / register_resource
+    description: "Sass_Import struct allocated via calloc leaked when exception thrown in register_resource. Non-reproducible: exception path cleanup sufficient."
+    json_entries: [6]
+    reference: https://repoaudit-home.github.io/static/bug/old/ML/C++_libsass.json
+
+  # --- memcached (M2): 5 initial FPs, 2 reclassified → 3 remaining (paper counts 2 FP) ---
+  # Entry 1 (main subopts_orig) → RA-M2-N1, Entry 3 (main temp_portnumber) → RA-M2-N2
+  - id: RA-M2-FP1
+    project: memcached
+    bug_type: MLK
+    source: fp
+    file: memcached.c
+    function: conn_new / thread_libevent_process
+    description: "msglist from malloc not freed on error path in conn_new; caller thread_libevent_process does not handle. Non-reproducible."
+    json_entries: [4]
+    reference: https://repoaudit-home.github.io/static/bug/old/ML/C_memcached.json
+
+  - id: RA-M2-FP2
+    project: memcached
+    bug_type: MLK
+    source: fp
+    file: cache.c
+    function: cache_create / cache_alloc
+    description: "cache_t from calloc or malloc object leaked in test functions (cache_redzone_test, cache_fail_constructor_test). Non-reproducible: test-only code paths."
+    json_entries: [5, 6]
+    reference: https://repoaudit-home.github.io/static/bug/old/ML/C_memcached.json
