@@ -1,16 +1,16 @@
 {
   "tp": 5,
-  "fp": 3,
+  "fp": 0,
   "gt_tp": 5,
   "new_tp": 0,
   "human_reviewed": 0,
-  "unreviewed": 3,
-  "precision": 62.5,
+  "unreviewed": 0,
+  "precision": 100.0,
   "recall": 12.82,
-  "f1": 21.28,
+  "f1": 22.73,
   "total_ground_truth": 39,
   "total_ground_truth_incl_disputed": 40,
-  "total_positive_findings": 8,
+  "total_positive_findings": 5,
   "total_cost": null,
   "bug_type_breakdown": {
     "NPD": 5
