@@ -412,6 +412,10 @@ bugs:
     inter_procedural: false
     reference: https://github.com/memcached/memcached/pull/1208
     detected_by: { repoaudit_claude35: true, speca: false }
+    # Disputed: free at L6139-6140 is independent of portnumber_file check.
+    # Only paths skipping free are exit(EX_OSERR) calls — OS reclaims memory.
+    # Same pattern as RA-M2-O1 and RA-M2-N1.
+    disputed: true
 
   - id: RA-M2-N3
     project: memcached
