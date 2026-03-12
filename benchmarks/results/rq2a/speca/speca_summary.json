@@ -6,9 +6,9 @@
   "human_reviewed": 0,
   "unreviewed": 15,
   "precision": 93.94,
-  "recall": 86.11,
-  "f1": 89.85,
-  "total_ground_truth": 36,
+  "recall": 88.57,
+  "f1": 91.17,
+  "total_ground_truth": 35,
   "total_ground_truth_incl_disputed": 40,
   "total_positive_findings": 45,
   "total_cost": null,
@@ -65,15 +65,15 @@
     "RA-U3-O1"
   ],
   "missed_bugs": [
-    "RA-M1-N2",
     "RA-U2-O1",
     "RA-U4-O1",
     "RA-U5-N1",
     "RA-U5-O1"
   ],
   "disputed_bugs": {
-    "total": 4,
+    "total": 5,
     "tn": [
+      "RA-M1-N2",
       "RA-M2-N1",
       "RA-M2-N2",
       "RA-M2-O1"
