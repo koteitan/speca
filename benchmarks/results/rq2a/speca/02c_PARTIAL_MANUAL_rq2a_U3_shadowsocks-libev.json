@@ -2,1073 +2,15 @@
   "properties_with_code": [
     {
       "property_id": "PROP-U3-uaf-001",
-      "text": "No pointer in acl.c may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in json_value_free() in json.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in acl.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-001",
+      "assertion": "forall free(p) in json_value_free: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "CRITICAL",
+      "covers": "FN-U3-001",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/acl.c",
-            "symbol": "run_cmd",
-            "line_range": {
-              "start": 98,
-              "end": 98
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "init_firewall",
-            "line_range": {
-              "start": 115,
-              "end": 115
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "pclose",
-            "line_range": {
-              "start": 130,
-              "end": 130
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "reset_firewall",
-            "line_range": {
-              "start": 165,
-              "end": 165
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "set_firewall_rule",
-            "line_range": {
-              "start": 194,
-              "end": 194
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "free_firewall_rule",
-            "line_range": {
-              "start": 227,
-              "end": 227
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "init_block_list",
-            "line_range": {
-              "start": 239,
-              "end": 239
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "free_block_list",
-            "line_range": {
-              "start": 254,
-              "end": 254
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "remove_from_block_list",
-            "line_range": {
-              "start": 264,
-              "end": 264
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "clear_block_list",
-            "line_range": {
-              "start": 271,
-              "end": 271
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "check_block_list",
-            "line_range": {
-              "start": 277,
-              "end": 277
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "cache_key_exist",
-            "line_range": {
-              "start": 281,
-              "end": 281
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "update_block_list",
-            "line_range": {
-              "start": 293,
-              "end": 293
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "cache_key_exist",
-            "line_range": {
-              "start": 297,
-              "end": 297
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "parse_addr_cidr",
-            "line_range": {
-              "start": 319,
-              "end": 319
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "trimwhitespace",
-            "line_range": {
-              "start": 341,
-              "end": 341
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "init_acl",
-            "line_range": {
-              "start": 364,
-              "end": 364
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "fgets",
-            "line_range": {
-              "start": 392,
-              "end": 392
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "free_rules",
-            "line_range": {
-              "start": 471,
-              "end": 471
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "free_acl",
-            "line_range": {
-              "start": 481,
-              "end": 481
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "get_acl_mode",
-            "line_range": {
-              "start": 493,
-              "end": 493
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "acl_match_host",
-            "line_range": {
-              "start": 504,
-              "end": 504
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "acl_add_ip",
-            "line_range": {
-              "start": 535,
-              "end": 535
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "acl_remove_ip",
-            "line_range": {
-              "start": 553,
-              "end": 553
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/acl.c",
-            "symbol": "outbound_block_match_host",
-            "line_range": {
-              "start": 575,
-              "end": 575
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-002",
-      "text": "No pointer in android.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in android.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-002",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/android.c",
-            "symbol": "protect_socket",
-            "line_range": {
-              "start": 51,
-              "end": 51
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/android.c",
-            "symbol": "connect",
-            "line_range": {
-              "start": 75,
-              "end": 75
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/android.c",
-            "symbol": "ancil_send_fd",
-            "line_range": {
-              "start": 82,
-              "end": 82
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/android.c",
-            "symbol": "recv",
-            "line_range": {
-              "start": 90,
-              "end": 90
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/android.c",
-            "symbol": "send_traffic_stat",
-            "line_range": {
-              "start": 101,
-              "end": 101
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/android.c",
-            "symbol": "connect",
-            "line_range": {
-              "start": 125,
-              "end": 125
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/android.c",
-            "symbol": "send",
-            "line_range": {
-              "start": 134,
-              "end": 134
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/android.c",
-            "symbol": "recv",
-            "line_range": {
-              "start": 142,
-              "end": 142
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-003",
-      "text": "No pointer in cache.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in cache.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-003",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/cache.c",
-            "symbol": "cache_create",
-            "line_range": {
-              "start": 49,
-              "end": 49
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/cache.c",
-            "symbol": "cache_delete",
-            "line_range": {
-              "start": 80,
-              "end": 80
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/cache.c",
-            "symbol": "cache_clear",
-            "line_range": {
-              "start": 120,
-              "end": 120
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/cache.c",
-            "symbol": "cache_remove",
-            "line_range": {
-              "start": 162,
-              "end": 162
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/cache.c",
-            "symbol": "cache_lookup",
-            "line_range": {
-              "start": 209,
-              "end": 209
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/cache.c",
-            "symbol": "cache_key_exist",
-            "line_range": {
-              "start": 232,
-              "end": 232
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/cache.c",
-            "symbol": "cache_insert",
-            "line_range": {
-              "start": 270,
-              "end": 270
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-004",
-      "text": "No pointer in encrypt.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in encrypt.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-004",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/encrypt.c",
-            "symbol": "dump",
-            "line_range": {
-              "start": 93,
-              "end": 93
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "safe_memcmp",
-            "line_range": {
-              "start": 239,
-              "end": 239
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "balloc",
-            "line_range": {
-              "start": 251,
-              "end": 251
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "brealloc",
-            "line_range": {
-              "start": 260,
-              "end": 260
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "bfree",
-            "line_range": {
-              "start": 273,
-              "end": 273
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "crypto_stream_xor_ic",
-            "line_range": {
-              "start": 286,
-              "end": 286
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "random_compare",
-            "line_range": {
-              "start": 303,
-              "end": 303
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "merge",
-            "line_range": {
-              "start": 312,
-              "end": 312
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "random_compare",
-            "line_range": {
-              "start": 327,
-              "end": 327
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "merge_sort",
-            "line_range": {
-              "start": 360,
-              "end": 360
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "enc_get_iv_len",
-            "line_range": {
-              "start": 384,
-              "end": 384
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "enc_md5",
-            "line_range": {
-              "start": 390,
-              "end": 390
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "enc_table_init",
-            "line_range": {
-              "start": 412,
-              "end": 412
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "cipher_iv_size",
-            "line_range": {
-              "start": 436,
-              "end": 436
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "cipher_key_size",
-            "line_range": {
-              "start": 452,
-              "end": 452
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "bytes_to_key",
-            "line_range": {
-              "start": 487,
-              "end": 487
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "rand_bytes",
-            "line_range": {
-              "start": 596,
-              "end": 596
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "get_cipher_type",
-            "line_range": {
-              "start": 604,
-              "end": 604
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "get_digest_type",
-            "line_range": {
-              "start": 642,
-              "end": 642
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "cipher_context_init",
-            "line_range": {
-              "start": 659,
-              "end": 659
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "cipher_init_ctx",
-            "line_range": {
-              "start": 725,
-              "end": 725
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "mbedtls_cipher_setup",
-            "line_range": {
-              "start": 738,
-              "end": 738
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "cipher_context_set_iv",
-            "line_range": {
-              "start": 745,
-              "end": 745
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "cipher_setkey",
-            "line_range": {
-              "start": 818,
-              "end": 818
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "cipher_set_iv",
-            "line_range": {
-              "start": 823,
-              "end": 823
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "cipher_reset",
-            "line_range": {
-              "start": 827,
-              "end": 827
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "cipher_reset",
-            "line_range": {
-              "start": 832,
-              "end": 832
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "mbedtls_cipher_setkey",
-            "line_range": {
-              "start": 838,
-              "end": 838
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "mbedtls_cipher_set_iv",
-            "line_range": {
-              "start": 843,
-              "end": 843
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "mbedtls_cipher_reset",
-            "line_range": {
-              "start": 847,
-              "end": 847
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "cipher_context_release",
-            "line_range": {
-              "start": 859,
-              "end": 859
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "cipher_context_update",
-            "line_range": {
-              "start": 890,
-              "end": 890
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "ss_onetimeauth",
-            "line_range": {
-              "start": 919,
-              "end": 919
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "ss_onetimeauth_verify",
-            "line_range": {
-              "start": 945,
-              "end": 945
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "ss_encrypt_all",
-            "line_range": {
-              "start": 966,
-              "end": 966
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "ss_encrypt",
-            "line_range": {
-              "start": 1032,
-              "end": 1032
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "ss_decrypt_all",
-            "line_range": {
-              "start": 1106,
-              "end": 1106
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "ss_decrypt",
-            "line_range": {
-              "start": 1180,
-              "end": 1180
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "enc_ctx_init",
-            "line_range": {
-              "start": 1265,
-              "end": 1265
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "enc_key_init",
-            "line_range": {
-              "start": 1276,
-              "end": 1276
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "sodium_init",
-            "line_range": {
-              "start": 1296,
-              "end": 1296
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "enc_init",
-            "line_range": {
-              "start": 1368,
-              "end": 1368
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "ss_check_hash",
-            "line_range": {
-              "start": 1390,
-              "end": 1390
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/encrypt.c",
-            "symbol": "ss_gen_hash",
-            "line_range": {
-              "start": 1449,
-              "end": 1449
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-005",
-      "text": "No pointer in http.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in http.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-005",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/http.c",
-            "symbol": "parse_http_header",
-            "line_range": {
-              "start": 66,
-              "end": 66
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/http.c",
-            "symbol": "get_header",
-            "line_range": {
-              "start": 96,
-              "end": 96
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/http.c",
-            "symbol": "next_header",
-            "line_range": {
-              "start": 128,
-              "end": 128
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-006",
-      "text": "No pointer in jconf.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in jconf.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-006",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/jconf.c",
-            "symbol": "to_string",
-            "line_range": {
-              "start": 42,
-              "end": 42
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/jconf.c",
-            "symbol": "free_addr",
-            "line_range": {
-              "start": 58,
-              "end": 58
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/jconf.c",
-            "symbol": "parse_addr",
-            "line_range": {
-              "start": 65,
-              "end": 65
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/jconf.c",
-            "symbol": "cork_ip_init",
-            "line_range": {
-              "start": 71,
-              "end": 71
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/jconf.c",
-            "symbol": "read_jconf",
-            "line_range": {
-              "start": 108,
-              "end": 108
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-007",
-      "text": "No pointer in json.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in json.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-007",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -1078,43 +20,13 @@
         "locations": [
           {
             "file": "src/json.c",
-            "symbol": "hex_value",
+            "symbol": "json_value_free",
             "line_range": {
-              "start": 53,
-              "end": 53
+              "start": 997,
+              "end": 997
             },
             "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/json.c",
-            "symbol": "isdigit",
-            "line_range": {
-              "start": 55,
-              "end": 55
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/json.c",
-            "symbol": "default_alloc",
-            "line_range": {
-              "start": 94,
-              "end": 94
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/json.c",
-            "symbol": "default_free",
-            "line_range": {
-              "start": 100,
-              "end": 100
-            },
-            "role": "primary",
-            "note": ""
+            "note": "Target function for UAF analysis"
           },
           {
             "file": "src/json.c",
@@ -1123,17 +35,7 @@
               "start": 106,
               "end": 106
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/json.c",
-            "symbol": "new_value",
-            "line_range": {
-              "start": 121,
-              "end": 121
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -1143,7 +45,7 @@
               "start": 240,
               "end": 240
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -1153,78 +55,36 @@
               "start": 942,
               "end": 942
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
             "file": "src/json.c",
-            "symbol": "json_value_free_ex",
+            "symbol": "default_alloc",
             "line_range": {
-              "start": 949,
-              "end": 949
+              "start": 94,
+              "end": 94
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/json.c",
-            "symbol": "json_value_free",
-            "line_range": {
-              "start": 997,
-              "end": 997
-            },
-            "role": "primary",
+            "role": "related",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-U3-uaf-008",
-      "text": "No pointer in json.h may be dereferenced after being freed.",
+      "property_id": "PROP-U3-uaf-002",
+      "text": "No pointer may be dereferenced in free_connections() in local.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in json.h: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-008",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/json.h",
-            "symbol": "double",
-            "line_range": {
-              "start": 211,
-              "end": 211
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-009",
-      "text": "No pointer in local.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in local.c: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in free_connections: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "CRITICAL",
-      "covers": "FILE-U3-009",
+      "covers": "FN-U3-002",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -1232,36 +92,6 @@
       "exploitability": "external-attack",
       "code_scope": {
         "locations": [
-          {
-            "file": "src/local.c",
-            "symbol": "setnonblocking",
-            "line_range": {
-              "start": 141,
-              "end": 141
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "create_and_bind",
-            "line_range": {
-              "start": 153,
-              "end": 153
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "launch_or_create",
-            "line_range": {
-              "start": 208,
-              "end": 208
-            },
-            "role": "primary",
-            "note": ""
-          },
           {
             "file": "src/local.c",
             "symbol": "free_connections",
@@ -1270,6 +100,16 @@
               "end": 237
             },
             "role": "primary",
+            "note": "Target function for UAF analysis"
+          },
+          {
+            "file": "src/local.c",
+            "symbol": "resolve_int_cb",
+            "line_range": {
+              "start": 1157,
+              "end": 1157
+            },
+            "role": "caller",
             "note": ""
           },
           {
@@ -1279,7 +119,7 @@
               "start": 249,
               "end": 249
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -1289,7 +129,7 @@
               "start": 732,
               "end": 732
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -1299,225 +139,26 @@
               "start": 771,
               "end": 771
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "remote_timeout_cb",
-            "line_range": {
-              "start": 783,
-              "end": 783
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "remote_recv_cb",
-            "line_range": {
-              "start": 800,
-              "end": 800
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "remote_send_cb",
-            "line_range": {
-              "start": 874,
-              "end": 874
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "new_remote",
-            "line_range": {
-              "start": 938,
-              "end": 938
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "free_remote",
-            "line_range": {
-              "start": 968,
-              "end": 968
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "close_and_free_remote",
-            "line_range": {
-              "start": 983,
-              "end": 983
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "new_server",
-            "line_range": {
-              "start": 996,
-              "end": 996
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "free_server",
-            "line_range": {
-              "start": 1035,
-              "end": 1035
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "close_and_free_server",
-            "line_range": {
-              "start": 1060,
-              "end": 1060
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "create_remote",
-            "line_range": {
-              "start": 1071,
-              "end": 1071
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "signal_cb",
-            "line_range": {
-              "start": 1120,
-              "end": 1120
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "accept_cb",
-            "line_range": {
-              "start": 1135,
-              "end": 1135
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "resolve_int_cb",
-            "line_range": {
-              "start": 1157,
-              "end": 1157
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "main",
-            "line_range": {
-              "start": 1164,
-              "end": 1164
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "get_sockaddr",
-            "line_range": {
-              "start": 1441,
-              "end": 1441
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "listen",
-            "line_range": {
-              "start": 1472,
-              "end": 1472
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "geteuid",
-            "line_range": {
-              "start": 1506,
-              "end": 1506
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "start_ss_local_server",
-            "line_range": {
-              "start": 1549,
-              "end": 1549
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "get_sockaddr",
-            "line_range": {
-              "start": 1612,
-              "end": 1612
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/local.c",
-            "symbol": "listen",
-            "line_range": {
-              "start": 1637,
-              "end": 1637
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-U3-uaf-010",
-      "text": "No pointer in manager.c may be dereferenced after being freed.",
+      "property_id": "PROP-U3-uaf-003",
+      "text": "No pointer may be dereferenced in block_list_clear_cb() in server.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in manager.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-010",
+      "assertion": "forall free(p) in block_list_clear_cb: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "CRITICAL",
+      "covers": "FN-U3-003",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -1526,930 +167,25 @@
       "code_scope": {
         "locations": [
           {
-            "file": "src/manager.c",
-            "symbol": "setnonblocking",
+            "file": "src/server.c",
+            "symbol": "block_list_clear_cb",
             "line_range": {
-              "start": 84,
-              "end": 84
+              "start": 1044,
+              "end": 1044
             },
             "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "build_config",
-            "line_range": {
-              "start": 96,
-              "end": 96
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "construct_command_line",
-            "line_range": {
-              "start": 120,
-              "end": 120
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "get_data",
-            "line_range": {
-              "start": 192,
-              "end": 192
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "get_action",
-            "line_range": {
-              "start": 208,
-              "end": 208
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "get_server",
-            "line_range": {
-              "start": 228,
-              "end": 228
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "parse_traffic",
-            "line_range": {
-              "start": 275,
-              "end": 275
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "add_server",
-            "line_range": {
-              "start": 309,
-              "end": 309
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "system",
-            "line_range": {
-              "start": 315,
-              "end": 315
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "kill_server",
-            "line_range": {
-              "start": 321,
-              "end": 321
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "stop_server",
-            "line_range": {
-              "start": 344,
-              "end": 344
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "remove_server",
-            "line_range": {
-              "start": 366,
-              "end": 366
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "update_stat",
-            "line_range": {
-              "start": 381,
-              "end": 381
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "manager_recv_cb",
-            "line_range": {
-              "start": 391,
-              "end": 391
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "sendto",
-            "line_range": {
-              "start": 433,
-              "end": 433
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "sendto",
-            "line_range": {
-              "start": 451,
-              "end": 451
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "parse_traffic",
-            "line_range": {
-              "start": 458,
-              "end": 458
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "sendto",
-            "line_range": {
-              "start": 498,
-              "end": 498
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "sendto",
-            "line_range": {
-              "start": 508,
-              "end": 508
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "signal_cb",
-            "line_range": {
-              "start": 514,
-              "end": 514
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "create_server_socket",
-            "line_range": {
-              "start": 526,
-              "end": 526
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "main",
-            "line_range": {
-              "start": 601,
-              "end": 601
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "geteuid",
-            "line_range": {
-              "start": 856,
-              "end": 856
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "remove",
-            "line_range": {
-              "start": 919,
-              "end": 919
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/manager.c",
-            "symbol": "bind",
-            "line_range": {
-              "start": 929,
-              "end": 929
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-011",
-      "text": "No pointer in netutils.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in netutils.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-011",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/netutils.c",
-            "symbol": "set_reuseport",
-            "line_range": {
-              "start": 65,
-              "end": 65
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/netutils.c",
-            "symbol": "get_sockaddr_len",
-            "line_range": {
-              "start": 72,
-              "end": 72
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/netutils.c",
-            "symbol": "setinterface",
-            "line_range": {
-              "start": 84,
-              "end": 84
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/netutils.c",
-            "symbol": "bind_to_address",
-            "line_range": {
-              "start": 97,
-              "end": 97
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/netutils.c",
-            "symbol": "cork_ip_init",
-            "line_range": {
-              "start": 103,
-              "end": 103
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/netutils.c",
-            "symbol": "get_sockaddr",
-            "line_range": {
-              "start": 121,
-              "end": 121
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/netutils.c",
-            "symbol": "cork_ip_init",
-            "line_range": {
-              "start": 126,
-              "end": 126
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/netutils.c",
-            "symbol": "sockaddr_cmp",
-            "line_range": {
-              "start": 205,
-              "end": 205
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/netutils.c",
-            "symbol": "sockaddr_cmp_addr",
-            "line_range": {
-              "start": 248,
-              "end": 248
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/netutils.c",
-            "symbol": "validate_hostname",
-            "line_range": {
-              "start": 275,
-              "end": 275
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-012",
-      "text": "No pointer in redir.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in redir.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-012",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/redir.c",
-            "symbol": "getdestaddr",
-            "line_range": {
-              "start": 99,
-              "end": 99
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "setnonblocking",
-            "line_range": {
-              "start": 115,
-              "end": 115
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "create_and_bind",
-            "line_range": {
-              "start": 125,
-              "end": 125
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "server_recv_cb",
-            "line_range": {
-              "start": 179,
-              "end": 179
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "server_send_cb",
-            "line_range": {
-              "start": 294,
-              "end": 294
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "remote_timeout_cb",
-            "line_range": {
-              "start": 331,
-              "end": 331
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "remote_recv_cb",
-            "line_range": {
-              "start": 346,
-              "end": 346
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "remote_send_cb",
-            "line_range": {
-              "start": 410,
-              "end": 410
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "new_remote",
-            "line_range": {
-              "start": 532,
-              "end": 532
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "free_remote",
-            "line_range": {
-              "start": 560,
-              "end": 560
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "close_and_free_remote",
-            "line_range": {
-              "start": 577,
-              "end": 577
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "new_server",
-            "line_range": {
-              "start": 590,
-              "end": 590
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "free_server",
-            "line_range": {
-              "start": 627,
-              "end": 627
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "close_and_free_server",
-            "line_range": {
-              "start": 655,
-              "end": 655
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "accept_cb",
-            "line_range": {
-              "start": 666,
-              "end": 666
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "signal_cb",
-            "line_range": {
-              "start": 751,
-              "end": 751
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "main",
-            "line_range": {
-              "start": 758,
-              "end": 758
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "get_sockaddr",
-            "line_range": {
-              "start": 991,
-              "end": 991
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "listen",
-            "line_range": {
-              "start": 1009,
-              "end": 1009
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/redir.c",
-            "symbol": "geteuid",
-            "line_range": {
-              "start": 1038,
-              "end": 1038
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-013",
-      "text": "No pointer in resolv.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in resolv.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-013",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/resolv.c",
-            "symbol": "resolv_init",
-            "line_range": {
-              "start": 87,
-              "end": 87
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "resolv_shutdown",
-            "line_range": {
-              "start": 144,
-              "end": 144
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "ev_is_active",
-            "line_range": {
-              "start": 150,
-              "end": 150
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "resolv_query",
-            "line_range": {
-              "start": 158,
-              "end": 158
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "all_queries_are_null",
-            "line_range": {
-              "start": 203,
-              "end": 203
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "resolv_cancel",
-            "line_range": {
-              "start": 214,
-              "end": 214
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "resolv_sock_cb",
-            "line_range": {
-              "start": 237,
-              "end": 237
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "dns_query_v4_cb",
-            "line_range": {
-              "start": 250,
-              "end": 250
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "all_queries_are_null",
-            "line_range": {
-              "start": 291,
-              "end": 291
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "dns_query_v6_cb",
-            "line_range": {
-              "start": 297,
-              "end": 297
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "all_queries_are_null",
-            "line_range": {
-              "start": 338,
-              "end": 338
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "process_client_callback",
-            "line_range": {
-              "start": 347,
-              "end": 347
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "choose_ipv4_first",
-            "line_range": {
-              "start": 372,
-              "end": 372
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "choose_ipv6_first",
-            "line_range": {
-              "start": 383,
-              "end": 383
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "choose_any",
-            "line_range": {
-              "start": 394,
-              "end": 394
-            },
-            "role": "primary",
-            "note": ""
+            "note": "Target function for UAF analysis"
           },
           {
-            "file": "src/resolv.c",
-            "symbol": "resolv_timeout_cb",
+            "file": "src/server.c",
+            "symbol": "server_resolve_cb",
             "line_range": {
-              "start": 407,
-              "end": 407
+              "start": 1087,
+              "end": 1087
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "dns_timer_setup_cb",
-            "line_range": {
-              "start": 420,
-              "end": 420
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "ev_is_active",
-            "line_range": {
-              "start": 424,
-              "end": 424
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/resolv.c",
-            "symbol": "all_queries_are_null",
-            "line_range": {
-              "start": 435,
-              "end": 435
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-014",
-      "text": "No pointer in rule.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in rule.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-014",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/rule.c",
-            "symbol": "new_rule",
-            "line_range": {
-              "start": 45,
-              "end": 45
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/rule.c",
-            "symbol": "accept_rule_arg",
-            "line_range": {
-              "start": 59,
-              "end": 59
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/rule.c",
-            "symbol": "add_rule",
-            "line_range": {
-              "start": 76,
-              "end": 76
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/rule.c",
-            "symbol": "init_rule",
-            "line_range": {
-              "start": 82,
-              "end": 82
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/rule.c",
-            "symbol": "lookup_rule",
-            "line_range": {
-              "start": 101,
-              "end": 101
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/rule.c",
-            "symbol": "remove_rule",
-            "line_range": {
-              "start": 121,
-              "end": 121
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
-          {
-            "file": "src/rule.c",
-            "symbol": "free_rule",
-            "line_range": {
-              "start": 128,
-              "end": 128
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-015",
-      "text": "No pointer in server.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in server.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-015",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
           {
             "file": "src/server.c",
             "symbol": "stat_update_cb",
@@ -2457,187 +193,7 @@
               "start": 135,
               "end": 135
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "bind",
-            "line_range": {
-              "start": 165,
-              "end": 165
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "sendto",
-            "line_range": {
-              "start": 175,
-              "end": 175
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "get_sockaddr",
-            "line_range": {
-              "start": 186,
-              "end": 186
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "sendto",
-            "line_range": {
-              "start": 199,
-              "end": 199
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "free_connections",
-            "line_range": {
-              "start": 211,
-              "end": 211
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "parse_header_len",
-            "line_range": {
-              "start": 223,
-              "end": 223
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "is_header_complete",
-            "line_range": {
-              "start": 244,
-              "end": 244
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "get_peer_name",
-            "line_range": {
-              "start": 283,
-              "end": 283
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "set_linger",
-            "line_range": {
-              "start": 307,
-              "end": 307
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "reset_addr",
-            "line_range": {
-              "start": 318,
-              "end": 318
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "report_addr",
-            "line_range": {
-              "start": 328,
-              "end": 328
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "setfastopen",
-            "line_range": {
-              "start": 343,
-              "end": 343
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "setnonblocking",
-            "line_range": {
-              "start": 369,
-              "end": 369
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "create_and_bind",
-            "line_range": {
-              "start": 381,
-              "end": 381
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "connect_to_remote",
-            "line_range": {
-              "start": 479,
-              "end": 479
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "outbound_block_match_host",
-            "line_range": {
-              "start": 499,
-              "end": 499
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "bind_to_address",
-            "line_range": {
-              "start": 527,
-              "end": 527
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "setinterface",
-            "line_range": {
-              "start": 535,
-              "end": 535
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -2647,7 +203,7 @@
               "start": 605,
               "end": 605
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -2657,451 +213,26 @@
               "start": 989,
               "end": 989
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "block_list_clear_cb",
-            "line_range": {
-              "start": 1044,
-              "end": 1044
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "server_timeout_cb",
-            "line_range": {
-              "start": 1050,
-              "end": 1050
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "query_free_cb",
-            "line_range": {
-              "start": 1079,
-              "end": 1079
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "server_resolve_cb",
-            "line_range": {
-              "start": 1087,
-              "end": 1087
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "remote_recv_cb",
-            "line_range": {
-              "start": 1142,
-              "end": 1142
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "remote_send_cb",
-            "line_range": {
-              "start": 1218,
-              "end": 1218
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "new_remote",
-            "line_range": {
-              "start": 1307,
-              "end": 1307
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "free_remote",
-            "line_range": {
-              "start": 1336,
-              "end": 1336
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "close_and_free_remote",
-            "line_range": {
-              "start": 1351,
-              "end": 1351
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "new_server",
-            "line_range": {
-              "start": 1366,
-              "end": 1366
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "free_server",
-            "line_range": {
-              "start": 1424,
-              "end": 1424
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "close_and_free_server",
-            "line_range": {
-              "start": 1461,
-              "end": 1461
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "signal_cb",
-            "line_range": {
-              "start": 1481,
-              "end": 1481
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "accept_cb",
-            "line_range": {
-              "start": 1493,
-              "end": 1493
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "main",
-            "line_range": {
-              "start": 1542,
-              "end": 1542
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/server.c",
-            "symbol": "geteuid",
-            "line_range": {
-              "start": 1894,
-              "end": 1894
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-U3-uaf-016",
-      "text": "No pointer in tls.c may be dereferenced after being freed.",
+      "property_id": "PROP-U3-uaf-004",
+      "text": "No pointer may be dereferenced in free_cb() in udprelay.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in tls.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-016",
+      "assertion": "forall free(p) in free_cb: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "CRITICAL",
+      "covers": "FN-U3-004",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/tls.c",
-            "symbol": "parse_tls_header",
-            "line_range": {
-              "start": 85,
-              "end": 85
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tls.c",
-            "symbol": "parse_extensions",
-            "line_range": {
-              "start": 196,
-              "end": 196
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tls.c",
-            "symbol": "parse_server_name_extension",
-            "line_range": {
-              "start": 225,
-              "end": 225
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-017",
-      "text": "No pointer in tunnel.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in tunnel.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-017",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/tunnel.c",
-            "symbol": "setnonblocking",
-            "line_range": {
-              "start": 105,
-              "end": 105
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "create_and_bind",
-            "line_range": {
-              "start": 117,
-              "end": 117
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "server_recv_cb",
-            "line_range": {
-              "start": 171,
-              "end": 171
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "server_send_cb",
-            "line_range": {
-              "start": 242,
-              "end": 242
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "remote_timeout_cb",
-            "line_range": {
-              "start": 285,
-              "end": 285
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "remote_recv_cb",
-            "line_range": {
-              "start": 304,
-              "end": 304
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "remote_send_cb",
-            "line_range": {
-              "start": 368,
-              "end": 368
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "new_remote",
-            "line_range": {
-              "start": 503,
-              "end": 503
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "free_remote",
-            "line_range": {
-              "start": 530,
-              "end": 530
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "close_and_free_remote",
-            "line_range": {
-              "start": 547,
-              "end": 547
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "new_server",
-            "line_range": {
-              "start": 559,
-              "end": 559
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "free_server",
-            "line_range": {
-              "start": 593,
-              "end": 593
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "close_and_free_server",
-            "line_range": {
-              "start": 618,
-              "end": 618
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "accept_cb",
-            "line_range": {
-              "start": 629,
-              "end": 629
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "signal_cb",
-            "line_range": {
-              "start": 713,
-              "end": 713
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "main",
-            "line_range": {
-              "start": 720,
-              "end": 720
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "get_sockaddr",
-            "line_range": {
-              "start": 995,
-              "end": 995
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "listen",
-            "line_range": {
-              "start": 1014,
-              "end": 1014
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tunnel.c",
-            "symbol": "geteuid",
-            "line_range": {
-              "start": 1045,
-              "end": 1045
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U3-uaf-018",
-      "text": "No pointer in udprelay.c may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in udprelay.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-018",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -3111,192 +242,22 @@
         "locations": [
           {
             "file": "src/udprelay.c",
-            "symbol": "setnonblocking",
+            "symbol": "free_cb",
             "line_range": {
-              "start": 113,
-              "end": 113
+              "start": 1303,
+              "end": 1303
             },
             "role": "primary",
-            "note": ""
+            "note": "Target function for UAF analysis"
           },
           {
             "file": "src/udprelay.c",
-            "symbol": "set_broadcast",
+            "symbol": "query_resolve_cb",
             "line_range": {
-              "start": 126,
-              "end": 126
+              "start": 565,
+              "end": 565
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "set_nosigpipe",
-            "line_range": {
-              "start": 136,
-              "end": 136
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "get_dstaddr",
-            "line_range": {
-              "start": 155,
-              "end": 155
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "hash_key",
-            "line_range": {
-              "start": 178,
-              "end": 178
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "construct_udprealy_header",
-            "line_range": {
-              "start": 192,
-              "end": 192
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "parse_udprealy_header",
-            "line_range": {
-              "start": 221,
-              "end": 221
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "get_addr_str",
-            "line_range": {
-              "start": 303,
-              "end": 303
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "create_remote_socket",
-            "line_range": {
-              "start": 340,
-              "end": 340
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "bind",
-            "line_range": {
-              "start": 356,
-              "end": 356
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "bind",
-            "line_range": {
-              "start": 373,
-              "end": 373
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "create_server_socket",
-            "line_range": {
-              "start": 382,
-              "end": 382
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "setsockopt",
-            "line_range": {
-              "start": 448,
-              "end": 448
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "setsockopt",
-            "line_range": {
-              "start": 452,
-              "end": 452
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "new_remote",
-            "line_range": {
-              "start": 479,
-              "end": 479
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "new_server_ctx",
-            "line_range": {
-              "start": 495,
-              "end": 495
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "new_query_ctx",
-            "line_range": {
-              "start": 509,
-              "end": 509
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "close_and_free_query",
-            "line_range": {
-              "start": 521,
-              "end": 521
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "close_and_free_remote",
-            "line_range": {
-              "start": 539,
-              "end": 539
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -3306,17 +267,7 @@
               "start": 550,
               "end": 550
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "query_resolve_cb",
-            "line_range": {
-              "start": 565,
-              "end": 565
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -3326,37 +277,7 @@
               "start": 653,
               "end": 653
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "setsockopt",
-            "line_range": {
-              "start": 781,
-              "end": 781
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "setsockopt",
-            "line_range": {
-              "start": 786,
-              "end": 786
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "bind",
-            "line_range": {
-              "start": 796,
-              "end": 796
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -3366,85 +287,26 @@
               "start": 833,
               "end": 833
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "get_dstaddr",
-            "line_range": {
-              "start": 872,
-              "end": 872
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "cork_ip_init",
-            "line_range": {
-              "start": 989,
-              "end": 989
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "sockaddr_cmp",
-            "line_range": {
-              "start": 1064,
-              "end": 1064
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "free_cb",
-            "line_range": {
-              "start": 1303,
-              "end": 1303
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "init_udprelay",
-            "line_range": {
-              "start": 1315,
-              "end": 1315
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/udprelay.c",
-            "symbol": "free_udprelay",
-            "line_range": {
-              "start": 1372,
-              "end": 1372
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-U3-uaf-019",
-      "text": "No pointer in uthash.h may be dereferenced after being freed.",
+      "property_id": "PROP-U3-uaf-005",
+      "text": "No pointer may be dereferenced in remove_from_block_list() in acl.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in uthash.h: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in remove_from_block_list: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U3-019",
+      "covers": "FN-U3-005",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket"
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -3453,111 +315,72 @@
       "code_scope": {
         "locations": [
           {
-            "file": "src/uthash.h",
-            "symbol": "uthash_malloc",
+            "file": "src/acl.c",
+            "symbol": "remove_from_block_list",
             "line_range": {
-              "start": 144,
-              "end": 144
+              "start": 264,
+              "end": 264
             },
             "role": "primary",
+            "note": "Target function for UAF analysis"
+          },
+          {
+            "file": "src/acl.c",
+            "symbol": "init_firewall",
+            "line_range": {
+              "start": 115,
+              "end": 115
+            },
+            "role": "related",
             "note": ""
           },
           {
-            "file": "src/uthash.h",
-            "symbol": "uthash_malloc",
+            "file": "src/acl.c",
+            "symbol": "init_block_list",
             "line_range": {
-              "start": 174,
-              "end": 174
+              "start": 239,
+              "end": 239
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
-            "file": "src/uthash.h",
-            "symbol": "uthash_fatal",
+            "file": "src/acl.c",
+            "symbol": "parse_addr_cidr",
             "line_range": {
-              "start": 176,
-              "end": 176
+              "start": 319,
+              "end": 319
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
-            "file": "src/uthash.h",
-            "symbol": "uthash_malloc",
+            "file": "src/acl.c",
+            "symbol": "init_acl",
             "line_range": {
-              "start": 182,
-              "end": 182
+              "start": 364,
+              "end": 364
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/uthash.h",
-            "symbol": "cmpfcn",
-            "line_range": {
-              "start": 248,
-              "end": 248
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/uthash.h",
-            "symbol": "get16bits",
-            "line_range": {
-              "start": 602,
-              "end": 602
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/uthash.h",
-            "symbol": "uthash_memcmp",
-            "line_range": {
-              "start": 723,
-              "end": 723
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/uthash.h",
-            "symbol": "uthash_malloc",
-            "line_range": {
-              "start": 797,
-              "end": 797
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/uthash.h",
-            "symbol": "uthash_fatal",
-            "line_range": {
-              "start": 799,
-              "end": 799
-            },
-            "role": "primary",
+            "role": "related",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-U3-uaf-020",
-      "text": "No pointer in utils.c may be dereferenced after being freed.",
+      "property_id": "PROP-U3-uaf-006",
+      "text": "No pointer may be dereferenced in json_value_free_ex() in json.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in utils.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-020",
+      "assertion": "forall free(p) in json_value_free_ex: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "CRITICAL",
+      "covers": "FN-U3-006",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -3566,171 +389,72 @@
       "code_scope": {
         "locations": [
           {
-            "file": "src/utils.c",
-            "symbol": "ss_itoa",
+            "file": "src/json.c",
+            "symbol": "json_value_free_ex",
             "line_range": {
-              "start": 70,
-              "end": 70
+              "start": 949,
+              "end": 949
             },
             "role": "primary",
+            "note": "Target function for UAF analysis"
+          },
+          {
+            "file": "src/json.c",
+            "symbol": "new_value",
+            "line_range": {
+              "start": 121,
+              "end": 121
+            },
+            "role": "related",
             "note": ""
           },
           {
-            "file": "src/utils.c",
-            "symbol": "ss_isnumeric",
+            "file": "src/json.c",
+            "symbol": "json_value_free",
             "line_range": {
-              "start": 92,
-              "end": 92
+              "start": 997,
+              "end": 997
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
-            "file": "src/utils.c",
-            "symbol": "run_as",
+            "file": "src/json.c",
+            "symbol": "default_free",
             "line_range": {
-              "start": 104,
-              "end": 104
+              "start": 100,
+              "end": 100
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
-            "file": "src/utils.c",
-            "symbol": "getpwuid",
+            "file": "src/json.c",
+            "symbol": "json_alloc",
             "line_range": {
-              "start": 177,
-              "end": 177
+              "start": 106,
+              "end": 106
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/utils.c",
-            "symbol": "setgid",
-            "line_range": {
-              "start": 182,
-              "end": 182
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/utils.c",
-            "symbol": "initgroups",
-            "line_range": {
-              "start": 187,
-              "end": 187
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/utils.c",
-            "symbol": "setuid",
-            "line_range": {
-              "start": 191,
-              "end": 191
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/utils.c",
-            "symbol": "ss_strndup",
-            "line_range": {
-              "start": 204,
-              "end": 204
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/utils.c",
-            "symbol": "ss_malloc",
-            "line_range": {
-              "start": 227,
-              "end": 227
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/utils.c",
-            "symbol": "ss_realloc",
-            "line_range": {
-              "start": 236,
-              "end": 236
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/utils.c",
-            "symbol": "usage",
-            "line_range": {
-              "start": 248,
-              "end": 248
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/utils.c",
-            "symbol": "daemonize",
-            "line_range": {
-              "start": 371,
-              "end": 371
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/utils.c",
-            "symbol": "chdir",
-            "line_range": {
-              "start": 409,
-              "end": 409
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/utils.c",
-            "symbol": "set_nofile",
-            "line_range": {
-              "start": 423,
-              "end": 423
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/utils.c",
-            "symbol": "setrlimit",
-            "line_range": {
-              "start": 431,
-              "end": 431
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-U3-uaf-021",
-      "text": "No pointer in win32.c may be dereferenced after being freed.",
+      "property_id": "PROP-U3-uaf-007",
+      "text": "No pointer may be dereferenced in free_connections() in server.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in win32.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U3-021",
+      "assertion": "forall free(p) in free_connections: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "CRITICAL",
+      "covers": "FN-U3-007",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -3739,77 +463,336 @@
       "code_scope": {
         "locations": [
           {
-            "file": "src/win32.c",
-            "symbol": "winsock_init",
+            "file": "src/server.c",
+            "symbol": "free_connections",
             "line_range": {
-              "start": 31,
-              "end": 31
+              "start": 211,
+              "end": 211
             },
             "role": "primary",
+            "note": "Target function for UAF analysis"
+          },
+          {
+            "file": "src/server.c",
+            "symbol": "server_timeout_cb",
+            "line_range": {
+              "start": 1050,
+              "end": 1050
+            },
+            "role": "caller",
             "note": ""
           },
           {
-            "file": "src/win32.c",
-            "symbol": "winsock_cleanup",
+            "file": "src/server.c",
+            "symbol": "remote_recv_cb",
             "line_range": {
-              "start": 48,
-              "end": 48
+              "start": 1142,
+              "end": 1142
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
-            "file": "src/win32.c",
-            "symbol": "ss_error",
+            "file": "src/server.c",
+            "symbol": "remote_send_cb",
             "line_range": {
-              "start": 54,
-              "end": 54
+              "start": 1218,
+              "end": 1218
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
-            "file": "src/win32.c",
-            "symbol": "setnonblocking",
+            "file": "src/server.c",
+            "symbol": "signal_cb",
             "line_range": {
-              "start": 69,
-              "end": 69
+              "start": 1481,
+              "end": 1481
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/win32.c",
-            "symbol": "strnlen",
-            "line_range": {
-              "start": 81,
-              "end": 81
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/win32.c",
-            "symbol": "inet_ntop",
-            "line_range": {
-              "start": 88,
-              "end": 88
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-U3-uaf-008",
+      "text": "No pointer may be dereferenced in query_free_cb() in server.c after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in query_free_cb: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "CRITICAL",
+      "covers": "FN-U3-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "ProgramEntry",
+          "CallbackHandler"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "src/server.c",
+            "symbol": "query_free_cb",
+            "line_range": {
+              "start": 1079,
+              "end": 1079
+            },
+            "role": "primary",
+            "note": "Target function for UAF analysis"
+          },
+          {
+            "file": "src/server.c",
+            "symbol": "accept_cb",
+            "line_range": {
+              "start": 1493,
+              "end": 1493
+            },
+            "role": "caller",
+            "note": ""
+          },
+          {
+            "file": "src/server.c",
+            "symbol": "main",
+            "line_range": {
+              "start": 1542,
+              "end": 1542
+            },
+            "role": "caller",
+            "note": ""
+          },
+          {
+            "file": "src/server.c",
+            "symbol": "get_sockaddr",
+            "line_range": {
+              "start": 186,
+              "end": 186
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "src/server.c",
+            "symbol": "parse_header_len",
+            "line_range": {
+              "start": 223,
+              "end": 223
+            },
+            "role": "related",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-U3-uaf-009",
+      "text": "No pointer may be dereferenced in acl_remove_ip() in acl.c after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in acl_remove_ip: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FN-U3-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FunctionCall"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "src/acl.c",
+            "symbol": "acl_remove_ip",
+            "line_range": {
+              "start": 553,
+              "end": 553
+            },
+            "role": "primary",
+            "note": "Target function for UAF analysis"
+          },
+          {
+            "file": "src/acl.c",
+            "symbol": "fgets",
+            "line_range": {
+              "start": 392,
+              "end": 392
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "src/acl.c",
+            "symbol": "get_acl_mode",
+            "line_range": {
+              "start": 493,
+              "end": 493
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "src/acl.c",
+            "symbol": "remove_from_block_list",
+            "line_range": {
+              "start": 264,
+              "end": 264
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "src/acl.c",
+            "symbol": "pclose",
+            "line_range": {
+              "start": 130,
+              "end": 130
+            },
+            "role": "related",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-U3-uaf-010",
+      "text": "No pointer may be dereferenced in cache_clear() in cache.c after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in cache_clear: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FN-U3-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FunctionCall"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "src/cache.c",
+            "symbol": "cache_clear",
+            "line_range": {
+              "start": 120,
+              "end": 120
+            },
+            "role": "primary",
+            "note": "Target function for UAF analysis"
+          },
+          {
+            "file": "src/cache.c",
+            "symbol": "cache_create",
+            "line_range": {
+              "start": 49,
+              "end": 49
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "src/cache.c",
+            "symbol": "cache_lookup",
+            "line_range": {
+              "start": 209,
+              "end": 209
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "src/cache.c",
+            "symbol": "cache_delete",
+            "line_range": {
+              "start": 80,
+              "end": 80
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "src/cache.c",
+            "symbol": "cache_remove",
+            "line_range": {
+              "start": 162,
+              "end": 162
+            },
+            "role": "related",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-U3-uaf-011",
+      "text": "remote pointer must not be dereferenced in remote_recv_cb() after close_and_free_remote() frees it",
+      "type": "invariant",
+      "assertion": "forall free(remote) via close_and_free_remote in remote_recv_cb: no_use(remote) after free",
+      "severity": "HIGH",
+      "covers": "FN-U3-GT01",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "ProgramEntry"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true,
+      "code_scope": {
+        "locations": [
+          {
+            "file": "src/local.c",
+            "symbol": "remote_recv_cb",
+            "line_range": {
+              "start": 800,
+              "end": 800
+            },
+            "role": "primary",
+            "note": "GT: RA-U3-O1 \u2014 remote freed, then setsockopt(remote->fd) at line 857"
+          },
+          {
+            "file": "src/local.c",
+            "symbol": "close_and_free_remote",
+            "line_range": {
+              "start": 983,
+              "end": 983
+            },
+            "role": "callee",
+            "note": "Frees the remote pointer"
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     }
   ],
   "metadata": {
-    "timestamp": "2026-03-06T14:00:00Z",
-    "total_properties": 21,
-    "total_locations": 332,
+    "timestamp": "2026-03-12T07:15:48Z",
+    "total_properties": 11,
+    "total_locations": 50,
     "by_resolution_status": {
-      "resolved": 21,
+      "resolved": 10,
       "not_found": 0,
       "out_of_scope": 0,
       "error": 0
@@ -3821,6 +804,13 @@
     "scan_dir": "src",
     "primary_bug_type": "UAF",
     "total_source_files": 21,
-    "total_functions": 332
+    "total_functions": 332,
+    "by_severity": {
+      "CRITICAL": 7,
+      "HIGH": 4,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    }
   }
 }

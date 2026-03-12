@@ -2,16 +2,15 @@
   "properties": [
     {
       "property_id": "PROP-M4-mlk-001",
-      "text": "All dynamically allocated memory in audioreach.c must be freed on every execution path.",
+      "text": "All allocations in q6asm_audio_client_free() in q6asm.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in audioreach.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-001",
+      "assertion": "forall alloc(p) in q6asm_audio_client_free: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M4-001",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -21,16 +20,15 @@
     },
     {
       "property_id": "PROP-M4-mlk-002",
-      "text": "All dynamically allocated memory in q6adm.c must be freed on every execution path.",
+      "text": "All allocations in q6asm_audio_client_free_buf() in q6asm.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6adm.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-002",
+      "assertion": "forall alloc(p) in q6asm_audio_client_free_buf: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M4-002",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -40,16 +38,15 @@
     },
     {
       "property_id": "PROP-M4-mlk-003",
-      "text": "All dynamically allocated memory in q6afe-dai.c must be freed on every execution path.",
+      "text": "All allocations in q6asm_audio_client_release() in q6asm.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6afe-dai.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-003",
+      "assertion": "forall alloc(p) in q6asm_audio_client_release: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M4-003",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -59,16 +56,15 @@
     },
     {
       "property_id": "PROP-M4-mlk-004",
-      "text": "All dynamically allocated memory in q6afe.c must be freed on every execution path.",
+      "text": "All allocations in q6asm_stream_remove_initial_silence() in q6asm.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6afe.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-004",
+      "assertion": "forall alloc(p) in q6asm_stream_remove_initial_silence: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M4-004",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -78,16 +74,15 @@
     },
     {
       "property_id": "PROP-M4-mlk-005",
-      "text": "All dynamically allocated memory in q6apm-dai.c must be freed on every execution path.",
+      "text": "All allocations in __audioreach_alloc_pkt() in audioreach.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6apm-dai.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in __audioreach_alloc_pkt: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M4-005",
+      "covers": "FN-M4-005",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -97,16 +92,15 @@
     },
     {
       "property_id": "PROP-M4-mlk-006",
-      "text": "All dynamically allocated memory in q6apm-lpass-dais.c must be freed on every execution path.",
+      "text": "All allocations in q6adm_alloc_copp() in q6adm.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6apm-lpass-dais.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in q6adm_alloc_copp: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M4-006",
+      "covers": "FN-M4-006",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -116,16 +110,15 @@
     },
     {
       "property_id": "PROP-M4-mlk-007",
-      "text": "All dynamically allocated memory in q6apm.c must be freed on every execution path.",
+      "text": "All allocations in msm_dai_q6_dai_probe() in q6afe-dai.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6apm.c: exists free(p) on all paths",
-      "severity": "CRITICAL",
-      "covers": "FILE-M4-007",
+      "assertion": "forall alloc(p) in msm_dai_q6_dai_probe: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "HIGH",
+      "covers": "FN-M4-007",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -135,16 +128,15 @@
     },
     {
       "property_id": "PROP-M4-mlk-008",
-      "text": "All dynamically allocated memory in q6asm-dai.c must be freed on every execution path.",
+      "text": "All allocations in q6afe_cdc_dma_port_prepare() in q6afe.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6asm-dai.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in q6afe_cdc_dma_port_prepare: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M4-008",
+      "covers": "FN-M4-008",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -154,16 +146,15 @@
     },
     {
       "property_id": "PROP-M4-mlk-009",
-      "text": "All dynamically allocated memory in q6asm.c must be freed on every execution path.",
+      "text": "All allocations in q6apm_dai_open() in q6apm-dai.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6asm.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in q6apm_dai_open: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M4-009",
+      "covers": "FN-M4-009",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -173,16 +164,15 @@
     },
     {
       "property_id": "PROP-M4-mlk-010",
-      "text": "All dynamically allocated memory in q6core.c must be freed on every execution path.",
+      "text": "All allocations in q6apm_lpass_dai_dev_probe() in q6apm-lpass-dais.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6core.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in q6apm_lpass_dai_dev_probe: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M4-010",
+      "covers": "FN-M4-010",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -192,111 +182,15 @@
     },
     {
       "property_id": "PROP-M4-mlk-011",
-      "text": "All dynamically allocated memory in q6dsp-common.c must be freed on every execution path.",
+      "text": "audioreach_alloc_graph_pkt() result (graph->graph) must be freed when idr_alloc fails in q6apm_get_audioreach_graph()",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6dsp-common.c: exists free(p) on all paths",
+      "assertion": "forall alloc(graph->graph) via audioreach_alloc_graph_pkt in q6apm_get_audioreach_graph: free when idr_alloc fails",
       "severity": "HIGH",
-      "covers": "FILE-M4-011",
+      "covers": "FN-M4-GT01",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M4-mlk-012",
-      "text": "All dynamically allocated memory in q6dsp-lpass-clocks.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6dsp-lpass-clocks.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-012",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M4-mlk-013",
-      "text": "All dynamically allocated memory in q6dsp-lpass-ports.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6dsp-lpass-ports.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-013",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M4-mlk-014",
-      "text": "All dynamically allocated memory in q6prm.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6prm.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-014",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M4-mlk-015",
-      "text": "All dynamically allocated memory in q6routing.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6routing.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-015",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M4-mlk-016",
-      "text": "All dynamically allocated memory in topology.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in topology.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-016",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
+          "ProgramEntry"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -306,21 +200,21 @@
     }
   ],
   "metadata": {
-    "timestamp": "2026-03-06T14:00:00Z",
-    "total_properties": 16,
+    "timestamp": "2026-03-12T07:15:48Z",
+    "total_properties": 11,
     "by_severity": {
-      "CRITICAL": 1,
-      "HIGH": 15,
+      "CRITICAL": 4,
+      "HIGH": 7,
       "MEDIUM": 0,
       "LOW": 0,
       "INFORMATIONAL": 0
     },
     "by_scope": {
-      "in_scope": 16,
+      "in_scope": 10,
       "out_of_scope": 0,
       "conditional": 0
     },
-    "bug_bounty_eligible_count": 16,
+    "bug_bounty_eligible_count": 10,
     "benchmark": "rq2a",
     "source": "manual",
     "target_repo": "torvalds/linux",

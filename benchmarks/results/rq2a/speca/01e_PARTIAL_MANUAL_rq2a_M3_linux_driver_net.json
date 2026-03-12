@@ -2,16 +2,15 @@
   "properties": [
     {
       "property_id": "PROP-M3-mlk-001",
-      "text": "All dynamically allocated memory in cls.c must be freed on every execution path.",
+      "text": "All allocations in nfp_abm_qdisc_offload_stop() in qdisc.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in cls.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-001",
+      "assertion": "forall alloc(p) in nfp_abm_qdisc_offload_stop: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M3-001",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "Driver"
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -21,16 +20,16 @@
     },
     {
       "property_id": "PROP-M3-mlk-002",
-      "text": "All dynamically allocated memory in ctrl.c must be freed on every execution path.",
+      "text": "All allocations in nfp_bpf_ndo_uninit() in main.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in ctrl.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-002",
+      "assertion": "forall alloc(p) in nfp_bpf_ndo_uninit: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M3-002",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "Driver"
+          "CallbackHandler",
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -40,16 +39,15 @@
     },
     {
       "property_id": "PROP-M3-mlk-003",
-      "text": "All dynamically allocated memory in main.c must be freed on every execution path.",
+      "text": "All allocations in nfp_devlink_params_unregister() in devlink_param.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in main.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-003",
+      "assertion": "forall alloc(p) in nfp_devlink_params_unregister: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M3-003",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -59,16 +57,15 @@
     },
     {
       "property_id": "PROP-M3-mlk-004",
-      "text": "All dynamically allocated memory in main.h must be freed on every execution path.",
+      "text": "All allocations in nfp_fl_ct_del_offload() in conntrack.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in main.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-004",
+      "assertion": "forall alloc(p) in nfp_fl_ct_del_offload: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M3-004",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -78,16 +75,15 @@
     },
     {
       "property_id": "PROP-M3-mlk-005",
-      "text": "All dynamically allocated memory in qdisc.c must be freed on every execution path.",
+      "text": "All allocations in nfp_flower_lag_get_output_id() in lag_conf.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in qdisc.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-005",
+      "assertion": "forall alloc(p) in nfp_flower_lag_get_output_id: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M3-005",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "Driver"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -97,16 +93,15 @@
     },
     {
       "property_id": "PROP-M3-mlk-006",
-      "text": "All dynamically allocated memory in cmsg.c must be freed on every execution path.",
+      "text": "All allocations in nfp_flower_del_offload() in offload.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in cmsg.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-006",
+      "assertion": "forall alloc(p) in nfp_flower_del_offload: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M3-006",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -116,16 +111,15 @@
     },
     {
       "property_id": "PROP-M3-mlk-007",
-      "text": "All dynamically allocated memory in jit.c must be freed on every execution path.",
+      "text": "All allocations in __nfp_tun_del_route_from_cache() in tunnel_conf.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in jit.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-007",
+      "assertion": "forall alloc(p) in __nfp_tun_del_route_from_cache: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M3-007",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -135,16 +129,15 @@
     },
     {
       "property_id": "PROP-M3-mlk-008",
-      "text": "All dynamically allocated memory in main.c must be freed on every execution path.",
+      "text": "All allocations in nfp_flower_setup_indr_tc_release() in offload.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in main.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-008",
+      "assertion": "forall alloc(p) in nfp_flower_setup_indr_tc_release: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M3-008",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -154,16 +147,15 @@
     },
     {
       "property_id": "PROP-M3-mlk-009",
-      "text": "All dynamically allocated memory in main.h must be freed on every execution path.",
+      "text": "All allocations in nfp_tun_del_route_from_cache_v4() in tunnel_conf.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in main.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-009",
+      "assertion": "forall alloc(p) in nfp_tun_del_route_from_cache_v4: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M3-009",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "Driver"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -173,16 +165,16 @@
     },
     {
       "property_id": "PROP-M3-mlk-010",
-      "text": "All dynamically allocated memory in offload.c must be freed on every execution path.",
+      "text": "All allocations in nfp_app_ndo_uninit() in nfp_app.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in offload.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-010",
+      "assertion": "forall alloc(p) in nfp_app_ndo_uninit: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M3-010",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "Driver"
+          "CallbackHandler",
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -192,1118 +184,15 @@
     },
     {
       "property_id": "PROP-M3-mlk-011",
-      "text": "All dynamically allocated memory in verifier.c must be freed on every execution path.",
+      "text": "nfp_cpp_area_alloc() result must be freed when subsequent kzalloc for cache fails in nfp_cpp_area_cache_add()",
       "type": "invariant",
-      "assertion": "forall alloc(p) in verifier.c: exists free(p) on all paths",
+      "assertion": "forall alloc(area) via nfp_cpp_area_alloc in nfp_cpp_area_cache_add: free(area) when kzalloc(cache) fails",
       "severity": "HIGH",
-      "covers": "FILE-M3-011",
+      "covers": "FN-M3-GT01",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-012",
-      "text": "All dynamically allocated memory in ccm.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in ccm.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-012",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-013",
-      "text": "All dynamically allocated memory in ccm.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in ccm.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-013",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-014",
-      "text": "All dynamically allocated memory in ccm_mbox.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in ccm_mbox.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-014",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-015",
-      "text": "All dynamically allocated memory in crypto.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in crypto.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-015",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-016",
-      "text": "All dynamically allocated memory in tls.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in tls.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-016",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-017",
-      "text": "All dynamically allocated memory in devlink_param.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in devlink_param.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-017",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-018",
-      "text": "All dynamically allocated memory in action.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in action.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-018",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-019",
-      "text": "All dynamically allocated memory in cmsg.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in cmsg.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-019",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-020",
-      "text": "All dynamically allocated memory in cmsg.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in cmsg.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-020",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-021",
-      "text": "All dynamically allocated memory in conntrack.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in conntrack.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-021",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-022",
-      "text": "All dynamically allocated memory in lag_conf.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in lag_conf.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-022",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-023",
-      "text": "All dynamically allocated memory in main.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in main.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-023",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-024",
-      "text": "All dynamically allocated memory in main.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in main.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-024",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-025",
-      "text": "All dynamically allocated memory in match.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in match.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-025",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-026",
-      "text": "All dynamically allocated memory in metadata.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in metadata.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-026",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-027",
-      "text": "All dynamically allocated memory in offload.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in offload.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-027",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-028",
-      "text": "All dynamically allocated memory in qos_conf.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in qos_conf.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-028",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-029",
-      "text": "All dynamically allocated memory in tunnel_conf.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in tunnel_conf.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-029",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-030",
-      "text": "All dynamically allocated memory in nfp_app.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_app.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-030",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-031",
-      "text": "All dynamically allocated memory in nfp_app.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_app.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-031",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-032",
-      "text": "All dynamically allocated memory in nfp_app_nic.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_app_nic.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-032",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-033",
-      "text": "All dynamically allocated memory in nfp_asm.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_asm.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-033",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-034",
-      "text": "All dynamically allocated memory in nfp_asm.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_asm.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-034",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-035",
-      "text": "All dynamically allocated memory in nfp_devlink.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_devlink.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-035",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-036",
-      "text": "All dynamically allocated memory in nfp_hwmon.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_hwmon.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-036",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-037",
-      "text": "All dynamically allocated memory in nfp_main.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_main.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-037",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-038",
-      "text": "All dynamically allocated memory in nfp_net.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_net.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-038",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-039",
-      "text": "All dynamically allocated memory in nfp_net_common.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_net_common.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-039",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-040",
-      "text": "All dynamically allocated memory in nfp_net_ctrl.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_net_ctrl.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-040",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-041",
-      "text": "All dynamically allocated memory in nfp_net_debugdump.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_net_debugdump.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-041",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-042",
-      "text": "All dynamically allocated memory in nfp_net_debugfs.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_net_debugfs.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-042",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-043",
-      "text": "All dynamically allocated memory in nfp_net_ethtool.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_net_ethtool.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-043",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-044",
-      "text": "All dynamically allocated memory in nfp_net_main.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_net_main.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-044",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-045",
-      "text": "All dynamically allocated memory in nfp_net_repr.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_net_repr.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-045",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-046",
-      "text": "All dynamically allocated memory in nfp_net_repr.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_net_repr.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-046",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-047",
-      "text": "All dynamically allocated memory in nfp_net_sriov.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_net_sriov.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-047",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-048",
-      "text": "All dynamically allocated memory in nfp_netvf_main.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_netvf_main.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-048",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-049",
-      "text": "All dynamically allocated memory in nfp_port.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_port.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-049",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-050",
-      "text": "All dynamically allocated memory in nfp_port.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_port.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-050",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-051",
-      "text": "All dynamically allocated memory in nfp_shared_buf.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_shared_buf.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-051",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-052",
-      "text": "All dynamically allocated memory in crc32.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in crc32.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-052",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-053",
-      "text": "All dynamically allocated memory in nfp6000.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp6000.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-053",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-054",
-      "text": "All dynamically allocated memory in nfp6000_pcie.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp6000_pcie.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-054",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-055",
-      "text": "All dynamically allocated memory in nfp_cpp.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_cpp.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-055",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-056",
-      "text": "All dynamically allocated memory in nfp_cppcore.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_cppcore.c: exists free(p) on all paths",
-      "severity": "CRITICAL",
-      "covers": "FILE-M3-056",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-057",
-      "text": "All dynamically allocated memory in nfp_cpplib.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_cpplib.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-057",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-058",
-      "text": "All dynamically allocated memory in nfp_hwinfo.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_hwinfo.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-058",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-059",
-      "text": "All dynamically allocated memory in nfp_mip.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_mip.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-059",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-060",
-      "text": "All dynamically allocated memory in nfp_mutex.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_mutex.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-060",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-061",
-      "text": "All dynamically allocated memory in nfp_nffw.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_nffw.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-061",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-062",
-      "text": "All dynamically allocated memory in nfp_nsp.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_nsp.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-062",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-063",
-      "text": "All dynamically allocated memory in nfp_nsp.h must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_nsp.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-063",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-064",
-      "text": "All dynamically allocated memory in nfp_nsp_cmds.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_nsp_cmds.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-064",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-065",
-      "text": "All dynamically allocated memory in nfp_nsp_eth.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_nsp_eth.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-065",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-066",
-      "text": "All dynamically allocated memory in nfp_resource.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_resource.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-066",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-067",
-      "text": "All dynamically allocated memory in nfp_rtsym.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_rtsym.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-067",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-068",
-      "text": "All dynamically allocated memory in nfp_target.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in nfp_target.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-068",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M3-mlk-069",
-      "text": "All dynamically allocated memory in main.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in main.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M3-069",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "Driver"
+          "ProgramEntry"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -1313,21 +202,21 @@
     }
   ],
   "metadata": {
-    "timestamp": "2026-03-06T14:00:00Z",
-    "total_properties": 69,
+    "timestamp": "2026-03-12T07:15:48Z",
+    "total_properties": 11,
     "by_severity": {
-      "CRITICAL": 1,
-      "HIGH": 68,
+      "CRITICAL": 10,
+      "HIGH": 1,
       "MEDIUM": 0,
       "LOW": 0,
       "INFORMATIONAL": 0
     },
     "by_scope": {
-      "in_scope": 69,
+      "in_scope": 10,
       "out_of_scope": 0,
       "conditional": 0
     },
-    "bug_bounty_eligible_count": 69,
+    "bug_bounty_eligible_count": 10,
     "benchmark": "rq2a",
     "source": "manual",
     "target_repo": "torvalds/linux",

@@ -2,15 +2,15 @@
   "properties": [
     {
       "property_id": "PROP-N1-npd-001",
-      "text": "No null pointer may be dereferenced in ascii.h.",
+      "text": "Return value of SerializeToZeroCopyStream() in binary_rpc_request.cc must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in ascii.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-001",
+      "assertion": "forall call(r, SerializeToZeroCopyStream): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N1-001",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -20,15 +20,15 @@
     },
     {
       "property_id": "PROP-N1-npd-002",
-      "text": "No null pointer may be dereferenced in atomic.h.",
+      "text": "Return value of get_compressed_input_stream() in compressed_stream.cc must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in atomic.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-002",
+      "assertion": "forall call(r, get_compressed_input_stream): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N1-002",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -38,15 +38,15 @@
     },
     {
       "property_id": "PROP-N1-npd-003",
-      "text": "No null pointer may be dereferenced in bin2ascii.h.",
+      "text": "Return value of ResolveAddress() in rpc_client_impl.cc must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in bin2ascii.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-003",
+      "assertion": "forall call(r, ResolveAddress): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N1-003",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -56,15 +56,15 @@
     },
     {
       "property_id": "PROP-N1-npd-004",
-      "text": "No null pointer may be dereferenced in binary_rpc_request.cc.",
+      "text": "Return value of ResolveAddress() in rpc_endpoint.cc must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in binary_rpc_request.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-004",
+      "assertion": "forall call(r, ResolveAddress): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N1-004",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -74,15 +74,15 @@
     },
     {
       "property_id": "PROP-N1-npd-005",
-      "text": "No null pointer may be dereferenced in binary_rpc_request_parser.cc.",
+      "text": "Return value of set_create_callback() in rpc_listener.h must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in binary_rpc_request_parser.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-005",
+      "assertion": "forall call(r, set_create_callback): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N1-005",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -92,15 +92,15 @@
     },
     {
       "property_id": "PROP-N1-npd-006",
-      "text": "No null pointer may be dereferenced in block_wrappers.cc.",
+      "text": "Return value of try_start_send() in rpc_message_stream.h must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in block_wrappers.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-006",
+      "assertion": "forall call(r, try_start_send): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N1-006",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -110,15 +110,15 @@
     },
     {
       "property_id": "PROP-N1-npd-007",
-      "text": "No null pointer may be dereferenced in block_wrappers.h.",
+      "text": "Return value of try_start_send() in rpc_server_message_stream.h must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in block_wrappers.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-007",
+      "assertion": "forall call(r, try_start_send): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N1-007",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -128,15 +128,15 @@
     },
     {
       "property_id": "PROP-N1-npd-008",
-      "text": "No null pointer may be dereferenced in boost_system_error_code.cc.",
+      "text": "Return value of get_compressed_output_stream() in compressed_stream.cc must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in boost_system_error_code.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-008",
+      "assertion": "forall call(r, get_compressed_output_stream): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N1-008",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -146,15 +146,15 @@
     },
     {
       "property_id": "PROP-N1-npd-009",
-      "text": "No null pointer may be dereferenced in buf_handle.h.",
+      "text": "Return value of SerializeToZeroCopyStream() in rpc_client_impl.cc must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in buf_handle.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-009",
+      "assertion": "forall call(r, SerializeToZeroCopyStream): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N1-009",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -164,15 +164,15 @@
     },
     {
       "property_id": "PROP-N1-npd-010",
-      "text": "No null pointer may be dereferenced in buffer.cc.",
+      "text": "Return value of decode_url() in string_utils.cc must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in buffer.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-010",
+      "assertion": "forall call(r, decode_url): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N1-010",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -182,15 +182,15 @@
     },
     {
       "property_id": "PROP-N1-npd-011",
-      "text": "No null pointer may be dereferenced in builtin_service_impl.cc.",
+      "text": "NULL returned from parse_msg() must be checked before dereference in callers (pb2json, json2string, field2json)",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in builtin_service_impl.cc: p != NULL before deref(p)",
+      "assertion": "forall call parse_msg() in {pb2json, json2string, field2json}: result != NULL before dereference",
       "severity": "HIGH",
-      "covers": "FILE-N1-011",
+      "covers": "FN-N1-GT01",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
+          "ProgramEntry"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -200,1383 +200,15 @@
     },
     {
       "property_id": "PROP-N1-npd-012",
-      "text": "No null pointer may be dereferenced in closure.h.",
+      "text": "NULL returned from field2json() when repeated=false must be checked before dereference in parse_msg()",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in closure.h: p != NULL before deref(p)",
+      "assertion": "forall call field2json() in parse_msg: result != NULL before dereference",
       "severity": "HIGH",
-      "covers": "FILE-N1-012",
+      "covers": "FN-N1-GT02",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-013",
-      "text": "No null pointer may be dereferenced in closure_helper.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in closure_helper.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-013",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-014",
-      "text": "No null pointer may be dereferenced in common.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in common.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-014",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-015",
-      "text": "No null pointer may be dereferenced in compressed_stream.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in compressed_stream.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-015",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-016",
-      "text": "No null pointer may be dereferenced in condition_variable.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in condition_variable.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-016",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-017",
-      "text": "No null pointer may be dereferenced in counter.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in counter.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-017",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-018",
-      "text": "No null pointer may be dereferenced in dynamic_rpc_channel_impl.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in dynamic_rpc_channel_impl.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-018",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-019",
-      "text": "No null pointer may be dereferenced in ext_closure.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in ext_closure.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-019",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-020",
-      "text": "No null pointer may be dereferenced in flow_controller.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in flow_controller.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-020",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-021",
-      "text": "No null pointer may be dereferenced in func_tracer.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in func_tracer.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-021",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-022",
-      "text": "No null pointer may be dereferenced in gzip_stream.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in gzip_stream.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-022",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-023",
-      "text": "No null pointer may be dereferenced in gzip_stream.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in gzip_stream.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-023",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-024",
-      "text": "No null pointer may be dereferenced in http_agent.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in http_agent.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-024",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-025",
-      "text": "No null pointer may be dereferenced in sofa_pbrpc_client.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in sofa_pbrpc_client.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-025",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-026",
-      "text": "No null pointer may be dereferenced in http_rpc_request.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in http_rpc_request.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-026",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-027",
-      "text": "No null pointer may be dereferenced in http_rpc_request_parser.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in http_rpc_request_parser.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-027",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-028",
-      "text": "No null pointer may be dereferenced in lz4.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in lz4.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-028",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-029",
-      "text": "No null pointer may be dereferenced in mock_test_helper.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in mock_test_helper.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-029",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-030",
-      "text": "No null pointer may be dereferenced in mock_test_helper_impl.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in mock_test_helper_impl.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-030",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-031",
-      "text": "No null pointer may be dereferenced in murmurhash.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in murmurhash.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-031",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-032",
-      "text": "No null pointer may be dereferenced in mutex_lock.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in mutex_lock.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-032",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-033",
-      "text": "No null pointer may be dereferenced in pbjson.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in pbjson.cc: p != NULL before deref(p)",
-      "severity": "CRITICAL",
-      "covers": "FILE-N1-033",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-034",
-      "text": "No null pointer may be dereferenced in ptime.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in ptime.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-034",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-035",
-      "text": "No null pointer may be dereferenced in rpc_byte_stream.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_byte_stream.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-035",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-036",
-      "text": "No null pointer may be dereferenced in rpc_channel.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_channel.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-036",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-037",
-      "text": "No null pointer may be dereferenced in rpc_channel.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_channel.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-037",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-038",
-      "text": "No null pointer may be dereferenced in rpc_client.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_client.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-038",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-039",
-      "text": "No null pointer may be dereferenced in rpc_client.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_client.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-039",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-040",
-      "text": "No null pointer may be dereferenced in rpc_client_impl.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_client_impl.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-040",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-041",
-      "text": "No null pointer may be dereferenced in rpc_client_impl.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_client_impl.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-041",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-042",
-      "text": "No null pointer may be dereferenced in rpc_client_stream.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_client_stream.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-042",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-043",
-      "text": "No null pointer may be dereferenced in rpc_controller.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_controller.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-043",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-044",
-      "text": "No null pointer may be dereferenced in rpc_controller_impl.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_controller_impl.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-044",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-045",
-      "text": "No null pointer may be dereferenced in rpc_endpoint.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_endpoint.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-045",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-046",
-      "text": "No null pointer may be dereferenced in rpc_error_code.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_error_code.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-046",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-047",
-      "text": "No null pointer may be dereferenced in rpc_listener.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_listener.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-047",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-048",
-      "text": "No null pointer may be dereferenced in rpc_message_header.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_message_header.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-048",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-049",
-      "text": "No null pointer may be dereferenced in rpc_message_stream.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_message_stream.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-049",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-050",
-      "text": "No null pointer may be dereferenced in rpc_request.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_request.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-050",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-051",
-      "text": "No null pointer may be dereferenced in rpc_request.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_request.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-051",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-052",
-      "text": "No null pointer may be dereferenced in rpc_request_parser.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_request_parser.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-052",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-053",
-      "text": "No null pointer may be dereferenced in rpc_server.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_server.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-053",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-054",
-      "text": "No null pointer may be dereferenced in rpc_server.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_server.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-054",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-055",
-      "text": "No null pointer may be dereferenced in rpc_server_impl.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_server_impl.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-055",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-056",
-      "text": "No null pointer may be dereferenced in rpc_server_impl.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_server_impl.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-056",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-057",
-      "text": "No null pointer may be dereferenced in rpc_server_message_stream.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_server_message_stream.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-057",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-058",
-      "text": "No null pointer may be dereferenced in rpc_server_stream.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_server_stream.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-058",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-059",
-      "text": "No null pointer may be dereferenced in rpc_timeout_manager.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rpc_timeout_manager.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-059",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-060",
-      "text": "No null pointer may be dereferenced in rw_lock.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in rw_lock.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-060",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-061",
-      "text": "No null pointer may be dereferenced in scoped_locker.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in scoped_locker.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-061",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-062",
-      "text": "No null pointer may be dereferenced in service_pool.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in service_pool.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-062",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-063",
-      "text": "No null pointer may be dereferenced in simple_rpc_channel_impl.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in simple_rpc_channel_impl.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-063",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-064",
-      "text": "No null pointer may be dereferenced in bad_weak_ptr.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in bad_weak_ptr.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-064",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-065",
-      "text": "No null pointer may be dereferenced in checked_delete.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in checked_delete.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-065",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-066",
-      "text": "No null pointer may be dereferenced in operator_bool.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in operator_bool.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-066",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-067",
-      "text": "No null pointer may be dereferenced in shared_count.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in shared_count.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-067",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-068",
-      "text": "No null pointer may be dereferenced in sp_counted_base_gcc_x86.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in sp_counted_base_gcc_x86.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-068",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-069",
-      "text": "No null pointer may be dereferenced in sp_counted_impl.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in sp_counted_impl.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-069",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-070",
-      "text": "No null pointer may be dereferenced in spinlock_pool.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in spinlock_pool.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-070",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-071",
-      "text": "No null pointer may be dereferenced in spinlock_pt.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in spinlock_pt.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-071",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-072",
-      "text": "No null pointer may be dereferenced in enable_shared_from_this.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in enable_shared_from_this.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-072",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-073",
-      "text": "No null pointer may be dereferenced in owner_less.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in owner_less.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-073",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-074",
-      "text": "No null pointer may be dereferenced in scoped_array.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in scoped_array.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-074",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-075",
-      "text": "No null pointer may be dereferenced in scoped_ptr.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in scoped_ptr.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-075",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-076",
-      "text": "No null pointer may be dereferenced in shared_ptr.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in shared_ptr.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-076",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-077",
-      "text": "No null pointer may be dereferenced in weak_ptr.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in weak_ptr.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-077",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-078",
-      "text": "No null pointer may be dereferenced in spin_lock.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in spin_lock.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-078",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-079",
-      "text": "No null pointer may be dereferenced in string_utils.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in string_utils.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-079",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-080",
-      "text": "No null pointer may be dereferenced in string_utils.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in string_utils.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-080",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-081",
-      "text": "No null pointer may be dereferenced in thread_group.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in thread_group.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-081",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-082",
-      "text": "No null pointer may be dereferenced in thread_group_impl.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in thread_group_impl.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-082",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-083",
-      "text": "No null pointer may be dereferenced in timeout_manager.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in timeout_manager.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-083",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-084",
-      "text": "No null pointer may be dereferenced in timeout_manager_impl.cc.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in timeout_manager_impl.cc: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-084",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-085",
-      "text": "No null pointer may be dereferenced in timeout_manager_impl.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in timeout_manager_impl.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-085",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-086",
-      "text": "No null pointer may be dereferenced in timer_worker.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in timer_worker.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-086",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-087",
-      "text": "No null pointer may be dereferenced in tran_buf_pool.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in tran_buf_pool.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-087",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N1-npd-088",
-      "text": "No null pointer may be dereferenced in wait_event.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in wait_event.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N1-088",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkRPC"
+          "ProgramEntry"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -1586,21 +218,21 @@
     }
   ],
   "metadata": {
-    "timestamp": "2026-03-06T14:00:00Z",
-    "total_properties": 88,
+    "timestamp": "2026-03-12T07:15:48Z",
+    "total_properties": 12,
     "by_severity": {
-      "CRITICAL": 1,
-      "HIGH": 87,
+      "CRITICAL": 10,
+      "HIGH": 2,
       "MEDIUM": 0,
       "LOW": 0,
       "INFORMATIONAL": 0
     },
     "by_scope": {
-      "in_scope": 88,
+      "in_scope": 10,
       "out_of_scope": 0,
       "conditional": 0
     },
-    "bug_bounty_eligible_count": 88,
+    "bug_bounty_eligible_count": 10,
     "benchmark": "rq2a",
     "source": "manual",
     "target_repo": "baidu/sofa-pbrpc",

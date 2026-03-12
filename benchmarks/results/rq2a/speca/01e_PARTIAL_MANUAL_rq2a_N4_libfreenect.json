@@ -2,16 +2,15 @@
   "properties": [
     {
       "property_id": "PROP-N4-npd-001",
-      "text": "No null pointer may be dereferenced in OniDriverAPI.h.",
+      "text": "Return value of json_serialize_to_string() in parson.c must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in OniDriverAPI.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-001",
+      "assertion": "forall call(r, json_serialize_to_string): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N4-001",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "USBDevice",
-          "API"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -21,16 +20,15 @@
     },
     {
       "property_id": "PROP-N4-npd-002",
-      "text": "No null pointer may be dereferenced in OpenNI.h.",
+      "text": "Return value of get_data_size() in fakenect.c must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in OpenNI.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-002",
+      "assertion": "forall call(r, get_data_size): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N4-002",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "USBDevice",
-          "API"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -40,16 +38,15 @@
     },
     {
       "property_id": "PROP-N4-npd-003",
-      "text": "No null pointer may be dereferenced in ColorStream.cpp.",
+      "text": "Return value of upload_cemd_data() in loader.c must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in ColorStream.cpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-003",
+      "assertion": "forall call(r, upload_cemd_data): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N4-003",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "USBDevice",
-          "API"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -59,16 +56,15 @@
     },
     {
       "property_id": "PROP-N4-npd-004",
-      "text": "No null pointer may be dereferenced in ColorStream.hpp.",
+      "text": "Return value of _getHandle() in OpenNI.h must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in ColorStream.hpp: p != NULL before deref(p)",
+      "assertion": "forall call(r, _getHandle): r != NULL before deref(r) OR error_handled(r == NULL)",
       "severity": "HIGH",
-      "covers": "FILE-N4-004",
+      "covers": "FN-N4-004",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "USBDevice",
-          "API"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -78,16 +74,16 @@
     },
     {
       "property_id": "PROP-N4-npd-005",
-      "text": "No null pointer may be dereferenced in DepthStream.cpp.",
+      "text": "Return value of freenect_init_registration_table() in registration.c must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in DepthStream.cpp: p != NULL before deref(p)",
+      "assertion": "forall call(r, freenect_init_registration_table): r != NULL before deref(r) OR error_handled(r == NULL)",
       "severity": "HIGH",
-      "covers": "FILE-N4-005",
+      "covers": "FN-N4-005",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "USBDevice",
-          "API"
+          "CallbackHandler",
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -97,16 +93,16 @@
     },
     {
       "property_id": "PROP-N4-npd-006",
-      "text": "No null pointer may be dereferenced in DepthStream.hpp.",
+      "text": "Return value of freenect_network_init() in freenect_network.c must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in DepthStream.hpp: p != NULL before deref(p)",
+      "assertion": "forall call(r, freenect_network_init): r != NULL before deref(r) OR error_handled(r == NULL)",
       "severity": "HIGH",
-      "covers": "FILE-N4-006",
+      "covers": "FN-N4-006",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "USBDevice",
-          "API"
+          "CallbackHandler",
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -116,16 +112,15 @@
     },
     {
       "property_id": "PROP-N4-npd-007",
-      "text": "No null pointer may be dereferenced in DeviceDriver.cpp.",
+      "text": "Return value of getDepthFormat() in libfreenect.hpp must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in DeviceDriver.cpp: p != NULL before deref(p)",
+      "assertion": "forall call(r, getDepthFormat): r != NULL before deref(r) OR error_handled(r == NULL)",
       "severity": "HIGH",
-      "covers": "FILE-N4-007",
+      "covers": "FN-N4-007",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "USBDevice",
-          "API"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -135,16 +130,15 @@
     },
     {
       "property_id": "PROP-N4-npd-008",
-      "text": "No null pointer may be dereferenced in Utility.hpp.",
+      "text": "Return value of json_serialize_to_string_pretty() in parson.c must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in Utility.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-008",
+      "assertion": "forall call(r, json_serialize_to_string_pretty): r != NULL before deref(r) OR error_handled(r == NULL)",
+      "severity": "CRITICAL",
+      "covers": "FN-N4-008",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "USBDevice",
-          "API"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -154,16 +148,15 @@
     },
     {
       "property_id": "PROP-N4-npd-009",
-      "text": "No null pointer may be dereferenced in VideoStream.hpp.",
+      "text": "Return value of getCameraSettings() in OpenNI.h must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in VideoStream.hpp: p != NULL before deref(p)",
+      "assertion": "forall call(r, getCameraSettings): r != NULL before deref(r) OR error_handled(r == NULL)",
       "severity": "HIGH",
-      "covers": "FILE-N4-009",
+      "covers": "FN-N4-009",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "USBDevice",
-          "API"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -173,16 +166,16 @@
     },
     {
       "property_id": "PROP-N4-npd-010",
-      "text": "No null pointer may be dereferenced in fakenect.c.",
+      "text": "Return value of freenect_network_initSocket() in freenect_network.c must be NULL-checked before dereference by all callers",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in fakenect.c: p != NULL before deref(p)",
+      "assertion": "forall call(r, freenect_network_initSocket): r != NULL before deref(r) OR error_handled(r == NULL)",
       "severity": "HIGH",
-      "covers": "FILE-N4-010",
+      "covers": "FN-N4-010",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "USBDevice",
-          "API"
+          "CallbackHandler",
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -192,472 +185,15 @@
     },
     {
       "property_id": "PROP-N4-npd-011",
-      "text": "No null pointer may be dereferenced in parson.c.",
+      "text": "Return value of freenect_init() must be NULL-checked in init_thread() before passing ctx to freenect_select_subdevices()",
       "type": "invariant",
-      "assertion": "forall ptr_deref(p) in parson.c: p != NULL before deref(p)",
+      "assertion": "forall call freenect_init(&ctx) in init_thread: ctx != NULL before freenect_select_subdevices(ctx)",
       "severity": "HIGH",
-      "covers": "FILE-N4-011",
+      "covers": "FN-N4-GT01",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-012",
-      "text": "No null pointer may be dereferenced in platform.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in platform.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-012",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-013",
-      "text": "No null pointer may be dereferenced in record.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in record.c: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-013",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-014",
-      "text": "No null pointer may be dereferenced in libfreenect.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in libfreenect.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-014",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-015",
-      "text": "No null pointer may be dereferenced in failguard.cpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in failguard.cpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-015",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-016",
-      "text": "No null pointer may be dereferenced in libusbemu.cpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in libusbemu.cpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-016",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-017",
-      "text": "No null pointer may be dereferenced in libusbemu_internal.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in libusbemu_internal.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-017",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-018",
-      "text": "No null pointer may be dereferenced in libusbemu_threads.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in libusbemu_threads.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-018",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-019",
-      "text": "No null pointer may be dereferenced in libusbemu_threads_win32.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in libusbemu_threads_win32.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-019",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-020",
-      "text": "No null pointer may be dereferenced in unistd.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in unistd.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-020",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-021",
-      "text": "No null pointer may be dereferenced in audio.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in audio.c: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-021",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-022",
-      "text": "No null pointer may be dereferenced in cameras.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in cameras.c: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-022",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-023",
-      "text": "No null pointer may be dereferenced in core.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in core.c: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-023",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-024",
-      "text": "No null pointer may be dereferenced in flags.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in flags.c: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-024",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-025",
-      "text": "No null pointer may be dereferenced in freenect_internal.h.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in freenect_internal.h: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-025",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-026",
-      "text": "No null pointer may be dereferenced in loader.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in loader.c: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-026",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-027",
-      "text": "No null pointer may be dereferenced in registration.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in registration.c: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-027",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-028",
-      "text": "No null pointer may be dereferenced in tilt.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in tilt.c: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-028",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-029",
-      "text": "No null pointer may be dereferenced in usb_libusb10.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in usb_libusb10.c: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-029",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-030",
-      "text": "No null pointer may be dereferenced in as3-server.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in as3-server.c: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-030",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-031",
-      "text": "No null pointer may be dereferenced in freenect_network.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in freenect_network.c: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-031",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-032",
-      "text": "No null pointer may be dereferenced in libfreenect_sync.c.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in libfreenect_sync.c: p != NULL before deref(p)",
-      "severity": "CRITICAL",
-      "covers": "FILE-N4-032",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-033",
-      "text": "No null pointer may be dereferenced in cpp_pc_view.cpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in cpp_pc_view.cpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-033",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-034",
-      "text": "No null pointer may be dereferenced in cppview.cpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in cppview.cpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-034",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-N4-npd-035",
-      "text": "No null pointer may be dereferenced in libfreenect.hpp.",
-      "type": "invariant",
-      "assertion": "forall ptr_deref(p) in libfreenect.hpp: p != NULL before deref(p)",
-      "severity": "HIGH",
-      "covers": "FILE-N4-035",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "USBDevice",
-          "API"
+          "ProgramEntry"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -667,21 +203,21 @@
     }
   ],
   "metadata": {
-    "timestamp": "2026-03-06T14:00:00Z",
-    "total_properties": 35,
+    "timestamp": "2026-03-12T07:15:48Z",
+    "total_properties": 11,
     "by_severity": {
-      "CRITICAL": 1,
-      "HIGH": 34,
+      "CRITICAL": 4,
+      "HIGH": 7,
       "MEDIUM": 0,
       "LOW": 0,
       "INFORMATIONAL": 0
     },
     "by_scope": {
-      "in_scope": 35,
+      "in_scope": 10,
       "out_of_scope": 0,
       "conditional": 0
     },
-    "bug_bounty_eligible_count": 35,
+    "bug_bounty_eligible_count": 10,
     "benchmark": "rq2a",
     "source": "manual",
     "target_repo": "OpenKinect/libfreenect",

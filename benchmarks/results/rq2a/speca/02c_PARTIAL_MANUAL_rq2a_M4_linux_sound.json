@@ -2,16 +2,311 @@
   "properties_with_code": [
     {
       "property_id": "PROP-M4-mlk-001",
-      "text": "All dynamically allocated memory in audioreach.c must be freed on every execution path.",
+      "text": "All allocations in q6asm_audio_client_free() in q6asm.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in audioreach.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-001",
+      "assertion": "forall alloc(p) in q6asm_audio_client_free: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M4-001",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_audio_client_free",
+            "line_range": {
+              "start": 569,
+              "end": 569
+            },
+            "role": "primary",
+            "note": "Target function for MLK analysis"
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_stream_remove_silence",
+            "line_range": {
+              "start": 1336,
+              "end": 1336
+            },
+            "role": "cleanup",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_stream_remove_trailing_silence",
+            "line_range": {
+              "start": 1376,
+              "end": 1376
+            },
+            "role": "cleanup",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_audio_client_free_buf",
+            "line_range": {
+              "start": 372,
+              "end": 372
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_audio_client_release",
+            "line_range": {
+              "start": 548,
+              "end": 548
+            },
+            "role": "related",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M4-mlk-002",
+      "text": "All allocations in q6asm_audio_client_free_buf() in q6asm.c must be freed on every error path",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6asm_audio_client_free_buf: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M4-002",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Initialization"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_audio_client_free_buf",
+            "line_range": {
+              "start": 372,
+              "end": 372
+            },
+            "role": "primary",
+            "note": "Target function for MLK analysis"
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_audio_client_free",
+            "line_range": {
+              "start": 569,
+              "end": 569
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_stream_remove_initial_silence",
+            "line_range": {
+              "start": 1366,
+              "end": 1366
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_add_hdr",
+            "line_range": {
+              "start": 279,
+              "end": 279
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_get_audio_client",
+            "line_range": {
+              "start": 575,
+              "end": 575
+            },
+            "role": "related",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M4-mlk-003",
+      "text": "All allocations in q6asm_audio_client_release() in q6asm.c must be freed on every error path",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6asm_audio_client_release: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M4-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CallbackHandler"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_audio_client_release",
+            "line_range": {
+              "start": 548,
+              "end": 548
+            },
+            "role": "primary",
+            "note": "Target function for MLK analysis"
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_get_session_id",
+            "line_range": {
+              "start": 823,
+              "end": 823
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_audio_client_alloc",
+            "line_range": {
+              "start": 841,
+              "end": 841
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_open_write",
+            "line_range": {
+              "start": 926,
+              "end": 926
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "__q6asm_open_read",
+            "line_range": {
+              "start": 1500,
+              "end": 1500
+            },
+            "role": "related",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M4-mlk-004",
+      "text": "All allocations in q6asm_stream_remove_initial_silence() in q6asm.c must be freed on every error path",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in q6asm_stream_remove_initial_silence: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M4-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Initialization"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_stream_remove_initial_silence",
+            "line_range": {
+              "start": 1366,
+              "end": 1366
+            },
+            "role": "primary",
+            "note": "Target function for MLK analysis"
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_open_read",
+            "line_range": {
+              "start": 1553,
+              "end": 1553
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_probe",
+            "line_range": {
+              "start": 1713,
+              "end": 1713
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_stream_remove_silence",
+            "line_range": {
+              "start": 1336,
+              "end": 1336
+            },
+            "role": "cleanup",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6asm.c",
+            "symbol": "q6asm_stream_remove_trailing_silence",
+            "line_range": {
+              "start": 1376,
+              "end": 1376
+            },
+            "role": "cleanup",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M4-mlk-005",
+      "text": "All allocations in __audioreach_alloc_pkt() in audioreach.c must be freed on every error path",
+      "type": "invariant",
+      "assertion": "forall alloc(p) in __audioreach_alloc_pkt: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "HIGH",
+      "covers": "FN-M4-005",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -27,6 +322,16 @@
               "end": 197
             },
             "role": "primary",
+            "note": "Target function for MLK analysis"
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/audioreach.c",
+            "symbol": "audioreach_graph_free_buf",
+            "line_range": {
+              "start": 1027,
+              "end": 1027
+            },
+            "role": "cleanup",
             "note": ""
           },
           {
@@ -36,7 +341,7 @@
               "start": 234,
               "end": 234
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
@@ -46,7 +351,7 @@
               "start": 241,
               "end": 241
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
@@ -56,276 +361,26 @@
               "start": 248,
               "end": 248
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_alloc_apm_cmd_pkt",
-            "line_range": {
-              "start": 255,
-              "end": 255
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "apm_populate_container_config",
-            "line_range": {
-              "start": 262,
-              "end": 262
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "apm_populate_sub_graph_config",
-            "line_range": {
-              "start": 292,
-              "end": 292
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "apm_populate_connection_obj",
-            "line_range": {
-              "start": 314,
-              "end": 314
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "apm_populate_module_prop_obj",
-            "line_range": {
-              "start": 323,
-              "end": 323
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_get_container_last_module",
-            "line_range": {
-              "start": 335,
-              "end": 335
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "is_module_in_container",
-            "line_range": {
-              "start": 349,
-              "end": 349
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_get_container_first_module",
-            "line_range": {
-              "start": 361,
-              "end": 361
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_get_container_next_module",
-            "line_range": {
-              "start": 376,
-              "end": 376
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "apm_populate_module_list_obj",
-            "line_range": {
-              "start": 392,
-              "end": 392
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_populate_graph",
-            "line_range": {
-              "start": 410,
-              "end": 410
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_alloc_graph_pkt",
-            "line_range": {
-              "start": 465,
-              "end": 465
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_send_cmd_sync",
-            "line_range": {
-              "start": 566,
-              "end": 566
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_graph_send_cmd_sync",
-            "line_range": {
-              "start": 612,
-              "end": 612
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_codec_dma_set_media_format",
-            "line_range": {
-              "start": 622,
-              "end": 622
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_i2s_set_media_format",
-            "line_range": {
-              "start": 699,
-              "end": 699
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_logging_set_media_format",
-            "line_range": {
-              "start": 775,
-              "end": 775
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_pcm_set_media_format",
-            "line_range": {
-              "start": 810,
-              "end": 810
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_shmem_set_media_format",
-            "line_range": {
-              "start": 868,
-              "end": 868
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_gain_set_vol_ctrl",
-            "line_range": {
-              "start": 930,
-              "end": 930
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_gain_set",
-            "line_range": {
-              "start": 962,
-              "end": 962
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_set_media_format",
-            "line_range": {
-              "start": 991,
-              "end": 991
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_graph_free_buf",
-            "line_range": {
-              "start": 1027,
-              "end": 1027
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_map_memory_regions",
-            "line_range": {
-              "start": 1045,
-              "end": 1045
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/audioreach.c",
-            "symbol": "audioreach_shared_memory_send_eos",
-            "line_range": {
-              "start": 1109,
-              "end": 1109
-            },
-            "role": "primary",
+            "role": "related",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-M4-mlk-002",
-      "text": "All dynamically allocated memory in q6adm.c must be freed on every execution path.",
+      "property_id": "PROP-M4-mlk-006",
+      "text": "All allocations in q6adm_alloc_copp() in q6adm.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6adm.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in q6adm_alloc_copp: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M4-002",
+      "covers": "FN-M4-006",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -335,13 +390,13 @@
         "locations": [
           {
             "file": "sound/soc/qcom/qdsp6/q6adm.c",
-            "symbol": "q6adm_find_copp",
+            "symbol": "q6adm_alloc_copp",
             "line_range": {
-              "start": 90,
-              "end": 90
+              "start": 212,
+              "end": 212
             },
             "role": "primary",
-            "note": ""
+            "note": "Target function for MLK analysis"
           },
           {
             "file": "sound/soc/qcom/qdsp6/q6adm.c",
@@ -350,37 +405,7 @@
               "start": 112,
               "end": 112
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6adm.c",
-            "symbol": "q6adm_callback",
-            "line_range": {
-              "start": 125,
-              "end": 125
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6adm.c",
-            "symbol": "q6adm_alloc_copp",
-            "line_range": {
-              "start": 212,
-              "end": 212
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6adm.c",
-            "symbol": "q6adm_apr_send_copp_pkt",
-            "line_range": {
-              "start": 237,
-              "end": 237
-            },
-            "role": "primary",
+            "role": "cleanup",
             "note": ""
           },
           {
@@ -390,57 +415,7 @@
               "start": 279,
               "end": 279
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6adm.c",
-            "symbol": "q6adm_find_matching_copp",
-            "line_range": {
-              "start": 296,
-              "end": 296
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6adm.c",
-            "symbol": "q6adm_device_open",
-            "line_range": {
-              "start": 321,
-              "end": 321
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6adm.c",
-            "symbol": "q6adm_open",
-            "line_range": {
-              "start": 383,
-              "end": 383
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6adm.c",
-            "symbol": "q6adm_get_copp_id",
-            "line_range": {
-              "start": 440,
-              "end": 440
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6adm.c",
-            "symbol": "q6adm_matrix_map",
-            "line_range": {
-              "start": 459,
-              "end": 459
-            },
-            "role": "primary",
+            "role": "cleanup",
             "note": ""
           },
           {
@@ -450,36 +425,36 @@
               "start": 568,
               "end": 568
             },
-            "role": "primary",
+            "role": "cleanup",
             "note": ""
           },
           {
             "file": "sound/soc/qcom/qdsp6/q6adm.c",
-            "symbol": "q6adm_probe",
+            "symbol": "q6adm_device_open",
             "line_range": {
-              "start": 585,
-              "end": 585
+              "start": 321,
+              "end": 321
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-M4-mlk-003",
-      "text": "All dynamically allocated memory in q6afe-dai.c must be freed on every execution path.",
+      "property_id": "PROP-M4-mlk-007",
+      "text": "All allocations in msm_dai_q6_dai_probe() in q6afe-dai.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6afe-dai.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in msm_dai_q6_dai_probe: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M4-003",
+      "covers": "FN-M4-007",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -489,113 +464,13 @@
         "locations": [
           {
             "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6slim_hw_params",
+            "symbol": "msm_dai_q6_dai_probe",
             "line_range": {
-              "start": 35,
-              "end": 35
+              "start": 680,
+              "end": 680
             },
             "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "params_format",
-            "line_range": {
-              "start": 45,
-              "end": 45
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6hdmi_hw_params",
-            "line_range": {
-              "start": 65,
-              "end": 65
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "params_format",
-            "line_range": {
-              "start": 74,
-              "end": 74
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6i2s_hw_params",
-            "line_range": {
-              "start": 114,
-              "end": 114
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6i2s_set_fmt",
-            "line_range": {
-              "start": 129,
-              "end": 129
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6tdm_set_tdm_slot",
-            "line_range": {
-              "start": 139,
-              "end": 139
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6tdm_set_channel_map",
-            "line_range": {
-              "start": 193,
-              "end": 193
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6tdm_hw_params",
-            "line_range": {
-              "start": 254,
-              "end": 254
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6dma_set_channel_map",
-            "line_range": {
-              "start": 271,
-              "end": 271
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6dma_hw_params",
-            "line_range": {
-              "start": 341,
-              "end": 341
-            },
-            "role": "primary",
-            "note": ""
+            "note": "Target function for MLK analysis"
           },
           {
             "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
@@ -604,47 +479,7 @@
               "start": 354,
               "end": 354
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6afe_dai_prepare",
-            "line_range": {
-              "start": 371,
-              "end": 371
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6slim_set_channel_map",
-            "line_range": {
-              "start": 428,
-              "end": 428
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "q6afe_mi2s_set_sysclk",
-            "line_range": {
-              "start": 465,
-              "end": 465
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "msm_dai_q6_dai_probe",
-            "line_range": {
-              "start": 680,
-              "end": 680
-            },
-            "role": "primary",
+            "role": "cleanup",
             "note": ""
           },
           {
@@ -654,17 +489,17 @@
               "start": 695,
               "end": 695
             },
-            "role": "primary",
+            "role": "cleanup",
             "note": ""
           },
           {
             "file": "sound/soc/qcom/qdsp6/q6afe-dai.c",
-            "symbol": "of_q6afe_parse_dai_data",
+            "symbol": "q6afe_dai_prepare",
             "line_range": {
-              "start": 967,
-              "end": 967
+              "start": 371,
+              "end": 371
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
@@ -674,26 +509,26 @@
               "start": 1049,
               "end": 1049
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-M4-mlk-004",
-      "text": "All dynamically allocated memory in q6afe.c must be freed on every execution path.",
+      "property_id": "PROP-M4-mlk-008",
+      "text": "All allocations in q6afe_cdc_dma_port_prepare() in q6afe.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6afe.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in q6afe_cdc_dma_port_prepare: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M4-004",
+      "covers": "FN-M4-008",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -703,132 +538,22 @@
         "locations": [
           {
             "file": "sound/soc/qcom/qdsp6/q6afe.c",
+            "symbol": "q6afe_cdc_dma_port_prepare",
+            "line_range": {
+              "start": 1463,
+              "end": 1463
+            },
+            "role": "primary",
+            "note": "Target function for MLK analysis"
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6afe.c",
             "symbol": "q6afe_port_free",
             "line_range": {
               "start": 837,
               "end": 837
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_find_port",
-            "line_range": {
-              "start": 852,
-              "end": 852
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_callback",
-            "line_range": {
-              "start": 870,
-              "end": 870
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_get_port_id",
-            "line_range": {
-              "start": 927,
-              "end": 927
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "afe_apr_send_pkt",
-            "line_range": {
-              "start": 936,
-              "end": 936
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_set_param",
-            "line_range": {
-              "start": 980,
-              "end": 980
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_port_set_param",
-            "line_range": {
-              "start": 1026,
-              "end": 1026
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_port_set_param_v2",
-            "line_range": {
-              "start": 1033,
-              "end": 1033
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_port_set_lpass_clock",
-            "line_range": {
-              "start": 1082,
-              "end": 1082
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_set_lpass_clock_v2",
-            "line_range": {
-              "start": 1091,
-              "end": 1091
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_set_digital_codec_core_clock",
-            "line_range": {
-              "start": 1098,
-              "end": 1098
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_set_lpass_clock",
-            "line_range": {
-              "start": 1107,
-              "end": 1107
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_port_set_sysclk",
-            "line_range": {
-              "start": 1126,
-              "end": 1126
-            },
-            "role": "primary",
+            "role": "cleanup",
             "note": ""
           },
           {
@@ -838,7 +563,17 @@
               "start": 1187,
               "end": 1187
             },
-            "role": "primary",
+            "role": "cleanup",
+            "note": ""
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6afe.c",
+            "symbol": "q6afe_get_port_id",
+            "line_range": {
+              "start": 927,
+              "end": 927
+            },
+            "role": "related",
             "note": ""
           },
           {
@@ -848,126 +583,26 @@
               "start": 1238,
               "end": 1238
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_tdm_port_prepare",
-            "line_range": {
-              "start": 1263,
-              "end": 1263
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_hdmi_port_prepare",
-            "line_range": {
-              "start": 1299,
-              "end": 1299
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_i2s_port_prepare",
-            "line_range": {
-              "start": 1320,
-              "end": 1320
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_cdc_dma_port_prepare",
-            "line_range": {
-              "start": 1463,
-              "end": 1463
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_port_start",
-            "line_range": {
-              "start": 1485,
-              "end": 1485
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_port_get_from_id",
-            "line_range": {
-              "start": 1553,
-              "end": 1553
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_port_put",
-            "line_range": {
-              "start": 1646,
-              "end": 1646
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_unvote_lpass_core_hw",
-            "line_range": {
-              "start": 1652,
-              "end": 1652
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_vote_lpass_core_hw",
-            "line_range": {
-              "start": 1690,
-              "end": 1690
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6afe.c",
-            "symbol": "q6afe_probe",
-            "line_range": {
-              "start": 1731,
-              "end": 1731
-            },
-            "role": "primary",
+            "role": "related",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-M4-mlk-005",
-      "text": "All dynamically allocated memory in q6apm-dai.c must be freed on every execution path.",
+      "property_id": "PROP-M4-mlk-009",
+      "text": "All allocations in q6apm_dai_open() in q6apm-dai.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6apm-dai.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in q6apm_dai_open: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M4-005",
+      "covers": "FN-M4-009",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -977,12 +612,22 @@
         "locations": [
           {
             "file": "sound/soc/qcom/qdsp6/q6apm-dai.c",
-            "symbol": "event_handler",
+            "symbol": "q6apm_dai_open",
             "line_range": {
-              "start": 98,
-              "end": 98
+              "start": 233,
+              "end": 233
             },
             "role": "primary",
+            "note": "Target function for MLK analysis"
+          },
+          {
+            "file": "sound/soc/qcom/qdsp6/q6apm-dai.c",
+            "symbol": "q6apm_dai_close",
+            "line_range": {
+              "start": 311,
+              "end": 311
+            },
+            "role": "cleanup",
             "note": ""
           },
           {
@@ -992,77 +637,7 @@
               "start": 126,
               "end": 126
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm-dai.c",
-            "symbol": "q6apm_dai_trigger",
-            "line_range": {
-              "start": 203,
-              "end": 203
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm-dai.c",
-            "symbol": "q6apm_dai_open",
-            "line_range": {
-              "start": 233,
-              "end": 233
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm-dai.c",
-            "symbol": "q6apm_dai_close",
-            "line_range": {
-              "start": 311,
-              "end": 311
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm-dai.c",
-            "symbol": "q6apm_dai_pointer",
-            "line_range": {
-              "start": 330,
-              "end": 330
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm-dai.c",
-            "symbol": "q6apm_dai_hw_params",
-            "line_range": {
-              "start": 342,
-              "end": 342
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm-dai.c",
-            "symbol": "params_format",
-            "line_range": {
-              "start": 352,
-              "end": 352
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm-dai.c",
-            "symbol": "q6apm_dai_pcm_new",
-            "line_range": {
-              "start": 366,
-              "end": 366
-            },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
@@ -1072,26 +647,26 @@
               "start": 384,
               "end": 384
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-M4-mlk-006",
-      "text": "All dynamically allocated memory in q6apm-lpass-dais.c must be freed on every execution path.",
+      "property_id": "PROP-M4-mlk-010",
+      "text": "All allocations in q6apm_lpass_dai_dev_probe() in q6apm-lpass-dais.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6apm-lpass-dais.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in q6apm_lpass_dai_dev_probe: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M4-006",
+      "covers": "FN-M4-010",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -1101,23 +676,13 @@
         "locations": [
           {
             "file": "sound/soc/qcom/qdsp6/q6apm-lpass-dais.c",
-            "symbol": "q6dma_set_channel_map",
+            "symbol": "q6apm_lpass_dai_dev_probe",
             "line_range": {
-              "start": 25,
-              "end": 25
+              "start": 220,
+              "end": 220
             },
             "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm-lpass-dais.c",
-            "symbol": "q6dma_hw_params",
-            "line_range": {
-              "start": 94,
-              "end": 94
-            },
-            "role": "primary",
-            "note": ""
+            "note": "Target function for MLK analysis"
           },
           {
             "file": "sound/soc/qcom/qdsp6/q6apm-lpass-dais.c",
@@ -1126,7 +691,7 @@
               "start": 107,
               "end": 107
             },
-            "role": "primary",
+            "role": "cleanup",
             "note": ""
           },
           {
@@ -1136,7 +701,7 @@
               "start": 122,
               "end": 122
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
@@ -1146,63 +711,34 @@
               "start": 168,
               "end": 168
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm-lpass-dais.c",
-            "symbol": "q6i2s_set_fmt",
-            "line_range": {
-              "start": 186,
-              "end": 186
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm-lpass-dais.c",
-            "symbol": "q6apm_lpass_dai_dev_probe",
-            "line_range": {
-              "start": 220,
-              "end": 220
-            },
-            "role": "primary",
+            "role": "related",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-M4-mlk-007",
-      "text": "All dynamically allocated memory in q6apm.c must be freed on every execution path.",
+      "property_id": "PROP-M4-mlk-011",
+      "text": "audioreach_alloc_graph_pkt() result (graph->graph) must be freed when idr_alloc fails in q6apm_get_audioreach_graph()",
       "type": "invariant",
-      "assertion": "forall alloc(p) in q6apm.c: exists free(p) on all paths",
-      "severity": "CRITICAL",
-      "covers": "FILE-M4-007",
+      "assertion": "forall alloc(graph->graph) via audioreach_alloc_graph_pkt in q6apm_get_audioreach_graph: free when idr_alloc fails",
+      "severity": "HIGH",
+      "covers": "FN-M4-GT01",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Ioctl",
-          "Driver"
+          "ProgramEntry"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
       },
       "exploitability": "external-attack",
+      "bug_bounty_eligible": true,
       "code_scope": {
         "locations": [
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_send_cmd_sync",
-            "line_range": {
-              "start": 30,
-              "end": 30
-            },
-            "role": "primary",
-            "note": ""
-          },
           {
             "file": "sound/soc/qcom/qdsp6/q6apm.c",
             "symbol": "q6apm_get_audioreach_graph",
@@ -1211,2196 +747,31 @@
               "end": 38
             },
             "role": "primary",
-            "note": ""
+            "note": "GT: RA-M4-O1 \u2014 graph->graph leaks when idr_alloc fails at line 66"
           },
           {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "audioreach_graph_mgmt_cmd",
-            "line_range": {
-              "start": 91,
-              "end": 91
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_put_audioreach_graph",
-            "line_range": {
-              "start": 127,
-              "end": 127
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_get_apm_state",
-            "line_range": {
-              "start": 145,
-              "end": 145
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "__q6apm_find_module_by_mid",
-            "line_range": {
-              "start": 160,
-              "end": 160
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_get_last_module",
-            "line_range": {
-              "start": 180,
-              "end": 180
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_get_first_module",
-            "line_range": {
-              "start": 198,
-              "end": 198
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_is_sub_graphs_connected",
-            "line_range": {
-              "start": 216,
-              "end": 216
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_connect_sub_graphs",
-            "line_range": {
-              "start": 236,
-              "end": 236
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_media_format_shmem",
-            "line_range": {
-              "start": 261,
-              "end": 261
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_map_memory_regions",
-            "line_range": {
-              "start": 281,
-              "end": 281
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_unmap_memory_regions",
-            "line_range": {
-              "start": 337,
-              "end": 337
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_media_format_pcm",
-            "line_range": {
-              "start": 369,
-              "end": 369
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_get_tx_shmem_module_iid",
-            "line_range": {
-              "start": 393,
-              "end": 393
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_get_rx_shmem_module_iid",
-            "line_range": {
-              "start": 405,
-              "end": 405
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_write_async",
-            "line_range": {
-              "start": 418,
-              "end": 418
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_read",
-            "line_range": {
-              "start": 461,
-              "end": 461
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "graph_callback",
-            "line_range": {
-              "start": 500,
-              "end": 500
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "lower_32_bits",
-            "line_range": {
-              "start": 525,
-              "end": 525
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "upper_32_bits",
-            "line_range": {
-              "start": 556,
-              "end": 556
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_open",
-            "line_range": {
-              "start": 601,
-              "end": 601
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_close",
-            "line_range": {
-              "start": 648,
-              "end": 648
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_prepare",
-            "line_range": {
-              "start": 660,
-              "end": 660
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_start",
-            "line_range": {
-              "start": 666,
-              "end": 666
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_stop",
-            "line_range": {
-              "start": 680,
-              "end": 680
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_graph_flush",
-            "line_range": {
-              "start": 691,
-              "end": 691
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_audio_probe",
-            "line_range": {
-              "start": 697,
-              "end": 697
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_audio_remove",
-            "line_range": {
-              "start": 702,
-              "end": 702
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "apm_probe",
-            "line_range": {
-              "start": 716,
-              "end": 716
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "q6apm_find_module_by_mid",
-            "line_range": {
-              "start": 751,
-              "end": 751
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6apm.c",
-            "symbol": "apm_callback",
-            "line_range": {
-              "start": 760,
-              "end": 760
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-M4-mlk-008",
-      "text": "All dynamically allocated memory in q6asm-dai.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6asm-dai.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-008",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "event_handler",
-            "line_range": {
-              "start": 181,
-              "end": 181
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_prepare",
-            "line_range": {
-              "start": 217,
-              "end": 217
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_trigger",
-            "line_range": {
-              "start": 317,
-              "end": 317
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_open",
-            "line_range": {
-              "start": 349,
-              "end": 349
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_close",
-            "line_range": {
-              "start": 442,
-              "end": 442
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_pointer",
+            "file": "sound/soc/qcom/qdsp6/audioreach.c",
+            "symbol": "audioreach_alloc_graph_pkt",
             "line_range": {
               "start": 465,
               "end": 465
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_hw_params",
-            "line_range": {
-              "start": 478,
-              "end": 478
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "params_format",
-            "line_range": {
-              "start": 488,
-              "end": 488
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "compress_event_handler",
-            "line_range": {
-              "start": 500,
-              "end": 500
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_compr_open",
-            "line_range": {
-              "start": 601,
-              "end": 601
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_compr_free",
-            "line_range": {
-              "start": 664,
-              "end": 664
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "__q6asm_dai_compr_set_codec_params",
-            "line_range": {
-              "start": 694,
-              "end": 694
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_compr_set_params",
-            "line_range": {
-              "start": 872,
-              "end": 872
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_compr_set_metadata",
-            "line_range": {
-              "start": 941,
-              "end": 941
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_compr_trigger",
-            "line_range": {
-              "start": 990,
-              "end": 990
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_compr_pointer",
-            "line_range": {
-              "start": 1030,
-              "end": 1030
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_compr_copy",
-            "line_range": {
-              "start": 1048,
-              "end": 1048
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_compr_mmap",
-            "line_range": {
-              "start": 1118,
-              "end": 1118
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_compr_get_caps",
-            "line_range": {
-              "start": 1131,
-              "end": 1131
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_compr_get_codec_caps",
-            "line_range": {
-              "start": 1150,
-              "end": 1150
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_pcm_new",
-            "line_range": {
-              "start": 1178,
-              "end": 1178
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "of_q6asm_parse_dai_data",
-            "line_range": {
-              "start": 1232,
-              "end": 1232
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm-dai.c",
-            "symbol": "q6asm_dai_probe",
-            "line_range": {
-              "start": 1280,
-              "end": 1280
-            },
-            "role": "primary",
-            "note": ""
+            "role": "callee",
+            "note": "Source of allocation that leaks"
           }
         ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-M4-mlk-009",
-      "text": "All dynamically allocated memory in q6asm.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6asm.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-009",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_add_hdr",
-            "line_range": {
-              "start": 279,
-              "end": 279
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_apr_send_session_pkt",
-            "line_range": {
-              "start": 291,
-              "end": 291
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "__q6asm_memory_unmap",
-            "line_range": {
-              "start": 328,
-              "end": 328
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_audio_client_free_buf",
-            "line_range": {
-              "start": 372,
-              "end": 372
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_unmap_memory_regions",
-            "line_range": {
-              "start": 392,
-              "end": 392
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "__q6asm_memory_map_regions",
-            "line_range": {
-              "start": 421,
-              "end": 421
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_map_memory_regions",
-            "line_range": {
-              "start": 500,
-              "end": 500
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_audio_client_release",
-            "line_range": {
-              "start": 548,
-              "end": 548
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_audio_client_free",
-            "line_range": {
-              "start": 569,
-              "end": 569
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_get_audio_client",
-            "line_range": {
-              "start": 575,
-              "end": 575
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_stream_callback",
-            "line_range": {
-              "start": 600,
-              "end": 600
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_srvc_callback",
-            "line_range": {
-              "start": 746,
-              "end": 746
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_get_session_id",
-            "line_range": {
-              "start": 823,
-              "end": 823
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_audio_client_alloc",
-            "line_range": {
-              "start": 841,
-              "end": 841
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_ac_send_cmd_sync",
-            "line_range": {
-              "start": 880,
-              "end": 880
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_open_write",
-            "line_range": {
-              "start": 926,
-              "end": 926
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "__q6asm_run",
-            "line_range": {
-              "start": 1008,
-              "end": 1008
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_run",
-            "line_range": {
-              "start": 1054,
-              "end": 1054
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_run_nowait",
-            "line_range": {
-              "start": 1072,
-              "end": 1072
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_media_format_block_multi_ch_pcm",
-            "line_range": {
-              "start": 1091,
-              "end": 1091
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6dsp_map_channels",
-            "line_range": {
-              "start": 1125,
-              "end": 1125
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_stream_media_format_block_flac",
-            "line_range": {
-              "start": 1140,
-              "end": 1140
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_stream_media_format_block_wma_v9",
-            "line_range": {
-              "start": 1177,
-              "end": 1177
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_stream_media_format_block_wma_v10",
-            "line_range": {
-              "start": 1215,
-              "end": 1215
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_stream_media_format_block_alac",
-            "line_range": {
-              "start": 1254,
-              "end": 1254
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_stream_media_format_block_ape",
-            "line_range": {
-              "start": 1296,
-              "end": 1296
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_stream_remove_silence",
-            "line_range": {
-              "start": 1336,
-              "end": 1336
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_stream_remove_initial_silence",
-            "line_range": {
-              "start": 1366,
-              "end": 1366
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_stream_remove_trailing_silence",
-            "line_range": {
-              "start": 1376,
-              "end": 1376
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_enc_cfg_blk_pcm_format_support",
-            "line_range": {
-              "start": 1396,
-              "end": 1396
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6dsp_map_channels",
-            "line_range": {
-              "start": 1430,
-              "end": 1430
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_read",
-            "line_range": {
-              "start": 1451,
-              "end": 1451
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "__q6asm_open_read",
-            "line_range": {
-              "start": 1500,
-              "end": 1500
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_open_read",
-            "line_range": {
-              "start": 1553,
-              "end": 1553
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_write_async",
-            "line_range": {
-              "start": 1572,
-              "end": 1572
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_reset_buf_state",
-            "line_range": {
-              "start": 1625,
-              "end": 1625
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "__q6asm_cmd",
-            "line_range": {
-              "start": 1638,
-              "end": 1638
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_cmd",
-            "line_range": {
-              "start": 1692,
-              "end": 1692
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_cmd_nowait",
-            "line_range": {
-              "start": 1707,
-              "end": 1707
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6asm.c",
-            "symbol": "q6asm_probe",
-            "line_range": {
-              "start": 1713,
-              "end": 1713
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-M4-mlk-010",
-      "text": "All dynamically allocated memory in q6core.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6core.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-010",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "sound/soc/qcom/qdsp6/q6core.c",
-            "symbol": "q6core_callback",
-            "line_range": {
-              "start": 70,
-              "end": 70
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6core.c",
-            "symbol": "q6core_get_fwk_versions",
-            "line_range": {
-              "start": 151,
-              "end": 151
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6core.c",
-            "symbol": "q6core_get_svc_versions",
-            "line_range": {
-              "start": 181,
-              "end": 181
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6core.c",
-            "symbol": "__q6core_is_adsp_ready",
-            "line_range": {
-              "start": 206,
-              "end": 206
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6core.c",
-            "symbol": "q6core_get_svc_api_info",
-            "line_range": {
-              "start": 247,
-              "end": 247
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6core.c",
-            "symbol": "q6core_is_adsp_ready",
-            "line_range": {
-              "start": 301,
-              "end": 301
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6core.c",
-            "symbol": "__q6core_is_adsp_ready",
-            "line_range": {
-              "start": 312,
-              "end": 312
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6core.c",
-            "symbol": "q6core_probe",
-            "line_range": {
-              "start": 328,
-              "end": 328
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6core.c",
-            "symbol": "q6core_exit",
-            "line_range": {
-              "start": 342,
-              "end": 342
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-M4-mlk-011",
-      "text": "All dynamically allocated memory in q6dsp-common.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6dsp-common.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-011",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-common.c",
-            "symbol": "q6dsp_map_channels",
-            "line_range": {
-              "start": 11,
-              "end": 11
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-M4-mlk-012",
-      "text": "All dynamically allocated memory in q6dsp-lpass-clocks.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6dsp-lpass-clocks.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-012",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-lpass-clocks.c",
-            "symbol": "clk_q6dsp_prepare",
-            "line_range": {
-              "start": 37,
-              "end": 37
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-lpass-clocks.c",
-            "symbol": "clk_q6dsp_unprepare",
-            "line_range": {
-              "start": 46,
-              "end": 46
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-lpass-clocks.c",
-            "symbol": "clk_q6dsp_set_rate",
-            "line_range": {
-              "start": 55,
-              "end": 55
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-lpass-clocks.c",
-            "symbol": "clk_q6dsp_recalc_rate",
-            "line_range": {
-              "start": 65,
-              "end": 65
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-lpass-clocks.c",
-            "symbol": "clk_q6dsp_round_rate",
-            "line_range": {
-              "start": 73,
-              "end": 73
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-lpass-clocks.c",
-            "symbol": "clk_vote_q6dsp_block",
-            "line_range": {
-              "start": 87,
-              "end": 87
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-lpass-clocks.c",
-            "symbol": "clk_unvote_q6dsp_block",
-            "line_range": {
-              "start": 96,
-              "end": 96
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-lpass-clocks.c",
-            "symbol": "q6dsp_of_clk_hw_get",
-            "line_range": {
-              "start": 110,
-              "end": 110
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-lpass-clocks.c",
-            "symbol": "q6dsp_clock_dev_probe",
-            "line_range": {
-              "start": 130,
-              "end": 130
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-M4-mlk-013",
-      "text": "All dynamically allocated memory in q6dsp-lpass-ports.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6dsp-lpass-ports.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-013",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-lpass-ports.c",
-            "symbol": "q6dsp_audio_ports_of_xlate_dai_name",
-            "line_range": {
-              "start": 571,
-              "end": 571
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6dsp-lpass-ports.c",
-            "symbol": "q6dsp_audio_ports_set_config",
-            "line_range": {
-              "start": 591,
-              "end": 591
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-M4-mlk-014",
-      "text": "All dynamically allocated memory in q6prm.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6prm.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-014",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "sound/soc/qcom/qdsp6/q6prm.c",
-            "symbol": "q6prm_send_cmd_sync",
-            "line_range": {
-              "start": 51,
-              "end": 51
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6prm.c",
-            "symbol": "q6prm_set_hw_core_req",
-            "line_range": {
-              "start": 57,
-              "end": 57
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6prm.c",
-            "symbol": "q6prm_vote_lpass_core_hw",
-            "line_range": {
-              "start": 97,
-              "end": 97
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6prm.c",
-            "symbol": "q6prm_unvote_lpass_core_hw",
-            "line_range": {
-              "start": 105,
-              "end": 105
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6prm.c",
-            "symbol": "q6prm_request_lpass_clock",
-            "line_range": {
-              "start": 111,
-              "end": 111
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6prm.c",
-            "symbol": "q6prm_release_lpass_clock",
-            "line_range": {
-              "start": 148,
-              "end": 148
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6prm.c",
-            "symbol": "q6prm_set_lpass_clock",
-            "line_range": {
-              "start": 182,
-              "end": 182
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6prm.c",
-            "symbol": "prm_callback",
-            "line_range": {
-              "start": 192,
-              "end": 192
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6prm.c",
-            "symbol": "prm_probe",
-            "line_range": {
-              "start": 214,
-              "end": 214
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-M4-mlk-015",
-      "text": "All dynamically allocated memory in q6routing.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in q6routing.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-015",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "q6routing_stream_open",
-            "line_range": {
-              "start": 360,
-              "end": 360
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "get_session_from_id",
-            "line_range": {
-              "start": 425,
-              "end": 425
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "q6routing_stream_close",
-            "line_range": {
-              "start": 445,
-              "end": 445
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "msm_routing_get_audio_mixer",
-            "line_range": {
-              "start": 466,
-              "end": 466
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "msm_routing_put_audio_mixer",
-            "line_range": {
-              "start": 486,
-              "end": 486
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "routing_hw_params",
-            "line_range": {
-              "start": 1047,
-              "end": 1047
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "params_format",
-            "line_range": {
-              "start": 1073,
-              "end": 1073
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "msm_routing_probe",
-            "line_range": {
-              "start": 1088,
-              "end": 1088
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "q6routing_reg_read",
-            "line_range": {
-              "start": 1100,
-              "end": 1100
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "q6routing_reg_write",
-            "line_range": {
-              "start": 1107,
-              "end": 1107
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "q6pcm_routing_probe",
-            "line_range": {
-              "start": 1126,
-              "end": 1126
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/q6routing.c",
-            "symbol": "q6pcm_routing_remove",
-            "line_range": {
-              "start": 1143,
-              "end": 1143
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-M4-mlk-016",
-      "text": "All dynamically allocated memory in topology.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in topology.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M4-016",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Ioctl",
-          "Driver"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_tplg_alloc_graph_info",
-            "line_range": {
-              "start": 23,
-              "end": 23
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_tplg_add_sub_graph",
-            "line_range": {
-              "start": 61,
-              "end": 61
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_tplg_alloc_sub_graph",
-            "line_range": {
-              "start": 69,
-              "end": 69
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_tplg_alloc_container",
-            "line_range": {
-              "start": 111,
-              "end": 111
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_tplg_alloc_module",
-            "line_range": {
-              "start": 157,
-              "end": 157
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_get_sg_array",
-            "line_range": {
-              "start": 204,
-              "end": 204
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 211,
-              "end": 211
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 218,
-              "end": 218
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_get_cont_array",
-            "line_range": {
-              "start": 237,
-              "end": 237
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 244,
-              "end": 244
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 251,
-              "end": 251
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_get_module_array",
-            "line_range": {
-              "start": 270,
-              "end": 270
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 277,
-              "end": 277
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 284,
-              "end": 284
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_parse_sg_tokens",
-            "line_range": {
-              "start": 303,
-              "end": 303
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 316,
-              "end": 316
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 317,
-              "end": 317
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_parse_cont_tokens",
-            "line_range": {
-              "start": 360,
-              "end": 360
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 373,
-              "end": 373
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 374,
-              "end": 374
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_parse_common_tokens",
-            "line_range": {
-              "start": 405,
-              "end": 405
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 422,
-              "end": 422
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 423,
-              "end": 423
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_widget_load_module_common",
-            "line_range": {
-              "start": 488,
-              "end": 488
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_widget_load_enc_dec_cnv",
-            "line_range": {
-              "start": 516,
-              "end": 516
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 536,
-              "end": 536
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 537,
-              "end": 537
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_widget_log_module_load",
-            "line_range": {
-              "start": 557,
-              "end": 557
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 565,
-              "end": 565
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 566,
-              "end": 566
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_widget_dma_module_load",
-            "line_range": {
-              "start": 587,
-              "end": 587
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 595,
-              "end": 595
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 596,
-              "end": 596
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_widget_i2s_module_load",
-            "line_range": {
-              "start": 616,
-              "end": 616
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 624,
-              "end": 624
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 625,
-              "end": 625
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_widget_load_buffer",
-            "line_range": {
-              "start": 651,
-              "end": 651
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_widget_load_mixer",
-            "line_range": {
-              "start": 688,
-              "end": 688
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 709,
-              "end": 709
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 710,
-              "end": 710
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_widget_load_pga",
-            "line_range": {
-              "start": 749,
-              "end": 749
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_widget_ready",
-            "line_range": {
-              "start": 777,
-              "end": 777
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_widget_unload",
-            "line_range": {
-              "start": 809,
-              "end": 809
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "list_empty",
-            "line_range": {
-              "start": 833,
-              "end": 833
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "list_empty",
-            "line_range": {
-              "start": 841,
-              "end": 841
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_find_widget",
-            "line_range": {
-              "start": 861,
-              "end": 861
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_route_load",
-            "line_range": {
-              "start": 876,
-              "end": 876
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_route_unload",
-            "line_range": {
-              "start": 892,
-              "end": 892
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_tplg_complete",
-            "line_range": {
-              "start": 898,
-              "end": 898
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_link_load",
-            "line_range": {
-              "start": 905,
-              "end": 905
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_get_audio_mixer",
-            "line_range": {
-              "start": 917,
-              "end": 917
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_put_audio_mixer",
-            "line_range": {
-              "start": 938,
-              "end": 938
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_get_vol_ctrl_audio_mixer",
-            "line_range": {
-              "start": 959,
-              "end": 959
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_put_vol_ctrl_audio_mixer",
-            "line_range": {
-              "start": 970,
-              "end": 970
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_control_load_mix",
-            "line_range": {
-              "start": 981,
-              "end": 981
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 996,
-              "end": 996
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 997,
-              "end": 997
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_control_load",
-            "line_range": {
-              "start": 1012,
-              "end": 1012
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "le32_to_cpu",
-            "line_range": {
-              "start": 1027,
-              "end": 1027
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_control_unload",
-            "line_range": {
-              "start": 1048,
-              "end": 1048
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "sound/soc/qcom/qdsp6/topology.c",
-            "symbol": "audioreach_tplg_init",
-            "line_range": {
-              "start": 1082,
-              "end": 1082
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     }
   ],
   "metadata": {
-    "timestamp": "2026-03-06T14:00:00Z",
-    "total_properties": 16,
-    "total_locations": 301,
+    "timestamp": "2026-03-12T07:15:48Z",
+    "total_properties": 11,
+    "total_locations": 48,
     "by_resolution_status": {
-      "resolved": 16,
+      "resolved": 10,
       "not_found": 0,
       "out_of_scope": 0,
       "error": 0
@@ -3412,6 +783,13 @@
     "scan_dir": "sound/soc/qcom/qdsp6",
     "primary_bug_type": "MLK",
     "total_source_files": 16,
-    "total_functions": 301
+    "total_functions": 301,
+    "by_severity": {
+      "CRITICAL": 4,
+      "HIGH": 7,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "INFORMATIONAL": 0
+    }
   }
 }

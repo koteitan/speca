@@ -2,16 +2,15 @@
   "properties_with_code": [
     {
       "property_id": "PROP-U4-uaf-001",
-      "text": "No pointer in wasm-interp.cc may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in destroy_context() in wasm-interp.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wasm-interp.cc: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in destroy_context: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U4-001",
+      "covers": "FN-U4-001",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -21,253 +20,13 @@
         "locations": [
           {
             "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_options",
+            "symbol": "destroy_context",
             "line_range": {
-              "start": 81,
-              "end": 81
+              "start": 1466,
+              "end": 1466
             },
             "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 84,
-              "end": 84
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 90,
-              "end": 90
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 96,
-              "end": 96
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 103,
-              "end": 103
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 105,
-              "end": 105
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "AddArgument",
-            "line_range": {
-              "start": 110,
-              "end": 110
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "get_dirname",
-            "line_range": {
-              "start": 123,
-              "end": 123
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "sprint_typed_value",
-            "line_range": {
-              "start": 143,
-              "end": 143
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "print_typed_value",
-            "line_range": {
-              "start": 175,
-              "end": 175
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "print_typed_value_vector",
-            "line_range": {
-              "start": 181,
-              "end": 181
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 182,
-              "end": 182
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "print_interpreter_result",
-            "line_range": {
-              "start": 189,
-              "end": 189
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "print_call",
-            "line_range": {
-              "start": 194,
-              "end": 194
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "empty",
-            "line_range": {
-              "start": 199,
-              "end": 199
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 205,
-              "end": 205
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "run_function",
-            "line_range": {
-              "start": 215,
-              "end": 215
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "run_start_function",
-            "line_range": {
-              "start": 224,
-              "end": 224
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "run_export",
-            "line_range": {
-              "start": 239,
-              "end": 239
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "run_export_by_name",
-            "line_range": {
-              "start": 252,
-              "end": 252
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "get_global_export_by_name",
-            "line_range": {
-              "start": 267,
-              "end": 267
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "run_all_exports",
-            "line_range": {
-              "start": 284,
-              "end": 284
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "read_module",
-            "line_range": {
-              "start": 297,
-              "end": 297
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 308,
-              "end": 308
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 312,
-              "end": 312
-            },
-            "role": "primary",
-            "note": ""
+            "note": "Target function for UAF analysis"
           },
           {
             "file": "src/tools/wasm-interp.cc",
@@ -276,347 +35,7 @@
               "start": 321,
               "end": 321
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "ImportFunc",
-            "line_range": {
-              "start": 348,
-              "end": 348
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "ImportTable",
-            "line_range": {
-              "start": 362,
-              "end": 362
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "ImportMemory",
-            "line_range": {
-              "start": 377,
-              "end": 377
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "ImportGlobal",
-            "line_range": {
-              "start": 393,
-              "end": 393
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "PrintError",
-            "line_range": {
-              "start": 433,
-              "end": 433
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "init_environment",
-            "line_range": {
-              "start": 439,
-              "end": 439
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "read_and_run_module",
-            "line_range": {
-              "start": 444,
-              "end": 444
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 452,
-              "end": 452
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "thread",
-            "line_range": {
-              "start": 469,
-              "end": 469
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "putback_char",
-            "line_range": {
-              "start": 536,
-              "end": 536
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "read_char",
-            "line_range": {
-              "start": 543,
-              "end": 543
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "skip_whitespace",
-            "line_range": {
-              "start": 558,
-              "end": 558
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "read_char",
-            "line_range": {
-              "start": 560,
-              "end": 560
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 577,
-              "end": 577
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "expect",
-            "line_range": {
-              "start": 593,
-              "end": 593
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 594,
-              "end": 594
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "expect_key",
-            "line_range": {
-              "start": 602,
-              "end": 602
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_uint32",
-            "line_range": {
-              "start": 612,
-              "end": 612
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_string",
-            "line_range": {
-              "start": 633,
-              "end": 633
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "read_char",
-            "line_range": {
-              "start": 637,
-              "end": 637
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_key_string_value",
-            "line_range": {
-              "start": 683,
-              "end": 683
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_opt_name_string_value",
-            "line_range": {
-              "start": 691,
-              "end": 691
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 694,
-              "end": 694
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_line",
-            "line_range": {
-              "start": 702,
-              "end": 702
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_type_object",
-            "line_range": {
-              "start": 708,
-              "end": 708
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_type_vector",
-            "line_range": {
-              "start": 733,
-              "end": 733
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_const",
-            "line_range": {
-              "start": 748,
-              "end": 748
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_const_vector",
-            "line_range": {
-              "start": 795,
-              "end": 795
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_action",
-            "line_range": {
-              "start": 811,
-              "end": 811
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 815,
-              "end": 815
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 822,
-              "end": 822
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_module_type",
-            "line_range": {
-              "start": 837,
-              "end": 837
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "CreateModulePath",
-            "line_range": {
-              "start": 854,
-              "end": 854
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 859,
-              "end": 859
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -626,47 +45,7 @@
               "start": 871,
               "end": 871
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Failed",
-            "line_range": {
-              "start": 880,
-              "end": 880
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "empty",
-            "line_range": {
-              "start": 894,
-              "end": 894
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "run_action",
-            "line_range": {
-              "start": 902,
-              "end": 902
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "empty",
-            "line_range": {
-              "start": 910,
-              "end": 910
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -676,37 +55,7 @@
               "start": 941,
               "end": 941
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 948,
-              "end": 948
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "read_invalid_text_module",
-            "line_range": {
-              "start": 961,
-              "end": 961
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "read_invalid_module",
-            "line_range": {
-              "start": 970,
-              "end": 970
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -716,416 +65,26 @@
               "start": 999,
               "end": 999
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Failed",
-            "line_range": {
-              "start": 1010,
-              "end": 1010
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "on_register_command",
-            "line_range": {
-              "start": 1022,
-              "end": 1022
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "empty",
-            "line_range": {
-              "start": 1026,
-              "end": 1026
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "on_assert_unlinkable_command",
-            "line_range": {
-              "start": 1042,
-              "end": 1042
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Failed",
-            "line_range": {
-              "start": 1053,
-              "end": 1053
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "on_assert_invalid_command",
-            "line_range": {
-              "start": 1065,
-              "end": 1065
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Failed",
-            "line_range": {
-              "start": 1076,
-              "end": 1076
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "on_assert_uninstantiable_command",
-            "line_range": {
-              "start": 1088,
-              "end": 1088
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 1100,
-              "end": 1100
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "typed_values_are_equal",
-            "line_range": {
-              "start": 1119,
-              "end": 1119
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "on_assert_return_command",
-            "line_range": {
-              "start": 1139,
-              "end": 1139
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 1150,
-              "end": 1150
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 1152,
-              "end": 1152
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 1153,
-              "end": 1153
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "on_assert_return_nan_command",
-            "line_range": {
-              "start": 1189,
-              "end": 1189
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 1198,
-              "end": 1198
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 1200,
-              "end": 1200
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "on_assert_trap_command",
-            "line_range": {
-              "start": 1254,
-              "end": 1254
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 1263,
-              "end": 1263
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "on_assert_exhaustion_command",
-            "line_range": {
-              "start": 1276,
-              "end": 1276
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 1283,
-              "end": 1283
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_command",
-            "line_range": {
-              "start": 1296,
-              "end": 1296
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1299,
-              "end": 1299
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1309,
-              "end": 1309
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1317,
-              "end": 1317
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1327,
-              "end": 1327
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1341,
-              "end": 1341
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1355,
-              "end": 1355
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1369,
-              "end": 1369
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1383,
-              "end": 1383
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1395,
-              "end": 1395
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1408,
-              "end": 1408
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1421,
-              "end": 1421
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "match",
-            "line_range": {
-              "start": 1432,
-              "end": 1432
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "parse_commands",
-            "line_range": {
-              "start": 1449,
-              "end": 1449
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "destroy_context",
-            "line_range": {
-              "start": 1466,
-              "end": 1466
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "read_and_run_spec_json",
-            "line_range": {
-              "start": 1470,
-              "end": 1470
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "ProgramMain",
-            "line_range": {
-              "start": 1492,
-              "end": 1492
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-interp.cc",
-            "symbol": "main",
-            "line_range": {
-              "start": 1507,
-              "end": 1507
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
       "property_id": "PROP-U4-uaf-002",
-      "text": "No pointer in wasm-link.cc may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in LinkerInputBinary() in wasm-link.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wasm-link.cc: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in LinkerInputBinary: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U4-002",
+      "covers": "FN-U4-002",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -1135,183 +94,13 @@
         "locations": [
           {
             "file": "src/tools/wasm-link.cc",
-            "symbol": "parse_options",
-            "line_range": {
-              "start": 56,
-              "end": 56
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 59,
-              "end": 59
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 65,
-              "end": 65
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 67,
-              "end": 67
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "AddArgument",
-            "line_range": {
-              "start": 71,
-              "end": 71
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "Section",
-            "line_range": {
-              "start": 78,
-              "end": 78
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "binary",
-            "line_range": {
-              "start": 79,
-              "end": 79
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "Section",
-            "line_range": {
-              "start": 90,
-              "end": 90
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
             "symbol": "LinkerInputBinary",
             "line_range": {
-              "start": 112,
-              "end": 112
+              "start": 811,
+              "end": 811
             },
             "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "IsFunctionImport",
-            "line_range": {
-              "start": 116,
-              "end": 116
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "IsInactiveFunctionImport",
-            "line_range": {
-              "start": 121,
-              "end": 121
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "IsValidFunctionIndex",
-            "line_range": {
-              "start": 125,
-              "end": 125
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "RelocateFuncIndex",
-            "line_range": {
-              "start": 129,
-              "end": 129
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "RelocateTypeIndex",
-            "line_range": {
-              "start": 153,
-              "end": 153
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "RelocateGlobalIndex",
-            "line_range": {
-              "start": 157,
-              "end": 157
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 159,
-              "end": 159
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "apply_relocation",
-            "line_range": {
-              "start": 167,
-              "end": 167
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "apply_relocations",
-            "line_range": {
-              "start": 199,
-              "end": 199
-            },
-            "role": "primary",
-            "note": ""
+            "note": "Target function for UAF analysis"
           },
           {
             "file": "src/tools/wasm-link.cc",
@@ -1320,67 +109,7 @@
               "start": 211,
               "end": 211
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_slice",
-            "line_range": {
-              "start": 221,
-              "end": 221
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_table_section",
-            "line_range": {
-              "start": 237,
-              "end": 237
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_export_section",
-            "line_range": {
-              "start": 259,
-              "end": 259
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_elem_section",
-            "line_range": {
-              "start": 289,
-              "end": 289
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_memory_section",
-            "line_range": {
-              "start": 316,
-              "end": 316
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 326,
-              "end": 326
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -1390,77 +119,7 @@
               "start": 336,
               "end": 336
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_global_import",
-            "line_range": {
-              "start": 346,
-              "end": 346
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_import_section",
-            "line_range": {
-              "start": 354,
-              "end": 354
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 356,
-              "end": 356
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 359,
-              "end": 359
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 370,
-              "end": 370
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 373,
-              "end": 373
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 380,
-              "end": 380
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -1470,297 +129,7 @@
               "start": 388,
               "end": 388
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 396,
-              "end": 396
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_data_segment",
-            "line_range": {
-              "start": 414,
-              "end": 414
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_data_section",
-            "line_range": {
-              "start": 426,
-              "end": 426
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 433,
-              "end": 433
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_names_section",
-            "line_range": {
-              "start": 445,
-              "end": 445
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 448,
-              "end": 448
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 471,
-              "end": 471
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 483,
-              "end": 483
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_reloc_section",
-            "line_range": {
-              "start": 496,
-              "end": 496
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_combined_section",
-            "line_range": {
-              "start": 547,
-              "end": 547
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 553,
-              "end": 553
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "export_",
-            "line_range": {
-              "start": 613,
-              "end": 613
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "resolve_symbols",
-            "line_range": {
-              "start": 619,
-              "end": 619
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 624,
-              "end": 624
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 626,
-              "end": 626
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 640,
-              "end": 640
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 642,
-              "end": 642
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "calculate_reloc_offsets",
-            "line_range": {
-              "start": 664,
-              "end": 664
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 672,
-              "end": 672
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 682,
-              "end": 682
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 696,
-              "end": 696
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 700,
-              "end": 700
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "write_binary",
-            "line_range": {
-              "start": 726,
-              "end": 726
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 730,
-              "end": 730
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 732,
-              "end": 732
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "dump_reloc_offsets",
-            "line_range": {
-              "start": 756,
-              "end": 756
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
-            "line_range": {
-              "start": 758,
-              "end": 758
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "perform_link",
-            "line_range": {
-              "start": 777,
-              "end": 777
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "Failed",
-            "line_range": {
-              "start": 788,
-              "end": 788
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           },
           {
@@ -1770,18 +139,117 @@
               "start": 795,
               "end": 795
             },
+            "role": "caller",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-U4-uaf-003",
+      "text": "No pointer may be dereferenced in putback_char() in wasm-interp.cc after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in putback_char: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FN-U4-003",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CallbackHandler"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "src/tools/wasm-interp.cc",
+            "symbol": "putback_char",
+            "line_range": {
+              "start": 536,
+              "end": 536
+            },
             "role": "primary",
+            "note": "Target function for UAF analysis"
+          },
+          {
+            "file": "src/tools/wasm-interp.cc",
+            "symbol": "on_register_command",
+            "line_range": {
+              "start": 1022,
+              "end": 1022
+            },
+            "role": "caller",
             "note": ""
           },
           {
-            "file": "src/tools/wasm-link.cc",
-            "symbol": "size",
+            "file": "src/tools/wasm-interp.cc",
+            "symbol": "on_assert_unlinkable_command",
             "line_range": {
-              "start": 803,
-              "end": 803
+              "start": 1042,
+              "end": 1042
+            },
+            "role": "caller",
+            "note": ""
+          },
+          {
+            "file": "src/tools/wasm-interp.cc",
+            "symbol": "on_assert_invalid_command",
+            "line_range": {
+              "start": 1065,
+              "end": 1065
+            },
+            "role": "caller",
+            "note": ""
+          },
+          {
+            "file": "src/tools/wasm-interp.cc",
+            "symbol": "on_assert_uninstantiable_command",
+            "line_range": {
+              "start": 1088,
+              "end": 1088
+            },
+            "role": "caller",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-U4-uaf-004",
+      "text": "No pointer may be dereferenced in write_section_payload() in wasm-link.cc after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in write_section_payload: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FN-U4-004",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "ProgramEntry",
+          "CallbackHandler"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "src/tools/wasm-link.cc",
+            "symbol": "write_section_payload",
+            "line_range": {
+              "start": 211,
+              "end": 211
             },
             "role": "primary",
-            "note": ""
+            "note": "Target function for UAF analysis"
           },
           {
             "file": "src/tools/wasm-link.cc",
@@ -1790,7 +258,27 @@
               "start": 811,
               "end": 811
             },
-            "role": "primary",
+            "role": "source",
+            "note": ""
+          },
+          {
+            "file": "src/tools/wasm-link.cc",
+            "symbol": "parse_options",
+            "line_range": {
+              "start": 56,
+              "end": 56
+            },
+            "role": "related",
+            "note": ""
+          },
+          {
+            "file": "src/tools/wasm-link.cc",
+            "symbol": "resolve_symbols",
+            "line_range": {
+              "start": 619,
+              "end": 619
+            },
+            "role": "related",
             "note": ""
           },
           {
@@ -1800,143 +288,182 @@
               "start": 826,
               "end": 826
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-U4-uaf-003",
-      "text": "No pointer in wasm-objdump.cc may be dereferenced after being freed.",
+      "property_id": "PROP-U4-uaf-005",
+      "text": "No pointer may be dereferenced in ProgramMain() in wasm-interp.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wasm-objdump.cc: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U4-003",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-005",
       "reachability": {
-        "classification": "external-reachable",
+        "classification": "internal",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "CallbackHandler"
         ],
-        "attacker_controlled": true,
+        "attacker_controlled": false,
         "bug_bounty_scope": "in-scope"
       },
-      "exploitability": "external-attack",
+      "exploitability": "local-attack",
       "code_scope": {
         "locations": [
           {
-            "file": "src/tools/wasm-objdump.cc",
+            "file": "src/tools/wasm-interp.cc",
+            "symbol": "ProgramMain",
+            "line_range": {
+              "start": 1492,
+              "end": 1492
+            },
+            "role": "primary",
+            "note": "Target function for UAF analysis"
+          },
+          {
+            "file": "src/tools/wasm-interp.cc",
+            "symbol": "destroy_context",
+            "line_range": {
+              "start": 1466,
+              "end": 1466
+            },
+            "role": "source",
+            "note": ""
+          },
+          {
+            "file": "src/tools/wasm-interp.cc",
+            "symbol": "putback_char",
+            "line_range": {
+              "start": 536,
+              "end": 536
+            },
+            "role": "source",
+            "note": ""
+          },
+          {
+            "file": "src/tools/wasm-interp.cc",
             "symbol": "parse_options",
             "line_range": {
-              "start": 43,
-              "end": 43
+              "start": 81,
+              "end": 81
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
-            "file": "src/tools/wasm-objdump.cc",
-            "symbol": "AddOption",
+            "file": "src/tools/wasm-interp.cc",
+            "symbol": "get_dirname",
             "line_range": {
-              "start": 46,
-              "end": 46
+              "start": 123,
+              "end": 123
+            },
+            "role": "related",
+            "note": ""
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-U4-uaf-006",
+      "text": "No pointer may be dereferenced in ProgramMain() in wasm-link.cc after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-006",
+      "reachability": {
+        "classification": "internal",
+        "entry_points": [
+          "CallbackHandler"
+        ],
+        "attacker_controlled": false,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "local-attack",
+      "code_scope": {
+        "locations": [
+          {
+            "file": "src/tools/wasm-link.cc",
+            "symbol": "ProgramMain",
+            "line_range": {
+              "start": 795,
+              "end": 795
             },
             "role": "primary",
+            "note": "Target function for UAF analysis"
+          },
+          {
+            "file": "src/tools/wasm-link.cc",
+            "symbol": "LinkerInputBinary",
+            "line_range": {
+              "start": 811,
+              "end": 811
+            },
+            "role": "source",
             "note": ""
           },
           {
-            "file": "src/tools/wasm-objdump.cc",
-            "symbol": "AddOption",
+            "file": "src/tools/wasm-link.cc",
+            "symbol": "parse_options",
             "line_range": {
-              "start": 48,
-              "end": 48
+              "start": 56,
+              "end": 56
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
-            "file": "src/tools/wasm-objdump.cc",
-            "symbol": "AddOption",
+            "file": "src/tools/wasm-link.cc",
+            "symbol": "resolve_symbols",
             "line_range": {
-              "start": 51,
-              "end": 51
+              "start": 619,
+              "end": 619
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
-            "file": "src/tools/wasm-objdump.cc",
-            "symbol": "AddOption",
+            "file": "src/tools/wasm-link.cc",
+            "symbol": "write_section_payload",
             "line_range": {
-              "start": 53,
-              "end": 53
+              "start": 211,
+              "end": 211
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
-          },
-          {
-            "file": "src/tools/wasm-objdump.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 55,
-              "end": 55
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-objdump.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 60,
-              "end": 60
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-objdump.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 64,
-              "end": 64
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-objdump.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 66,
-              "end": 66
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-objdump.cc",
-            "symbol": "AddArgument",
-            "line_range": {
-              "start": 69,
-              "end": 69
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-objdump.cc",
-            "symbol": "dump_file",
-            "line_range": {
-              "start": 76,
-              "end": 76
-            },
-            "role": "primary",
-            "note": ""
-          },
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-U4-uaf-007",
+      "text": "No pointer may be dereferenced in ProgramMain() in wasm-objdump.cc after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-007",
+      "reachability": {
+        "classification": "internal",
+        "entry_points": [
+          "ProgramEntry",
+          "CallbackHandler"
+        ],
+        "attacker_controlled": false,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "local-attack",
+      "code_scope": {
+        "locations": [
           {
             "file": "src/tools/wasm-objdump.cc",
             "symbol": "ProgramMain",
@@ -1945,16 +472,16 @@
               "end": 134
             },
             "role": "primary",
-            "note": ""
+            "note": "Target function for UAF analysis"
           },
           {
             "file": "src/tools/wasm-objdump.cc",
-            "symbol": "Failed",
+            "symbol": "parse_options",
             "line_range": {
-              "start": 149,
-              "end": 149
+              "start": 43,
+              "end": 43
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
@@ -1964,193 +491,34 @@
               "start": 157,
               "end": 157
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-U4-uaf-004",
-      "text": "No pointer in wasm-opcodecnt.cc may be dereferenced after being freed.",
+      "property_id": "PROP-U4-uaf-008",
+      "text": "No pointer may be dereferenced in ProgramMain() in wasm-opcodecnt.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wasm-opcodecnt.cc: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "CRITICAL",
-      "covers": "FILE-U4-004",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-008",
       "reachability": {
-        "classification": "external-reachable",
+        "classification": "internal",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "ProgramEntry",
+          "CallbackHandler"
         ],
-        "attacker_controlled": true,
+        "attacker_controlled": false,
         "bug_bounty_scope": "in-scope"
       },
-      "exploitability": "external-attack",
+      "exploitability": "local-attack",
       "code_scope": {
         "locations": [
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "parse_options",
-            "line_range": {
-              "start": 52,
-              "end": 52
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 55,
-              "end": 55
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 60,
-              "end": 60
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 64,
-              "end": 64
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 67,
-              "end": 67
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 70,
-              "end": 70
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "AddArgument",
-            "line_range": {
-              "start": 74,
-              "end": 74
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "display_opcode_name",
-            "line_range": {
-              "start": 86,
-              "end": 86
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "display_intmax",
-            "line_range": {
-              "start": 90,
-              "end": 90
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "display_int_counter_vector",
-            "line_range": {
-              "start": 94,
-              "end": 94
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "display_int_pair_counter_vector",
-            "line_range": {
-              "start": 110,
-              "end": 110
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "opcode_counter_gt",
-            "line_range": {
-              "start": 129,
-              "end": 129
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "int_counter_gt",
-            "line_range": {
-              "start": 143,
-              "end": 143
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "int_pair_counter_gt",
-            "line_range": {
-              "start": 156,
-              "end": 156
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "display_sorted_int_counter_vector",
-            "line_range": {
-              "start": 173,
-              "end": 173
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "display_sorted_int_pair_counter_vector",
-            "line_range": {
-              "start": 194,
-              "end": 194
-            },
-            "role": "primary",
-            "note": ""
-          },
           {
             "file": "src/tools/wasm-opcodecnt.cc",
             "symbol": "ProgramMain",
@@ -2159,36 +527,16 @@
               "end": 217
             },
             "role": "primary",
-            "note": ""
+            "note": "Target function for UAF analysis"
           },
           {
             "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "Failed",
+            "symbol": "parse_options",
             "line_range": {
-              "start": 224,
-              "end": 224
+              "start": 52,
+              "end": 52
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 236,
-              "end": 236
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm-opcodecnt.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 239,
-              "end": 239
-            },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
@@ -2198,133 +546,34 @@
               "start": 267,
               "end": 267
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-U4-uaf-005",
-      "text": "No pointer in wasm2wast.cc may be dereferenced after being freed.",
+      "property_id": "PROP-U4-uaf-009",
+      "text": "No pointer may be dereferenced in ProgramMain() in wasm2wast.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wasm2wast.cc: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U4-005",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-009",
       "reachability": {
-        "classification": "external-reachable",
+        "classification": "internal",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "ProgramEntry",
+          "CallbackHandler"
         ],
-        "attacker_controlled": true,
+        "attacker_controlled": false,
         "bug_bounty_scope": "in-scope"
       },
-      "exploitability": "external-attack",
+      "exploitability": "local-attack",
       "code_scope": {
         "locations": [
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "parse_options",
-            "line_range": {
-              "start": 58,
-              "end": 58
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 61,
-              "end": 61
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 67,
-              "end": 67
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 74,
-              "end": 74
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 76,
-              "end": 76
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 80,
-              "end": 80
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 82,
-              "end": 82
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 84,
-              "end": 84
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 88,
-              "end": 88
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "AddArgument",
-            "line_range": {
-              "start": 90,
-              "end": 90
-            },
-            "role": "primary",
-            "note": ""
-          },
           {
             "file": "src/tools/wasm2wast.cc",
             "symbol": "ProgramMain",
@@ -2333,56 +582,16 @@
               "end": 98
             },
             "role": "primary",
-            "note": ""
+            "note": "Target function for UAF analysis"
           },
           {
             "file": "src/tools/wasm2wast.cc",
-            "symbol": "Succeeded",
+            "symbol": "parse_options",
             "line_range": {
-              "start": 107,
-              "end": 107
+              "start": 58,
+              "end": 58
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 112,
-              "end": 112
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 113,
-              "end": 113
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 121,
-              "end": 121
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wasm2wast.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 128,
-              "end": 128
-            },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
@@ -2392,103 +601,34 @@
               "start": 139,
               "end": 139
             },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     },
     {
-      "property_id": "PROP-U4-uaf-006",
-      "text": "No pointer in wast-desugar.cc may be dereferenced after being freed.",
+      "property_id": "PROP-U4-uaf-010",
+      "text": "No pointer may be dereferenced in ProgramMain() in wast-desugar.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wast-desugar.cc: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U4-006",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-010",
       "reachability": {
-        "classification": "external-reachable",
+        "classification": "internal",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "ProgramEntry",
+          "CallbackHandler"
         ],
-        "attacker_controlled": true,
+        "attacker_controlled": false,
         "bug_bounty_scope": "in-scope"
       },
-      "exploitability": "external-attack",
+      "exploitability": "local-attack",
       "code_scope": {
         "locations": [
-          {
-            "file": "src/tools/wast-desugar.cc",
-            "symbol": "parse_options",
-            "line_range": {
-              "start": 57,
-              "end": 57
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast-desugar.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 61,
-              "end": 61
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast-desugar.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 63,
-              "end": 63
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast-desugar.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 65,
-              "end": 65
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast-desugar.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 67,
-              "end": 67
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast-desugar.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 70,
-              "end": 70
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast-desugar.cc",
-            "symbol": "AddArgument",
-            "line_range": {
-              "start": 75,
-              "end": 75
-            },
-            "role": "primary",
-            "note": ""
-          },
           {
             "file": "src/tools/wast-desugar.cc",
             "symbol": "ProgramMain",
@@ -2497,254 +637,41 @@
               "end": 80
             },
             "role": "primary",
-            "note": ""
+            "note": "Target function for UAF analysis"
           },
           {
             "file": "src/tools/wast-desugar.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 93,
-              "end": 93
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast-desugar.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 104,
-              "end": 104
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast-desugar.cc",
-            "symbol": "main",
-            "line_range": {
-              "start": 114,
-              "end": 114
-            },
-            "role": "primary",
-            "note": ""
-          }
-        ],
-        "resolution_status": "resolved"
-      },
-      "code_excerpt": ""
-    },
-    {
-      "property_id": "PROP-U4-uaf-007",
-      "text": "No pointer in wast2wasm.cc may be dereferenced after being freed.",
-      "type": "invariant",
-      "assertion": "forall free(p) in wast2wasm.cc: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U4-007",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "FileInput",
-          "CLI"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "code_scope": {
-        "locations": [
-          {
-            "file": "src/tools/wast2wasm.cc",
             "symbol": "parse_options",
             "line_range": {
-              "start": 72,
-              "end": 72
+              "start": 57,
+              "end": 57
             },
-            "role": "primary",
+            "role": "related",
             "note": ""
           },
           {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 75,
-              "end": 75
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 81,
-              "end": 81
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 83,
-              "end": 83
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 86,
-              "end": 86
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 89,
-              "end": 89
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 91,
-              "end": 91
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "binary",
-            "line_range": {
-              "start": 93,
-              "end": 93
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 95,
-              "end": 95
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 99,
-              "end": 99
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 103,
-              "end": 103
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "AddOption",
-            "line_range": {
-              "start": 106,
-              "end": 106
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "AddArgument",
-            "line_range": {
-              "start": 108,
-              "end": 108
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "write_buffer_to_file",
+            "file": "src/tools/wast-desugar.cc",
+            "symbol": "main",
             "line_range": {
               "start": 114,
               "end": 114
             },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "ProgramMain",
-            "line_range": {
-              "start": 129,
-              "end": 129
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 143,
-              "end": 143
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "Succeeded",
-            "line_range": {
-              "start": 149,
-              "end": 149
-            },
-            "role": "primary",
-            "note": ""
-          },
-          {
-            "file": "src/tools/wast2wasm.cc",
-            "symbol": "main",
-            "line_range": {
-              "start": 176,
-              "end": 176
-            },
-            "role": "primary",
+            "role": "caller",
             "note": ""
           }
         ],
-        "resolution_status": "resolved"
+        "resolution_status": "resolved",
+        "resolution_error": ""
       },
       "code_excerpt": ""
     }
   ],
   "metadata": {
-    "timestamp": "2026-03-06T14:00:00Z",
-    "total_properties": 7,
-    "total_locations": 257,
+    "timestamp": "2026-03-12T07:15:48Z",
+    "total_properties": 10,
+    "total_locations": 42,
     "by_resolution_status": {
-      "resolved": 7,
+      "resolved": 10,
       "not_found": 0,
       "out_of_scope": 0,
       "error": 0

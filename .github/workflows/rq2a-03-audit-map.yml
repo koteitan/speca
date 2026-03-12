@@ -4,10 +4,27 @@ on:
   workflow_dispatch:
     inputs:
       projects:
-        description: 'Comma-separated project IDs (e.g. "N1,M3,U2") or "all"'
-        required: false
-        type: string
-        default: 'all'
+        description: 'Project to audit'
+        required: true
+        type: choice
+        options:
+          - all
+          - N1
+          - N2
+          - N3
+          - N4
+          - N5
+          - M1
+          - M2
+          - M2b
+          - M3
+          - M4
+          - M5
+          - U1
+          - U2
+          - U3
+          - U4
+          - U5
       workers:
         description: 'Parallel workers per project'
         required: false

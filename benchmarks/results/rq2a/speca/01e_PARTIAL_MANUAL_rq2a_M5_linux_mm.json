@@ -2,16 +2,15 @@
   "properties": [
     {
       "property_id": "PROP-M5-mlk-001",
-      "text": "All dynamically allocated memory in core-test.h must be freed on every execution path.",
+      "text": "All allocations in damon_destroy_targets() in core.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in core-test.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M5-001",
+      "assertion": "forall alloc(p) in damon_destroy_targets: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M5-001",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Syscall",
-          "Sysfs"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -21,16 +20,15 @@
     },
     {
       "property_id": "PROP-M5-mlk-002",
-      "text": "All dynamically allocated memory in core.c must be freed on every execution path.",
+      "text": "All allocations in damon_sysfs_destroy_targets() in sysfs.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in core.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M5-002",
+      "assertion": "forall alloc(p) in damon_sysfs_destroy_targets: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M5-002",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Syscall",
-          "Sysfs"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -40,16 +38,15 @@
     },
     {
       "property_id": "PROP-M5-mlk-003",
-      "text": "All dynamically allocated memory in dbgfs-test.h must be freed on every execution path.",
+      "text": "All allocations in damon_sysfs_target_release() in sysfs.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in dbgfs-test.h: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M5-003",
+      "assertion": "forall alloc(p) in damon_sysfs_target_release: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M5-003",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Syscall",
-          "Sysfs"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -59,16 +56,15 @@
     },
     {
       "property_id": "PROP-M5-mlk-004",
-      "text": "All dynamically allocated memory in dbgfs.c must be freed on every execution path.",
+      "text": "All allocations in damon_sysfs_targets_release() in sysfs.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in dbgfs.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M5-004",
+      "assertion": "forall alloc(p) in damon_sysfs_targets_release: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M5-004",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Syscall",
-          "Sysfs"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -78,16 +74,15 @@
     },
     {
       "property_id": "PROP-M5-mlk-005",
-      "text": "All dynamically allocated memory in lru_sort.c must be freed on every execution path.",
+      "text": "All allocations in __damon_is_registered_ops() in core.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in lru_sort.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in __damon_is_registered_ops: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M5-005",
+      "covers": "FN-M5-005",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Syscall",
-          "Sysfs"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -97,16 +92,16 @@
     },
     {
       "property_id": "PROP-M5-mlk-006",
-      "text": "All dynamically allocated memory in ops-common.c must be freed on every execution path.",
+      "text": "All allocations in __damon_dbgfs_init() in dbgfs.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in ops-common.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in __damon_dbgfs_init: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M5-006",
+      "covers": "FN-M5-006",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Syscall",
-          "Sysfs"
+          "CallbackHandler",
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -116,16 +111,15 @@
     },
     {
       "property_id": "PROP-M5-mlk-007",
-      "text": "All dynamically allocated memory in paddr.c must be freed on every execution path.",
+      "text": "All allocations in damon_lru_sort_enabled_store() in lru_sort.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in paddr.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in damon_lru_sort_enabled_store: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M5-007",
+      "covers": "FN-M5-007",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Syscall",
-          "Sysfs"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -135,16 +129,15 @@
     },
     {
       "property_id": "PROP-M5-mlk-008",
-      "text": "All dynamically allocated memory in reclaim.c must be freed on every execution path.",
+      "text": "All allocations in damon_get_page() in ops-common.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in reclaim.c: exists free(p) on all paths",
-      "severity": "CRITICAL",
-      "covers": "FILE-M5-008",
+      "assertion": "forall alloc(p) in damon_get_page: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "HIGH",
+      "covers": "FN-M5-008",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Syscall",
-          "Sysfs"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -154,16 +147,16 @@
     },
     {
       "property_id": "PROP-M5-mlk-009",
-      "text": "All dynamically allocated memory in sysfs.c must be freed on every execution path.",
+      "text": "All allocations in __damon_pa_prepare_access_check() in paddr.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in sysfs.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in __damon_pa_prepare_access_check: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M5-009",
+      "covers": "FN-M5-009",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Syscall",
-          "Sysfs"
+          "CallbackHandler",
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -173,16 +166,16 @@
     },
     {
       "property_id": "PROP-M5-mlk-010",
-      "text": "All dynamically allocated memory in vaddr-test.h must be freed on every execution path.",
+      "text": "All allocations in damon_reclaim_enabled_store() in reclaim.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in vaddr-test.h: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in damon_reclaim_enabled_store: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M5-010",
+      "covers": "FN-M5-010",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Syscall",
-          "Sysfs"
+          "CallbackHandler",
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -192,16 +185,15 @@
     },
     {
       "property_id": "PROP-M5-mlk-011",
-      "text": "All dynamically allocated memory in vaddr.c must be freed on every execution path.",
+      "text": "ctx from damon_new_ctx() must be freed before return on damon_select_ops error in damon_reclaim_init()",
       "type": "invariant",
-      "assertion": "forall alloc(p) in vaddr.c: exists free(p) on all paths",
+      "assertion": "forall alloc(ctx) via damon_new_ctx in damon_reclaim_init: free(ctx) when damon_select_ops fails",
       "severity": "HIGH",
-      "covers": "FILE-M5-011",
+      "covers": "FN-M5-GT01",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Syscall",
-          "Sysfs"
+          "ProgramEntry"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -211,21 +203,21 @@
     }
   ],
   "metadata": {
-    "timestamp": "2026-03-06T14:00:00Z",
+    "timestamp": "2026-03-12T07:15:48Z",
     "total_properties": 11,
     "by_severity": {
-      "CRITICAL": 1,
-      "HIGH": 10,
+      "CRITICAL": 4,
+      "HIGH": 7,
       "MEDIUM": 0,
       "LOW": 0,
       "INFORMATIONAL": 0
     },
     "by_scope": {
-      "in_scope": 11,
+      "in_scope": 10,
       "out_of_scope": 0,
       "conditional": 0
     },
-    "bug_bounty_eligible_count": 11,
+    "bug_bounty_eligible_count": 10,
     "benchmark": "rq2a",
     "source": "manual",
     "target_repo": "torvalds/linux",

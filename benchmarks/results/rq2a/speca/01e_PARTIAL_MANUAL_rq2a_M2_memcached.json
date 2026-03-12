@@ -2,16 +2,15 @@
   "properties": [
     {
       "property_id": "PROP-M2-mlk-001",
-      "text": "All dynamically allocated memory in assoc.c must be freed on every execution path.",
+      "text": "All allocations in cache_destroy() in cache.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in assoc.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in cache_destroy: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "CRITICAL",
-      "covers": "FILE-M2-001",
+      "covers": "FN-M2-001",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "CLI"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -21,16 +20,15 @@
     },
     {
       "property_id": "PROP-M2-mlk-002",
-      "text": "All dynamically allocated memory in cache.c must be freed on every execution path.",
+      "text": "All allocations in add_delta() in memcached.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in cache.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M2-002",
+      "assertion": "forall alloc(p) in add_delta: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M2-002",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "CLI"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -40,16 +38,15 @@
     },
     {
       "property_id": "PROP-M2-mlk-003",
-      "text": "All dynamically allocated memory in daemon.c must be freed on every execution path.",
+      "text": "All allocations in shutdown_memcached_server() in testapp.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in daemon.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M2-003",
+      "assertion": "forall alloc(p) in shutdown_memcached_server: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M2-003",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "CLI"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -59,16 +56,15 @@
     },
     {
       "property_id": "PROP-M2-mlk-004",
-      "text": "All dynamically allocated memory in hash.c must be freed on every execution path.",
+      "text": "All allocations in add_delta() in thread.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in hash.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M2-004",
+      "assertion": "forall alloc(p) in add_delta: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M2-004",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "CLI"
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -78,16 +74,15 @@
     },
     {
       "property_id": "PROP-M2-mlk-005",
-      "text": "All dynamically allocated memory in items.c must be freed on every execution path.",
+      "text": "All allocations in cache_free() in cache.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in items.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M2-005",
+      "assertion": "forall alloc(p) in cache_free: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M2-005",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "CLI"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -97,16 +92,15 @@
     },
     {
       "property_id": "PROP-M2-mlk-006",
-      "text": "All dynamically allocated memory in jenkins_hash.c must be freed on every execution path.",
+      "text": "All allocations in do_add_delta() in memcached.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in jenkins_hash.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M2-006",
+      "assertion": "forall alloc(p) in do_add_delta: on_every_path(exists free(p) OR exists transfer_ownership(p))",
+      "severity": "CRITICAL",
+      "covers": "FN-M2-006",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "CLI"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -116,16 +110,15 @@
     },
     {
       "property_id": "PROP-M2-mlk-007",
-      "text": "All dynamically allocated memory in memcached.c must be freed on every execution path.",
+      "text": "All allocations in stop_memcached_server() in testapp.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in memcached.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in stop_memcached_server: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "CRITICAL",
-      "covers": "FILE-M2-007",
+      "covers": "FN-M2-007",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "CLI"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -135,16 +128,15 @@
     },
     {
       "property_id": "PROP-M2-mlk-008",
-      "text": "All dynamically allocated memory in murmur3_hash.c must be freed on every execution path.",
+      "text": "All allocations in cache_fail_constructor() in testapp.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in murmur3_hash.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in cache_fail_constructor: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M2-008",
+      "covers": "FN-M2-008",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "CLI"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -154,16 +146,15 @@
     },
     {
       "property_id": "PROP-M2-mlk-009",
-      "text": "All dynamically allocated memory in sasl_defs.c must be freed on every execution path.",
+      "text": "All allocations in assoc_init() in assoc.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in sasl_defs.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in assoc_init: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M2-009",
+      "covers": "FN-M2-009",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "CLI"
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -173,16 +164,15 @@
     },
     {
       "property_id": "PROP-M2-mlk-010",
-      "text": "All dynamically allocated memory in sizes.c must be freed on every execution path.",
+      "text": "All allocations in cache_alloc() in cache.c must be freed on every error path",
       "type": "invariant",
-      "assertion": "forall alloc(p) in sizes.c: exists free(p) on all paths",
+      "assertion": "forall alloc(p) in cache_alloc: on_every_path(exists free(p) OR exists transfer_ownership(p))",
       "severity": "HIGH",
-      "covers": "FILE-M2-010",
+      "covers": "FN-M2-010",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "CLI"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -192,130 +182,15 @@
     },
     {
       "property_id": "PROP-M2-mlk-011",
-      "text": "All dynamically allocated memory in slabs.c must be freed on every execution path.",
+      "text": "strdup() allocated pointer 'list' in server_sockets() must be freed on all early-return paths including invalid IPv6",
       "type": "invariant",
-      "assertion": "forall alloc(p) in slabs.c: exists free(p) on all paths",
+      "assertion": "forall alloc(list) via strdup in server_sockets: free(list) on every return path",
       "severity": "HIGH",
-      "covers": "FILE-M2-011",
+      "covers": "FN-M2-GT01",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "NetworkPacket",
-          "CLI"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M2-mlk-012",
-      "text": "All dynamically allocated memory in solaris_priv.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in solaris_priv.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M2-012",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "CLI"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M2-mlk-013",
-      "text": "All dynamically allocated memory in stats.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in stats.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M2-013",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "CLI"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M2-mlk-014",
-      "text": "All dynamically allocated memory in testapp.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in testapp.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M2-014",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "CLI"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M2-mlk-015",
-      "text": "All dynamically allocated memory in thread.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in thread.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M2-015",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "CLI"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M2-mlk-016",
-      "text": "All dynamically allocated memory in timedrun.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in timedrun.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M2-016",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "CLI"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M2-mlk-017",
-      "text": "All dynamically allocated memory in util.c must be freed on every execution path.",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in util.c: exists free(p) on all paths",
-      "severity": "HIGH",
-      "covers": "FILE-M2-017",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "NetworkPacket",
-          "CLI"
+          "ProgramEntry"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -325,21 +200,21 @@
     }
   ],
   "metadata": {
-    "timestamp": "2026-03-06T14:00:00Z",
-    "total_properties": 17,
+    "timestamp": "2026-03-12T07:15:48Z",
+    "total_properties": 11,
     "by_severity": {
-      "CRITICAL": 2,
-      "HIGH": 15,
+      "CRITICAL": 7,
+      "HIGH": 4,
       "MEDIUM": 0,
       "LOW": 0,
       "INFORMATIONAL": 0
     },
     "by_scope": {
-      "in_scope": 17,
+      "in_scope": 10,
       "out_of_scope": 0,
       "conditional": 0
     },
-    "bug_bounty_eligible_count": 17,
+    "bug_bounty_eligible_count": 10,
     "benchmark": "rq2a",
     "source": "manual",
     "target_repo": "memcached/memcached",

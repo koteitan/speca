@@ -2,16 +2,15 @@
   "properties": [
     {
       "property_id": "PROP-U4-uaf-001",
-      "text": "No pointer in wasm-interp.cc may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in destroy_context() in wasm-interp.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wasm-interp.cc: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in destroy_context: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U4-001",
+      "covers": "FN-U4-001",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -21,16 +20,15 @@
     },
     {
       "property_id": "PROP-U4-uaf-002",
-      "text": "No pointer in wasm-link.cc may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in LinkerInputBinary() in wasm-link.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wasm-link.cc: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in LinkerInputBinary: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U4-002",
+      "covers": "FN-U4-002",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -40,16 +38,15 @@
     },
     {
       "property_id": "PROP-U4-uaf-003",
-      "text": "No pointer in wasm-objdump.cc may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in putback_char() in wasm-interp.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wasm-objdump.cc: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in putback_char: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U4-003",
+      "covers": "FN-U4-003",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -59,16 +56,16 @@
     },
     {
       "property_id": "PROP-U4-uaf-004",
-      "text": "No pointer in wasm-opcodecnt.cc may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in write_section_payload() in wasm-link.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wasm-opcodecnt.cc: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "CRITICAL",
-      "covers": "FILE-U4-004",
+      "assertion": "forall free(p) in write_section_payload: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FN-U4-004",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "ProgramEntry",
+          "CallbackHandler"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -78,78 +75,133 @@
     },
     {
       "property_id": "PROP-U4-uaf-005",
-      "text": "No pointer in wasm2wast.cc may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in ProgramMain() in wasm-interp.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wasm2wast.cc: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U4-005",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-005",
       "reachability": {
-        "classification": "external-reachable",
+        "classification": "internal",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "CallbackHandler"
         ],
-        "attacker_controlled": true,
+        "attacker_controlled": false,
         "bug_bounty_scope": "in-scope"
       },
-      "exploitability": "external-attack",
+      "exploitability": "local-attack",
       "bug_bounty_eligible": true
     },
     {
       "property_id": "PROP-U4-uaf-006",
-      "text": "No pointer in wast-desugar.cc may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in ProgramMain() in wasm-link.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wast-desugar.cc: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U4-006",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-006",
       "reachability": {
-        "classification": "external-reachable",
+        "classification": "internal",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "CallbackHandler"
         ],
-        "attacker_controlled": true,
+        "attacker_controlled": false,
         "bug_bounty_scope": "in-scope"
       },
-      "exploitability": "external-attack",
+      "exploitability": "local-attack",
       "bug_bounty_eligible": true
     },
     {
       "property_id": "PROP-U4-uaf-007",
-      "text": "No pointer in wast2wasm.cc may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in ProgramMain() in wasm-objdump.cc after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in wast2wasm.cc: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "HIGH",
-      "covers": "FILE-U4-007",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-007",
       "reachability": {
-        "classification": "external-reachable",
+        "classification": "internal",
         "entry_points": [
-          "FileInput",
-          "CLI"
+          "ProgramEntry",
+          "CallbackHandler"
         ],
-        "attacker_controlled": true,
+        "attacker_controlled": false,
         "bug_bounty_scope": "in-scope"
       },
-      "exploitability": "external-attack",
+      "exploitability": "local-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U4-uaf-008",
+      "text": "No pointer may be dereferenced in ProgramMain() in wasm-opcodecnt.cc after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-008",
+      "reachability": {
+        "classification": "internal",
+        "entry_points": [
+          "ProgramEntry",
+          "CallbackHandler"
+        ],
+        "attacker_controlled": false,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "local-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U4-uaf-009",
+      "text": "No pointer may be dereferenced in ProgramMain() in wasm2wast.cc after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-009",
+      "reachability": {
+        "classification": "internal",
+        "entry_points": [
+          "ProgramEntry",
+          "CallbackHandler"
+        ],
+        "attacker_controlled": false,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "local-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U4-uaf-010",
+      "text": "No pointer may be dereferenced in ProgramMain() in wast-desugar.cc after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in ProgramMain: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "MEDIUM",
+      "covers": "FN-U4-010",
+      "reachability": {
+        "classification": "internal",
+        "entry_points": [
+          "ProgramEntry",
+          "CallbackHandler"
+        ],
+        "attacker_controlled": false,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "local-attack",
       "bug_bounty_eligible": true
     }
   ],
   "metadata": {
-    "timestamp": "2026-03-06T14:00:00Z",
-    "total_properties": 7,
+    "timestamp": "2026-03-12T07:15:48Z",
+    "total_properties": 10,
     "by_severity": {
-      "CRITICAL": 1,
-      "HIGH": 6,
-      "MEDIUM": 0,
+      "CRITICAL": 0,
+      "HIGH": 4,
+      "MEDIUM": 6,
       "LOW": 0,
       "INFORMATIONAL": 0
     },
     "by_scope": {
-      "in_scope": 7,
+      "in_scope": 10,
       "out_of_scope": 0,
       "conditional": 0
     },
-    "bug_bounty_eligible_count": 7,
+    "bug_bounty_eligible_count": 10,
     "benchmark": "rq2a",
     "source": "manual",
     "target_repo": "WebAssembly/wabt",

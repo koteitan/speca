@@ -2,16 +2,16 @@
   "properties": [
     {
       "property_id": "PROP-U2-uaf-001",
-      "text": "No pointer in peci-aspeed.c may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in aspeed_peci_clk_release() in peci-aspeed.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in peci-aspeed.c: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in aspeed_peci_clk_release: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U2-001",
+      "covers": "FN-U2-001",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Sysfs",
-          "Driver"
+          "CallbackHandler",
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -21,16 +21,15 @@
     },
     {
       "property_id": "PROP-U2-uaf-002",
-      "text": "No pointer in core.c may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in peci_bus_device_remove() in core.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in core.c: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in peci_bus_device_remove: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U2-002",
+      "covers": "FN-U2-002",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Sysfs",
-          "Driver"
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -40,16 +39,15 @@
     },
     {
       "property_id": "PROP-U2-uaf-003",
-      "text": "No pointer in cpu.c may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in adev_release() in cpu.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in cpu.c: no_use(p) after free(p) AND no_double_free(p)",
-      "severity": "CRITICAL",
-      "covers": "FILE-U2-003",
+      "assertion": "forall free(p) in adev_release: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FN-U2-003",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Sysfs",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -59,16 +57,15 @@
     },
     {
       "property_id": "PROP-U2-uaf-004",
-      "text": "No pointer in device.c may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in peci_device_destroy() in device.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in device.c: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in peci_device_destroy: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U2-004",
+      "covers": "FN-U2-004",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Sysfs",
-          "Driver"
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -78,16 +75,15 @@
     },
     {
       "property_id": "PROP-U2-uaf-005",
-      "text": "No pointer in internal.h may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in peci_request_free() in request.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in internal.h: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in peci_request_free: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U2-005",
+      "covers": "FN-U2-005",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Sysfs",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -97,16 +93,15 @@
     },
     {
       "property_id": "PROP-U2-uaf-006",
-      "text": "No pointer in request.c may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in remove_store() in sysfs.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in request.c: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in remove_store: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U2-006",
+      "covers": "FN-U2-006",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Sysfs",
-          "Driver"
+          "FunctionCall"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -116,16 +111,71 @@
     },
     {
       "property_id": "PROP-U2-uaf-007",
-      "text": "No pointer in sysfs.c may be dereferenced after being freed.",
+      "text": "No pointer may be dereferenced in aspeed_peci_reset_control_release() in peci-aspeed.c after being freed",
       "type": "invariant",
-      "assertion": "forall free(p) in sysfs.c: no_use(p) after free(p) AND no_double_free(p)",
+      "assertion": "forall free(p) in aspeed_peci_reset_control_release: no_use(p) after free(p) AND no_double_free(p)",
       "severity": "HIGH",
-      "covers": "FILE-U2-007",
+      "covers": "FN-U2-007",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
-          "Sysfs",
-          "Driver"
+          "CallbackHandler",
+          "Initialization"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U2-uaf-008",
+      "text": "No pointer may be dereferenced in peci_controller_dev_release() in core.c after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in peci_controller_dev_release: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FN-U2-008",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Initialization"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U2-uaf-009",
+      "text": "No pointer may be dereferenced in peci_device_release() in device.c after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in peci_device_release: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FN-U2-009",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "Initialization"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true
+    },
+    {
+      "property_id": "PROP-U2-uaf-010",
+      "text": "No pointer may be dereferenced in devm_aspeed_peci_reset_control_deassert() in peci-aspeed.c after being freed",
+      "type": "invariant",
+      "assertion": "forall free(p) in devm_aspeed_peci_reset_control_deassert: no_use(p) after free(p) AND no_double_free(p)",
+      "severity": "HIGH",
+      "covers": "FN-U2-010",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "CallbackHandler",
+          "Initialization"
         ],
         "attacker_controlled": true,
         "bug_bounty_scope": "in-scope"
@@ -135,21 +185,21 @@
     }
   ],
   "metadata": {
-    "timestamp": "2026-03-06T14:00:00Z",
-    "total_properties": 7,
+    "timestamp": "2026-03-12T07:15:48Z",
+    "total_properties": 10,
     "by_severity": {
-      "CRITICAL": 1,
-      "HIGH": 6,
+      "CRITICAL": 0,
+      "HIGH": 10,
       "MEDIUM": 0,
       "LOW": 0,
       "INFORMATIONAL": 0
     },
     "by_scope": {
-      "in_scope": 7,
+      "in_scope": 10,
       "out_of_scope": 0,
       "conditional": 0
     },
-    "bug_bounty_eligible_count": 7,
+    "bug_bounty_eligible_count": 10,
     "benchmark": "rq2a",
     "source": "manual",
     "target_repo": "torvalds/linux",
