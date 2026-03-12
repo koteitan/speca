@@ -1,30 +1,26 @@
 {
-  "tp": 7,
-  "fp": 95,
-  "gt_tp": 7,
+  "tp": 4,
+  "fp": 0,
+  "gt_tp": 4,
   "new_tp": 0,
   "human_reviewed": 0,
-  "unreviewed": 95,
-  "precision": 6.86,
-  "recall": 17.5,
-  "f1": 9.86,
+  "unreviewed": 0,
+  "precision": 100.0,
+  "recall": 10.0,
+  "f1": 18.18,
   "total_ground_truth": 40,
-  "total_positive_findings": 98,
+  "total_positive_findings": 5,
   "total_cost": null,
   "bug_type_breakdown": {
-    "NPD": 7
+    "NPD": 4
   },
   "per_project": {
-    "N1": 4,
-    "N5": 3
+    "N5": 4
   },
   "detected_bugs": [
-    "RA-N1-N1",
-    "RA-N1-N2",
-    "RA-N1-N3",
-    "RA-N1-O1",
+    "RA-N5-N1",
     "RA-N5-N2",
-    "RA-N5-N5",
+    "RA-N5-N4",
     "RA-N5-O1"
   ],
   "missed_bugs": [
@@ -41,6 +37,10 @@
     "RA-M3-O1",
     "RA-M4-O1",
     "RA-M5-O1",
+    "RA-N1-N1",
+    "RA-N1-N2",
+    "RA-N1-N3",
+    "RA-N1-O1",
     "RA-N2-N1",
     "RA-N2-O1",
     "RA-N2-O2",
@@ -52,9 +52,8 @@
     "RA-N3-N1",
     "RA-N3-O1",
     "RA-N4-O1",
-    "RA-N5-N1",
     "RA-N5-N3",
-    "RA-N5-N4",
+    "RA-N5-N5",
     "RA-U1-O1",
     "RA-U2-O1",
     "RA-U3-O1",
@@ -63,33 +62,21 @@
     "RA-U5-O1"
   ],
   "matches": {
-    "RA-N1-O1": {
-      "finding_id": "PROP-N1-npd-033",
-      "confidence": 0.95
-    },
-    "RA-N1-N1": {
-      "finding_id": "PROP-N1-npd-033",
-      "confidence": 0.95
-    },
-    "RA-N1-N2": {
-      "finding_id": "PROP-N1-npd-033",
-      "confidence": 0.98
-    },
-    "RA-N1-N3": {
-      "finding_id": "PROP-N1-npd-033",
-      "confidence": 0.99
-    },
     "RA-N5-O1": {
-      "finding_id": "PROP-N5-npd-046",
-      "confidence": 0.78
+      "finding_id": "PROP-N5-npd-013",
+      "confidence": 0.95
+    },
+    "RA-N5-N1": {
+      "finding_id": "PROP-N5-npd-016",
+      "confidence": 0.95
     },
     "RA-N5-N2": {
-      "finding_id": "PROP-N5-npd-046",
-      "confidence": 0.7
+      "finding_id": "PROP-N5-npd-014",
+      "confidence": 0.98
     },
-    "RA-N5-N5": {
-      "finding_id": "PROP-N5-npd-077",
-      "confidence": 0.85
+    "RA-N5-N4": {
+      "finding_id": "PROP-N5-npd-017",
+      "confidence": 0.95
     }
   },
   "new_tp_findings": [],
