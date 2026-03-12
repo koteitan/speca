@@ -223,7 +223,7 @@ tools:
   speca:
     display_name: "SPECA"
     tp: 5
-    fp: 0
-    precision: 100.0
+    fp: 3
+    precision: 62.5
     notes: "SPECA automated evaluation"
     source: "This study"
