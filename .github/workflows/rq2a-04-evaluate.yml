@@ -58,7 +58,7 @@ jobs:
           for dir in "${RESULTS}"/*/; do
             [ -d "$dir" ] || continue
             PROJECT=$(basename "$dir")
-            COUNT=$(ls "${dir}"03_PARTIAL_*.json 2>/dev/null | wc -l)
+            COUNT=$(find "${dir}" -maxdepth 1 -name '03_PARTIAL_*.json' | wc -l)
             if [ "${COUNT}" -gt 0 ]; then
               echo "  ${PROJECT}: ${COUNT} audit results"
               PROJECTS=$((PROJECTS + 1))
@@ -100,7 +100,7 @@ jobs:
           echo ""
           echo "=== Figures ==="
           ls -la benchmarks/results/rq2a/figures/
-          COUNT=$(ls benchmarks/results/rq2a/figures/*.png 2>/dev/null | wc -l)
+          COUNT=$(find benchmarks/results/rq2a/figures/ -maxdepth 1 -name '*.png' | wc -l)
           echo "Total: ${COUNT} figures"
           if [ "$COUNT" -lt 5 ]; then
             echo "ERROR: Expected at least 5 figures"
