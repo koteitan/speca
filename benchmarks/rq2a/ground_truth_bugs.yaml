@@ -533,7 +533,7 @@ bugs:
     description: "Pointer c freed via redisFree(c) at line 46, then dereferenced at line 49 to access connection_type"
     inter_procedural: false
     reproducible: true
-    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: false }
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: true }
 
   # --- linux/drivers/peci (U2): 1 Old, 0 New, 0 FP, 1 Intra, 0 Inter ---
   # Old bug source: static/bug/old/UAF/C_peci_e79b548.json
