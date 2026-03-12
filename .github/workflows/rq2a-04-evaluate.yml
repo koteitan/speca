@@ -144,20 +144,27 @@ jobs:
             "${{ inputs.results_dir }}/speca_summary.json" \
             "${{ inputs.results_dir }}/llm_cache_recall.jsonl" \
             "${{ inputs.results_dir }}/llm_cache_fp.jsonl" \
+            "${{ inputs.results_dir }}/llm_cache_ra_fp.jsonl" \
             benchmarks/rq2a/ground_truth_bugs.yaml \
             benchmarks/rq2a/published_baselines.yaml \
             benchmarks/results/rq2a/figures/
 
           if ! git diff --staged --quiet; then
             git commit -m "rq2a: evaluate SPECA results — add metrics and figures"
+            PUSHED=false
             for i in 1 2 3; do
               if git pull --rebase origin master && git push origin master; then
                 echo "Pushed successfully"
+                PUSHED=true
                 break
               fi
               echo "Push failed, retrying... (attempt $i)"
               sleep 5
             done
+            if [ "$PUSHED" != "true" ]; then
+              echo "ERROR: Failed to push after 3 attempts"
+              exit 1
+            fi
           else
             echo "No changes to commit"
           fi
