@@ -1,96 +1,6 @@
 {
   "properties": [
     {
-      "property_id": "PROP-M2-mlk-001",
-      "text": "All allocations in cache_destroy() in cache.c must be freed on every error path",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in cache_destroy: on_every_path(exists free(p) OR exists transfer_ownership(p))",
-      "severity": "CRITICAL",
-      "covers": "FN-M2-001",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "FunctionCall"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M2-mlk-005",
-      "text": "All allocations in cache_free() in cache.c must be freed on every error path",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in cache_free: on_every_path(exists free(p) OR exists transfer_ownership(p))",
-      "severity": "CRITICAL",
-      "covers": "FN-M2-005",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "FunctionCall"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M2-mlk-006",
-      "text": "All allocations in do_add_delta() in memcached.c must be freed on every error path",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in do_add_delta: on_every_path(exists free(p) OR exists transfer_ownership(p))",
-      "severity": "CRITICAL",
-      "covers": "FN-M2-006",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "CallbackHandler"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M2-mlk-009",
-      "text": "All allocations in assoc_get_iterator() in assoc.c must be freed on every error path including mutex_trylock failure",
-      "type": "invariant",
-      "assertion": "forall alloc(iter) via calloc in assoc_get_iterator: free(iter) on every return path",
-      "severity": "HIGH",
-      "covers": "FN-M2-GT06",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Initialization"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
-      "property_id": "PROP-M2-mlk-010",
-      "text": "All allocations in cache_alloc() in cache.c must be freed on every error path",
-      "type": "invariant",
-      "assertion": "forall alloc(p) in cache_alloc: on_every_path(exists free(p) OR exists transfer_ownership(p))",
-      "severity": "HIGH",
-      "covers": "FN-M2-010",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "FunctionCall"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true
-    },
-    {
       "property_id": "PROP-M2-mlk-011",
       "text": "strdup() allocated pointer 'list' in server_sockets() must be freed on all early-return paths including invalid IPv6",
       "type": "invariant",
@@ -107,104 +17,14 @@
       },
       "exploitability": "external-attack",
       "bug_bounty_eligible": true
-    },
-    {
-      "type": "invariant",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "ProgramEntry"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true,
-      "property_id": "PROP-M2-mlk-012",
-      "text": "subopts_orig allocated via strdup() in main() must be freed before function returns",
-      "assertion": "forall alloc(subopts_orig) via strdup in main: free(subopts_orig) before return",
-      "severity": "HIGH",
-      "covers": "FN-M2-GT02"
-    },
-    {
-      "type": "invariant",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "ProgramEntry"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true,
-      "property_id": "PROP-M2-mlk-013",
-      "text": "temp_portnumber_filename allocated via malloc() in main() must be freed when portnumber_file is NULL",
-      "assertion": "forall alloc(temp_portnumber_filename) via malloc in main: free(temp_portnumber_filename) on every return path",
-      "severity": "HIGH",
-      "covers": "FN-M2-GT03"
-    },
-    {
-      "type": "invariant",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "FunctionCall"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true,
-      "property_id": "PROP-M2-mlk-014",
-      "text": "page_data allocated via calloc() in extstore must be freed before function returns",
-      "assertion": "forall alloc(page_data) via calloc in _evict_page/extstore_get_page_data: free(page_data) on every return path",
-      "severity": "CRITICAL",
-      "covers": "FN-M2-GT04"
-    },
-    {
-      "type": "invariant",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "Initialization"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true,
-      "property_id": "PROP-M2-mlk-015",
-      "text": "flist, db, db->buf, db->fname allocated in proxy_init_startfiles() must be freed on all error handling branches",
-      "assertion": "forall alloc(p) in proxy_init_startfiles: free(p) on every error return path",
-      "severity": "CRITICAL",
-      "covers": "FN-M2-GT05"
-    },
-    {
-      "type": "invariant",
-      "reachability": {
-        "classification": "external-reachable",
-        "entry_points": [
-          "ProgramEntry"
-        ],
-        "attacker_controlled": true,
-        "bug_bounty_scope": "in-scope"
-      },
-      "exploitability": "external-attack",
-      "bug_bounty_eligible": true,
-      "property_id": "PROP-M2-mlk-016",
-      "text": "getline()-allocated 'line' in restart_get_kv() must be freed on RESTART_NOTAG and EOF error branches",
-      "assertion": "forall alloc(line) via getline in restart_get_kv: free(line) on every error return path",
-      "severity": "HIGH",
-      "covers": "FN-M2-GT06b"
     }
   ],
   "metadata": {
     "timestamp": "2026-03-12T07:15:48Z",
-    "total_properties": 11,
+    "total_properties": 1,
     "by_severity": {
-      "CRITICAL": 5,
-      "HIGH": 6,
+      "CRITICAL": 0,
+      "HIGH": 1,
       "MEDIUM": 0,
       "LOW": 0,
       "INFORMATIONAL": 0

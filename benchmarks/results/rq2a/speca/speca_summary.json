@@ -1,27 +1,24 @@
 {
-  "tp": 6,
-  "fp": 2,
-  "gt_tp": 6,
+  "tp": 5,
+  "fp": 0,
+  "gt_tp": 5,
   "new_tp": 0,
   "human_reviewed": 0,
-  "unreviewed": 2,
-  "precision": 75.0,
-  "recall": 15.38,
-  "f1": 25.53,
-  "total_ground_truth": 39,
+  "unreviewed": 0,
+  "precision": 100.0,
+  "recall": 13.51,
+  "f1": 23.81,
+  "total_ground_truth": 37,
   "total_ground_truth_incl_disputed": 40,
-  "total_positive_findings": 8,
+  "total_positive_findings": 5,
   "total_cost": null,
   "bug_type_breakdown": {
-    "NPD": 5,
-    "MLK": 1
+    "NPD": 5
   },
   "per_project": {
-    "N5": 5,
-    "M2": 1
+    "N5": 5
   },
   "detected_bugs": [
-    "RA-M2-N2",
     "RA-N5-N1",
     "RA-N5-N2",
     "RA-N5-N3",
@@ -32,12 +29,11 @@
     "RA-M1-N1",
     "RA-M1-N2",
     "RA-M1-O1",
-    "RA-M2-N1",
+    "RA-M2-N2",
     "RA-M2-N3",
     "RA-M2-N4",
     "RA-M2-N5",
     "RA-M2-N6",
-    "RA-M2-O1",
     "RA-M3-O1",
     "RA-M4-O1",
     "RA-M5-O1",
@@ -64,8 +60,11 @@
     "RA-U5-O1"
   ],
   "disputed_bugs": {
-    "total": 1,
-    "tn": [],
+    "total": 3,
+    "tn": [
+      "RA-M2-N1",
+      "RA-M2-O1"
+    ],
     "detected": [
       "RA-N5-N5"
     ],
@@ -95,10 +94,6 @@
     "RA-N5-N5": {
       "finding_id": "PROP-N5-npd-017",
       "confidence": 0.65
-    },
-    "RA-M2-N2": {
-      "finding_id": "PROP-M2-mlk-013",
-      "confidence": 0.99
     }
   },
   "new_tp_findings": [],

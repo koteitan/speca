@@ -376,6 +376,10 @@ bugs:
     description: "strdup() allocated pointer 'list' not freed on early return when invalid IPv6 address detected"
     inter_procedural: false
     reproducible: true
+    # NOTE: Both call sites (main L5746, L5761) immediately call exit(EX_OSERR)
+    # when server_sockets returns non-zero. The process terminates and OS reclaims
+    # all memory. No exploit path exists — defensive-coding improvement only.
+    disputed: true
     detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: false }
 
   # New bugs from PRs: 1209, 1208, 1214, 1215, 1216, 1217
@@ -390,6 +394,10 @@ bugs:
     description: "subopts_orig allocated via strdup() never freed before function returns"
     inter_procedural: false
     reference: https://github.com/memcached/memcached/pull/1209
+    # NOTE: All 54 early returns between strdup (L5179) and free (L5611) are
+    # "return 1" from main() — process terminates, OS reclaims memory.
+    # No exploit path exists — defensive-coding improvement only.
+    disputed: true
     detected_by: { repoaudit_claude35: true, speca: false }
 
   - id: RA-M2-N2

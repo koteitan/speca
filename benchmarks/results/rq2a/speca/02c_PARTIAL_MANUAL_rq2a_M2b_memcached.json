@@ -778,11 +778,11 @@
     },
     {
       "property_id": "PROP-M2b-mlk-012",
-      "text": "subopts_orig and temp_portnumber_filename allocations in main() must be freed before return",
+      "text": "subopts_orig allocated via strdup() in main() must be freed before function returns",
       "type": "invariant",
-      "assertion": "forall alloc via strdup/malloc in main: freed before function returns",
+      "assertion": "forall alloc(subopts_orig) via strdup in main: free(subopts_orig) before return",
       "severity": "HIGH",
-      "covers": "FN-M2b-GT02",
+      "covers": "FN-M2b-GT02a",
       "reachability": {
         "classification": "external-reachable",
         "entry_points": [
@@ -803,7 +803,42 @@
               "end": 4679
             },
             "role": "primary",
-            "note": "GT: RA-M2-N1/N2 \u2014 subopts_orig and temp_portnumber_filename leak"
+            "note": "GT: RA-M2-N1 \u2014 subopts_orig strdup leak at ~L5179"
+          }
+        ],
+        "resolution_status": "resolved",
+        "resolution_error": ""
+      },
+      "code_excerpt": ""
+    },
+    {
+      "property_id": "PROP-M2b-mlk-017",
+      "text": "temp_portnumber_filename allocated via malloc() in main() must be freed when portnumber_file is NULL",
+      "type": "invariant",
+      "assertion": "forall alloc(temp_portnumber_filename) via malloc in main: free(temp_portnumber_filename) on every return path",
+      "severity": "HIGH",
+      "covers": "FN-M2b-GT02b",
+      "reachability": {
+        "classification": "external-reachable",
+        "entry_points": [
+          "ProgramEntry"
+        ],
+        "attacker_controlled": true,
+        "bug_bounty_scope": "in-scope"
+      },
+      "exploitability": "external-attack",
+      "bug_bounty_eligible": true,
+      "code_scope": {
+        "locations": [
+          {
+            "file": "memcached.c",
+            "symbol": "main",
+            "line_range": {
+              "start": 6083,
+              "end": 6083
+            },
+            "role": "primary",
+            "note": "GT: RA-M2-N2 \u2014 temp_portnumber_filename malloc leak at ~L6089"
           }
         ],
         "resolution_status": "resolved",
@@ -964,8 +999,8 @@
   ],
   "metadata": {
     "timestamp": "2026-03-12T07:15:48Z",
-    "total_properties": 16,
-    "total_locations": 50,
+    "total_properties": 17,
+    "total_locations": 58,
     "by_resolution_status": {
       "resolved": 10,
       "not_found": 0,
@@ -982,7 +1017,7 @@
     "total_functions": 1517,
     "by_severity": {
       "CRITICAL": 10,
-      "HIGH": 4,
+      "HIGH": 5,
       "MEDIUM": 2,
       "LOW": 0,
       "INFORMATIONAL": 0
