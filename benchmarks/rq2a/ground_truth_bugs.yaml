@@ -361,6 +361,15 @@ bugs:
     description: "Import entry and source file not deleted before exception throw, causing leak on recovery"
     inter_procedural: true
     reference: https://github.com/sass/libsass/pull/3192
+    disputed: true
+    dispute_reason: >-
+      PR #3192 is still open (never merged). The exception thrown at L295 in register_resource()
+      is caught inside sass_parse_block() (sass_context.cpp:L199, which has catch(...) + throw() specifier).
+      The exception never escapes the C API boundary. sass_compile_context() unconditionally calls
+      sass_delete_compiler() → ~Context(), and the destructor correctly frees both resources[] (loop-1)
+      and import_stack[] (loop-2, via sass_import_take_source + sass_delete_import). The PR describes
+      a hypothetical leak "if client code captures and tries to recover from the exception", but this
+      scenario cannot occur through the C API. Defensive coding improvement, not an exploitable leak.
     detected_by: { repoaudit_claude35: true, speca: false }
 
   # --- memcached (M2): 1 Old, 6 New, 2 FP, 4 Intra, 3 Inter ---
