@@ -4,7 +4,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
+
+# Ensure project root is on sys.path so `benchmarks.rq1.*` imports work
+# when this script is invoked directly (not via `python -m`).
+_ROOT = Path(__file__).resolve().parents[2]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 
 def load_json(path: Path) -> dict:
