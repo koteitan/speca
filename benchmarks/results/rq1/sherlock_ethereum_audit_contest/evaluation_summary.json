@@ -115,6 +115,7 @@
     "total_findings": 102,
     "auto_tp": 19,
     "auto_fp_invalid": 40,
+    "auto_fp_review": 4,
     "auto_tp_info": 26,
     "auto_tp_other": 13,
     "auto_unknown": 0,
@@ -123,18 +124,7 @@
     "human_unlabeled": 0,
     "precision_auto": 0.5686,
     "precision_conservative": 0.5686,
-    "total_tp": 58,
-    "label_distribution": {
-      "tp": 19,
-      "tp_info": 26,
-      "fp_invalid": 40,
-      "fp_review": 4,
-      "potential-info": 6,
-      "fixed": 5,
-      "partially_fixed": 2,
-      "unknown": 0
-    },
-    "updated_at": "2026-03-18T07:51:00.771609+00:00"
+    "total_tp": 58
   },
   "f1": 0.725,
   "run_metadata": {

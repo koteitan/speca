@@ -77,9 +77,9 @@ def main() -> None:
             prec = compute_precision(labels_path)
             summary["precision"] = prec
             recall = summary.get("recall", 0.0)
-            if prec["precision_full"] > 0 and recall > 0:
+            if prec["precision_auto"] > 0 and recall > 0:
                 summary["f1"] = round(
-                    2 * prec["precision_full"] * recall / (prec["precision_full"] + recall), 4,
+                    2 * prec["precision_auto"] * recall / (prec["precision_auto"] + recall), 4,
                 )
             else:
                 summary["f1"] = 0.0
@@ -153,9 +153,9 @@ def main() -> None:
         auto_unknown = prec.get("auto_unknown", 0)
         human_tp = prec.get("human_tp", 0)
         human_fp = prec.get("human_fp", 0)
-        precision_full = prec.get("precision_full", 0.0)
+        precision_auto = prec.get("precision_auto", 0.0)
         precision_conservative = prec.get("precision_conservative", 0.0)
-        lines.append(f"**Precision (labeled): {precision_full:.1%}** | Conservative (unknown=FP): {precision_conservative:.1%}")
+        lines.append(f"**Precision (labeled): {precision_auto:.1%}** | Conservative (unknown=FP): {precision_conservative:.1%}")
         lines.append("")
         lines.append("| Category | Count | Precision role |")
         lines.append("| --- | --- | --- |")
@@ -172,7 +172,7 @@ def main() -> None:
     f1 = summary.get("f1")
     if f1 is not None:
         lines.append("## F1 Score")
-        lines.append(f"**F1 = {f1:.3f}** (recall={recall:.1%}, precision={prec.get('precision_full', 0.0):.1%})")
+        lines.append(f"**F1 = {f1:.3f}** (recall={recall:.1%}, precision={prec.get('precision_auto', 0.0):.1%})")
         lines.append("")
 
     # Missed issues
@@ -189,9 +189,103 @@ def main() -> None:
         lines.append(f"{issues_total - issues_matched} issue(s) not matched by any audit finding.")
         lines.append("")
 
-    # Efficiency (from phase_comparison.json)
+    # Phase 04 comparison (from phase_comparison.json)
     results_dir = summary_path.parent
     phase_cmp = load_json(results_dir / "phase_comparison.json")
+    cmp = phase_cmp.get("comparison", {})
+    p03 = cmp.get("phase_03", {})
+    p04 = cmp.get("phase_04", {})
+    delta = cmp.get("delta", {})
+    if p03 and p04:
+        lines.append("## Phase 04 FP Filter Comparison")
+        lines.append("")
+        lines.append("| Metric | Phase 03 | Phase 04 | Delta |")
+        lines.append("| --- | --- | --- | --- |")
+        lines.append(f"| Findings | {p03.get('total_findings', 0)} | {p04.get('total_findings', 0)} | {delta.get('findings_removed', 0):+d} removed |")
+        lines.append(f"| Recall | {p03.get('recall', 0.0):.1%} | {p04.get('recall', 0.0):.1%} | {delta.get('recall_delta', 0.0):+.4f} |")
+        lines.append(f"| Precision (auto) | {p03.get('precision_auto', 0.0):.1%} | {p04.get('precision_auto', 0.0):.1%} | {delta.get('precision_auto_delta', 0.0):+.4f} |")
+        lines.append(f"| F1 | {p03.get('f1', 0.0):.3f} | {p04.get('f1', 0.0):.3f} | {delta.get('f1_delta', 0.0):+.4f} |")
+        lost = p04.get("lost_recall_issues", [])
+        if lost:
+            lines.append(f"\nLost recall issues: {', '.join(f'#{i}' for i in lost)}")
+        lines.append("")
+
+    # Ground truth analysis
+    gt = cmp.get("ground_truth_analysis") or phase_cmp.get("ground_truth_analysis", {})
+    if gt:
+        lines.append("## Ground Truth Analysis")
+        lines.append("")
+
+        # Label distribution
+        label_dist = gt.get("label_distribution", {})
+        if label_dist:
+            labeled_count = gt.get("labeled_count") or sum(label_dist.values())
+            lines.append(f"**{labeled_count} labeled findings**")
+            lines.append("")
+            lines.append("| Label | Count |")
+            lines.append("| --- | --- |")
+            for lbl, count in sorted(label_dist.items()):
+                lines.append(f"| {lbl} | {count} |")
+            lines.append("")
+
+        # Filter effectiveness (supports both old and new field names)
+        fe = gt.get("filter_effectiveness") or gt.get("disputed_fp_analysis", {})
+        total_filtered = fe.get("total_filtered") or fe.get("total", 0)
+        if total_filtered > 0:
+            correct_fp = fe.get("correct_fp") or fe.get("correct_filters", 0)
+            wrong_tp = fe.get("wrong_tp") or fe.get("wrong_filters", 0)
+            other = total_filtered - correct_fp - wrong_tp
+            fp_precision = fe.get("filter_precision", 0.0)
+            lines.append("### DISPUTED_FP Filter Effectiveness")
+            lines.append("")
+            lines.append(f"- Total filtered: {total_filtered}")
+            lines.append(f"- Correct (true FP): {correct_fp}")
+            lines.append(f"- Wrong (true TP filtered): {wrong_tp}")
+            lines.append(f"- Other: {other}")
+            lines.append(f"- **Filter precision: {fp_precision:.1%}**")
+            lines.append("")
+
+        # Confusion matrix
+        cm = gt.get("confusion_matrix", {})
+        if cm:
+            # Collect all ground truth labels across verdicts
+            gt_labels = sorted({lbl for counts in cm.values() for lbl in counts})
+            lines.append("### Confusion Matrix (Verdict x Ground Truth)")
+            lines.append("")
+            header = "| Verdict | " + " | ".join(gt_labels) + " | Total |"
+            sep = "| --- | " + " | ".join("---" for _ in gt_labels) + " | --- |"
+            lines.append(header)
+            lines.append(sep)
+            for verdict, counts in sorted(cm.items()):
+                total = sum(counts.values())
+                cells = " | ".join(str(counts.get(lbl, 0)) for lbl in gt_labels)
+                lines.append(f"| {verdict} | {cells} | {total} |")
+            lines.append("")
+
+        # Per-verdict TP rate (supports both new and old field name)
+        vtp = gt.get("verdict_tp_rates") or gt.get("verdict_tp_rate", {})
+        if vtp:
+            lines.append("### Per-Verdict TP Rate")
+            lines.append("")
+            lines.append("| Verdict | Total | TP | TP Rate |")
+            lines.append("| --- | --- | --- | --- |")
+            for verdict, info in sorted(vtp.items()):
+                lines.append(f"| {verdict} | {info.get('total', 0)} | {info.get('tp', 0)} | {info.get('tp_rate', 0.0):.1%} |")
+            lines.append("")
+
+        # Per-label filter rate (supports both new and old field name)
+        lfr = gt.get("label_filter_rates") or gt.get("label_filter_rate", {})
+        if lfr:
+            lines.append("### Per-Label Filter Rate")
+            lines.append("")
+            lines.append("| Ground Truth | Total | Filtered | Filter Rate |")
+            lines.append("| --- | --- | --- | --- |")
+            for lbl, info in sorted(lfr.items()):
+                filter_rate = info.get("filter_rate") or info.get("rate", 0.0)
+                lines.append(f"| {lbl} | {info.get('total', 0)} | {info.get('filtered', 0)} | {filter_rate:.1%} |")
+            lines.append("")
+
+    # Efficiency (from phase_comparison.json)
     eff = phase_cmp.get("efficiency", {})
     e03 = eff.get("phase_03", {})
     e04 = eff.get("phase_04", {})
