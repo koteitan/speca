@@ -1,5 +1,5 @@
 Severity rating *
-Medium severity
+Low severity
 
 Title *
 _setAuction migration does not revoke residual ERC20 approvals to old auction — stale allowance enables token theft post-migration
