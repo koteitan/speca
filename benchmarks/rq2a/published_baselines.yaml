@@ -223,8 +223,8 @@ tools:
   speca:
     display_name: "SPECA"
     tp: 35
-    fp: 2
-    precision: 94.59
+    fp: 1
+    precision: 97.22
     recall: 88.57
     f1: 91.17
     notes: "SPECA automated evaluation (35 non-disputed GT bugs)"
