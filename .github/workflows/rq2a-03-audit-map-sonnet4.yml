@@ -1,4 +1,4 @@
-name: "RQ2a: 03 Audit Map (Claude 3.5 Sonnet)"
+name: "RQ2a: 03 Audit Map (Claude Sonnet 4)"
 
 on:
   workflow_dispatch:
@@ -187,13 +187,13 @@ jobs:
         env:
           GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Phase 03: Audit Map (${{ matrix.id }}) — Claude 3.5 Sonnet"
+      - name: "Phase 03: Audit Map (${{ matrix.id }}) — Claude Sonnet 4"
         run: |
           uv run python3 scripts/run_phase.py \
             --phase 03 \
             --workers ${{ inputs.workers }} \
             --max-concurrent ${{ inputs.max_concurrent }} \
-            --model claude-3-5-sonnet-20241022
+            --model claude-sonnet-4-0
         env:
           GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -222,7 +222,6 @@ jobs:
           mkdir -p upload/logs
           cp outputs/03_PARTIAL_*.json upload/ 2>/dev/null || true
           cp outputs/logs/03_* upload/logs/ 2>/dev/null || true
-          # Marker so artifact is always created even on failure
           echo "${{ matrix.id }}" > upload/.project_id
 
           echo "Results for ${{ matrix.id }}:"
@@ -233,7 +232,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: rq2a-03-c35s-${{ matrix.id }}
+          name: rq2a-03-s4-${{ matrix.id }}
           path: upload/
           retention-days: 30
 
@@ -268,7 +267,7 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: rq2a-03-c35s-*
+          pattern: rq2a-03-s4-*
           path: artifacts/
 
       - name: Merge results into benchmarks
@@ -276,12 +275,11 @@ jobs:
           set -euo pipefail
 
           echo "=== Merging results ==="
-          for dir in artifacts/rq2a-03-c35s-*/; do
+          for dir in artifacts/rq2a-03-s4-*/; do
             [ -d "$dir" ] || continue
-            PROJECT_ID=$(basename "$dir" | sed 's/^rq2a-03-c35s-//')
-            TARGET="benchmarks/results/rq2a/speca_claude35sonnet/${PROJECT_ID}"
+            PROJECT_ID=$(basename "$dir" | sed 's/^rq2a-03-s4-//')
+            TARGET="benchmarks/results/rq2a/speca_sonnet4/${PROJECT_ID}"
 
-            # Clean existing 03 outputs + logs for this project (enables clean re-runs)
             if [ -d "${TARGET}" ]; then
               echo "Cleaning existing: ${TARGET}"
               rm -rf "${TARGET}"
@@ -289,19 +287,16 @@ jobs:
 
             mkdir -p "${TARGET}"
 
-            # Always copy logs (even for failed projects — crucial for debugging)
             if [ -d "${dir}logs" ] && compgen -G "${dir}logs/*" >/dev/null 2>&1; then
               mkdir -p "${TARGET}/logs"
               cp "${dir}"logs/* "${TARGET}/logs/"
             fi
 
-            # Copy results if available
             if compgen -G "${dir}03_PARTIAL_*.json" >/dev/null 2>&1; then
               cp "${dir}"03_PARTIAL_*.json "${TARGET}/"
               echo "  ${PROJECT_ID}: $(ls "${TARGET}"/03_PARTIAL_*.json | wc -l) result files"
             else
               echo "  ${PROJECT_ID}: no results (job may have failed)"
-              # Dump first error log for quick diagnosis in CI
               FIRST_ERR=$(ls "${TARGET}"/logs/*.error.log 2>/dev/null | head -1)
               if [ -n "${FIRST_ERR}" ]; then
                 echo "    First error log ($(basename "${FIRST_ERR}")):"
@@ -313,14 +308,14 @@ jobs:
       - name: Generate human review CSVs
         run: |
           uv run python3 benchmarks/rq2a/generate_human_review.py \
-            --results-dir benchmarks/results/rq2a/speca_claude35sonnet
+            --results-dir benchmarks/results/rq2a/speca_sonnet4
 
       - name: Push to master
         run: |
           set -euo pipefail
-          git add benchmarks/results/rq2a/speca_claude35sonnet/
+          git add benchmarks/results/rq2a/speca_sonnet4/
           if ! git diff --staged --quiet; then
-            git commit -m "rq2a: phase 03 audit map results [Claude 3.5 Sonnet] (run ${{ github.run_id }}, attempt ${{ github.run_attempt }})"
+            git commit -m "rq2a: phase 03 audit map results [Claude Sonnet 4] (run ${{ github.run_id }}, attempt ${{ github.run_attempt }})"
             for i in 1 2 3; do
               if git pull --rebase origin master && git push origin master; then
                 echo "Pushed successfully"
@@ -339,7 +334,7 @@ jobs:
           echo "## RQ2a Phase 03 — Collected Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           TOTAL=0
-          for dir in benchmarks/results/rq2a/speca_claude35sonnet/*/; do
+          for dir in benchmarks/results/rq2a/speca_sonnet4/*/; do
             [ -d "$dir" ] || continue
             PROJECT=$(basename "$dir")
             COUNT=$(ls "${dir}"03_PARTIAL_*.json 2>/dev/null | wc -l)

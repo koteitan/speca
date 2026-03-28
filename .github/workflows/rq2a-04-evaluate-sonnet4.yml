@@ -1,4 +1,4 @@
-name: "RQ2a: 04 Evaluate & Visualize (Claude 3.5 Sonnet)"
+name: "RQ2a: 04 Evaluate & Visualize (Claude Sonnet 4)"
 
 on:
   workflow_dispatch:
@@ -29,7 +29,7 @@ on:
         description: 'Path to SPECA results directory'
         required: false
         type: string
-        default: 'benchmarks/results/rq2a/speca_claude35sonnet'
+        default: 'benchmarks/results/rq2a/speca_sonnet4'
       model:
         description: 'Claude model for LLM matching (haiku, sonnet, opus)'
         required: false
@@ -88,7 +88,7 @@ jobs:
           done
           if [ "${PROJECTS}" -eq 0 ]; then
             echo "ERROR: No Phase 03 results found in ${RESULTS}/"
-            echo "Run rq2a-03-audit-map-claude35sonnet workflow first."
+            echo "Run rq2a-03-audit-map-sonnet4 workflow first."
             exit 1
           fi
           echo "Total: ${PROJECTS} projects with results"
@@ -150,7 +150,7 @@ jobs:
             benchmarks/results/rq2a/figures/
 
           if ! git diff --staged --quiet; then
-            git commit -m "rq2a: evaluate SPECA results [Claude 3.5 Sonnet] — add metrics and figures"
+            git commit -m "rq2a: evaluate SPECA results [Claude Sonnet 4] — add metrics and figures"
             PUSHED=false
             for i in 1 2 3; do
               if git pull --rebase origin master && git push origin master; then
