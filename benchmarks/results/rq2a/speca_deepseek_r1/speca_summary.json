@@ -1,28 +1,43 @@
 {
-  "tp": 17,
+  "tp": 27,
   "fp": 2,
-  "gt_tp": 17,
+  "gt_tp": 27,
   "new_tp": 0,
   "human_reviewed": 0,
-  "unreviewed": 23,
-  "precision": 89.47,
-  "recall": 48.57,
-  "f1": 62.96,
+  "unreviewed": 37,
+  "precision": 93.1,
+  "recall": 77.14,
+  "f1": 84.37,
   "total_ground_truth": 35,
   "total_ground_truth_incl_disputed": 40,
-  "total_positive_findings": 57,
+  "total_positive_findings": 91,
   "total_cost": null,
   "bug_type_breakdown": {
-    "NPD": 17
+    "NPD": 18,
+    "MLK": 9
   },
   "per_project": {
     "N1": 4,
     "N2": 7,
     "N3": 1,
     "N4": 1,
-    "N5": 4
+    "N5": 5,
+    "M1": 2,
+    "M2": 4,
+    "M3": 1,
+    "M4": 1,
+    "M5": 1
   },
   "detected_bugs": [
+    "RA-M1-N1",
+    "RA-M1-O1",
+    "RA-M2-N3",
+    "RA-M2-N4",
+    "RA-M2-N5",
+    "RA-M2-N6",
+    "RA-M3-O1",
+    "RA-M4-O1",
+    "RA-M5-O1",
     "RA-N1-N1",
     "RA-N1-N2",
     "RA-N1-N3",
@@ -39,21 +54,12 @@
     "RA-N5-N1",
     "RA-N5-N2",
     "RA-N5-N3",
+    "RA-N5-N4",
     "RA-N5-O1"
   ],
   "missed_bugs": [
-    "RA-M1-N1",
-    "RA-M1-O1",
-    "RA-M2-N3",
-    "RA-M2-N4",
-    "RA-M2-N5",
-    "RA-M2-N6",
-    "RA-M3-O1",
-    "RA-M4-O1",
-    "RA-M5-O1",
     "RA-N2-O1",
     "RA-N3-O1",
-    "RA-N5-N4",
     "RA-U1-O1",
     "RA-U2-O1",
     "RA-U3-O1",
@@ -65,12 +71,13 @@
     "total": 5,
     "tn": [
       "RA-M1-N2",
-      "RA-M2-N1",
       "RA-M2-N2",
       "RA-M2-O1",
       "RA-N5-N5"
     ],
-    "detected": [],
+    "detected": [
+      "RA-M2-N1"
+    ],
     "note": "Disputed bugs have no exploit path; not detecting them is correct (TN)"
   },
   "matches": {
@@ -84,11 +91,11 @@
     },
     "RA-N1-N2": {
       "finding_id": "PROP-N1-npd-011",
-      "confidence": 0.85
+      "confidence": 0.9
     },
     "RA-N1-N3": {
       "finding_id": "PROP-N1-npd-012",
-      "confidence": 0.9
+      "confidence": 0.95
     },
     "RA-N2-O2": {
       "finding_id": "PROP-N2-npd-013",
@@ -96,15 +103,15 @@
     },
     "RA-N2-O3": {
       "finding_id": "PROP-N2-npd-014",
-      "confidence": 1.0
+      "confidence": 0.98
     },
     "RA-N2-O4": {
       "finding_id": "PROP-N2-npd-014",
-      "confidence": 0.98
+      "confidence": 0.99
     },
     "RA-N2-O5": {
       "finding_id": "PROP-N2-npd-015",
-      "confidence": 0.95
+      "confidence": 0.98
     },
     "RA-N2-O6": {
       "finding_id": "PROP-N2-npd-016",
@@ -116,7 +123,7 @@
     },
     "RA-N2-N1": {
       "finding_id": "PROP-N2-npd-017",
-      "confidence": 0.98
+      "confidence": 0.95
     },
     "RA-N3-N1": {
       "finding_id": "PROP-N3-npd-012",
@@ -131,16 +138,60 @@
       "confidence": 0.95
     },
     "RA-N5-N1": {
-      "finding_id": "PROP-N5-npd-016",
-      "confidence": 0.92
+      "finding_id": "PROP-N5-npd-013",
+      "confidence": 0.95
     },
     "RA-N5-N2": {
       "finding_id": "PROP-N5-npd-013",
       "confidence": 0.98
     },
     "RA-N5-N3": {
+      "finding_id": "PROP-N5-npd-016",
+      "confidence": 0.95
+    },
+    "RA-N5-N4": {
       "finding_id": "PROP-N5-npd-017",
-      "confidence": 0.75
+      "confidence": 0.85
+    },
+    "RA-M1-O1": {
+      "finding_id": "PROP-M1-mlk-011",
+      "confidence": 0.95
+    },
+    "RA-M1-N1": {
+      "finding_id": "PROP-M1-mlk-012",
+      "confidence": 0.95
+    },
+    "RA-M2-N1": {
+      "finding_id": "PROP-M2b-mlk-012",
+      "confidence": 0.9
+    },
+    "RA-M2-N3": {
+      "finding_id": "PROP-M2b-mlk-013",
+      "confidence": 0.99
+    },
+    "RA-M2-N4": {
+      "finding_id": "PROP-M2b-mlk-014",
+      "confidence": 0.95
+    },
+    "RA-M2-N5": {
+      "finding_id": "PROP-M2b-mlk-015",
+      "confidence": 0.99
+    },
+    "RA-M2-N6": {
+      "finding_id": "PROP-M2b-mlk-016",
+      "confidence": 0.99
+    },
+    "RA-M3-O1": {
+      "finding_id": "PROP-M3-mlk-011",
+      "confidence": 0.95
+    },
+    "RA-M4-O1": {
+      "finding_id": "PROP-M4-mlk-011",
+      "confidence": 0.98
+    },
+    "RA-M5-O1": {
+      "finding_id": "PROP-M5-mlk-011",
+      "confidence": 0.99
     }
   },
   "new_tp_findings": [],
