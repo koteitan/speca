@@ -27,12 +27,12 @@
 
 | Verdict | AI判定 | Human判定 | 変更 |
 |---------|--------|-----------|------|
-| TP      | 60     | **54**    | -6   |
-| FP      | 9      | **13**    | +4   |
+| TP      | 60     | **53**    | -7   |
+| FP      | 9      | **14**    | +5   |
 
 ※ AI判定 60+9=69 だが実CSV行数は67。差分2行は evaluate.py のカウント方式の差異（M2b-mlk-006重複行等）。Human判定は実CSV 67行ベース。
 
-### 修正した4件（すべてTP→FP方向）
+### 修正した5件（すべてTP→FP方向）
 
 | Finding | 理由 |
 |---------|------|
@@ -40,17 +40,18 @@
 | **N4-npd-010** | NPDではなくエラーハンドリング不備。fd=-1→EBADFでNULL参照は発生しない。Opusレビューと同結論 |
 | **M2b-mlk-008** | proof_trace事実誤認。do_cache_free()がearly returnしてもcache_free()に戻りpthread_mutex_unlock()は必ず実行。mutexリークなし |
 | **M2b-mlk-003** | メンテナ(dormando)が確認: refcountはこのブランチで1か0のみ。unconditional do_item_remove()はrefcount=-1のアンダーフロー。if(refcount==1)ガードは正しい防御的プログラミング。PR #1282 rejected |
+| **U5-uaf-002** | メンテナ(aheninger)が確認: u_cleanup()はスレッドセーフ非保証が仕様。他スレッド停止後に呼ぶ前提。race conditionはAPI契約外。PR #3921 closed |
 
 ### 逆方向（FP→TP）修正: 0件
 
-AI判定一致率: 63/67 (94.0%)
+AI判定一致率: 62/67 (92.5%)
 
 ### メトリクス
 
 ```
-TP        : 54
-FP        : 13
-Precision : 80.6% (54/67)
+TP        : 53
+FP        : 14
+Precision : 79.1% (53/67)
 GT Recall : 100% (35/35)
 Missed    : 0
 ```
@@ -85,7 +86,7 @@ ccfdef0e  rq2a: human review of Sonnet 4 SPECA results — 2 TP→FP corrections
 | OpenKinect/libfreenect | [#697](https://github.com/OpenKinect/libfreenect/pull/697) | N4-npd-005 malloc NULL in init_registration_table | Open — レビュー待ち |
 | OpenKinect/libfreenect | [#698](https://github.com/OpenKinect/libfreenect/pull/698) | N4-npd-005 (再投稿) | Open — レビュー待ち |
 | unicode-org/icu | [#3913](https://github.com/unicode-org/icu/pull/3913) | U5-uaf translit compoundFilter race | Open — CI `jira-ticket` FAIL (ICU-23359 "New"→"Accepted"待ち) |
-| unicode-org/icu | [#3921](https://github.com/unicode-org/icu/pull/3921) | U5-uaf-002 race in collation_root_cleanup | Open — CI全パス、レビュー待ち |
+| unicode-org/icu | [#3921](https://github.com/unicode-org/icu/pull/3921) | U5-uaf-002 race in collation_root_cleanup | **Closed** — メンテナ(aheninger)が「u_cleanup()はスレッドセーフ非保証、バグではない」と回答。FP確定 |
 | unicode-org/icu | [#3922](https://github.com/unicode-org/icu/pull/3922) | U5-uaf-003 double-delete in cleanupRegionData | Open — CI全パス、レビュー待ち |
 
 全PRにPoC付き。「Generated with Claude Code」は削除済み。
@@ -282,7 +283,7 @@ ccfdef0e  rq2a: human review of Sonnet 4 SPECA results — 2 TP→FP corrections
 | ID | Result | Reason |
 |----|--------|--------|
 | uaf-001 | TP | createMetazoneMappings double-free. GT RA-U5-O1一致 |
-| uaf-002 | TP | uprv_collation_root_cleanup race UAF. GT外 |
+| uaf-002 | **FP** | **メンテナ修正**。u_cleanup()はスレッドセーフ非保証が仕様。aheninger確認。PR #3921 closed |
 | uaf-011 | TP | createInstance uprv_free(p) double-free. GT RA-U5-N1一致 |
 | uaf-003 | TP | cleanupRegionData double-delete. GT外 |
 | uaf-004 | FP | ロジックエラーをUAFと誤分類 |
@@ -313,7 +314,7 @@ ccfdef0e  rq2a: human review of Sonnet 4 SPECA results — 2 TP→FP corrections
 | U3-uaf-003 | cache timer race | 修正済み |
 | U3-uaf-007 | dllist macro | 修正済み |
 | U3-uaf-008 | resolv_cancel double-free | 修正済み |
-| U5-uaf-002 | collation_root_cleanup | **未修正** → PR #3921 |
+| ~~U5-uaf-002~~ | ~~collation_root_cleanup~~ | **FP確定** — u_cleanup()はスレッドセーフ非保証。メンテナreject。PR #3921 closed |
 | U5-uaf-003 | cleanupRegionData | **未修正** → PR #3922 |
 
 ---
