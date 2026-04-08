@@ -542,7 +542,7 @@ bugs:
     description: "Pointer c freed via redisFree(c) at line 46, then dereferenced at line 49 to access connection_type"
     inter_procedural: false
     reproducible: true
-    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: false }
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: true }
 
   # --- linux/drivers/peci (U2): 1 Old, 0 New, 0 FP, 1 Intra, 0 Inter ---
   # Old bug source: static/bug/old/UAF/C_peci_e79b548.json
@@ -574,7 +574,7 @@ bugs:
     description: "remote freed via close_and_free_remote(), then setsockopt(remote->fd, ...) dereferences freed pointer"
     inter_procedural: false
     reproducible: true
-    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: false }
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: true }
 
   # --- wabt-tool (U4): 1 Old, 0 New, 0 FP, 1 Intra, 0 Inter ---
   # Old bug source: static/bug/old/UAF/C++_wabt_tools.md
@@ -588,7 +588,7 @@ bugs:
     description: "data freed with delete[] at line 227, then freed again at line 47 (double-free)"
     inter_procedural: false
     reproducible: true
-    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: false }
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: true }
 
   # --- icu/icu4c/source/i18n (U5): 1 Old, 1 New, 1 FP, 1 Intra, 1 Inter ---
   # Old bug source: static/bug/old/UAF/C++_i18n.md (Case 1, double-free in zonemeta.cpp)
@@ -602,7 +602,7 @@ bugs:
     description: "entry freed by deleteOlsonToMetaMappingEntry then freed again by uprv_free (double-free)"
     inter_procedural: false
     reproducible: true
-    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: false }
+    detected_by: { repoaudit_claude35: true, meta_infer: null, amazon_codeguru: false, speca: true }
 
   - id: RA-U5-N1
     project: icu/icu4c/source/i18n
@@ -615,7 +615,7 @@ bugs:
     description: "Use-after-free: alias 'regions' pointing to same memory as 'p' freed again after partial deallocation"
     inter_procedural: true  # U5 total: 1 intra + 1 inter = 2
     reference: https://repoaudit-home.github.io/static/bug/old/UAF/C++_i18n.md
-    detected_by: { repoaudit_claude35: true, speca: false }
+    detected_by: { repoaudit_claude35: true, speca: true }
 
 # ============================================================
 # RepoAudit False Positives (from old JSON analysis)
