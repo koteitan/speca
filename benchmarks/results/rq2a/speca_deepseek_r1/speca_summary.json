@@ -1,13 +1,13 @@
 {
-  "tp": 32,
-  "fp": 2,
+  "tp": 36,
+  "fp": 19,
   "gt_tp": 32,
-  "new_tp": 0,
-  "human_reviewed": 0,
-  "unreviewed": 50,
-  "precision": 94.12,
-  "recall": 91.43,
-  "f1": 92.76,
+  "new_tp": 4,
+  "human_reviewed": 23,
+  "unreviewed": 0,
+  "precision": 65.45,
+  "recall": 102.86,
+  "f1": 80.0,
   "total_ground_truth": 35,
   "total_ground_truth_incl_disputed": 40,
   "total_positive_findings": 116,
@@ -76,13 +76,12 @@
     "total": 5,
     "tn": [
       "RA-M1-N2",
+      "RA-M2-N1",
       "RA-M2-N2",
       "RA-M2-O1",
       "RA-N5-N5"
     ],
-    "detected": [
-      "RA-M2-N1"
-    ],
+    "detected": [],
     "note": "Disputed bugs have no exploit path; not detecting them is correct (TN)"
   },
   "matches": {
@@ -213,16 +212,14 @@
     "RA-U5-N1": {
       "finding_id": "PROP-U5-uaf-011",
       "confidence": 0.9
-    },
-    "RA-M2-N1": {
-      "finding_id": "PROP-M2b-mlk-012",
-      "confidence": 0.95
     }
   },
-  "new_tp_findings": [],
-  "ra_fp_matched": [
-    "PROP-N1-npd-008",
-    "PROP-N1-npd-009"
+  "new_tp_findings": [
+    "PROP-M1-mlk-010",
+    "PROP-M2b-mlk-012",
+    "PROP-M4-mlk-009",
+    "PROP-N5-npd-014"
   ],
+  "ra_fp_matched": [],
   "llm_model": "haiku"
 }

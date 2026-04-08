@@ -402,17 +402,21 @@ def fig6_bug_detection_matrix(data: dict, speca_list: list[tuple[str, dict]]):
     bugs = gt["bugs"]
     tool_names = ["RepoAudit\n(Claude 3.5)", "Meta Infer", "CodeGuru"]
     tool_keys = ["repoaudit_claude35", "meta_infer", "amazon_codeguru"]
-    # Use only the first (best) SPECA result for the detection matrix
-    speca = speca_list[0][1] if speca_list else None
-    speca_label = speca_list[0][0] if speca_list else None
-    if speca:
+    # Add all SPECA model variants as separate columns
+    for speca_label, speca_data in speca_list:
         tool_names.append(f"SPECA\n({speca_label})")
-        tool_keys.append("speca")
+        tool_keys.append(f"speca:{speca_label}")
+    speca = speca_list[0][1] if speca_list else None
 
     n_bugs = len(bugs)
     n_tools = len(tool_names)
     # Matrix values: 0=miss, 0.15=disputed TN, 0.5=unknown, 1=detected
     matrix = np.zeros((n_bugs, n_tools))
+
+    # Build per-SPECA-model detected bug sets from summaries
+    speca_detected: dict[str, set[str]] = {}
+    for speca_label, speca_data in speca_list:
+        speca_detected[speca_label] = set(speca_data.get("detected_bugs", []))
 
     disputed_rows = set()
     bug_labels = []
@@ -425,19 +429,27 @@ def fig6_bug_detection_matrix(data: dict, speca_list: list[tuple[str, dict]]):
         bug_labels.append(label)
         det = bug.get("detected_by", {})
         for j, key in enumerate(tool_keys):
-            val = det.get(key)
-            if val is True:
-                matrix[i, j] = 1
-            elif val is False:
-                # Disputed + not detected by SPECA → TN (distinct from miss)
-                if is_disputed and key == "speca":
-                    matrix[i, j] = 0.15
+            if key.startswith("speca:"):
+                # SPECA model variant — use summary's detected_bugs list
+                model_label = key.split(":", 1)[1]
+                detected_set = speca_detected.get(model_label, set())
+                if bug["id"] in detected_set:
+                    matrix[i, j] = 1
+                elif is_disputed:
+                    matrix[i, j] = 0.15  # disputed TN
                 else:
                     matrix[i, j] = 0
             else:
-                matrix[i, j] = 0.5  # unknown/null
+                val = det.get(key)
+                if val is True:
+                    matrix[i, j] = 1
+                elif val is False:
+                    matrix[i, j] = 0
+                else:
+                    matrix[i, j] = 0.5  # unknown/null
 
-    fig, ax = plt.subplots(figsize=(8, 14))
+    fig_width = 8 + max(0, (n_tools - 4) * 1.5)
+    fig, ax = plt.subplots(figsize=(fig_width, 14))
 
     cmap = plt.cm.colors.ListedColormap(["#F0F0F0", "#E8F5E9", "#DDDDDD", "#4C72B0"])
     bounds = [0, 0.1, 0.3, 0.75, 1.0]
