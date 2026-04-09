@@ -162,6 +162,7 @@ tools:
     avg_cost_per_project: 2.54
     avg_prompt_rounds: 100.67
     cost_per_bug: 0.95
+    gt_match_source: "published"  # TP/FP from paper Table 2, no GT-match split published
     source: "Table 2, v3"
 
   repoaudit_deepseek_r1:
@@ -173,6 +174,7 @@ tools:
     precision: 87.23  # 41/(41+6), Table 8 calculated
     precision_paper_text: 88.46  # stated in paper text (methodology unclear)
     avg_cost_per_project: 0.57
+    gt_match_source: "published"  # old/new split from Table 8 v3
     source: "Table 8, v3"
 
   repoaudit_claude37_sonnet:
@@ -184,6 +186,7 @@ tools:
     precision: 88.89  # 40/(40+5), Table 9 calculated
     precision_paper_text: 86.79  # stated in paper text (methodology unclear)
     avg_cost_per_project: 1.59
+    gt_match_source: "published"  # old/new split from Table 9 v3
     source: "Table 9, v3"
 
   repoaudit_o3_mini:
@@ -195,6 +198,7 @@ tools:
     precision: 80.00  # 36/(36+9), Table 10 calculated
     precision_paper_text: 82.35  # stated in paper text (methodology unclear)
     avg_cost_per_project: 0.30
+    gt_match_source: "published"  # old/new split from Table 10 v3
     source: "Table 10, v3"
 
   meta_infer:

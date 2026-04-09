@@ -2143,5 +2143,90 @@
         "rate": 0.3077
       }
     }
+  },
+  "finding_accounting": {
+    "_description": "Unified accounting table reconciling all paper tables. Every finding in the 102 total is accounted for exactly once.",
+    "phase_03_pre_review": {
+      "total_findings": 102,
+      "tp_equivalent": {
+        "total": 58,
+        "breakdown": {
+          "tp": 19,
+          "tp_info": 26,
+          "fixed": 5,
+          "potential-info": 6,
+          "partially_fixed": 2
+        },
+        "note": "TP labels: tp = matched H/M/L Sherlock issue; tp_info = matched info-level issue; fixed = confirmed fix in latest; potential-info = real but informational; partially_fixed = partially addressed"
+      },
+      "fp_equivalent": {
+        "total": 44,
+        "breakdown": {
+          "fp_invalid": 40,
+          "fp_review": 4
+        },
+        "note": "FP labels: fp_invalid = matched Sherlock-rejected issue; fp_review = Phase 04 DISPUTED_FP with no external match"
+      },
+      "precision_broad": 0.5686,
+      "precision_formula": "58 / 102 = 56.86%"
+    },
+    "phase_04_filter": {
+      "disputed_fp_total": 30,
+      "correctly_filtered_fp": 20,
+      "incorrectly_filtered_tp": 10,
+      "filter_precision": 0.6667,
+      "filter_precision_formula": "20 / 30 = 66.67%",
+      "note": "Phase 04 3-gate FP filter: Dead Code, Trust Boundary, Scope Check. All 10 incorrectly filtered TPs are tp_info severity (informational). Zero H/M/L TPs lost."
+    },
+    "phase_04_post_review": {
+      "total_findings": 72,
+      "total_findings_formula": "102 - 30 = 72",
+      "tp_equivalent": {
+        "total": 48,
+        "formula": "58 - 10 = 48"
+      },
+      "fp_equivalent": {
+        "total": 24,
+        "formula": "44 - 20 = 24"
+      },
+      "precision_broad": 0.6667,
+      "precision_formula": "48 / 72 = 66.67%"
+    },
+    "fp_taxonomy": {
+      "total_fp": 44,
+      "total_fp_formula": "fp_invalid (40) + fp_review (4) = 44",
+      "by_root_cause": {
+        "Specification interpretation / design choice": 12,
+        "Dead / unused code": 10,
+        "Trust boundary misunderstanding": 8,
+        "Architectural boundary blindness": 6,
+        "Scope / pre-existing issues": 5,
+        "Cryptographic / mathematical invariant ignorance": 2,
+        "Semantic deduplication failure": 1
+      },
+      "root_cause_total": 44,
+      "note": "All 44 FPs (both survived and filtered by Phase 04) classified by pipeline error mode."
+    },
+    "label_categories": {
+      "total": 7,
+      "tp_labels": [
+        "tp",
+        "tp_info",
+        "fixed",
+        "partially_fixed",
+        "potential-info"
+      ],
+      "fp_labels": [
+        "fp_invalid",
+        "fp_review"
+      ],
+      "note": "Seven ground truth categories. Five TP-equivalent, two FP-equivalent."
+    },
+    "recall": {
+      "issues_total": 15,
+      "issues_matched": 15,
+      "recall": 1.0,
+      "note": "All 15 H/M/L Sherlock contest issues matched. Recall preserved through Phase 04 (zero H/M/L TPs filtered)."
+    }
   }
 }

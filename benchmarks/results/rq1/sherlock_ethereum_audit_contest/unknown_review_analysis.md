@@ -206,25 +206,27 @@ Claude Opus 4.6 (automated), with expert reviews from Kirk (Sigma Prime) and Lin
 
 Analysis of the 102 total labeled findings across all 10 target repositories, focusing on false positive root causes.
 
-## 6. Overall Distribution
+## 6. Overall Distribution (All Unknowns Resolved)
 
 | Label | Count | Description |
 |---|---|---|
-| `fp_invalid` | 27 | Matched a Sherlock issue that was rejected as invalid |
-| `tp_info` | 23 | True positive, informational severity |
-| `unknown` | 18 | Not matched to any Sherlock issue (analyzed in Part I) |
-| `tp` | 17 | True positive, matched valid Sherlock issue |
+| `fp_invalid` | 40 | Matched a Sherlock issue that was rejected as invalid |
+| `tp_info` | 26 | True positive, informational severity |
+| `tp` | 19 | True positive, matched valid Sherlock issue |
 | `potential-info` | 6 | Potential finding, informational level |
 | `fixed` | 5 | Valid bug, confirmed fixed in latest |
 | `fp_review` | 4 | False positive, needs further review |
 | `partially_fixed` | 2 | Valid bug, partially fixed |
 | **Total** | **102** | |
 
-**Precision metrics** (excluding `unknown`):
-- TP-equivalent (tp + tp_info + fixed + partially_fixed + potential-info): 53 / 84 = **63.1%**
-- FP-equivalent (fp_invalid + fp_review): 31 / 84 = **36.9%**
+**Seven ground truth categories**: five TP-equivalent (`tp`, `tp_info`, `fixed`, `partially_fixed`, `potential-info`) and two FP-equivalent (`fp_invalid`, `fp_review`).
 
-## 7. fp_invalid Analysis (27 findings)
+**Precision metrics** (all 102 findings labeled):
+- TP-equivalent (tp + tp_info + fixed + partially_fixed + potential-info): 58 / 102 = **56.9%** (pre-review)
+- FP-equivalent (fp_invalid + fp_review): 44 / 102 = **43.1%** (pre-review)
+- Post-review (Phase 04): 48 TP / 72 surviving = **66.7%** precision
+
+## 7. fp_invalid Analysis (40 findings)
 
 ### 7.1 Distribution by Repository
 
@@ -332,7 +334,7 @@ Analysis of the 102 total labeled findings across all 10 target repositories, fo
 
 ## 8. Phase 04 FP Filter Effectiveness
 
-Phase 04 (6-gate FP filter) was run on **all 10 target repositories** (output in `benchmarks/results/rq1/sherlock_ethereum_audit_contest/<repo>_fusaka/04_PARTIAL_*.json`). All 27 fp_invalid findings were processed by Phase 04.
+Phase 04 (3-gate FP filter: Dead Code, Trust Boundary, Scope Check) was run on **all 10 target repositories** (output in `benchmarks/results/rq1/sherlock_ethereum_audit_contest/<repo>_fusaka/04_PARTIAL_*.json`). All 40 fp_invalid findings were processed by Phase 04.
 
 ### 8.1 Phase 04 Results on All fp_invalid Findings
 
@@ -366,7 +368,7 @@ Phase 04 (6-gate FP filter) was run on **all 10 target repositories** (output in
 | PROP-6a4369e9-inv-010 | nimbus | CONFIRMED_VULNERABILITY | No (leaked) |
 | PROP-6a4369e9-inv-011 | nimbus | CONFIRMED_POTENTIAL | No (leaked) |
 
-**Overall Phase 04 filter rate**: 14/27 = **51.9%** of fp_invalid findings correctly filtered.
+**Overall Phase 04 filter rate**: 17/40 = **42.5%** of fp_invalid findings correctly filtered (17 of 40 fp_invalid marked DISPUTED_FP). Additionally, 3 of 4 fp_review findings were correctly filtered, for a combined rate of 20/44 = **45.5%** of all FPs.
 
 ### 8.2 Phase 04 Filter Rate by Root Cause Category
 
@@ -584,18 +586,20 @@ Phase 04's DISPUTED_FP gate incorrectly filtered **6 true positive findings** (a
 
 ## 12. Consolidated Root Cause Taxonomy
 
-Combining Part I (6 unknown FPs) and Part II (27 fp_invalid + 4 fp_review), the full FP taxonomy is:
+All 44 FPs (fp_invalid=40 + fp_review=4) classified by pipeline error mode. Combines Part I (unknown-review FPs) and Part II (Sherlock-matched FPs), with all unknowns now resolved:
 
-| Root Cause | Part I | Part II | Total | Primary Phase |
-|---|---|---|---|---|
-| Dead/Unused Code | 0 | 8 | 8 | 02c, 03 |
-| EL Trust Boundary | 0 | 7 | 7 | 01e, 03 |
-| Spec Interpretation / Design Choice | 1 | 5+4 | 10 | 01b, 01e |
-| Architectural Boundary Blindness | 3 | 3 | 6 | 03 |
-| Scope / Pre-existing | 0 | 4 | 4 | Pipeline-wide |
-| Cryptographic/Mathematical Invariant | 2 | 0 | 2 | 03 |
-| Semantic Deduplication Failure | 1 | 0 | 1 | 01e |
-| **Total** | **7** | **31** | **38** | |
+| Root Cause | Count | % | Primary Phase |
+|---|---|---|---|
+| Specification interpretation / design choice | 12 | 27.3% | 01b, 01e |
+| Dead / unused code | 10 | 22.7% | 02c, 03 |
+| Trust boundary misunderstanding | 8 | 18.2% | 01e, 03 |
+| Architectural boundary blindness | 6 | 13.6% | 03 |
+| Scope / pre-existing issues | 5 | 11.4% | Pipeline-wide |
+| Cryptographic / mathematical invariant ignorance | 2 | 4.5% | 03 |
+| Semantic deduplication failure | 1 | 2.3% | 01e |
+| **Total** | **44** | **100%** | |
+
+**Accounting cross-check**: 44 FP = 24 survived Phase 04 + 20 correctly filtered by Phase 04. Phase 04 filter precision = 20/30 = 66.7% (30 DISPUTED_FP total, of which 10 were incorrectly filtered TPs).
 
 ### Top 3 Actionable Improvements (by expected FP reduction)
 
@@ -607,7 +611,7 @@ Combining Part I (6 unknown FPs) and Part II (27 fp_invalid + 4 fp_review), the 
 
 ## 13. Methodology (Part II)
 
-1. **Label analysis**: Parsed all 102 rows of `findings_labels.csv`, grouped by `auto_label`
+1. **Label analysis**: All 102 findings labeled across seven categories (see §6). No unknowns remain
 2. **Sherlock cross-reference**: For each `fp_invalid`, retrieved the matched Sherlock issue's rejection comment from `sherlock_contest_1140_issues_1766639267091.csv`
 3. **Root cause categorization**: Grouped by Sherlock rejection reason pattern, then mapped to pipeline phase
 4. **Phase 04 effectiveness**: Cross-referenced Phase 04 outputs on `nimbus_fusaka` branch with fp_invalid finding IDs
