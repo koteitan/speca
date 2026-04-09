@@ -58,6 +58,20 @@ REPO_SHORT = {
     "crate-crypto/rust-eth-kzg": "rust-eth-kzg",
 }
 
+# ── Repo → branch mapping for branch-level Phase 04 lookups ──────
+REPO_TO_BRANCH = {
+    "alloy-rs/evm": "alloy_evm_fusaka",
+    "ethereum/c-kzg-4844": "c_kzg_4844_fusaka",
+    "grandinetech/grandine": "grandine_fusaka",
+    "sigp/lighthouse": "lighthouse_fusaka",
+    "ChainSafe/lodestar": "lodestar_fusaka",
+    "NethermindEth/nethermind": "nethermind_fusaka",
+    "status-im/nimbus-eth2": "nimbus_fusaka",
+    "OffchainLabs/prysm": "prysm_fusaka",
+    "paradigmxyz/reth": "reth_fusaka",
+    "crate-crypto/rust-eth-kzg": "rust_eth_kzg_fusaka",
+}
+
 # ── Spec family names (for charts) ────────────────────────────────
 SPEC_NAMES = {
     "5a6a79d5": "EVM Execution",
@@ -99,6 +113,41 @@ def load_json(path: Path) -> dict:
     if not path.exists():
         return {}
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _build_branch_filtered_set() -> set[tuple[str, str]]:
+    """Build (property_id, branch) set of DISPUTED_FP from branch Phase 04 PARTIALs.
+
+    The verdicts dict in phase_comparison.json stores one verdict per property_id,
+    but in a multi-implementation audit the same property can be DISPUTED_FP in one
+    branch and not in another. This function provides branch-level filtering data.
+    Returns set of (property_id, branch_name) tuples.
+    """
+    import glob as _glob
+    pattern = str(RESULTS_DIR / "*" / "04_PARTIAL_*.json")
+    filtered: set[tuple[str, str]] = set()
+    for f in _glob.glob(pattern):
+        branch = Path(f).parent.name
+        try:
+            data = json.loads(Path(f).read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        reviewed = data.get("reviewed_items", []) if isinstance(data, dict) else data if isinstance(data, list) else []
+        for item in reviewed:
+            if isinstance(item, dict) and item.get("review_verdict") == "DISPUTED_FP":
+                pid = item.get("property_id", "")
+                filtered.add((pid, branch))
+    return filtered
+
+
+def is_filtered_branch(fid: str, repo: str, branch_filtered: set[tuple[str, str]],
+                       verdicts: dict) -> bool:
+    """Check if a finding is filtered, using branch-level data when available."""
+    branch = REPO_TO_BRANCH.get(repo, "")
+    if branch_filtered and (fid, branch) in branch_filtered:
+        return True
+    # Fallback to verdicts dict
+    return verdicts.get(fid, {}).get("classification") == "filtered"
 
 
 def load_labels_csv() -> list[dict]:
@@ -238,10 +287,15 @@ def classify_fp_root_cause(
 
 
 def analyze_fp_taxonomy(rows: list[dict], verdicts: dict) -> dict:
-    """Classify FP findings in the FINAL output (survived Phase 04) by root cause."""
+    """Classify ALL FP findings (survived + filtered) by root cause.
 
-    # Classify FP findings that survived Phase 04
+    Covers the full 44 FPs (fp_invalid=40 + fp_review=4) for unified
+    accounting. Both survived and Phase 04 filtered FPs are included.
+    """
+
     root_cause_counts = Counter()
+    survived_counts = Counter()
+    filtered_counts = Counter()
     details = []
 
     for row in rows:
@@ -251,10 +305,7 @@ def analyze_fp_taxonomy(rows: list[dict], verdicts: dict) -> dict:
 
         fid = row.get("finding_id", "")
         v = verdicts.get(fid, {})
-
-        # Only count FPs in the final output (survived Phase 04)
-        if v.get("classification") == "filtered":
-            continue
+        is_filtered = row.get("_is_filtered", v.get("classification") == "filtered")
 
         human = row.get("human_label", "")
         text = row.get("text", "")
@@ -266,15 +317,24 @@ def analyze_fp_taxonomy(rows: list[dict], verdicts: dict) -> dict:
             csv_severity=csv_sev, csv_title=csv_title,
         )
         root_cause_counts[cause] += 1
+        if is_filtered:
+            filtered_counts[cause] += 1
+        else:
+            survived_counts[cause] += 1
         details.append({
             "finding_id": fid,
             "root_cause": cause,
             "repo": short_repo(row.get("repo", "")),
+            "phase_04": "filtered" if is_filtered else "survived",
         })
 
     return {
         "total_fp": sum(root_cause_counts.values()),
         "by_root_cause": dict(root_cause_counts.most_common()),
+        "survived_fp": sum(survived_counts.values()),
+        "filtered_fp": sum(filtered_counts.values()),
+        "by_root_cause_survived": dict(survived_counts.most_common()),
+        "by_root_cause_filtered": dict(filtered_counts.most_common()),
         "details": details,
     }
 
@@ -302,7 +362,7 @@ def analyze_threat_model(rows: list[dict], verdicts: dict) -> dict:
             continue
         fid = row.get("finding_id", "")
         v = verdicts.get(fid, {})
-        if v.get("classification") == "filtered":
+        if row.get("_is_filtered", v.get("classification") == "filtered"):
             continue
         human = row.get("human_label", "")
         text = row.get("text", "")
@@ -333,7 +393,8 @@ def analyze_triage_cost(rows: list[dict], verdicts: dict) -> dict:
         repo = short_repo(row.get("repo", ""))
         label = row.get("auto_label", "unknown")
         fid = row.get("finding_id", "")
-        is_filtered = verdicts.get(fid, {}).get("classification") == "filtered"
+        # Use branch-level _is_filtered when available; fall back to verdicts
+        is_filtered = row.get("_is_filtered", verdicts.get(fid, {}).get("classification") == "filtered")
 
         # Phase 03 (all findings)
         repo_p03[repo]["total"] += 1
@@ -688,7 +749,7 @@ def analyze_ablation(rows: list[dict], verdicts: dict) -> dict:
         fid = row.get("finding_id", "")
         label = row.get("auto_label", "unknown")
         v = verdicts.get(fid, {})
-        if v.get("classification") == "filtered":
+        if row.get("_is_filtered", v.get("classification") == "filtered"):
             continue
         m = re.match(r"PROP-[a-f0-9]+-(\w+)-\d+", fid)
         if m:
@@ -715,21 +776,50 @@ def analyze_ablation(rows: list[dict], verdicts: dict) -> dict:
 # ═══════════════════════════════════════════════════════════════════
 
 def plot_fp_taxonomy(taxonomy: dict, output_dir: Path) -> Path:
-    """Horizontal bar chart of FP root causes (pipeline-centric, n=38).
+    """Horizontal bar chart of FP root causes (pipeline-centric, n=44).
 
-    Uses paper Table 4 taxonomy from unknown_review_analysis.md §12.
+    Uses accounting from phase_comparison.json finding_accounting.fp_taxonomy.
+    All 44 FPs (fp_invalid=40 + fp_review=4) classified by pipeline error mode.
     Each category is annotated with the primary pipeline phase responsible.
     """
-    # Paper Table 4 data — pipeline-centric categories (38 FPs)
-    data = [
-        ("Specification interpretation /\ndesign choice", 10, "01b, 01e"),
-        ("Dead / unused code", 8, "02c, 03"),
-        ("Trust boundary\nmisunderstanding", 7, "01e, 03"),
-        ("Architectural boundary\nblindness", 6, "03"),
-        ("Scope / pre-existing issues", 4, "Pipeline-wide"),
-        ("Cryptographic / mathematical\ninvariant ignorance", 2, "03"),
-        ("Semantic deduplication\nfailure", 1, "01e"),
-    ]
+    # Load authoritative data from phase_comparison.json if available
+    accounting = load_json(PHASE_CMP).get("finding_accounting", {}).get("fp_taxonomy", {})
+    if accounting and accounting.get("by_root_cause"):
+        rc = accounting["by_root_cause"]
+        # Map root cause names to display names and phase annotations
+        phase_map = {
+            "Specification interpretation / design choice": "01b, 01e",
+            "Dead / unused code": "02c, 03",
+            "Trust boundary misunderstanding": "01e, 03",
+            "Architectural boundary blindness": "03",
+            "Scope / pre-existing issues": "Pipeline-wide",
+            "Cryptographic / mathematical invariant ignorance": "03",
+            "Semantic deduplication failure": "01e",
+        }
+        display_map = {
+            "Specification interpretation / design choice": "Specification interpretation /\ndesign choice",
+            "Dead / unused code": "Dead / unused code",
+            "Trust boundary misunderstanding": "Trust boundary\nmisunderstanding",
+            "Architectural boundary blindness": "Architectural boundary\nblindness",
+            "Scope / pre-existing issues": "Scope / pre-existing issues",
+            "Cryptographic / mathematical invariant ignorance": "Cryptographic / mathematical\ninvariant ignorance",
+            "Semantic deduplication failure": "Semantic deduplication\nfailure",
+        }
+        data = [
+            (display_map.get(k, k.replace(" / ", " /\n")), v, phase_map.get(k, ""))
+            for k, v in sorted(rc.items(), key=lambda x: -x[1])
+        ]
+    else:
+        # Fallback: all 44 FPs (fp_invalid=40 + fp_review=4) by root cause
+        data = [
+            ("Specification interpretation /\ndesign choice", 12, "01b, 01e"),
+            ("Dead / unused code", 10, "02c, 03"),
+            ("Trust boundary\nmisunderstanding", 8, "01e, 03"),
+            ("Architectural boundary\nblindness", 6, "03"),
+            ("Scope / pre-existing issues", 5, "Pipeline-wide"),
+            ("Cryptographic / mathematical\ninvariant ignorance", 2, "03"),
+            ("Semantic deduplication\nfailure", 1, "01e"),
+        ]
     total = sum(d[1] for d in data)
 
     categories = [d[0] for d in data]
@@ -926,19 +1016,25 @@ def plot_combined_label_breakdown(rows: list[dict], verdicts: dict,
                                   output_dir: Path) -> Path:
     """Horizontal bar chart: SPECA output quality with 3-gate Phase 04 filter.
 
-    Uses paper numbers (Option A): n=102 Phase 03 total, 72 final output,
+    Reads from phase_comparison.json finding_accounting for authoritative numbers.
+    n=102 Phase 03 total, 72 final output,
     30 filtered by Phase 04 (20 correct FP + 10 TP loss).
     Precision = 48/72 = 66.7% (non-FP rate).
     """
-    # Paper data (3-gate system, Option A)
-    tp_survived = 48       # Security-relevant (non-FP) in final 72
-    fp_survived = 24       # Confirmed FP in final 72
-    filtered_correct = 20  # Phase 04 correctly filtered FPs
-    filtered_incorrect = 10  # Phase 04 incorrectly filtered TPs
+    # Load from accounting table for consistency
+    accounting = load_json(PHASE_CMP).get("finding_accounting", {})
+    pre = accounting.get("phase_03_pre_review", {})
+    filt = accounting.get("phase_04_filter", {})
+    post = accounting.get("phase_04_post_review", {})
 
-    total_phase03 = 102
-    total_final = tp_survived + fp_survived  # 72
-    precision = tp_survived / total_final  # 66.7%
+    total_phase03 = pre.get("total_findings", 102)
+    tp_survived = post.get("tp_equivalent", {}).get("total", 48)
+    fp_survived = post.get("fp_equivalent", {}).get("total", 24)
+    filtered_correct = filt.get("correctly_filtered_fp", 20)
+    filtered_incorrect = filt.get("incorrectly_filtered_tp", 10)
+
+    total_final = tp_survived + fp_survived
+    precision = tp_survived / total_final if total_final else 0
 
     categories = [
         ("Security-relevant (Final Output)", tp_survived, "#27ae60"),
@@ -1108,7 +1204,7 @@ def plot_sankey_flow(rows: list[dict], verdicts: dict, output_dir: Path) -> Path
         csv_sev = row.get("csv_severity", "")
 
         v = verdicts.get(fid, {})
-        is_filtered = v.get("classification") == "filtered"
+        is_filtered = row.get("_is_filtered", v.get("classification") == "filtered")
 
         spec_hash = _extract_spec_hash(fid)
         if not spec_hash:
@@ -1275,7 +1371,7 @@ def plot_issue_property_heatmap(rows: list[dict], verdicts: dict,
         csv_sev = row.get("csv_severity", "")
 
         v = verdicts.get(fid, {})
-        if v.get("classification") == "filtered":
+        if row.get("_is_filtered", v.get("classification") == "filtered"):
             continue
         if label not in TP_LABELS or not csv_issue:
             continue
@@ -1356,7 +1452,7 @@ def plot_findings_per_issue(rows: list[dict], verdicts: dict,
         csv_sev = row.get("csv_severity", "")
 
         v = verdicts.get(fid, {})
-        if v.get("classification") == "filtered":
+        if row.get("_is_filtered", v.get("classification") == "filtered"):
             continue
         if label not in TP_LABELS or not csv_issue:
             continue
@@ -1429,7 +1525,26 @@ def main():
     eval_summary = load_json(EVAL_SUMMARY)
     verdicts = phase_cmp.get("verdicts", {})
 
-    print(f"[analyze_deep] {len(rows)} findings, {len(verdicts)} verdicts")
+    # Build branch-level filtered set for correct N=72 post-review count.
+    # The verdicts dict stores one verdict per property_id, but in a
+    # multi-implementation audit the same property can be DISPUTED_FP in
+    # one branch and not another. We enrich each row with branch-level
+    # filtering status and create a per-row verdicts lookup.
+    branch_filtered = _build_branch_filtered_set()
+    filtered_count = 0
+    for row in rows:
+        fid = row.get("finding_id", "")
+        repo = row.get("repo", "")
+        branch = REPO_TO_BRANCH.get(repo, "")
+        if (fid, branch) in branch_filtered:
+            row["_is_filtered"] = True
+            filtered_count += 1
+        else:
+            row["_is_filtered"] = False
+
+    print(f"[analyze_deep] {len(rows)} findings, {len(verdicts)} verdicts, "
+          f"{len(branch_filtered)} branch-level DISPUTED_FP, "
+          f"{filtered_count} rows filtered")
 
     # Run all analyses
     print("[analyze_deep] 1/6 FP Taxonomy...")

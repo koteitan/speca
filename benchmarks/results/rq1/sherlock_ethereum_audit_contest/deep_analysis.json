@@ -1,85 +1,127 @@
 {
   "fp_taxonomy": {
-    "total_fp": 13,
+    "total_fp": 16,
     "by_root_cause": {
+      "Trust Boundary Misunderstanding": 8,
       "Code Reading Error": 6,
-      "Trust Boundary Misunderstanding": 6,
-      "Spec Misinterpretation": 1
+      "Spec Misinterpretation": 2
+    },
+    "survived_fp": 8,
+    "filtered_fp": 8,
+    "by_root_cause_survived": {
+      "Trust Boundary Misunderstanding": 4,
+      "Spec Misinterpretation": 2,
+      "Code Reading Error": 2
+    },
+    "by_root_cause_filtered": {
+      "Code Reading Error": 4,
+      "Trust Boundary Misunderstanding": 4
     },
     "details": [
       {
         "finding_id": "PROP-6a4369e9-inv-010",
         "root_cause": "Code Reading Error",
-        "repo": "lighthouse"
+        "repo": "lighthouse",
+        "phase_04": "filtered"
       },
       {
         "finding_id": "PROP-6a4369e9-inv-041",
         "root_cause": "Trust Boundary Misunderstanding",
-        "repo": "lighthouse"
+        "repo": "lighthouse",
+        "phase_04": "survived"
       },
       {
         "finding_id": "PROP-57888860-asm-003",
         "root_cause": "Trust Boundary Misunderstanding",
-        "repo": "lighthouse"
+        "repo": "lighthouse",
+        "phase_04": "filtered"
       },
       {
         "finding_id": "PROP-6a4369e9-inv-008",
         "root_cause": "Code Reading Error",
-        "repo": "lighthouse"
+        "repo": "lighthouse",
+        "phase_04": "filtered"
+      },
+      {
+        "finding_id": "PROP-6a4369e9-post-002",
+        "root_cause": "Spec Misinterpretation",
+        "repo": "lodestar",
+        "phase_04": "survived"
       },
       {
         "finding_id": "PROP-6a4369e9-inv-008",
         "root_cause": "Code Reading Error",
-        "repo": "nimbus"
+        "repo": "nimbus",
+        "phase_04": "survived"
       },
       {
         "finding_id": "PROP-57888860-inv-029",
         "root_cause": "Code Reading Error",
-        "repo": "nimbus"
+        "repo": "nimbus",
+        "phase_04": "filtered"
       },
       {
         "finding_id": "PROP-6a4369e9-inv-010",
         "root_cause": "Code Reading Error",
-        "repo": "nimbus"
+        "repo": "nimbus",
+        "phase_04": "survived"
       },
       {
         "finding_id": "PROP-57888860-pre-007",
         "root_cause": "Code Reading Error",
-        "repo": "nimbus"
+        "repo": "nimbus",
+        "phase_04": "filtered"
       },
       {
         "finding_id": "PROP-6a4369e9-asm-003",
         "root_cause": "Trust Boundary Misunderstanding",
-        "repo": "nimbus"
+        "repo": "nimbus",
+        "phase_04": "filtered"
       },
       {
         "finding_id": "PROP-57888860-inv-027",
         "root_cause": "Trust Boundary Misunderstanding",
-        "repo": "nimbus"
+        "repo": "nimbus",
+        "phase_04": "survived"
       },
       {
         "finding_id": "PROP-57888860-asm-003",
         "root_cause": "Trust Boundary Misunderstanding",
-        "repo": "prysm"
+        "repo": "prysm",
+        "phase_04": "survived"
       },
       {
         "finding_id": "PROP-57888860-inv-027",
         "root_cause": "Trust Boundary Misunderstanding",
-        "repo": "prysm"
+        "repo": "prysm",
+        "phase_04": "survived"
       },
       {
         "finding_id": "PROP-56ad1eb2-inv-027",
         "root_cause": "Spec Misinterpretation",
-        "repo": "prysm"
+        "repo": "prysm",
+        "phase_04": "survived"
+      },
+      {
+        "finding_id": "PROP-6a4369e9-post-002",
+        "root_cause": "Trust Boundary Misunderstanding",
+        "repo": "prysm",
+        "phase_04": "filtered"
+      },
+      {
+        "finding_id": "PROP-ff7df16a-asm-002",
+        "root_cause": "Trust Boundary Misunderstanding",
+        "repo": "reth",
+        "phase_04": "filtered"
       }
     ]
   },
   "threat_model_mismatch": {
     "threat_model_distribution": {
-      "Unclassified": 6,
-      "P2P Network Attacker": 5,
-      "Fork / Future Upgrade": 2,
-      "EL / Semi-Trusted Boundary": 1
+      "Unclassified": 4,
+      "P2P Network Attacker": 3,
+      "EL / Semi-Trusted Boundary": 1,
+      "Fork / Future Upgrade": 1
     },
     "summary": "FPs are concentrated in Trust Boundary and Scope mismatches, not random hallucinations."
   },
@@ -135,15 +177,15 @@
           "findings_per_issue": 4.0
         },
         "phase_04": {
-          "total": 11,
-          "tp": 4,
+          "total": 4,
+          "tp": 3,
           "fp": 0,
-          "other": 7,
-          "precision": 0.36363636363636365,
-          "findings_per_issue": 3.6666666666666665
+          "other": 1,
+          "precision": 0.75,
+          "findings_per_issue": 1.3333333333333333
         },
         "issues_found": 3,
-        "findings_removed": 1
+        "findings_removed": 8
       },
       "lighthouse": {
         "phase_03": {
@@ -155,15 +197,15 @@
           "findings_per_issue": 8.0
         },
         "phase_04": {
-          "total": 22,
+          "total": 18,
           "tp": 5,
-          "fp": 4,
-          "other": 13,
-          "precision": 0.22727272727272727,
-          "findings_per_issue": 7.333333333333333
+          "fp": 1,
+          "other": 12,
+          "precision": 0.2777777777777778,
+          "findings_per_issue": 6.0
         },
         "issues_found": 3,
-        "findings_removed": 2
+        "findings_removed": 6
       },
       "lodestar": {
         "phase_03": {
@@ -175,15 +217,15 @@
           "findings_per_issue": 9.0
         },
         "phase_04": {
-          "total": 8,
+          "total": 9,
           "tp": 3,
-          "fp": 0,
+          "fp": 1,
           "other": 5,
-          "precision": 0.375,
-          "findings_per_issue": 8.0
+          "precision": 0.3333333333333333,
+          "findings_per_issue": 9.0
         },
         "issues_found": 1,
-        "findings_removed": 1
+        "findings_removed": 0
       },
       "nethermind": {
         "phase_03": {
@@ -215,15 +257,15 @@
           "findings_per_issue": 4.666666666666667
         },
         "phase_04": {
-          "total": 14,
-          "tp": 4,
-          "fp": 6,
-          "other": 4,
-          "precision": 0.2857142857142857,
-          "findings_per_issue": 4.666666666666667
+          "total": 8,
+          "tp": 3,
+          "fp": 3,
+          "other": 2,
+          "precision": 0.375,
+          "findings_per_issue": 2.6666666666666665
         },
         "issues_found": 3,
-        "findings_removed": 0
+        "findings_removed": 6
       },
       "prysm": {
         "phase_03": {
@@ -288,14 +330,14 @@
     },
     "overall": {
       "phase_03_findings": 102,
-      "phase_04_findings": 88,
-      "findings_removed": 14,
+      "phase_04_findings": 72,
+      "findings_removed": 30,
       "total_tp": 25,
       "total_issues": 17,
       "phase_03_findings_per_issue": 6.0,
-      "phase_04_findings_per_issue": 5.176470588235294,
+      "phase_04_findings_per_issue": 4.235294117647059,
       "phase_03_review_needed_for_1tp": 4.08,
-      "phase_04_review_needed_for_1tp": 3.52
+      "phase_04_review_needed_for_1tp": 2.88
     }
   },
   "cross_implementation_reuse": {
@@ -308,26 +350,26 @@
         "alloy"
       ],
       "57888860": [
+        "nimbus",
+        "c-kzg",
         "rust-eth-kzg",
         "grandine",
-        "nimbus",
-        "lighthouse",
         "prysm",
-        "c-kzg"
+        "lighthouse"
       ],
       "6a4369e9": [
-        "grandine",
+        "lodestar",
         "nimbus",
-        "lighthouse",
-        "prysm",
         "c-kzg",
-        "lodestar"
+        "grandine",
+        "prysm",
+        "lighthouse"
       ],
       "56ad1eb2": [
-        "grandine",
         "lodestar",
+        "prysm",
         "lighthouse",
-        "prysm"
+        "grandine"
       ],
       "ff7df16a": [
         "prysm",
@@ -505,6 +547,12 @@
   },
   "ablation": {
     "gate_effectiveness": {
+      "Scope": {
+        "total_filtered": 7,
+        "correct_fp": 0,
+        "wrong_tp": 1,
+        "precision": 0.0
+      },
       "Trust Boundary": {
         "total_filtered": 21,
         "correct_fp": 6,
@@ -516,38 +564,32 @@
         "correct_fp": 2,
         "wrong_tp": 0,
         "precision": 1.0
-      },
-      "Scope": {
-        "total_filtered": 7,
-        "correct_fp": 0,
-        "wrong_tp": 1,
-        "precision": 0.0
       }
     },
     "property_type_ablation": {
       "post": {
         "total": 5,
-        "tp": 2,
+        "tp": 1,
+        "fp": 1,
+        "precision": 0.5
+      },
+      "inv": {
+        "total": 57,
+        "tp": 18,
+        "fp": 6,
+        "precision": 0.75
+      },
+      "pre": {
+        "total": 8,
+        "tp": 4,
         "fp": 0,
         "precision": 1.0
       },
-      "inv": {
-        "total": 67,
-        "tp": 18,
-        "fp": 9,
-        "precision": 0.6666666666666666
-      },
       "asm": {
-        "total": 5,
+        "total": 2,
         "tp": 0,
-        "fp": 3,
-        "precision": 0.0
-      },
-      "pre": {
-        "total": 11,
-        "tp": 5,
         "fp": 1,
-        "precision": 0.8333333333333334
+        "precision": 0.0
       }
     }
   }

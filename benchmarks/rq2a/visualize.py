@@ -171,15 +171,17 @@ def fig2_tp_fp(data: dict, speca_list: list[tuple[str, dict]]):
     """Grouped bar chart of TP and FP counts.
 
     Order: baselines first, then SPECA variants (DR1 → S4 → S4.5).
-    TP bars split into GT match (blue) and new bugs (green) where data available.
+    Baselines: show published TP only (no GT-match split — not independently
+    verifiable). SPECA: split into GT match + new bugs (observed values).
     """
     tools_data = data["tools"]
     gt_total = 35  # non-disputed ground truth bugs
 
     # Build entries: (label, gt_tp, new_tp, fp)
+    # For baselines without observed gt_tp split: gt_tp = total TP, new_tp = 0
     entries: list[tuple[str, int, int, int]] = []
 
-    # Baselines
+    # Baselines — use published TP/FP only, no estimated GT-match split
     baseline_order = [
         ("repoaudit_deepseek_r1", "RepoAudit\n(DeepSeek R1)"),
         ("repoaudit_claude37_sonnet", "RepoAudit\n(Claude 3.7)"),
@@ -193,9 +195,10 @@ def fig2_tp_fp(data: dict, speca_list: list[tuple[str, dict]]):
         t = tools_data.get(key, {})
         tp = t.get("tp")
         if tp is not None:
-            entries.append((label, min(tp, gt_total), max(0, tp - gt_total), t.get("fp", 0)))
+            # Show published TP as single bar (no GT-match split for baselines)
+            entries.append((label, tp, 0, t.get("fp", 0)))
 
-    # SPECA variants (already sorted: DR1 → S4 → S4.5)
+    # SPECA variants — use observed gt_tp/new_tp split
     for label, sdata in speca_list:
         if sdata.get("tp") is not None:
             entries.append((f"SPECA\n({label})", sdata.get("gt_tp", min(sdata["tp"], gt_total)),
@@ -598,13 +601,15 @@ def fig6_bug_detection_matrix(data: dict, speca_list: list[tuple[str, dict]]):
     print(f"  [OK] {out}")
 
 
-# ── Figure 8: Symmetric Model Comparison ──────────────────────────
+# ── Figure 8: Controlled Model Comparison ─────────────────────────
 def fig_symmetric_comparison(data: dict, speca_list: list[tuple[str, dict]]):
-    """Grouped bar chart: same-LLM symmetric comparison.
+    """Grouped bar chart: partially controlled model comparison.
 
-    Pair 1: DeepSeek R1 (RepoAudit vs SPECA)
+    Pair 1: DeepSeek R1 (RepoAudit vs SPECA) — same backbone
     Pair 2: Latest models (RepoAudit Claude 3.7 vs SPECA Sonnet 4.5)
-    TP split: GT match (blue) + new bugs (green). FP: red.
+    Shows published TP/FP. Partially controls for model-backbone differences
+    but does NOT isolate representation effect (agent architecture,
+    search policy, and validator differ between frameworks).
     """
     tools_data = data["tools"]
     gt_total = 35
@@ -619,32 +624,32 @@ def fig_symmetric_comparison(data: dict, speca_list: list[tuple[str, dict]]):
             speca_s45 = (label, sdata)
 
     # Build pairs: (pair_label, tool1_data, tool2_data)
-    # Each tool: (name, gt_tp, new_tp, fp, precision)
+    # Each tool: (name, tp, fp, precision)
+    # NOTE: No GT-match split for baselines — only published TP/FP/precision.
+    # SPECA uses observed gt_tp/new_tp from our evaluation.
     pairs = []
 
-    # Pair 1: DeepSeek R1
+    # Pair 1: DeepSeek R1 (same backbone)
     ra_dr1 = tools_data.get("repoaudit_deepseek_r1", {})
     if ra_dr1.get("tp") is not None and speca_dr1:
         sd = speca_dr1[1]
         pairs.append((
-            "DeepSeek R1",
-            ("RepoAudit\n(DR1)", min(ra_dr1["tp"], gt_total),
-             max(0, ra_dr1["tp"] - gt_total), ra_dr1.get("fp", 0),
-             ra_dr1.get("precision", 0)),
+            "DeepSeek R1\n(same backbone)",
+            ("RepoAudit\n(DR1)", ra_dr1["tp"], 0,
+             ra_dr1.get("fp", 0), ra_dr1.get("precision", 0)),
             (f"SPECA\n(DR1)", sd.get("gt_tp", min(sd.get("tp", 0), gt_total)),
              sd.get("new_tp", max(0, sd.get("tp", 0) - gt_total)),
              sd.get("fp", 0), sd.get("precision", 0)),
         ))
 
-    # Pair 2: Latest models
+    # Pair 2: Latest models (different backbones)
     ra_c37 = tools_data.get("repoaudit_claude37_sonnet", {})
     if ra_c37.get("tp") is not None and speca_s45:
         sd = speca_s45[1]
         pairs.append((
-            "Latest Models",
-            ("RepoAudit\n(Claude 3.7)", min(ra_c37["tp"], gt_total),
-             max(0, ra_c37["tp"] - gt_total), ra_c37.get("fp", 0),
-             ra_c37.get("precision", 0)),
+            "Latest Models\n(different backbones)",
+            ("RepoAudit\n(Claude 3.7)", ra_c37["tp"], 0,
+             ra_c37.get("fp", 0), ra_c37.get("precision", 0)),
             (f"SPECA\n(Sonnet 4.5)", sd.get("gt_tp", min(sd.get("tp", 0), gt_total)),
              sd.get("new_tp", max(0, sd.get("tp", 0) - gt_total)),
              sd.get("fp", 0), sd.get("precision", 0)),
@@ -703,7 +708,8 @@ def fig_symmetric_comparison(data: dict, speca_list: list[tuple[str, dict]]):
     axes[0].set_ylabel("Count")
     axes[0].legend(fontsize=8, loc="upper right")
 
-    fig.suptitle("Symmetric Model Comparison: Same LLM Backbone", fontsize=13, fontweight="bold")
+    fig.suptitle("Controlled Comparison: Partially Controls for Model-Backbone Differences",
+                  fontsize=12, fontweight="bold")
     fig.tight_layout(rect=[0, 0.05, 1, 0.93])
 
     out = FIGURES_DIR / "rq2a_symmetric_comparison.png"
