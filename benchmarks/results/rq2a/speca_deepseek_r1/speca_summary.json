@@ -1,17 +1,17 @@
 {
-  "tp": 36,
-  "fp": 19,
+  "tp": 40,
+  "fp": 15,
   "gt_tp": 32,
-  "new_tp": 4,
+  "new_tp": 8,
   "human_reviewed": 23,
   "unreviewed": 0,
-  "precision": 65.45,
-  "recall": 102.86,
-  "f1": 80.0,
+  "precision": 72.73,
+  "recall": 114.29,
+  "f1": 88.89,
   "total_ground_truth": 35,
   "total_ground_truth_incl_disputed": 40,
   "total_positive_findings": 116,
-  "total_cost": null,
+  "total_cost": 93.51,
   "bug_type_breakdown": {
     "NPD": 18,
     "MLK": 9,
@@ -217,8 +217,12 @@
   "new_tp_findings": [
     "PROP-M1-mlk-010",
     "PROP-M2b-mlk-012",
+    "PROP-M3-mlk-006",
     "PROP-M4-mlk-009",
-    "PROP-N5-npd-014"
+    "PROP-N3-npd-001",
+    "PROP-N4-npd-005",
+    "PROP-N5-npd-014",
+    "PROP-U1-uaf-004"
   ],
   "ra_fp_matched": [],
   "llm_model": "haiku"

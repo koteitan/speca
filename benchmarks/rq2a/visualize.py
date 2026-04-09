@@ -358,15 +358,23 @@ def fig5_cost(data: dict, speca_list: list[tuple[str, dict]]):
 
     # SPECA variants
     max_cost = total_cost
-    for label, sdata in speca_list:
+    max_tp = ra["tp"]
+    speca_offsets = [(12, 6), (12, -8), (12, -22)]  # stagger annotations
+    for idx, (label, sdata) in enumerate(speca_list):
         if sdata.get("tp") is not None and sdata.get("total_cost") is not None:
-            ax.scatter(sdata["total_cost"], sdata["tp"], s=250,
+            cost_val = sdata["total_cost"]
+            tp_val = sdata["tp"]
+            ax.scatter(cost_val, tp_val, s=300,
                        c=COLORS.get(f"SPECA\n({label})", "#DD8452"),
-                       edgecolor="black", zorder=5, marker="*", label=f"SPECA ({label})")
-            ax.annotate(f"{sdata['tp']} TP\n${sdata['total_cost']:.0f}",
-                        (sdata["total_cost"], sdata["tp"]),
-                        textcoords="offset points", xytext=(10, -5), fontsize=9)
-            max_cost = max(max_cost, sdata["total_cost"])
+                       edgecolor="black", zorder=6, marker="*", label=f"SPECA ({label})")
+            offset = speca_offsets[idx] if idx < len(speca_offsets) else (12, 0)
+            ax.annotate(f"{tp_val} TP, ${cost_val:.0f}",
+                        (cost_val, tp_val),
+                        textcoords="offset points", xytext=offset, fontsize=9,
+                        fontweight="bold",
+                        arrowprops=dict(arrowstyle="-", color="#999", lw=0.5) if idx > 0 else None)
+            max_cost = max(max_cost, cost_val)
+            max_tp = max(max_tp, tp_val)
 
     ax.set_xlabel("Total Cost (USD)")
     ax.set_ylabel("True Positives")
@@ -375,6 +383,7 @@ def fig5_cost(data: dict, speca_list: list[tuple[str, dict]]):
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.set_xlim(-5, max(60, max_cost + 20))
+    ax.set_ylim(-3, max_tp + 8)
 
     out = FIGURES_DIR / "rq2a_cost_efficiency.png"
     fig.savefig(out)
@@ -449,15 +458,17 @@ def fig6_bug_detection_matrix(data: dict, speca_list: list[tuple[str, dict]]):
                     matrix[i, j] = 0.5  # unknown/null
 
     fig_width = 8 + max(0, (n_tools - 4) * 1.5)
-    fig, ax = plt.subplots(figsize=(fig_width, 14))
+    fig, ax = plt.subplots(figsize=(fig_width, 16))
 
     cmap = plt.cm.colors.ListedColormap(["#F0F0F0", "#E8F5E9", "#DDDDDD", "#4C72B0"])
     bounds = [0, 0.1, 0.3, 0.75, 1.0]
     norm = plt.cm.colors.BoundaryNorm(bounds, cmap.N)
     im = ax.imshow(matrix, cmap=cmap, norm=norm, aspect="auto")
 
+    # X-axis labels at bottom
     ax.set_xticks(np.arange(n_tools))
     ax.set_xticklabels(tool_names, fontsize=9, fontweight="bold")
+    ax.tick_params(axis="x", bottom=True, top=False, labelbottom=True, labeltop=False)
     ax.set_yticks(np.arange(n_bugs))
     ax.set_yticklabels(bug_labels, fontsize=7)
 
@@ -480,19 +491,20 @@ def fig6_bug_detection_matrix(data: dict, speca_list: list[tuple[str, dict]]):
     if n_disputed > 0:
         title_note += f", {n_disputed} disputed\u2020"
     title_note += ")"
-    ax.set_title(f"RQ2a: Bug Detection Matrix\n{title_note}")
+    ax.set_title(f"RQ2a: Bug Detection Matrix\n{title_note}", pad=12)
 
-    # Legend
+    # Legend — placed below chart with enough spacing to avoid label overlap
     found = mpatches.Patch(color="#4C72B0", label="Detected")
     missed = mpatches.Patch(color="#F0F0F0", label="Not detected")
     disputed_tn = mpatches.Patch(color="#E8F5E9", label="Disputed TN\u2020")
     unknown = mpatches.Patch(color="#DDDDDD", label="Unknown")
-    ax.legend(handles=[found, missed, disputed_tn, unknown], loc="upper right",
-              bbox_to_anchor=(1.0, -0.02), ncol=4, fontsize=8)
+    ax.legend(handles=[found, missed, disputed_tn, unknown], loc="upper center",
+              bbox_to_anchor=(0.5, -0.08), ncol=4, fontsize=8,
+              frameon=True, edgecolor="#CCCCCC")
 
     # Footnote
     if n_disputed > 0:
-        fig.text(0.5, 0.01,
+        fig.text(0.5, 0.005,
                  "\u2020 Disputed: no exploit path exists; not detecting = correct TN "
                  "(defensive-coding fix, not exploitable vulnerability)",
                  ha="center", fontsize=7, style="italic", color="#555555")

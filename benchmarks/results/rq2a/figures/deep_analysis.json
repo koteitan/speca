@@ -59,7 +59,7 @@
         "RepoAudit": "detected",
         "Infer": "n/a",
         "CodeGuru": "missed",
-        "SPECA": "detected"
+        "SPECA": "missed"
       },
       {
         "id": "RA-N2-O2",
@@ -155,7 +155,7 @@
         "RepoAudit": "detected",
         "Infer": "n/a",
         "CodeGuru": "missed",
-        "SPECA": "detected"
+        "SPECA": "missed"
       },
       {
         "id": "RA-N3-N1",
@@ -431,7 +431,7 @@
         "RepoAudit": "detected",
         "Infer": "n/a",
         "CodeGuru": "missed",
-        "SPECA": "detected"
+        "SPECA": "missed"
       },
       {
         "id": "RA-U3-O1",
@@ -547,9 +547,9 @@
       },
       {
         "tool": "SPECA",
-        "tp": 35,
+        "tp": 32,
         "fp": 2,
-        "precision": 94.59,
+        "precision": 94.12,
         "recall": 88.57,
         "f1": 91.17,
         "source": "This study"

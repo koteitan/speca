@@ -28,6 +28,11 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 BASELINES_PATH = SCRIPT_DIR / "published_baselines.yaml"
 GT_PATH = SCRIPT_DIR / "ground_truth_bugs.yaml"
 SPECA_SUMMARY = SCRIPT_DIR.parent / "results" / "rq2a" / "speca" / "speca_summary.json"
+SPECA_SUMMARIES = {
+    "Sonnet 4.5": SCRIPT_DIR.parent / "results" / "rq2a" / "speca" / "speca_summary.json",
+    "Sonnet 4": SCRIPT_DIR.parent / "results" / "rq2a" / "speca_sonnet4" / "speca_summary.json",
+    "DeepSeek R1": SCRIPT_DIR.parent / "results" / "rq2a" / "speca_deepseek_r1" / "speca_summary.json",
+}
 FIGURES_DIR = SCRIPT_DIR.parent / "results" / "rq2a" / "figures"
 
 plt.rcParams.update({
@@ -274,32 +279,48 @@ def plot_bug_type_comparison(breakdown: dict, output_dir: Path) -> Path:
     return out
 
 
-def plot_precision_recall_scatter(baselines: dict, output_dir: Path) -> Path:
-    """Scatter plot: precision vs recall for all tools."""
-    tools_data = baselines.get("tools", {})
+def _load_speca_summaries() -> dict[str, dict]:
+    """Load all SPECA model summaries."""
+    results = {}
+    for label, path in SPECA_SUMMARIES.items():
+        if path.exists():
+            with open(path) as f:
+                results[label] = json.load(f)
+    return results
 
-    fig, ax = plt.subplots(figsize=(8, 6))
+
+def plot_precision_recall_scatter(baselines: dict, output_dir: Path) -> Path:
+    """Scatter plot: precision vs recall for all tools, with SPECA metrics table."""
+    tools_data = baselines.get("tools", {})
+    speca_models = _load_speca_summaries()
+
+    fig, ax = plt.subplots(figsize=(10, 7.5))
 
     tool_colors = {
-        "speca": "#DD8452",
         "repoaudit_claude35_sonnet": "#4C72B0",
         "repoaudit_deepseek_r1": "#55A868",
         "repoaudit_claude37_sonnet": "#8172B2",
         "repoaudit_o3_mini": "#C44E52",
         "meta_infer": "#CCB974",
         "amazon_codeguru": "#64B5CD",
+        "single_function_llm": "#AAAAAA",
+    }
+    speca_colors = {
+        "Sonnet 4.5": "#DD8452",
+        "Sonnet 4": "#E8794A",
+        "DeepSeek R1": "#8B5CF6",
     }
 
+    # Plot baseline tools using legend (not per-point labels) to avoid overlap
     for key, tool in tools_data.items():
+        if key == "speca":
+            continue
         precision = tool.get("precision", 0)
         tp = tool.get("tp", 0)
-        fp = tool.get("fp", 0)
         recall = tool.get("recall")
         name = tool.get("display_name", key)
 
-        # Estimate recall for tools without it
         if recall is None:
-            # RepoAudit detected 40/40 old+new TPs; ground truth = 35 non-disputed
             recall_val = min(tp / 35, 1.0) if tp > 0 else 0
         else:
             recall_val = recall / 100 if recall > 1 else recall
@@ -307,20 +328,28 @@ def plot_precision_recall_scatter(baselines: dict, output_dir: Path) -> Path:
         prec_val = precision / 100 if precision > 1 else precision
 
         color = tool_colors.get(key, "#999")
-        ax.scatter(recall_val, prec_val, c=color, s=200, zorder=5,
-                   edgecolors="white", linewidth=1.5)
-        ax.annotate(name, (recall_val, prec_val),
-                    xytext=(8, 8), textcoords="offset points",
-                    fontsize=8, fontweight="bold",
-                    bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.8))
+        ax.scatter(recall_val, prec_val, c=color, s=180, zorder=5,
+                   edgecolors="white", linewidth=1.5, label=name)
+
+    # Plot each SPECA model variant as stars
+    for label, sdata in speca_models.items():
+        prec = sdata.get("precision", 0)
+        rec = sdata.get("recall", 0)
+        prec_val = prec / 100 if prec > 1 else prec
+        rec_val = min(rec / 100 if rec > 1 else rec, 1.0)
+
+        color = speca_colors.get(label, "#DD8452")
+        ax.scatter(rec_val, prec_val, c=color, s=350, zorder=6,
+                   edgecolors="white", linewidth=2, marker="*",
+                   label=f"SPECA ({label})")
 
     # F1 contour lines
     for f1 in [0.3, 0.5, 0.7, 0.9]:
         r_vals = np.linspace(0.01, 1.0, 100)
-        p_vals = (f1 * r_vals) / (2 * r_vals - f1)
-        valid = (p_vals > 0) & (p_vals <= 1)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            p_vals = (f1 * r_vals) / (2 * r_vals - f1)
+        valid = (p_vals > 0) & (p_vals <= 1) & np.isfinite(p_vals)
         ax.plot(r_vals[valid], p_vals[valid], '--', color='#ddd', linewidth=0.8, alpha=0.7)
-        # Label the F1 line
         mid_idx = len(r_vals[valid]) // 2
         if mid_idx > 0:
             ax.text(r_vals[valid][mid_idx], p_vals[valid][mid_idx] + 0.02,
@@ -333,9 +362,51 @@ def plot_precision_recall_scatter(baselines: dict, output_dir: Path) -> Path:
     ax.set_ylim(-0.05, 1.1)
     ax.grid(alpha=0.3)
 
-    fig.tight_layout()
+    # Legend in upper-left (empty region)
+    ax.legend(loc="center left", fontsize=7.5, framealpha=0.9,
+              edgecolor="#CCCCCC", markerscale=0.8,
+              bbox_to_anchor=(0.0, 0.5))
+
+    # SPECA metrics table below the chart
+    if speca_models:
+        col_labels = ["Model", "TP", "FP", "Precision", "Recall*"]
+        table_data = []
+        cell_colors = []
+        for label, sdata in speca_models.items():
+            rec = sdata.get("recall", 0)
+            table_data.append([
+                f"SPECA ({label})",
+                str(sdata.get("tp", "—")),
+                str(sdata.get("fp", "—")),
+                f"{sdata.get('precision', 0):.1f}%",
+                f"{rec:.1f}%",
+            ])
+            c = speca_colors.get(label, "#DD8452")
+            cell_colors.append([c + "30", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"])
+
+        tbl = fig.axes[0].table(
+            cellText=table_data,
+            colLabels=col_labels,
+            cellColours=cell_colors,
+            colColours=["#E0E0E0"] * 5,
+            loc="bottom",
+            bbox=[0.15, -0.28, 0.7, 0.18],
+        )
+        tbl.auto_set_font_size(False)
+        tbl.set_fontsize(8.5)
+        for (row, col), cell in tbl.get_celld().items():
+            cell.set_edgecolor("#CCCCCC")
+            cell.set_linewidth(0.5)
+            if row == 0:
+                cell.set_text_props(fontweight="bold")
+
+        fig.text(0.5, 0.005,
+                 "* Recall >100% = SPECA found additional true bugs beyond the ground truth set (new_tp)",
+                 ha="center", fontsize=7, style="italic", color="#666666")
+
+    fig.subplots_adjust(bottom=0.28)
     out = output_dir / "rq2a_precision_recall_scatter.png"
-    fig.savefig(out, dpi=150)
+    fig.savefig(out, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out
 
