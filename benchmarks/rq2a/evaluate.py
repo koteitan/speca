@@ -503,6 +503,17 @@ def update_baselines(summary: dict) -> None:
     BASELINES_PATH.write_text("\n".join(new_lines))
 
 
+def _read_existing_cost(output_path: Path) -> float | None:
+    """Preserve total_cost from existing summary (computed externally from logs)."""
+    if output_path.exists():
+        try:
+            existing = json.loads(output_path.read_text())
+            return existing.get("total_cost")
+        except (json.JSONDecodeError, OSError):
+            pass
+    return None
+
+
 # ── Main evaluation ───────────────────────────────────────────────
 
 def evaluate(results_dir: Path, output_path: Path, reparse: bool = False,
@@ -725,7 +736,7 @@ def evaluate(results_dir: Path, output_path: Path, reparse: bool = False,
         "total_ground_truth": total_gt,
         "total_ground_truth_incl_disputed": len(all_bugs),
         "total_positive_findings": total_positive,
-        "total_cost": None,
+        "total_cost": _read_existing_cost(output_path),
         "bug_type_breakdown": dict(bug_type_tp),
         "per_project": dict(per_project),
         "detected_bugs": sorted(detected_bugs),
@@ -760,7 +771,7 @@ def _empty_summary(bugs: list[dict], total_gt: int, output_path: Path) -> dict:
         "total_ground_truth": len(non_disputed),
         "total_ground_truth_incl_disputed": len(bugs),
         "total_positive_findings": 0,
-        "total_cost": None, "bug_type_breakdown": {}, "per_project": {},
+        "total_cost": _read_existing_cost(output_path), "bug_type_breakdown": {}, "per_project": {},
         "detected_bugs": [], "missed_bugs": sorted(b["id"] for b in non_disputed),
         "disputed_bugs": {
             "total": len(disputed),
@@ -842,7 +853,10 @@ def main():
                        target_project_ids=project_ids)
 
     if args.update_ground_truth:
-        update_ground_truth(set(summary["detected_bugs"]))
+        # Include disputed-but-detected bugs so GT YAML reflects actual detection
+        all_detected = set(summary["detected_bugs"])
+        all_detected.update(summary.get("disputed_bugs", {}).get("detected", []))
+        update_ground_truth(all_detected)
         print(f"\n  Updated: {GROUND_TRUTH_PATH}")
 
     if args.update_baselines:

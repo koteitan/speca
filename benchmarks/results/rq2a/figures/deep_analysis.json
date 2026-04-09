@@ -59,7 +59,7 @@
         "RepoAudit": "detected",
         "Infer": "n/a",
         "CodeGuru": "missed",
-        "SPECA": "missed"
+        "SPECA": "detected"
       },
       {
         "id": "RA-N2-O2",
@@ -155,7 +155,7 @@
         "RepoAudit": "detected",
         "Infer": "n/a",
         "CodeGuru": "missed",
-        "SPECA": "missed"
+        "SPECA": "detected"
       },
       {
         "id": "RA-N3-N1",
@@ -251,7 +251,7 @@
         "RepoAudit": "detected",
         "Infer": "n/a",
         "CodeGuru": "n/a",
-        "SPECA": "missed"
+        "SPECA": "detected"
       },
       {
         "id": "RA-M1-O1",
@@ -431,7 +431,7 @@
         "RepoAudit": "detected",
         "Infer": "n/a",
         "CodeGuru": "missed",
-        "SPECA": "missed"
+        "SPECA": "detected"
       },
       {
         "id": "RA-U3-O1",
@@ -547,9 +547,9 @@
       },
       {
         "tool": "SPECA",
-        "tp": 32,
-        "fp": 2,
-        "precision": 94.12,
+        "tp": 48,
+        "fp": 6,
+        "precision": 88.89,
         "recall": 88.57,
         "f1": 91.17,
         "source": "This study"
@@ -615,7 +615,7 @@
         "description": "NULL from ber_strdup() for SASL options (mech/realm/authcid/authzid/secprops), fixed via ITS#10309 MR748",
         "dispute_reason": "",
         "repoaudit_detected": true,
-        "speca_detected": false
+        "speca_detected": true
       },
       {
         "id": "RA-M1-N2",
@@ -650,7 +650,7 @@
         "speca_detected": false
       }
     ],
-    "speca_tn_count": 5,
+    "speca_tn_count": 4,
     "summary": "SPECA correctly classifies disputed bugs as non-exploitable (TN), while RepoAudit uses code-quality criteria that flag them as TP."
   }
 }
