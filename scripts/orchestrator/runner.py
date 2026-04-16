@@ -19,6 +19,7 @@ import os
 import re
 import sys
 import tempfile
+import shutil
 import time
 from pathlib import Path
 from typing import Any
@@ -206,7 +207,7 @@ class LogAnomalyDetector:
         tool_call_count = 0
 
         try:
-            with open(log_path, errors="replace") as f:
+            with open(log_path, encoding="utf-8", errors="replace") as f:
                 for line in f:
                     text_to_scan, is_tool_use = _extract_scannable_text(line)
 
@@ -717,7 +718,7 @@ class ClaudeRunner:
         # Show stderr from log if available
         try:
             if log_file.exists():
-                with open(log_file, errors="replace") as lf:
+                with open(log_file, encoding="utf-8", errors="replace") as lf:
                     for line in lf:
                         try:
                             obj = json.loads(line)
@@ -748,7 +749,7 @@ class ClaudeRunner:
 
         last_result: dict[str, Any] | None = None
         try:
-            with open(log_file, errors="replace") as f:
+            with open(log_file, encoding="utf-8", errors="replace") as f:
                 for line in f:
                     try:
                         obj = json.loads(line)
@@ -800,7 +801,7 @@ class ClaudeRunner:
 
     def _build_prompt(self, **kwargs) -> str:
         """Build the prompt content with arguments."""
-        with open(self.config.prompt_path) as f:
+        with open(self.config.prompt_path, encoding="utf-8") as f:
             prompt_content = f.read()
 
         def _quote(v: Any) -> str:
@@ -861,7 +862,7 @@ class ClaudeRunner:
 
         base_mcp = Path(".mcp.json")
         if base_mcp.exists():
-            with open(base_mcp) as f:
+            with open(base_mcp, encoding="utf-8") as f:
                 base_config = json.load(f)
         else:
             base_config = {"mcpServers": {}}
@@ -880,7 +881,7 @@ class ClaudeRunner:
             dir=str(config_dir), suffix=".json.tmp"
         )
         try:
-            with os.fdopen(fd, "w") as f:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
                 json.dump(filtered, f, indent=2)
             os.replace(tmp_path, str(config_path))
         except BaseException:
@@ -900,7 +901,7 @@ class ClaudeRunner:
         if prompt_content.lstrip().startswith("-"):
             prompt_content = "\n" + prompt_content
         cmd = [
-            "claude",
+            shutil.which("claude") or "claude",
             "--dangerously-skip-permissions",
             "--verbose",
             "--output-format", "stream-json",
@@ -922,7 +923,7 @@ class ClaudeRunner:
     def _save_json(self, path: Path, data: Any) -> None:
         """Save JSON data to file."""
         path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
 
     def _save_error_log(
@@ -956,7 +957,7 @@ class ClaudeRunner:
         except Exception:
             pass
 
-        with open(error_log_file, "w") as f:
+        with open(error_log_file, "w", encoding="utf-8") as f:
             f.write(f"exit_code={exit_code}\n")
             if stderr_text:
                 f.write("\n[stderr]\n")
@@ -1009,7 +1010,7 @@ class ClaudeRunner:
 
         result_text = ""
         try:
-            with open(log_file) as f:
+            with open(log_file, encoding="utf-8") as f:
                 for line in f:
                     try:
                         msg = json.loads(line)
@@ -1041,7 +1042,7 @@ class ClaudeRunner:
         if not output_path.exists():
             return []
         try:
-            with open(output_path) as f:
+            with open(output_path, encoding="utf-8") as f:
                 data = json.load(f)
         except Exception:
             return []
