@@ -652,5 +652,121 @@
     ],
     "speca_tn_count": 4,
     "summary": "SPECA correctly classifies disputed bugs as non-exploitable (TN), while RepoAudit uses code-quality criteria that flag them as TP."
+  },
+  "pr_tracking": {
+    "prs": [
+      {
+        "pr_url": "https://github.com/ImageMagick/ImageMagick/pull/8628",
+        "repo": "ImageMagick/ImageMagick",
+        "finding_id": "PROP-N2-npd-010",
+        "state": "CLOSED",
+        "category": "false_positive_confirmed",
+        "detected_by_models": ["Sonnet 4.5", "Sonnet 4"],
+        "maintainer_response": "@dlemstra: CoderBlobSupportFlag ensures valid FILE*. FP confirmed."
+      },
+      {
+        "pr_url": "https://github.com/unicode-org/icu/pull/3913",
+        "repo": "unicode-org/icu",
+        "finding_id": "PROP-U5-uaf-009",
+        "state": "OPEN",
+        "category": "new_report",
+        "detected_by_models": ["Sonnet 4.5"],
+        "maintainer_response": "@markusicu: CLA signature + Jira ticket required. Pending CLA."
+      },
+      {
+        "pr_url": "https://github.com/memcached/memcached/pull/1282",
+        "repo": "memcached/memcached",
+        "finding_id": "PROP-M2b-mlk-003",
+        "state": "CLOSED",
+        "category": "false_positive_confirmed",
+        "detected_by_models": ["Sonnet 4"],
+        "maintainer_response": "@dormando: 'This change introduces a bug.' Rejected — refcount is 1 or 0 in this branch; unconditional remove would underflow."
+      },
+      {
+        "pr_url": "https://github.com/baidu/sofa-pbrpc/pull/251",
+        "repo": "baidu/sofa-pbrpc",
+        "finding_id": "PROP-N1-npd-003",
+        "state": "OPEN",
+        "category": "new_report",
+        "detected_by_models": ["Sonnet 4"],
+        "maintainer_response": "No response"
+      },
+      {
+        "pr_url": "https://github.com/coturn/coturn/pull/1841",
+        "repo": "coturn/coturn",
+        "finding_id": "PROP-N3-npd-001",
+        "state": "CLOSED",
+        "category": "new_report",
+        "detected_by_models": ["Sonnet 4", "DeepSeek R1"],
+        "maintainer_response": "Self-withdrawn — already fixed in latest version. Bug existed in analyzed commit."
+      },
+      {
+        "pr_url": "https://github.com/OpenKinect/libfreenect/pull/697",
+        "repo": "OpenKinect/libfreenect",
+        "finding_id": "PROP-N4-npd-005",
+        "state": "OPEN",
+        "category": "new_report",
+        "detected_by_models": ["Sonnet 4", "DeepSeek R1"],
+        "maintainer_response": "No response"
+      },
+      {
+        "pr_url": "https://github.com/unicode-org/icu/pull/3921",
+        "repo": "unicode-org/icu",
+        "finding_id": "PROP-U5-uaf-002",
+        "state": "OPEN",
+        "category": "new_report",
+        "detected_by_models": ["Sonnet 4"],
+        "maintainer_response": "@markusicu: Jira approved. PR template + unit tests requested — completed and pushed. Awaiting re-review."
+      },
+      {
+        "pr_url": "https://github.com/unicode-org/icu/pull/3922",
+        "repo": "unicode-org/icu",
+        "finding_id": "PROP-U5-uaf-003",
+        "state": "OPEN",
+        "category": "new_report",
+        "detected_by_models": ["Sonnet 4"],
+        "maintainer_response": "Jira ticket status change requested. PR template + tests pushed. Awaiting Jira approval + maintainer review."
+      }
+    ],
+    "finding_categories": {
+      "new_reports_with_pr": {
+        "description": "Novel bugs found by SPECA (not in RepoAudit GT), PR submitted to upstream",
+        "count": 6,
+        "findings": [
+          "PROP-U5-uaf-009 (icu transreg UAF race)",
+          "PROP-N1-npd-003 (sofa-pbrpc ResolveAddress NPD)",
+          "PROP-N3-npd-001 (coturn allocation_get_new_ch_info NPD)",
+          "PROP-N4-npd-005 (libfreenect registration_table NPD)",
+          "PROP-U5-uaf-002 (icu collationroot cleanup race UAF)",
+          "PROP-U5-uaf-003 (icu Region cleanupRegionData double-delete)"
+        ]
+      },
+      "known_issues_gt_match": {
+        "description": "Ground truth bugs from RepoAudit that SPECA also detected",
+        "count": 35,
+        "note": "All 35 non-disputed GT bugs detected by SPECA (Sonnet 4.5). See detected_bugs in speca_summary.json."
+      },
+      "team_reviewed_no_pr": {
+        "description": "Findings reviewed by human team but no PR submitted (already known GT match or no upstream action needed)",
+        "note": "All GT-matching TPs are team-reviewed. Only novel findings beyond GT have PRs submitted."
+      },
+      "false_positives_confirmed_by_maintainer": {
+        "description": "SPECA findings where PR was rejected or maintainer confirmed FP",
+        "count": 2,
+        "findings": [
+          "PROP-N2-npd-010 (ImageMagick ReadDOTImage — CoderBlobSupportFlag prevents NULL)",
+          "PROP-M2b-mlk-003 (memcached do_add_delta — refcount guard is correct)"
+        ]
+      }
+    },
+    "summary": {
+      "total_prs_submitted": 8,
+      "new_reports": 6,
+      "fp_confirmed_by_maintainer": 2,
+      "pr_open": 4,
+      "pr_closed": 4,
+      "maintainer_accepted_jira": 2,
+      "awaiting_response": 2
+    }
   }
 }

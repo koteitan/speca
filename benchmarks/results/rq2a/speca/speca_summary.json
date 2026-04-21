@@ -247,5 +247,35 @@
     "PROP-U5-uaf-009"
   ],
   "ra_fp_matched": [],
-  "llm_model": "haiku"
+  "llm_model": "haiku",
+  "pr_tracking": {
+    "submitted": [
+      {
+        "finding_id": "PROP-N2-npd-010",
+        "repo": "ImageMagick/ImageMagick",
+        "pr": "https://github.com/ImageMagick/ImageMagick/pull/8628",
+        "state": "CLOSED",
+        "category": "false_positive_confirmed",
+        "maintainer_response": "@dlemstra: CoderBlobSupportFlag ensures valid FILE* — change unnecessary. FP confirmed.",
+        "description": "NULL pointer dereference in ReadDOTImage via GetBlobFileHandle()"
+      },
+      {
+        "finding_id": "PROP-U5-uaf-009",
+        "repo": "unicode-org/icu",
+        "pr": "https://github.com/unicode-org/icu/pull/3913",
+        "state": "OPEN",
+        "category": "new_report",
+        "maintainer_response": "@markusicu: CLA signature + Jira ticket creation required. Awaiting CLA confirmation.",
+        "description": "Use-after-free race in TransliteratorAlias compoundFilter — raw pointer freed by concurrent unregister()"
+      }
+    ],
+    "summary": {
+      "total_prs": 2,
+      "open": 1,
+      "closed": 1,
+      "accepted": 0,
+      "rejected_fp": 1,
+      "pending_review": 1
+    }
+  }
 }

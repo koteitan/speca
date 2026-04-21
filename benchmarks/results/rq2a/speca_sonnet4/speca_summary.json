@@ -1,13 +1,13 @@
 {
-  "tp": 55,
-  "fp": 14,
+  "tp": 56,
+  "fp": 13,
   "gt_tp": 35,
-  "new_tp": 20,
+  "new_tp": 21,
   "human_reviewed": 34,
   "unreviewed": 0,
-  "precision": 79.71,
-  "recall": 157.14,
-  "f1": 105.77,
+  "precision": 81.16,
+  "recall": 160.0,
+  "f1": 107.69,
   "total_ground_truth": 35,
   "total_ground_truth_incl_disputed": 40,
   "total_positive_findings": 67,
@@ -263,8 +263,66 @@
     "PROP-U3-uaf-003",
     "PROP-U3-uaf-007",
     "PROP-U3-uaf-008",
+    "PROP-U5-uaf-002",
     "PROP-U5-uaf-003"
   ],
   "ra_fp_matched": [],
-  "llm_model": "haiku"
+  "llm_model": "haiku",
+  "pr_tracking": {
+    "submitted": [
+      {
+        "finding_id": "PROP-N1-npd-003",
+        "repo": "baidu/sofa-pbrpc",
+        "pr": "https://github.com/baidu/sofa-pbrpc/pull/251",
+        "state": "OPEN",
+        "category": "new_report",
+        "maintainer_response": "No response",
+        "description": "NULL pointer dereference in ResolveAddress() — unconditional dereference of RpcEndpoint* without NULL validation"
+      },
+      {
+        "finding_id": "PROP-N3-npd-001",
+        "repo": "coturn/coturn",
+        "pr": "https://github.com/coturn/coturn/pull/1841",
+        "state": "CLOSED",
+        "category": "new_report",
+        "maintainer_response": "Self-withdrawn — already fixed in latest version",
+        "description": "NULL pointer dereference in allocation_get_new_ch_info() — allocation_add_permission return unchecked"
+      },
+      {
+        "finding_id": "PROP-N4-npd-005",
+        "repo": "OpenKinect/libfreenect",
+        "pr": "https://github.com/OpenKinect/libfreenect/pull/697",
+        "state": "OPEN",
+        "category": "new_report",
+        "maintainer_response": "No response",
+        "description": "NULL pointer dereference in freenect_init_registration_table() — malloc without NULL check"
+      },
+      {
+        "finding_id": "PROP-U5-uaf-002",
+        "repo": "unicode-org/icu",
+        "pr": "https://github.com/unicode-org/icu/pull/3921",
+        "state": "OPEN",
+        "category": "new_report",
+        "maintainer_response": "@markusicu Jira approved. Requested PR template restoration + unit tests — both completed and pushed. Awaiting re-review.",
+        "description": "Race condition UAF in uprv_collation_root_cleanup — initOnce.reset() after clearPtr allows concurrent getRoot() to access freed rootSingleton"
+      },
+      {
+        "finding_id": "PROP-U5-uaf-003",
+        "repo": "unicode-org/icu",
+        "pr": "https://github.com/unicode-org/icu/pull/3922",
+        "state": "OPEN",
+        "category": "new_report",
+        "maintainer_response": "Jira ticket status change requested by hirorogo. Maintainer (@markusicu) not yet responded. PR template + tests pushed.",
+        "description": "Double-delete in Region::cleanupRegionData — pointers not nullified after delete/uhash_close"
+      }
+    ],
+    "summary": {
+      "total_prs": 5,
+      "open": 3,
+      "closed": 2,
+      "accepted": 0,
+      "rejected": 0,
+      "pending_review": 3
+    }
+  }
 }
