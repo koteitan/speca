@@ -1,0 +1,57 @@
+name: Feature request
+description: Suggest a new feature or enhancement for SPECA
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the *problem* you're trying to solve before describing the *solution* — it helps us evaluate alternative designs.
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What problem are you trying to solve? Who benefits from this change?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Concrete description of the new feature, API, or behavior.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      description: Which part of the pipeline does this affect?
+      options:
+        - "New phase / pipeline stage"
+        - "Existing phase enhancement"
+        - "New benchmark / evaluation harness"
+        - "Orchestrator / harness improvement"
+        - "Documentation"
+        - "Other"
+      multiple: true
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you considered, and why this proposal is preferred.
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Links to specs, related issues, prior art, or supporting evidence.
+    validations:
+      required: false

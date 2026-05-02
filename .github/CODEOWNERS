@@ -1,5 +1,27 @@
-# Workflow files require security team review
-/.github/workflows/ @NyxFoundation/security-team
-# Security-critical paths require review from security team
-/scripts/orchestrator/ @NyxFoundation/security-team
-/benchmarks/runners/ @NyxFoundation/security-team
+# SPECA — Code Owners
+#
+# Ownership rules for review approval. Branch protection on `main` requires
+# at least one approving review from a code owner before a PR can merge.
+# (See repository Settings → Branches → main.)
+#
+# Last entry that matches a path wins. The catch-all line ensures every PR
+# requires @grandchildrice's approval; the more specific entries are listed
+# only for visibility — they currently resolve to the same reviewer.
+
+# Catch-all: every change requires approval from @grandchildrice
+*                              @grandchildrice
+
+# Pipeline / harness changes
+/scripts/orchestrator/         @grandchildrice
+/scripts/run_phase.py          @grandchildrice
+/prompts/                      @grandchildrice
+
+# Inter-phase data contracts
+/scripts/orchestrator/schemas.py  @grandchildrice
+/scripts/orchestrator/config.py   @grandchildrice
+
+# Benchmarks and evaluation harnesses
+/benchmarks/                   @grandchildrice
+
+# CI workflows
+/.github/workflows/            @grandchildrice
