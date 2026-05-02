@@ -1,15 +1,106 @@
-# SPECA: Specification-to-Checklist Agentic Auditing
+<p align="center">
+  <img src="assets/speca_logo.png" alt="SPECA logo" width="240" />
+</p>
 
-[SPECA: Specification-to-Checklist Agentic Auditing for Multi-Implementation Systems -- A Case Study on Ethereum Clients
-](https://arxiv.org/abs/2602.07513)
+<h1 align="center">SPECA: A Specification-to-Checklist Agentic Auditing Framework</h1>
 
-An automated security analysis system powered for comprehensive vulnerability Discovery.
+<p align="center">
+  <a href="https://arxiv.org/abs/2604.26495"><img src="https://img.shields.io/badge/arXiv-2604.26495-b31b1b.svg" alt="arXiv"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://github.com/NyxFoundation/speca/actions"><img src="https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white" alt="CI"></a>
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white" alt="Python 3.11+">
+</p>
+
+> **Paper:** *SPECA: Specification-to-Checklist Agentic Auditing for Multi-Implementation Systems — A Case Study on Ethereum Clients.* arXiv preprint [arXiv:2604.26495](https://arxiv.org/abs/2604.26495).
+
+**SPECA** is an automated, end-to-end security audit framework that turns natural-language **specifications** into a formal program graph, derives **machine-checkable security properties**, and then runs a **proof-based agentic audit** against a target codebase — finishing with a recall-safe false-positive filter. The pipeline is implemented as an asynchronous orchestrator over the [Claude Code CLI](https://docs.claude.com/en/docs/claude-code) and runs both locally and on GitHub Actions.
+
+In a real-world evaluation against the [Sherlock Ethereum Fusaka Audit Contest](https://audits.sherlock.xyz/contests/787), SPECA achieved **100% recall** (15/15 ground-truth issues), **66% precision**, and **F1 = 0.80** — see [Vulnerability Discovery Examples](#vulnerability-discovery-examples) below.
+
+## Table of Contents
+
+- [Why SPECA?](#why-speca)
+- [Quick Start](#quick-start)
+- [Demo](#demo)
+- [Architecture](#architecture)
+- [Phases](#phases)
+- [Running on GitHub Actions](#running-on-github-actions)
+- [Configuration](#configuration)
+- [Vulnerability Discovery Examples](#vulnerability-discovery-examples)
+- [Benchmarks](#benchmarks)
+- [Contributing](#contributing)
+- [Citation](#citation)
+- [License](#license)
+
+## Why SPECA?
+
+Most LLM-based auditors prompt a model to "find bugs" in a diff, which conflates *recall* with *precision* and tends to hallucinate. SPECA instead decomposes auditing into pipeline stages that mirror how human auditors work:
+
+1. **Read the spec → build a program graph.** Specifications are turned into Mermaid state diagrams with explicit invariants.
+2. **Derive properties from the graph.** Each subgraph yields formal pre/post-conditions and invariants under a domain-agnostic STRIDE + CWE Top 25 threat model.
+3. **Audit each property by *trying to prove* it.** Where the proof breaks, that gap is the bug. This *proof-based* mindset replaces "find bugs" pattern-matching.
+4. **Filter false positives with a recall-safe 3-gate pipeline.** Only Dead-Code, Trust-Boundary, and Scope gates may dispute a finding — preventing precision-driven recall loss.
+
+Because the pipeline is fully *spec-driven*, the same engine works on consensus protocols, smart contracts, or any well-specified software system — no domain hard-coding.
+
+## Quick Start
+
+### Prerequisites
+
+- **Python 3.11+** and [`uv`](https://github.com/astral-sh/uv) (`pip install uv`)
+- **Node.js 20+** (for the Claude Code CLI and MCP servers)
+- **Anthropic API access** — `ANTHROPIC_API_KEY` exported in your shell, or a logged-in [Claude Code](https://docs.claude.com/en/docs/claude-code) session
+- **`git`** — Phase 03 auto-clones the target repository at the commit pinned in `outputs/TARGET_INFO.json`
+
+### Install
+
+```bash
+# 1. Clone
+git clone https://github.com/NyxFoundation/speca.git
+cd speca
+
+# 2. Install Claude Code CLI (used as the worker runtime)
+npm install -g @anthropic-ai/claude-code
+
+# 3. Install Python deps via uv (creates an isolated env)
+uv sync
+
+# 4. Register MCP servers (tree_sitter / filesystem / fetch)
+bash scripts/setup_mcp.sh
+bash scripts/setup_mcp.sh --verify
+```
+
+### Run a single phase
+
+```bash
+# Smoke-test: discover specs from a seed URL
+SPEC_URLS="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-7594.md" \
+  uv run python3 scripts/run_phase.py --phase 01a
+```
+
+### End-to-end audit
+
+```bash
+# Place these two files first:
+#   outputs/BUG_BOUNTY_SCOPE.json   # required by Phase 01e
+#   outputs/TARGET_INFO.json        # required by Phase 02c/03
+
+uv run python3 scripts/run_phase.py --target 04 --workers 4 --max-concurrent 64
+```
+
+Outputs are written to `outputs/<phase_id>_PARTIAL_*.json`. See the [Configuration](#configuration) section below for `BUG_BOUNTY_SCOPE.json` / `TARGET_INFO.json` formats.
+
+### Run the test suite
+
+```bash
+uv run python3 -m pytest tests/ -v --tb=short
+```
 
 ## Demo
 
 See past and ongoing audit runs on the **GitHub Actions** page:
 
-**[View Actions Runs](https://github.com/NyxFoundation/security-agent/actions)**
+**[View Actions Runs](https://github.com/NyxFoundation/speca/actions)**
 
 Each workflow step (01a through 04) can be triggered independently via `workflow_dispatch`. Results are committed to audit branches and can be reviewed as Pull Requests.
 
@@ -515,25 +606,7 @@ Each workflow:
 3. Runs the orchestrator: `uv run python3 scripts/run_phase.py --phase <ID> --workers N`.
 4. Commits results to an audit branch and uploads logs as artifacts.
 
-### Running Locally
-
-```bash
-# Install prerequisites
-npm install -g @anthropic-ai/claude-code
-pip install uv
-
-# Register MCP servers
-bash scripts/setup_mcp.sh
-
-# Run a single phase
-uv run python3 scripts/run_phase.py --phase 01a
-
-# Run all phases up to a target
-uv run python3 scripts/run_phase.py --target 04 --workers 4
-
-# Force re-execution (ignore resume state)
-uv run python3 scripts/run_phase.py --phase 03 --force --workers 4 --max-concurrent 64
-```
+For local execution, see [Quick Start](#quick-start) above.
 
 ### MCP Servers
 
@@ -546,6 +619,64 @@ The following MCP servers are registered by `scripts/setup_mcp.sh`:
 | `fetch` | `uvx mcp-server-fetch` | 01a |
 
 Note: Phases 01e, 03, and 04 use inlined prompts with no MCP servers (only built-in Read/Write/Grep/Glob tools).
+
+## Configuration
+
+SPECA expects two JSON files in `outputs/` before running the audit phases:
+
+### `outputs/BUG_BOUNTY_SCOPE.json` — *required by Phase 01e and Phase 04*
+
+Defines the trust model and severity rubric for the target. Phase 01e aborts (`sys.exit(1)`) if it is missing. Minimal shape:
+
+```json
+{
+  "in_scope":   { "components": ["..."], "scope_restriction": "..." },
+  "out_of_scope": ["..."],
+  "conditional_scope": ["..."],
+  "trust_assumptions": {
+    "p2p_input":      { "trust_level": "UNTRUSTED",   "rationale": "..." },
+    "consensus_state":{ "trust_level": "TRUSTED",     "rationale": "..." },
+    "rpc_input":      { "trust_level": "SEMI_TRUSTED","rationale": "..." }
+  },
+  "severity_classification": {
+    "CRITICAL": "Loss of funds / consensus split / mass DoS",
+    "HIGH":     "...",
+    "MEDIUM":   "...",
+    "LOW":      "..."
+  },
+  "deployment_context": {
+    "type": "multi-implementation",
+    "target_share": { "value": 0.31, "metric": "validator-share" }
+  }
+}
+```
+
+`deployment_context.target_share.value` ∈ [0, 1] is used by Phase 04 as an optional severity cap (e.g. a single-client bug below a 33% network-share threshold gets downgraded).
+
+### `outputs/TARGET_INFO.json` — *required by Phase 02c / 03 / 04*
+
+Pins the target repository and commit. Phase 03 will `git clone` to this exact ref:
+
+```json
+{
+  "name":   "go-ethereum",
+  "repo":   "https://github.com/ethereum/go-ethereum",
+  "commit": "abc1234deadbeef...",
+  "language": "go"
+}
+```
+
+### Environment Variables
+
+| Variable | Used By | Purpose |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | All phases | Claude Code authentication |
+| `SPEC_URLS` | 01a | Comma-separated seed URLs to crawl |
+| `KEYWORDS` | 01a | Optional crawl keyword filter |
+| `FORCE_EXECUTE=1` | All phases | Bypass resume state (set automatically by `--force`) |
+| `CLAUDE_CODE_PERMISSIONS=bypassPermissions` | CI | Skip interactive permission prompts |
+| `CLAUDE_CODE_MAX_OUTPUT_TOKENS=100000` | CI | Raise output cap for long audit traces |
+| `GITHUB_PERSONAL_ACCESS_TOKEN` | Optional | Used by GitHub MCP server when enabled |
 
 ## Vulnerability Discovery Examples
 
@@ -576,3 +707,37 @@ The following are real vulnerabilities discovered by SPECA during the [Sherlock 
 ## Benchmarks
 
 See [benchmarks page](./benchmarks/README.md)
+
+## Contributing
+
+We welcome issues and pull requests from the community.
+
+- **Bugs / feature requests:** open a [GitHub issue](https://github.com/NyxFoundation/speca/issues) with a minimal reproducer or a concrete use-case.
+- **Pull requests:**
+  1. Fork the repo and create a topic branch off `master`.
+  2. Run the test suite: `uv run python3 -m pytest tests/ -v --tb=short`.
+  3. Keep changes focused — pipeline phases are deliberately decoupled, so a PR should usually touch one phase at a time.
+  4. Open the PR with a brief description of *what* changed and *why*. If the change affects an inter-phase data contract, update `scripts/orchestrator/schemas.py` and the relevant prompt under `prompts/` together.
+- **New target domains:** SPECA is domain-agnostic by design. To onboard a new target, you typically only need to write a `BUG_BOUNTY_SCOPE.json` and a `TARGET_INFO.json` — no code change required.
+
+## Citation
+
+If you use SPECA in academic work, please cite the accompanying paper:
+
+```bibtex
+@misc{speca2026,
+  title         = {SPECA: Specification-to-Checklist Agentic Auditing for Multi-Implementation Systems --- A Case Study on Ethereum Clients},
+  author        = {Nyx Foundation and SPECA Contributors},
+  year          = {2026},
+  eprint        = {2604.26495},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CR},
+  url           = {https://arxiv.org/abs/2604.26495}
+}
+```
+
+## License
+
+SPECA is released under the [MIT License](LICENSE). See the `LICENSE` file for full terms.
+
+> **Disclaimer.** SPECA is a research artifact. Findings produced by the pipeline are *candidate* vulnerabilities and **must** be validated by a human auditor before being reported to a vendor or bug-bounty program. The maintainers make no warranty as to the completeness or correctness of any audit produced by this software.
