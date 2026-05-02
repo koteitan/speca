@@ -144,7 +144,18 @@ In multi-implementation settings, the **left stage executes once** against the s
 |  | 5 | Property-Grounded Audit | Per-property *Map → Prove → Stress-Test* — gaps in the proof are findings |
 |  | 6 | Severity-Preserving Review | Three narrow mechanical gates (Dead Code / Trust Boundary / Scope) preserve H/M/L recall |
 
-The pipeline is driven by a Python-based **asynchronous orchestrator** (`scripts/orchestrator/`) that manages queue distribution, parallel worker execution, batching, resume, cost tracking, and circuit-breaker logic. Each phase invokes the Claude Code CLI with a dedicated worker prompt, processing items in parallel across configurable workers.
+### The Audit Harness
+
+The pipeline ships as a reusable **audit harness** under `scripts/orchestrator/` — not a one-off script. The harness provides the infrastructure that every phase needs (queueing, parallel worker dispatch, token-aware batching, resume on partial failure, per-phase budget enforcement, shared circuit-breaker logic, and structured log/cost telemetry); each phase plugs in a worker prompt and a Pydantic schema and inherits all of the above for free. This separation is what makes the framework reusable: you can drop in a new phase, target a new codebase, or swap a model backbone without touching the harness itself.
+
+Concretely, the harness:
+- **Drives the Claude Code CLI** as the worker runtime (one subprocess per batch, with `--prompt-path` and `--stream-json`), so each worker inherits Claude Code's tool sandbox (Read/Write/Grep/Glob, MCP servers when enabled).
+- **Resumes from `outputs/*_PARTIAL_*.json`** so a 10-implementation RQ1 run that's interrupted at hour 4 picks up exactly where it left off without re-spending tokens.
+- **Enforces a per-phase budget** at the runner level (`BudgetExceeded` is raised, not logged) so a runaway prompt cannot burn the whole RQ1 budget on a single target.
+- **Validates leniently** — Pydantic schema mismatches generate warnings, not aborts; partial results are first-class and never blocked on validation failures.
+- **Shares one circuit breaker per phase** across all workers, so systemic issues (bad prompt, API outage, schema drift) trigger a fast abort instead of N parallel failures.
+
+In other words: the harness handles the messy parts of running a 100-target audit at scale, leaving the per-phase prompts to focus on auditing.
 
 ```
 scripts/
@@ -728,6 +739,12 @@ SPECA is evaluated on two complementary benchmarks. **RQ1** measures effectivene
 
 <p align="center">
   <img src="benchmarks/results/rq1/sherlock_ethereum_audit_contest/chart_findings_per_issue.png" alt="Findings per issue" width="600" />
+</p>
+
+The Sankey diagram below makes the same neighborhood structure visible from the property side: the horizontal density around a handful of issues shows which property families converge on the same root cause.
+
+<p align="center">
+  <img src="benchmarks/results/rq1/sherlock_ethereum_audit_contest/chart_sankey_flow.png" alt="Property family → ground-truth issue Sankey flow" width="700" />
 </p>
 
 **Per-repository finding distribution** across the 10 implementations (Phase 5 vs Phase 6):
