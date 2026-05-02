@@ -29,6 +29,7 @@ permissions:
 
 jobs:
   discovery:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
     runs-on: self-hosted
 
     env:

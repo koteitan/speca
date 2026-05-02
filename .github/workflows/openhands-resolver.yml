@@ -64,6 +64,7 @@ permissions:
 
 jobs:
   auto-fix:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
     # NOTE: 'workflow_call' bypass: when this workflow is invoked via workflow_call,
     # github.event_name == 'workflow_call' is true, which bypasses the label/comment
     # checks below (workflow_call events don't carry labels or comments).

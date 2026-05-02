@@ -19,6 +19,7 @@ permissions:
 
 jobs:
   call-openhands-resolver:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
     uses: ./.github/workflows/openhands-resolver.yml
     with:
       macro: ${{ vars.OPENHANDS_MACRO || '@openhands-agent' }}

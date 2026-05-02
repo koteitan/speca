@@ -8,6 +8,7 @@ permissions:
 
 jobs:
   collect-phase04:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
     runs-on: self-hosted
 
     env:

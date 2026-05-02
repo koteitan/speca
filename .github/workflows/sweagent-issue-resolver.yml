@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   run-swe-agent:
-    if: contains(github.event.comment.body, '@swe-agent')
+    if: ${{ contains(github.event.comment.body, '@swe-agent') && (github.actor == 'grandchildrice' || github.actor == 'hirorogo') }}
     runs-on: self-hosted
 
     steps:

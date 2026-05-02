@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   visualize:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
     runs-on: self-hosted
 
     steps:

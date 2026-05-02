@@ -8,6 +8,7 @@ permissions:
 
 jobs:
   eval-recall:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
     runs-on: self-hosted
 
     env:

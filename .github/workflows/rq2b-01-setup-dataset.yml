@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   setup-profuzzbench:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
     runs-on: self-hosted
 
     env:

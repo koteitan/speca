@@ -60,6 +60,7 @@ permissions:
 
 jobs:
   code-preresolve:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
     runs-on: self-hosted
 
     env:

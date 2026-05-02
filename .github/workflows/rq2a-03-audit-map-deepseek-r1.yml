@@ -44,6 +44,7 @@ jobs:
   # 1. Generate matrix & run pre-flight tests (once)
   # ------------------------------------------------------------------
   setup:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
     runs-on: self-hosted
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -100,6 +101,7 @@ jobs:
   # 2. Audit each project in parallel
   # ------------------------------------------------------------------
   audit:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
     needs: setup
     runs-on: self-hosted
     strategy:
@@ -229,6 +231,7 @@ jobs:
   # 3. Collect all results and push to master
   # ------------------------------------------------------------------
   collect:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
     needs: audit
     if: always()
     runs-on: self-hosted
