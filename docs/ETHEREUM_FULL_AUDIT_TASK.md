@@ -8,7 +8,7 @@
 | **Disclosure mode** | Closed (private repo + per-vendor encrypted bundles) |
 | **Target start** | TBD — when `speca-cli` v0.2 is usable end-to-end |
 | **Estimated duration** | 8–12 weeks (4 phases, ~2–3 weeks each) |
-| **Tracking issue** | NyxFoundation/speca#TBD (linked at the bottom) |
+| **Tracking issue** | [NyxFoundation/speca#2](https://github.com/NyxFoundation/speca/issues/2) (linked at the bottom) |
 
 > ⚠️ **This task involves coordinated security disclosure for production blockchain clients.** All findings remain **confidential** until each vendor's disclosure timeline is satisfied. See [§7 Closed-channel sharing](#7-closed-channel-sharing-internal-team) and [§8 Per-client disclosure channels](#8-per-client-disclosure-channels-external) before producing any output that touches a real bug.
 
@@ -438,7 +438,7 @@ Slip allowance: +25% per phase. The hard outer bound is **W16** (4 months) — b
 
 ## Tracking
 
-- Public tracking issue: NyxFoundation/speca#TBD (will be updated in this doc when opened).
+- Public tracking issue: [NyxFoundation/speca#2](https://github.com/NyxFoundation/speca/issues/2) (will be updated in this doc when opened).
 - Private working repo: `NyxFoundation/speca-audits-2026` (to be created at W0).
 
 If you are reading this and **not** part of the audit team, please contact @grandchildrice before acting on any of the above — coordinated disclosure depends on a single decision-making authority.
