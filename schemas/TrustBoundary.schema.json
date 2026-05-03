@@ -1,0 +1,49 @@
+{
+  "description": "A trust boundary between actors.",
+  "properties": {
+    "attacker_controlled": {
+      "default": false,
+      "title": "Attacker Controlled",
+      "type": "boolean"
+    },
+    "bug_bounty_scope": {
+      "default": "conditional",
+      "title": "Bug Bounty Scope",
+      "type": "string"
+    },
+    "data_flow": {
+      "default": "",
+      "title": "Data Flow",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "entry_point_type": {
+      "default": "",
+      "title": "Entry Point Type",
+      "type": "string"
+    },
+    "from_actor": {
+      "default": "",
+      "title": "From Actor",
+      "type": "string"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "to_actor": {
+      "default": "",
+      "title": "To Actor",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "TrustBoundary",
+  "type": "object"
+}

@@ -1,0 +1,47 @@
+{
+  "description": "A single STRIDE analysis finding.",
+  "properties": {
+    "bug_bounty_scope": {
+      "default": "conditional",
+      "title": "Bug Bounty Scope",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "exploitability": {
+      "default": "",
+      "title": "Exploitability",
+      "type": "string"
+    },
+    "id": {
+      "default": "",
+      "title": "Id",
+      "type": "string"
+    },
+    "mitigation": {
+      "default": "",
+      "title": "Mitigation",
+      "type": "string"
+    },
+    "severity": {
+      "default": "",
+      "title": "Severity",
+      "type": "string"
+    },
+    "threat_type": {
+      "default": "",
+      "title": "Threat Type",
+      "type": "string"
+    },
+    "trust_boundary_id": {
+      "default": "",
+      "title": "Trust Boundary Id",
+      "type": "string"
+    }
+  },
+  "title": "StrideAnalysisItem",
+  "type": "object"
+}

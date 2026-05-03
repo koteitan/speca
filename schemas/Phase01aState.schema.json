@@ -1,0 +1,45 @@
+{
+  "$defs": {
+    "DiscoveredSpec": {
+      "description": "A single specification URL discovered in Phase 01a.",
+      "properties": {
+        "status": {
+          "default": "pending",
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "title": "Title",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "title": "DiscoveredSpec",
+      "type": "object"
+    }
+  },
+  "description": "Output of Phase 01a: discovered specification URLs.",
+  "properties": {
+    "found_specs": {
+      "items": {
+        "$ref": "#/$defs/DiscoveredSpec"
+      },
+      "title": "Found Specs",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "title": "Phase01aState",
+  "type": "object"
+}

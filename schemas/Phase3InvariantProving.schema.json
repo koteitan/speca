@@ -1,0 +1,21 @@
+{
+  "description": "Phase 3 audit trail: invariant proving results.",
+  "properties": {
+    "guard_identified": {
+      "default": null,
+      "title": "Guard Identified"
+    },
+    "proof_successful": {
+      "default": false,
+      "title": "Proof Successful",
+      "type": "boolean"
+    },
+    "summary": {
+      "default": "",
+      "title": "Summary",
+      "type": "string"
+    }
+  },
+  "title": "Phase3InvariantProving",
+  "type": "object"
+}

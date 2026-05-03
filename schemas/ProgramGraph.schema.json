@@ -1,0 +1,46 @@
+{
+  "description": "Formal program graph PG = (Q, q_init, q_final, Act, E).",
+  "properties": {
+    "Act": {
+      "description": "Set of actions",
+      "items": {
+        "type": "string"
+      },
+      "title": "Act",
+      "type": "array"
+    },
+    "E": {
+      "description": "Edges as [source, action, target] triples",
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "E",
+      "type": "array"
+    },
+    "Q": {
+      "description": "Finite set of nodes",
+      "items": {
+        "type": "string"
+      },
+      "title": "Q",
+      "type": "array"
+    },
+    "q_final": {
+      "default": "",
+      "description": "Final node",
+      "title": "Q Final",
+      "type": "string"
+    },
+    "q_init": {
+      "default": "",
+      "description": "Initial node",
+      "title": "Q Init",
+      "type": "string"
+    }
+  },
+  "title": "ProgramGraph",
+  "type": "object"
+}
