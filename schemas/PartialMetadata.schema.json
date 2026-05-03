@@ -1,0 +1,41 @@
+{
+  "description": "Metadata attached to every PARTIAL output file.",
+  "properties": {
+    "batch_index": {
+      "title": "Batch Index",
+      "type": "integer"
+    },
+    "item_count": {
+      "title": "Item Count",
+      "type": "integer"
+    },
+    "phase": {
+      "title": "Phase",
+      "type": "string"
+    },
+    "processed_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Processed Ids",
+      "type": "array"
+    },
+    "timestamp": {
+      "title": "Timestamp",
+      "type": "integer"
+    },
+    "worker_id": {
+      "title": "Worker Id",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "phase",
+    "worker_id",
+    "batch_index",
+    "item_count",
+    "timestamp"
+  ],
+  "title": "PartialMetadata",
+  "type": "object"
+}

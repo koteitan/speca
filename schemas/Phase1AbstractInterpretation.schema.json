@@ -1,0 +1,17 @@
+{
+  "description": "Phase 1 audit trail: abstract interpretation results.",
+  "properties": {
+    "state_anomalies_found": {
+      "items": {},
+      "title": "State Anomalies Found",
+      "type": "array"
+    },
+    "summary": {
+      "default": "",
+      "title": "Summary",
+      "type": "string"
+    }
+  },
+  "title": "Phase1AbstractInterpretation",
+  "type": "object"
+}

@@ -1,0 +1,46 @@
+{
+  "description": "Phase 2.5 audit trail: reachability analysis results.",
+  "properties": {
+    "attacker_controlled": {
+      "default": false,
+      "title": "Attacker Controlled",
+      "type": "boolean"
+    },
+    "classification": {
+      "default": "unreachable",
+      "title": "Classification",
+      "type": "string"
+    },
+    "data_flow_path": {
+      "default": "",
+      "title": "Data Flow Path",
+      "type": "string"
+    },
+    "entry_points": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Entry Points",
+      "type": "array"
+    },
+    "notes": {
+      "default": "",
+      "title": "Notes",
+      "type": "string"
+    },
+    "summary": {
+      "default": "",
+      "title": "Summary",
+      "type": "string"
+    },
+    "validation_layers": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Validation Layers",
+      "type": "array"
+    }
+  },
+  "title": "Phase2_5ReachabilityAnalysis",
+  "type": "object"
+}

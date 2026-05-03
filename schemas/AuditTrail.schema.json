@@ -1,0 +1,156 @@
+{
+  "$defs": {
+    "Phase1AbstractInterpretation": {
+      "description": "Phase 1 audit trail: abstract interpretation results.",
+      "properties": {
+        "state_anomalies_found": {
+          "items": {},
+          "title": "State Anomalies Found",
+          "type": "array"
+        },
+        "summary": {
+          "default": "",
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "title": "Phase1AbstractInterpretation",
+      "type": "object"
+    },
+    "Phase2SymbolicExecution": {
+      "description": "Phase 2 audit trail: symbolic execution results.",
+      "properties": {
+        "counterexample": {
+          "default": null,
+          "title": "Counterexample"
+        },
+        "counterexample_found": {
+          "default": false,
+          "title": "Counterexample Found",
+          "type": "boolean"
+        },
+        "summary": {
+          "default": "",
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "title": "Phase2SymbolicExecution",
+      "type": "object"
+    },
+    "Phase2_5ReachabilityAnalysis": {
+      "description": "Phase 2.5 audit trail: reachability analysis results.",
+      "properties": {
+        "attacker_controlled": {
+          "default": false,
+          "title": "Attacker Controlled",
+          "type": "boolean"
+        },
+        "classification": {
+          "default": "unreachable",
+          "title": "Classification",
+          "type": "string"
+        },
+        "data_flow_path": {
+          "default": "",
+          "title": "Data Flow Path",
+          "type": "string"
+        },
+        "entry_points": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Entry Points",
+          "type": "array"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        },
+        "summary": {
+          "default": "",
+          "title": "Summary",
+          "type": "string"
+        },
+        "validation_layers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Validation Layers",
+          "type": "array"
+        }
+      },
+      "title": "Phase2_5ReachabilityAnalysis",
+      "type": "object"
+    },
+    "Phase3InvariantProving": {
+      "description": "Phase 3 audit trail: invariant proving results.",
+      "properties": {
+        "guard_identified": {
+          "default": null,
+          "title": "Guard Identified"
+        },
+        "proof_successful": {
+          "default": false,
+          "title": "Proof Successful",
+          "type": "boolean"
+        },
+        "summary": {
+          "default": "",
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "title": "Phase3InvariantProving",
+      "type": "object"
+    },
+    "Phase3_5ScopeFiltering": {
+      "description": "Phase 3.5 audit trail: scope filtering results.",
+      "properties": {
+        "bug_bounty_eligible": {
+          "default": false,
+          "title": "Bug Bounty Eligible",
+          "type": "boolean"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        },
+        "reason": {
+          "default": "",
+          "title": "Reason",
+          "type": "string"
+        },
+        "recommendation": {
+          "default": "",
+          "title": "Recommendation",
+          "type": "string"
+        }
+      },
+      "title": "Phase3_5ScopeFiltering",
+      "type": "object"
+    }
+  },
+  "description": "Complete audit trail from the three-phase formal audit.",
+  "properties": {
+    "phase1_abstract_interpretation": {
+      "$ref": "#/$defs/Phase1AbstractInterpretation"
+    },
+    "phase2_5_reachability_analysis": {
+      "$ref": "#/$defs/Phase2_5ReachabilityAnalysis"
+    },
+    "phase2_symbolic_execution": {
+      "$ref": "#/$defs/Phase2SymbolicExecution"
+    },
+    "phase3_5_scope_filtering": {
+      "$ref": "#/$defs/Phase3_5ScopeFiltering"
+    },
+    "phase3_invariant_proving": {
+      "$ref": "#/$defs/Phase3InvariantProving"
+    }
+  },
+  "title": "AuditTrail",
+  "type": "object"
+}

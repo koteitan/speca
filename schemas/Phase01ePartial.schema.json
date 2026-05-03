@@ -1,0 +1,102 @@
+{
+  "$defs": {
+    "Property": {
+      "description": "A single formal property from Phase 01e.\n\n``covers`` is the primary element ID string (e.g. ``\"FN-001\"``).",
+      "properties": {
+        "assertion": {
+          "default": "",
+          "title": "Assertion",
+          "type": "string"
+        },
+        "bug_bounty_eligible": {
+          "default": false,
+          "title": "Bug Bounty Eligible",
+          "type": "boolean"
+        },
+        "covers": {
+          "default": "",
+          "title": "Covers",
+          "type": "string"
+        },
+        "exploitability": {
+          "default": "",
+          "title": "Exploitability",
+          "type": "string"
+        },
+        "property_id": {
+          "title": "Property Id",
+          "type": "string"
+        },
+        "reachability": {
+          "$ref": "#/$defs/PropertyReachability"
+        },
+        "severity": {
+          "default": "",
+          "title": "Severity",
+          "type": "string"
+        },
+        "text": {
+          "default": "",
+          "title": "Text",
+          "type": "string"
+        },
+        "type": {
+          "default": "",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "property_id"
+      ],
+      "title": "Property",
+      "type": "object"
+    },
+    "PropertyReachability": {
+      "description": "Reachability information for a property (slim: 4 fields only).",
+      "properties": {
+        "attacker_controlled": {
+          "default": false,
+          "title": "Attacker Controlled",
+          "type": "boolean"
+        },
+        "bug_bounty_scope": {
+          "default": "conditional",
+          "title": "Bug Bounty Scope",
+          "type": "string"
+        },
+        "classification": {
+          "default": "",
+          "title": "Classification",
+          "type": "string"
+        },
+        "entry_points": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Entry Points",
+          "type": "array"
+        }
+      },
+      "title": "PropertyReachability",
+      "type": "object"
+    }
+  },
+  "description": "Output of Phase 01e: properties extracted from trust model (slim).",
+  "properties": {
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "properties": {
+      "items": {
+        "$ref": "#/$defs/Property"
+      },
+      "title": "Properties",
+      "type": "array"
+    }
+  },
+  "title": "Phase01ePartial",
+  "type": "object"
+}

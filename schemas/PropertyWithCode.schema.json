@@ -1,0 +1,167 @@
+{
+  "$defs": {
+    "CodeLocation": {
+      "description": "A single code location (file + symbol + line range).",
+      "properties": {
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "line_range": {
+          "$ref": "#/$defs/LineRange"
+        },
+        "note": {
+          "default": "",
+          "title": "Note",
+          "type": "string"
+        },
+        "role": {
+          "default": "primary",
+          "title": "Role",
+          "type": "string"
+        },
+        "symbol": {
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file",
+        "symbol",
+        "line_range"
+      ],
+      "title": "CodeLocation",
+      "type": "object"
+    },
+    "CodeScope": {
+      "description": "Code location information for a checklist item.\n\nSupports multiple related code locations for comprehensive coverage.\nFor example, a security check might involve:\n- Primary: the function being tested\n- Callers: functions that call the primary\n- Callees: functions called by the primary\n- Related: other relevant code locations",
+      "properties": {
+        "locations": {
+          "items": {
+            "$ref": "#/$defs/CodeLocation"
+          },
+          "title": "Locations",
+          "type": "array"
+        },
+        "resolution_error": {
+          "default": "",
+          "title": "Resolution Error",
+          "type": "string"
+        },
+        "resolution_status": {
+          "default": "",
+          "title": "Resolution Status",
+          "type": "string"
+        }
+      },
+      "title": "CodeScope",
+      "type": "object"
+    },
+    "LineRange": {
+      "description": "Line range in a source file.",
+      "properties": {
+        "end": {
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "LineRange",
+      "type": "object"
+    },
+    "PropertyReachability": {
+      "description": "Reachability information for a property (slim: 4 fields only).",
+      "properties": {
+        "attacker_controlled": {
+          "default": false,
+          "title": "Attacker Controlled",
+          "type": "boolean"
+        },
+        "bug_bounty_scope": {
+          "default": "conditional",
+          "title": "Bug Bounty Scope",
+          "type": "string"
+        },
+        "classification": {
+          "default": "",
+          "title": "Classification",
+          "type": "string"
+        },
+        "entry_points": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Entry Points",
+          "type": "array"
+        }
+      },
+      "title": "PropertyReachability",
+      "type": "object"
+    }
+  },
+  "description": "Property with pre-resolved code locations from Phase 02c.",
+  "properties": {
+    "assertion": {
+      "default": "",
+      "title": "Assertion",
+      "type": "string"
+    },
+    "bug_bounty_eligible": {
+      "default": false,
+      "title": "Bug Bounty Eligible",
+      "type": "boolean"
+    },
+    "code_excerpt": {
+      "default": "",
+      "title": "Code Excerpt",
+      "type": "string"
+    },
+    "code_scope": {
+      "$ref": "#/$defs/CodeScope"
+    },
+    "covers": {
+      "default": "",
+      "title": "Covers",
+      "type": "string"
+    },
+    "exploitability": {
+      "default": "",
+      "title": "Exploitability",
+      "type": "string"
+    },
+    "property_id": {
+      "title": "Property Id",
+      "type": "string"
+    },
+    "reachability": {
+      "$ref": "#/$defs/PropertyReachability"
+    },
+    "severity": {
+      "default": "",
+      "title": "Severity",
+      "type": "string"
+    },
+    "text": {
+      "default": "",
+      "title": "Text",
+      "type": "string"
+    },
+    "type": {
+      "default": "",
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "property_id"
+  ],
+  "title": "PropertyWithCode",
+  "type": "object"
+}

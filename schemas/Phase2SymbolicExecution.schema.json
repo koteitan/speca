@@ -1,0 +1,21 @@
+{
+  "description": "Phase 2 audit trail: symbolic execution results.",
+  "properties": {
+    "counterexample": {
+      "default": null,
+      "title": "Counterexample"
+    },
+    "counterexample_found": {
+      "default": false,
+      "title": "Counterexample Found",
+      "type": "boolean"
+    },
+    "summary": {
+      "default": "",
+      "title": "Summary",
+      "type": "string"
+    }
+  },
+  "title": "Phase2SymbolicExecution",
+  "type": "object"
+}

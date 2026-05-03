@@ -1,0 +1,29 @@
+{
+  "description": "An actor in the trust model.",
+  "properties": {
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "default": "",
+      "title": "Name",
+      "type": "string"
+    },
+    "trust_level": {
+      "default": "",
+      "title": "Trust Level",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "TrustModelActor",
+  "type": "object"
+}

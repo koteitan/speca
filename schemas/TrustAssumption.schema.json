@@ -1,0 +1,31 @@
+{
+  "description": "A trust assumption in the model.",
+  "properties": {
+    "criticality": {
+      "default": "",
+      "title": "Criticality",
+      "type": "string"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "related_boundary_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Related Boundary Ids",
+      "type": "array"
+    },
+    "text": {
+      "default": "",
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "TrustAssumption",
+  "type": "object"
+}
