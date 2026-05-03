@@ -7,6 +7,7 @@ import meow from "meow";
 import { createElement } from "react";
 import { LOGIN_HELP, loginCommand } from "./commands/auth/login.js";
 import { StatusCommand } from "./commands/auth/status.js";
+import { BROWSE_HELP, runBrowseCommand } from "./commands/browse.js";
 import { DoctorCommand } from "./commands/doctor.js";
 import { printInitHelp, runInitCommand } from "./commands/init.js";
 import { printRunHelp, runRunCommand } from "./commands/run.js";
@@ -43,6 +44,7 @@ const cli = meow(
     auth <subcommand>  Manage Anthropic credentials (login | status)
     init               Create a new audit project (TARGET_INFO + BUG_BOUNTY_SCOPE)
     run                Run pipeline phases with a live dashboard
+    browse [glob]      Open the finding browser on Phase 03/04 PARTIAL JSON
     help               Print this help
 
   Common flags (reserved for future milestones)
@@ -87,6 +89,10 @@ const cli = meow(
       workers: { type: "number" },
       maxConcurrent: { type: "number" },
       budget: { type: "number" },
+      // `speca browse` flags (ignored by other commands)
+      filter: { type: "string" },
+      severity: { type: "string" },
+      verdict: { type: "string" },
     },
     autoHelp: false,
     autoVersion: false,
@@ -166,6 +172,30 @@ async function run(): Promise<number> {
     }
     case "auth":
       return runAuth();
+    case "browse": {
+      if (subcommand === "help" || isHelpFlag()) {
+        process.stdout.write(BROWSE_HELP);
+        return 0;
+      }
+      // Treat any positional arg after `browse` as a glob.
+      const positional = cli.input.slice(1);
+      // meow normalises `--no-tui` to `tui: false` rather than `noTui: true`,
+      // so we honour both spellings here. Same idea for `--no-json`.
+      const noTui =
+        cli.flags.noTui === true ||
+        process.argv.includes("--no-tui") ||
+        process.argv.includes("--no-tty");
+      return runBrowseCommand({
+        flags: {
+          filter: cli.flags.filter,
+          severity: cli.flags.severity,
+          verdict: cli.flags.verdict,
+          noTui,
+          json: cli.flags.json,
+        },
+        positional,
+      });
+    }
     case "init": {
       const wantsHelp = subcommand === "help" || isHelpFlag();
       if (wantsHelp) {
