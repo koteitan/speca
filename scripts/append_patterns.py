@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Append new pattern entries to past_defi_patterns.csv"""
 import csv
+from pathlib import Path
 
-CSV_PATH = "C:/Users/shieru_k/Documents/security-agent/outputs/past_defi_patterns.csv"
+CSV_PATH = Path(__file__).resolve().parent.parent / "csv" / "past_defi_patterns.csv"
 
 NEW_ROWS = [
     ["sherlock", "Blueberry (2023-02)", "High", "ChainlinkAdapterOracle will return the wrong price for asset if underlying aggregator hits minAnswer", "Chainlink aggregators have a built in circuit breaker if the price of an asset goes outside of a predetermined price band. If an asset experiences a huge drop in value the oracle will continue to return the minPrice instead of the actual price.", "minAnswer/maxAnswer"],
