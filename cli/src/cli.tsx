@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { render } from "ink";
 import meow from "meow";
 import { createElement } from "react";
+import { printAskHelp, runAskCommand } from "./commands/ask.js";
 import { LOGIN_HELP, loginCommand } from "./commands/auth/login.js";
 import { StatusCommand } from "./commands/auth/status.js";
 import { DoctorCommand } from "./commands/doctor.js";
@@ -41,6 +42,7 @@ const cli = meow(
     doctor             Check Node / uv / git / claude-code / auth status
     auth <subcommand>  Manage Anthropic credentials (login | status)
     init               Create a new audit project (TARGET_INFO + BUG_BOUNTY_SCOPE)
+    ask [finding-id]   Chat with Claude about a finding (M5)
     help               Print this help
 
   Common flags (reserved for future milestones)
@@ -63,6 +65,10 @@ const cli = meow(
   {
     importMeta: import.meta,
     flags: {
+      // `--no-tui` is translated by meow into `tui: false`. We model the
+      // positive form here so subcommands can do `flags.tui === false` to
+      // detect the no-tui flag without depending on meow internals.
+      tui: { type: "boolean", default: true },
       noTui: { type: "boolean", default: false },
       json: { type: "boolean", default: false },
       // `auth login` flags
@@ -79,6 +85,10 @@ const cli = meow(
       force: { type: "boolean", default: false },
       yes: { type: "boolean", default: false },
       nonInteractive: { type: "boolean", default: false },
+      // `speca ask` flags (ignored by other commands)
+      from: { type: "string" },
+      session: { type: "string" },
+      maxContext: { type: "number" },
     },
     autoHelp: false,
     autoVersion: false,
@@ -179,6 +189,26 @@ async function run(): Promise<number> {
         },
       });
       return code;
+    }
+    case "ask": {
+      const wantsHelp = subcommand === "help" || isHelpFlag();
+      if (wantsHelp) {
+        printAskHelp();
+        return 0;
+      }
+      // Positional after "ask" is the optional finding-id.
+      const positional = cli.input.slice(1);
+      return runAskCommand({
+        positional,
+        flags: {
+          from: cli.flags.from,
+          session: cli.flags.session,
+          maxContext: cli.flags.maxContext,
+          // `--no-tui` arrives as `tui: false` via meow's negation; we also
+          // accept an explicit `--no-tui` (= `noTui: true`) as a courtesy.
+          noTui: cli.flags.noTui === true || cli.flags.tui === false,
+        },
+      });
     }
     case "help":
     case "--help":
