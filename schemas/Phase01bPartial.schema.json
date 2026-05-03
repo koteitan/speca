@@ -1,0 +1,127 @@
+{
+  "$defs": {
+    "ProgramGraph": {
+      "description": "Formal program graph PG = (Q, q_init, q_final, Act, E).",
+      "properties": {
+        "Act": {
+          "description": "Set of actions",
+          "items": {
+            "type": "string"
+          },
+          "title": "Act",
+          "type": "array"
+        },
+        "E": {
+          "description": "Edges as [source, action, target] triples",
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "E",
+          "type": "array"
+        },
+        "Q": {
+          "description": "Finite set of nodes",
+          "items": {
+            "type": "string"
+          },
+          "title": "Q",
+          "type": "array"
+        },
+        "q_final": {
+          "default": "",
+          "description": "Final node",
+          "title": "Q Final",
+          "type": "string"
+        },
+        "q_init": {
+          "default": "",
+          "description": "Initial node",
+          "title": "Q Init",
+          "type": "string"
+        }
+      },
+      "title": "ProgramGraph",
+      "type": "object"
+    },
+    "SpecSubGraphs": {
+      "description": "Subgraphs extracted from a single specification URL.",
+      "properties": {
+        "source_url": {
+          "title": "Source Url",
+          "type": "string"
+        },
+        "sub_graphs": {
+          "items": {
+            "$ref": "#/$defs/SubGraph"
+          },
+          "title": "Sub Graphs",
+          "type": "array"
+        },
+        "title": {
+          "default": "",
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_url"
+      ],
+      "title": "SpecSubGraphs",
+      "type": "object"
+    },
+    "SubGraph": {
+      "description": "A single subgraph extracted from a specification.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "invariants": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Invariants",
+          "type": "array"
+        },
+        "mermaid_file": {
+          "default": "",
+          "title": "Mermaid File",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "program_graph": {
+          "$ref": "#/$defs/ProgramGraph"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "SubGraph",
+      "type": "object"
+    }
+  },
+  "description": "Output of Phase 01b: subgraphs extracted from specifications.",
+  "properties": {
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "specs": {
+      "items": {
+        "$ref": "#/$defs/SpecSubGraphs"
+      },
+      "title": "Specs",
+      "type": "array"
+    }
+  },
+  "title": "Phase01bPartial",
+  "type": "object"
+}

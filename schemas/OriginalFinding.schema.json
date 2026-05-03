@@ -1,0 +1,17 @@
+{
+  "description": "Summary of the original finding from Phase 03.",
+  "properties": {
+    "classification": {
+      "default": "",
+      "title": "Classification",
+      "type": "string"
+    },
+    "summary": {
+      "default": "",
+      "title": "Summary",
+      "type": "string"
+    }
+  },
+  "title": "OriginalFinding",
+  "type": "object"
+}

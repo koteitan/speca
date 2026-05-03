@@ -1,0 +1,29 @@
+{
+  "description": "Reachability information for a checklist item.",
+  "properties": {
+    "attacker_controlled": {
+      "default": false,
+      "title": "Attacker Controlled",
+      "type": "boolean"
+    },
+    "bug_bounty_scope": {
+      "default": "conditional",
+      "title": "Bug Bounty Scope",
+      "type": "string"
+    },
+    "classification": {
+      "default": "",
+      "title": "Classification",
+      "type": "string"
+    },
+    "entry_points": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Entry Points",
+      "type": "array"
+    }
+  },
+  "title": "ChecklistReachability",
+  "type": "object"
+}

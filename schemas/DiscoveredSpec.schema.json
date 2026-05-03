@@ -1,0 +1,24 @@
+{
+  "description": "A single specification URL discovered in Phase 01a.",
+  "properties": {
+    "status": {
+      "default": "pending",
+      "title": "Status",
+      "type": "string"
+    },
+    "title": {
+      "default": "",
+      "title": "Title",
+      "type": "string"
+    },
+    "url": {
+      "title": "Url",
+      "type": "string"
+    }
+  },
+  "required": [
+    "url"
+  ],
+  "title": "DiscoveredSpec",
+  "type": "object"
+}

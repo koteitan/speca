@@ -1,0 +1,236 @@
+{
+  "$defs": {
+    "ChecklistItem": {
+      "description": "A single checklist item from Phase 02 (kept for backwards compatibility).",
+      "properties": {
+        "bug_class": {
+          "default": "",
+          "title": "Bug Class",
+          "type": "string"
+        },
+        "check_id": {
+          "title": "Check Id",
+          "type": "string"
+        },
+        "code_excerpt": {
+          "default": "",
+          "title": "Code Excerpt",
+          "type": "string"
+        },
+        "code_scope": {
+          "$ref": "#/$defs/CodeScope"
+        },
+        "graph_element_under_test": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Graph Element Under Test"
+        },
+        "is_boundary_check": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Is Boundary Check"
+        },
+        "mindset": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mindset"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        },
+        "property_id": {
+          "default": "",
+          "title": "Property Id",
+          "type": "string"
+        },
+        "reachability": {
+          "$ref": "#/$defs/ChecklistReachability"
+        },
+        "risk_category": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Risk Category"
+        },
+        "severity": {
+          "default": "",
+          "title": "Severity",
+          "type": "string"
+        },
+        "test_procedure": {
+          "default": "",
+          "title": "Test Procedure",
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "check_id"
+      ],
+      "title": "ChecklistItem",
+      "type": "object"
+    },
+    "ChecklistReachability": {
+      "description": "Reachability information for a checklist item.",
+      "properties": {
+        "attacker_controlled": {
+          "default": false,
+          "title": "Attacker Controlled",
+          "type": "boolean"
+        },
+        "bug_bounty_scope": {
+          "default": "conditional",
+          "title": "Bug Bounty Scope",
+          "type": "string"
+        },
+        "classification": {
+          "default": "",
+          "title": "Classification",
+          "type": "string"
+        },
+        "entry_points": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Entry Points",
+          "type": "array"
+        }
+      },
+      "title": "ChecklistReachability",
+      "type": "object"
+    },
+    "CodeLocation": {
+      "description": "A single code location (file + symbol + line range).",
+      "properties": {
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "line_range": {
+          "$ref": "#/$defs/LineRange"
+        },
+        "note": {
+          "default": "",
+          "title": "Note",
+          "type": "string"
+        },
+        "role": {
+          "default": "primary",
+          "title": "Role",
+          "type": "string"
+        },
+        "symbol": {
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file",
+        "symbol",
+        "line_range"
+      ],
+      "title": "CodeLocation",
+      "type": "object"
+    },
+    "CodeScope": {
+      "description": "Code location information for a checklist item.\n\nSupports multiple related code locations for comprehensive coverage.\nFor example, a security check might involve:\n- Primary: the function being tested\n- Callers: functions that call the primary\n- Callees: functions called by the primary\n- Related: other relevant code locations",
+      "properties": {
+        "locations": {
+          "items": {
+            "$ref": "#/$defs/CodeLocation"
+          },
+          "title": "Locations",
+          "type": "array"
+        },
+        "resolution_error": {
+          "default": "",
+          "title": "Resolution Error",
+          "type": "string"
+        },
+        "resolution_status": {
+          "default": "",
+          "title": "Resolution Status",
+          "type": "string"
+        }
+      },
+      "title": "CodeScope",
+      "type": "object"
+    },
+    "LineRange": {
+      "description": "Line range in a source file.",
+      "properties": {
+        "end": {
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "LineRange",
+      "type": "object"
+    }
+  },
+  "description": "Output of Phase 02: checklist items.",
+  "properties": {
+    "checklist": {
+      "items": {
+        "$ref": "#/$defs/ChecklistItem"
+      },
+      "title": "Checklist",
+      "type": "array"
+    },
+    "checklist_items": {
+      "items": {
+        "$ref": "#/$defs/ChecklistItem"
+      },
+      "title": "Checklist Items",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "title": "Phase02Partial",
+  "type": "object"
+}
