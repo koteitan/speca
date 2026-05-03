@@ -6,6 +6,7 @@ import { render } from "ink";
 import meow from "meow";
 import { createElement } from "react";
 import { DoctorCommand } from "./commands/doctor.js";
+import { printInitHelp, runInitCommand } from "./commands/init.js";
 import { VersionCommand } from "./commands/version.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -36,6 +37,7 @@ const cli = meow(
   Commands
     version            Print speca-cli version
     doctor             Check Node / uv / git / claude-code installation
+    init               Create a new audit project (TARGET_INFO + BUG_BOUNTY_SCOPE)
     help               Print this help
 
   Common flags (reserved for future milestones)
@@ -51,6 +53,17 @@ const cli = meow(
     flags: {
       noTui: { type: "boolean", default: false },
       json: { type: "boolean", default: false },
+      // `speca init` flags (ignored by other commands)
+      projectName: { type: "string" },
+      targetRepo: { type: "string" },
+      targetCommit: { type: "string" },
+      targetLanguage: { type: "string" },
+      targetLayer: { type: "string" },
+      rubric: { type: "string" },
+      outputDir: { type: "string" },
+      force: { type: "boolean", default: false },
+      yes: { type: "boolean", default: false },
+      nonInteractive: { type: "boolean", default: false },
     },
     autoHelp: false,
     autoVersion: false,
@@ -77,6 +90,32 @@ async function run(): Promise<number> {
       } catch {
         return 1;
       }
+    }
+    case "init": {
+      const sub = cli.input[1];
+      const wantsHelp =
+        sub === "help" ||
+        process.argv.includes("--help") ||
+        process.argv.includes("-h");
+      if (wantsHelp) {
+        printInitHelp();
+        return 0;
+      }
+      const code = await runInitCommand({
+        flags: {
+          projectName: cli.flags.projectName,
+          targetRepo: cli.flags.targetRepo,
+          targetCommit: cli.flags.targetCommit,
+          targetLanguage: cli.flags.targetLanguage,
+          targetLayer: cli.flags.targetLayer,
+          rubric: cli.flags.rubric,
+          outputDir: cli.flags.outputDir,
+          force: cli.flags.force,
+          yes: cli.flags.yes,
+          nonInteractive: cli.flags.nonInteractive,
+        },
+      });
+      return code;
     }
     case "help":
     case "--help":
