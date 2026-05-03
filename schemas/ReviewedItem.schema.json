@@ -1,0 +1,76 @@
+{
+  "$defs": {
+    "OriginalFinding": {
+      "description": "Summary of the original finding from Phase 03.",
+      "properties": {
+        "classification": {
+          "default": "",
+          "title": "Classification",
+          "type": "string"
+        },
+        "summary": {
+          "default": "",
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "title": "OriginalFinding",
+      "type": "object"
+    },
+    "ReviewVerdict": {
+      "description": "Review verdict from Phase 04.",
+      "enum": [
+        "Confirmed",
+        "Disputed",
+        "Needs More Info"
+      ],
+      "title": "ReviewVerdict",
+      "type": "string"
+    }
+  },
+  "description": "A single reviewed item from Phase 04.",
+  "properties": {
+    "adjusted_severity": {
+      "default": "",
+      "title": "Adjusted Severity",
+      "type": "string"
+    },
+    "check_id": {
+      "default": "",
+      "title": "Check Id",
+      "type": "string"
+    },
+    "final_recommendation": {
+      "default": "",
+      "title": "Final Recommendation",
+      "type": "string"
+    },
+    "original_finding": {
+      "$ref": "#/$defs/OriginalFinding"
+    },
+    "property_id": {
+      "default": "",
+      "title": "Property Id",
+      "type": "string"
+    },
+    "review_verdict": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ReviewVerdict"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "default": "",
+      "title": "Review Verdict"
+    },
+    "reviewer_notes": {
+      "default": "",
+      "title": "Reviewer Notes",
+      "type": "string"
+    }
+  },
+  "title": "ReviewedItem",
+  "type": "object"
+}

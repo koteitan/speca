@@ -1,0 +1,37 @@
+{
+  "description": "Standard queue payload sent to Claude workers.\n\nQueue files contain only item IDs; full item data lives in a separate\ncontext file (keyed by ID) to reduce context window pressure.",
+  "properties": {
+    "context_file": {
+      "title": "Context File",
+      "type": "string"
+    },
+    "item_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Item Ids",
+      "type": "array"
+    },
+    "phase": {
+      "title": "Phase",
+      "type": "string"
+    },
+    "total_items": {
+      "title": "Total Items",
+      "type": "integer"
+    },
+    "worker_id": {
+      "title": "Worker Id",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "worker_id",
+    "phase",
+    "item_ids",
+    "total_items",
+    "context_file"
+  ],
+  "title": "QueuePayload",
+  "type": "object"
+}

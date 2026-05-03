@@ -1,0 +1,78 @@
+{
+  "$defs": {
+    "CodeLocation": {
+      "description": "A single code location (file + symbol + line range).",
+      "properties": {
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "line_range": {
+          "$ref": "#/$defs/LineRange"
+        },
+        "note": {
+          "default": "",
+          "title": "Note",
+          "type": "string"
+        },
+        "role": {
+          "default": "primary",
+          "title": "Role",
+          "type": "string"
+        },
+        "symbol": {
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file",
+        "symbol",
+        "line_range"
+      ],
+      "title": "CodeLocation",
+      "type": "object"
+    },
+    "LineRange": {
+      "description": "Line range in a source file.",
+      "properties": {
+        "end": {
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "LineRange",
+      "type": "object"
+    }
+  },
+  "description": "Code location information for a checklist item.\n\nSupports multiple related code locations for comprehensive coverage.\nFor example, a security check might involve:\n- Primary: the function being tested\n- Callers: functions that call the primary\n- Callees: functions called by the primary\n- Related: other relevant code locations",
+  "properties": {
+    "locations": {
+      "items": {
+        "$ref": "#/$defs/CodeLocation"
+      },
+      "title": "Locations",
+      "type": "array"
+    },
+    "resolution_error": {
+      "default": "",
+      "title": "Resolution Error",
+      "type": "string"
+    },
+    "resolution_status": {
+      "default": "",
+      "title": "Resolution Status",
+      "type": "string"
+    }
+  },
+  "title": "CodeScope",
+  "type": "object"
+}

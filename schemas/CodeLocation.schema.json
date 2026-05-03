@@ -1,0 +1,54 @@
+{
+  "$defs": {
+    "LineRange": {
+      "description": "Line range in a source file.",
+      "properties": {
+        "end": {
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "LineRange",
+      "type": "object"
+    }
+  },
+  "description": "A single code location (file + symbol + line range).",
+  "properties": {
+    "file": {
+      "title": "File",
+      "type": "string"
+    },
+    "line_range": {
+      "$ref": "#/$defs/LineRange"
+    },
+    "note": {
+      "default": "",
+      "title": "Note",
+      "type": "string"
+    },
+    "role": {
+      "default": "primary",
+      "title": "Role",
+      "type": "string"
+    },
+    "symbol": {
+      "title": "Symbol",
+      "type": "string"
+    }
+  },
+  "required": [
+    "file",
+    "symbol",
+    "line_range"
+  ],
+  "title": "CodeLocation",
+  "type": "object"
+}

@@ -1,0 +1,27 @@
+{
+  "description": "Phase 3.5 audit trail: scope filtering results.",
+  "properties": {
+    "bug_bounty_eligible": {
+      "default": false,
+      "title": "Bug Bounty Eligible",
+      "type": "boolean"
+    },
+    "notes": {
+      "default": "",
+      "title": "Notes",
+      "type": "string"
+    },
+    "reason": {
+      "default": "",
+      "title": "Reason",
+      "type": "string"
+    },
+    "recommendation": {
+      "default": "",
+      "title": "Recommendation",
+      "type": "string"
+    }
+  },
+  "title": "Phase3_5ScopeFiltering",
+  "type": "object"
+}

@@ -1,0 +1,19 @@
+{
+  "description": "Line range in a source file.",
+  "properties": {
+    "end": {
+      "title": "End",
+      "type": "integer"
+    },
+    "start": {
+      "title": "Start",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "start",
+    "end"
+  ],
+  "title": "LineRange",
+  "type": "object"
+}

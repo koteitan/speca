@@ -1,0 +1,266 @@
+{
+  "$defs": {
+    "BugBountyScopeInfo": {
+      "description": "Bug bounty scope information.",
+      "properties": {
+        "in_scope_components": {
+          "items": {
+            "type": "string"
+          },
+          "title": "In Scope Components",
+          "type": "array"
+        },
+        "inherited_from": {
+          "default": "",
+          "title": "Inherited From",
+          "type": "string"
+        },
+        "out_of_scope_components": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Out Of Scope Components",
+          "type": "array"
+        },
+        "program_name": {
+          "default": "",
+          "title": "Program Name",
+          "type": "string"
+        },
+        "program_url": {
+          "default": "",
+          "title": "Program Url",
+          "type": "string"
+        },
+        "scope_notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scope Notes",
+          "type": "array"
+        },
+        "severity_classification": {
+          "additionalProperties": true,
+          "title": "Severity Classification",
+          "type": "object"
+        }
+      },
+      "title": "BugBountyScopeInfo",
+      "type": "object"
+    },
+    "StrideAnalysisItem": {
+      "description": "A single STRIDE analysis finding.",
+      "properties": {
+        "bug_bounty_scope": {
+          "default": "conditional",
+          "title": "Bug Bounty Scope",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "exploitability": {
+          "default": "",
+          "title": "Exploitability",
+          "type": "string"
+        },
+        "id": {
+          "default": "",
+          "title": "Id",
+          "type": "string"
+        },
+        "mitigation": {
+          "default": "",
+          "title": "Mitigation",
+          "type": "string"
+        },
+        "severity": {
+          "default": "",
+          "title": "Severity",
+          "type": "string"
+        },
+        "threat_type": {
+          "default": "",
+          "title": "Threat Type",
+          "type": "string"
+        },
+        "trust_boundary_id": {
+          "default": "",
+          "title": "Trust Boundary Id",
+          "type": "string"
+        }
+      },
+      "title": "StrideAnalysisItem",
+      "type": "object"
+    },
+    "TrustAssumption": {
+      "description": "A trust assumption in the model.",
+      "properties": {
+        "criticality": {
+          "default": "",
+          "title": "Criticality",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "related_boundary_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Boundary Ids",
+          "type": "array"
+        },
+        "text": {
+          "default": "",
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "TrustAssumption",
+      "type": "object"
+    },
+    "TrustBoundary": {
+      "description": "A trust boundary between actors.",
+      "properties": {
+        "attacker_controlled": {
+          "default": false,
+          "title": "Attacker Controlled",
+          "type": "boolean"
+        },
+        "bug_bounty_scope": {
+          "default": "conditional",
+          "title": "Bug Bounty Scope",
+          "type": "string"
+        },
+        "data_flow": {
+          "default": "",
+          "title": "Data Flow",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "entry_point_type": {
+          "default": "",
+          "title": "Entry Point Type",
+          "type": "string"
+        },
+        "from_actor": {
+          "default": "",
+          "title": "From Actor",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "to_actor": {
+          "default": "",
+          "title": "To Actor",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "TrustBoundary",
+      "type": "object"
+    },
+    "TrustModel": {
+      "description": "The trust model structure.",
+      "properties": {
+        "actors": {
+          "items": {
+            "$ref": "#/$defs/TrustModelActor"
+          },
+          "title": "Actors",
+          "type": "array"
+        },
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/TrustAssumption"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "stride_analysis": {
+          "items": {
+            "$ref": "#/$defs/StrideAnalysisItem"
+          },
+          "title": "Stride Analysis",
+          "type": "array"
+        },
+        "trust_boundaries": {
+          "items": {
+            "$ref": "#/$defs/TrustBoundary"
+          },
+          "title": "Trust Boundaries",
+          "type": "array"
+        }
+      },
+      "title": "TrustModel",
+      "type": "object"
+    },
+    "TrustModelActor": {
+      "description": "An actor in the trust model.",
+      "properties": {
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "trust_level": {
+          "default": "",
+          "title": "Trust Level",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "TrustModelActor",
+      "type": "object"
+    }
+  },
+  "description": "Output of Phase 01d: trust model analysis.",
+  "properties": {
+    "bug_bounty_scope": {
+      "$ref": "#/$defs/BugBountyScopeInfo"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "source_files": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Files",
+      "type": "array"
+    },
+    "trust_model": {
+      "$ref": "#/$defs/TrustModel"
+    }
+  },
+  "title": "Phase01dPartial",
+  "type": "object"
+}
