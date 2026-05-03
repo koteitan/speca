@@ -23,6 +23,7 @@ import asyncio
 import json
 import sys
 import os
+import time
 from pathlib import Path
 
 # Add scripts directory to path
@@ -31,6 +32,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from orchestrator import create_orchestrator
 from orchestrator.base import PhaseAbortError
 from orchestrator.config import get_phase_config, get_phase_chain, PHASE_CONFIGS, resolve_pattern
+from orchestrator.json_events import JsonEventEmitter
 from orchestrator.paths import get_output_root
 from orchestrator.resume import ResumeManager
 
@@ -137,8 +139,20 @@ async def run_phase(
     out_of_scope_layers: list[str] | None = None,
     min_severity: str | None = None,
     model: str | None = None,
+    emitter: JsonEventEmitter | None = None,
 ) -> bool:
     """Run a single phase with all checks and cleanup."""
+    emitter = emitter or JsonEventEmitter(enabled=False)
+    start_time = time.time()
+    emitter.emit(
+        "phase-started",
+        phase=phase_id,
+        workers=num_workers,
+        max_concurrent=max_concurrent,
+        force=force,
+        model=model,
+    )
+
     print(f"\n{'#'*60}")
     print(f"# Starting Phase {phase_id}")
     print(f"{'#'*60}")
@@ -154,6 +168,12 @@ async def run_phase(
 
     # 1. Check dependencies
     if not check_dependencies(phase_id):
+        emitter.emit(
+            "phase-failed",
+            phase=phase_id,
+            reason="dependency check failed",
+            duration_s=round(time.time() - start_time, 2),
+        )
         return False
 
     # 2. Automatic cleanup of incomplete batches
@@ -169,6 +189,7 @@ async def run_phase(
         patch_target_info(target_layer, out_of_scope_layers)
 
     # 3. Run the orchestrator
+    orchestrator = None
     try:
         # Set FORCE_EXECUTE for the orchestrator if --force is used
         if force:
@@ -176,7 +197,7 @@ async def run_phase(
         elif "FORCE_EXECUTE" in os.environ:
             # Clear it if not requested, to avoid accidental persistence from outer shell
             del os.environ["FORCE_EXECUTE"]
-            
+
         orchestrator = create_orchestrator(phase_id, num_workers, max_concurrent)
 
         # Override model from CLI if provided
@@ -195,13 +216,56 @@ async def run_phase(
             print(f"  --min-severity set: {min_severity}")
 
         await orchestrator.run()
+        duration = round(time.time() - start_time, 2)
+        emitter.emit(
+            "phase-completed",
+            phase=phase_id,
+            duration_s=duration,
+            total_results=len(getattr(orchestrator, "results", []) or []),
+        )
         return True
     except PhaseAbortError as e:
+        duration = round(time.time() - start_time, 2)
+        # Distinguish budget / circuit-breaker aborts from other PhaseAbortError
+        # cases (e.g. failed_batches) by inspecting orchestrator state. The
+        # orchestrator sets these flags before raising PhaseAbortError, so they
+        # are reliable here.
+        if orchestrator is not None and getattr(orchestrator, "_budget_exceeded", False):
+            cost_stats = orchestrator.cost_tracker.get_stats() if orchestrator.cost_tracker else {}
+            emitter.emit(
+                "budget-exceeded",
+                phase=phase_id,
+                cost_usd=cost_stats.get("total_cost_usd"),
+                max_budget_usd=cost_stats.get("max_budget_usd"),
+                duration_s=duration,
+            )
+        elif orchestrator is not None and getattr(orchestrator, "_circuit_breaker_tripped", False):
+            cb_stats = await orchestrator.circuit_breaker.get_stats()
+            emitter.emit(
+                "circuit-breaker-tripped",
+                phase=phase_id,
+                reason=str(e),
+                stats=cb_stats,
+                duration_s=duration,
+            )
+        emitter.emit(
+            "phase-failed",
+            phase=phase_id,
+            reason=str(e),
+            duration_s=duration,
+        )
         print(f"Phase {phase_id} aborted: {e}", file=sys.stderr)
         return False
     except Exception as e:
         import traceback
         traceback.print_exc()
+        duration = round(time.time() - start_time, 2)
+        emitter.emit(
+            "phase-failed",
+            phase=phase_id,
+            reason=f"{type(e).__name__}: {e}",
+            duration_s=duration,
+        )
         print(f"Error running phase {phase_id}: {e}", file=sys.stderr)
         return False
 
@@ -217,8 +281,10 @@ async def run_pipeline(
     min_severity: str | None = None,
     model: str | None = None,
     target_phase: str | None = None,
+    emitter: JsonEventEmitter | None = None,
 ) -> dict[str, bool]:
     """Run a pipeline of multiple phases."""
+    emitter = emitter or JsonEventEmitter(enabled=False)
     results = {}
     for phase_id in phases:
         # When --target + --force, only force-clean the target phase, not upstream
@@ -229,6 +295,7 @@ async def run_pipeline(
             out_of_scope_layers=out_of_scope_layers,
             min_severity=min_severity,
             model=model,
+            emitter=emitter,
         )
         results[phase_id] = success
         if not success and stop_on_failure:
@@ -290,7 +357,24 @@ def main():
              "Properties below this threshold are skipped. Default comes from PhaseConfig.",
     )
 
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit pipeline-level events as NDJSON on stdout (one JSON object per line). "
+             "Decorative output is redirected to stderr. Intended for speca-cli, CI scripts, "
+             "and other automated consumers. See scripts/orchestrator/json_events.py for the "
+             "event schema.",
+    )
+
     args = parser.parse_args()
+
+    # In --json mode, route all decorative output (including the orchestrator's
+    # own print() calls) to stderr so stdout stays NDJSON-only. The emitter
+    # captures the *real* stdout via sys.__stdout__ so events still go there.
+    if args.json:
+        sys.stdout = sys.stderr
+
+    emitter = JsonEventEmitter(enabled=args.json)
 
     # Set output directory early, before any orchestrator import evaluates paths
     if args.output_dir:
@@ -302,7 +386,7 @@ def main():
     else:
         # Flatten list if nargs=+ was used (['01a', '01b'])
         phases = args.phase
-        
+
     print(f"Configuration:")
     print(f"  Workers: {args.workers}")
     print(f"  Max Concurrent: {args.max_concurrent}")
@@ -321,7 +405,16 @@ def main():
         return
 
     print(f"\nPipeline execution starting...")
-    
+
+    pipeline_start = time.time()
+    emitter.emit(
+        "pipeline-started",
+        phases=phases,
+        workers=args.workers,
+        max_concurrent=args.max_concurrent,
+        force=args.force,
+    )
+
     results = asyncio.run(
         run_pipeline(
             phases,
@@ -333,7 +426,15 @@ def main():
             min_severity=args.min_severity,
             model=args.model,
             target_phase=args.target if args.target else None,
+            emitter=emitter,
         )
+    )
+
+    emitter.emit(
+        "pipeline-completed",
+        phases=phases,
+        results=results,
+        duration_s=round(time.time() - pipeline_start, 2),
     )
     
     print(f"\n{'='*60}")
