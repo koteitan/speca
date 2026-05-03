@@ -9,6 +9,7 @@ import { LOGIN_HELP, loginCommand } from "./commands/auth/login.js";
 import { StatusCommand } from "./commands/auth/status.js";
 import { DoctorCommand } from "./commands/doctor.js";
 import { printInitHelp, runInitCommand } from "./commands/init.js";
+import { printRunHelp, runRunCommand } from "./commands/run.js";
 import { VersionCommand } from "./commands/version.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -41,6 +42,7 @@ const cli = meow(
     doctor             Check Node / uv / git / claude-code / auth status
     auth <subcommand>  Manage Anthropic credentials (login | status)
     init               Create a new audit project (TARGET_INFO + BUG_BOUNTY_SCOPE)
+    run                Run pipeline phases with a live dashboard
     help               Print this help
 
   Common flags (reserved for future milestones)
@@ -79,6 +81,12 @@ const cli = meow(
       force: { type: "boolean", default: false },
       yes: { type: "boolean", default: false },
       nonInteractive: { type: "boolean", default: false },
+      // `speca run` flags (M3)
+      phase: { type: "string", isMultiple: true },
+      target: { type: "string" },
+      workers: { type: "number" },
+      maxConcurrent: { type: "number" },
+      budget: { type: "number" },
     },
     autoHelp: false,
     autoVersion: false,
@@ -176,6 +184,28 @@ async function run(): Promise<number> {
           force: cli.flags.force,
           yes: cli.flags.yes,
           nonInteractive: cli.flags.nonInteractive,
+        },
+      });
+      return code;
+    }
+    case "run": {
+      const wantsHelp = subcommand === "help" || isHelpFlag();
+      if (wantsHelp) {
+        printRunHelp();
+        return 0;
+      }
+      const phaseFlag = cli.flags.phase as string | string[] | undefined;
+      const code = await runRunCommand({
+        flags: {
+          phase: Array.isArray(phaseFlag) ? phaseFlag : phaseFlag != null ? [phaseFlag] : undefined,
+          target: cli.flags.target,
+          workers: cli.flags.workers,
+          maxConcurrent: cli.flags.maxConcurrent,
+          force: cli.flags.force,
+          budget: cli.flags.budget,
+          noTui: cli.flags.noTui,
+          json: cli.flags.json,
+          outputDir: cli.flags.outputDir,
         },
       });
       return code;
