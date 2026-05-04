@@ -13,8 +13,10 @@ import { render } from "ink";
 import { createElement } from "react";
 
 import { FindingBrowser } from "../components/FindingBrowser.js";
-import { loadFindings } from "../lib/findings/loader.js";
 import { applyFilter } from "../lib/findings/filter.js";
+import { loadFindings } from "../lib/findings/loader.js";
+import { emitJson, getOutputMode, printNoTui } from "../lib/io/output-mode.js";
+import { ThemeProvider } from "../lib/theme/index.js";
 
 export interface BrowseFlags {
   filter?: string;
@@ -84,21 +86,32 @@ export async function runBrowseCommand(options: RunBrowseOptions): Promise<numbe
   const initial = await loadFindings(globs, { cwd });
   const initialFilter = buildInitialFilter(flags);
 
-  if (flags.noTui || flags.json) {
+  const outputMode = getOutputMode({ noTui: flags.noTui, json: flags.json });
+  if (outputMode !== "tui") {
     const { matched, result } = applyFilter(initial.findings, initialFilter);
     if (!result.ok) {
       process.stderr.write(`speca browse: invalid filter: ${result.message}\n`);
       return 2;
     }
-    const payload = {
-      source: globs,
-      filter: initialFilter,
-      total: initial.findings.length,
-      matched: matched.length,
-      warnings: initial.warnings,
-      findings: matched,
-    };
-    process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
+    if (outputMode === "json") {
+      // NDJSON envelope per finding so consumers can stream.
+      emitJson({
+        type: "browse-summary",
+        source: globs,
+        filter: initialFilter,
+        total: initial.findings.length,
+        matched: matched.length,
+        warnings: initial.warnings,
+      });
+      for (const finding of matched) {
+        emitJson({ type: "finding", ...finding });
+      }
+    } else {
+      printNoTui(`speca browse: ${matched.length}/${initial.findings.length} findings (filter: ${initialFilter || "none"})`);
+      for (const finding of matched) {
+        printNoTui(`  [${finding.severity ?? "?"}] ${finding.verdict ?? "-"}  ${finding.id}  ${finding.summary?.slice(0, 80) ?? ""}`);
+      }
+    }
     return 0;
   }
 
@@ -111,12 +124,16 @@ export async function runBrowseCommand(options: RunBrowseOptions): Promise<numbe
   }
 
   const app = render(
-    createElement(FindingBrowser, {
-      initial,
-      globs,
-      initialFilter,
-      cwd,
-    }),
+    createElement(
+      ThemeProvider,
+      null,
+      createElement(FindingBrowser, {
+        initial,
+        globs,
+        initialFilter,
+        cwd,
+      }),
+    ),
   );
   await app.waitUntilExit();
   return 0;

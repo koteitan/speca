@@ -32,6 +32,13 @@ export const DEFAULT_KEYBINDS: Record<string, string[]> = {
   pageDown: ["pageDown"],
   // Pipeline dashboard (M3) — show / hide log pane.
   "toggle-log": ["l"],
+  // Pipeline dashboard (M3) — graceful stop (SIGTERM via handle.stop).
+  // Shares the "s" key with sort-mode; safe because each subcommand only
+  // subscribes to the action it cares about.
+  "stop-graceful": ["s"],
+  // Pipeline dashboard (M3) — force-kill (SIGKILL via handle.kill).
+  // Shares the "f" key with filter-mode (same caveat as stop-graceful).
+  "stop-force": ["f"],
   // Finding browser (M4) — enter filter-edit mode.
   "filter-mode": ["f"],
   // Finding browser (M4) — cycle sort key.

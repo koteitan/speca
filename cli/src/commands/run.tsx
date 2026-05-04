@@ -16,9 +16,11 @@ import { render } from "ink";
 import { createElement } from "react";
 
 import { Dashboard } from "../components/Dashboard.js";
+import { emitJson, getOutputMode, printNoTui } from "../lib/io/output-mode.js";
 import { startLogWatcher } from "../lib/pipeline/log-watcher.js";
 import { spawnPipeline, type SpawnPipelineOptions } from "../lib/pipeline/spawn.js";
 import { PipelineStore } from "../lib/pipeline/store.js";
+import { ThemeProvider } from "../lib/theme/index.js";
 
 export interface RunCommandFlags {
   phase?: string[];
@@ -82,17 +84,22 @@ function parsePhaseList(raw: unknown): string[] | undefined {
  * stdout is not a TTY. We forward stderr to our stderr and (for `--json`)
  * stdout NDJSON lines verbatim. The TUI dashboard is bypassed.
  */
-async function runHeadless(opts: RunOptions, spawnOpts: SpawnPipelineOptions): Promise<number> {
+async function runHeadless(
+  opts: RunOptions,
+  spawnOpts: SpawnPipelineOptions,
+  mode: "json" | "no-tui",
+): Promise<number> {
   const spawnFn = opts.spawn ?? spawnPipeline;
   const handle = spawnFn(spawnOpts);
   handle.on("event", (event) => {
-    // In `--json` mode we re-emit the parsed event as one JSON line on
-    // stdout. In `--no-tui` mode we render a friendly one-line summary.
-    if (opts.flags.json) {
-      process.stdout.write(JSON.stringify(event) + "\n");
+    if (mode === "json") {
+      // Use M6 emitJson helper so the envelope (`ts` stamp, error fallback)
+      // matches every other subcommand's NDJSON output. The event already
+      // has a ts from the orchestrator; emitJson preserves it.
+      emitJson(event as unknown as Record<string, unknown>);
     } else {
       const summary = formatEventSummary(event);
-      if (summary) process.stdout.write(summary + "\n");
+      if (summary) printNoTui(summary);
     }
   });
   handle.on("warn", (failure) => {
@@ -149,9 +156,9 @@ export async function runRunCommand(opts: RunOptions): Promise<number> {
     budget: opts.flags.budget,
   };
 
-  const headless = opts.flags.noTui || opts.flags.json || process.stdout.isTTY !== true;
-  if (headless) {
-    return runHeadless(opts, spawnOpts);
+  const outputMode = getOutputMode({ noTui: opts.flags.noTui, json: opts.flags.json });
+  if (outputMode !== "tui") {
+    return runHeadless(opts, spawnOpts, outputMode);
   }
 
   // TUI mode.
@@ -189,7 +196,9 @@ export async function runRunCommand(opts: RunOptions): Promise<number> {
     process.stderr.write(`[speca run] log-watcher unavailable: ${(err as Error).message}\n`);
   }
 
-  const app = render(createElement(Dashboard, { store, handle, cwd }));
+  const app = render(
+    createElement(ThemeProvider, null, createElement(Dashboard, { store, handle, cwd })),
+  );
   const exitCode = await handle.done;
   await app.waitUntilExit();
   await stopLogs?.();

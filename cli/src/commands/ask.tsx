@@ -29,6 +29,7 @@ import { AskChat } from "../components/AskChat.js";
 import { composeAskPrompt, type FindingContextInput } from "../lib/claude-session/context.js";
 import { spawnAsk, type ParsedEvent } from "../lib/claude-session/spawn.js";
 import { loadSession, saveSession, newSessionInfo, touchSessionInfo } from "../lib/claude-session/store.js";
+import { ThemeProvider } from "../lib/theme/index.js";
 
 export interface AskCommandFlags {
   from?: string;
@@ -206,14 +207,18 @@ export async function runAskCommand(opts: AskCommandOptions): Promise<number> {
   }
 
   const app = render(
-    createElement(AskChat, {
-      finding: resolved?.finding ?? null,
-      findingLabel: resolved?.label,
-      initialSessionId: opts.flags.session,
-      maxContextBytes: opts.flags.maxContext,
-      projectRoot: opts.projectRoot,
-      spawnFn: opts.spawnFn,
-    }),
+    createElement(
+      ThemeProvider,
+      null,
+      createElement(AskChat, {
+        finding: resolved?.finding ?? null,
+        findingLabel: resolved?.label,
+        initialSessionId: opts.flags.session,
+        maxContextBytes: opts.flags.maxContext,
+        projectRoot: opts.projectRoot,
+        spawnFn: opts.spawnFn,
+      }),
+    ),
   );
   try {
     await app.waitUntilExit();

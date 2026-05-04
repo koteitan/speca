@@ -1,11 +1,14 @@
-import { Box, Text, useApp, useInput } from "ink";
+import { Box, Text, useApp } from "ink";
 import { useEffect, useMemo, useState } from "react";
 
+import { useKeybind } from "../lib/keybinds/index.js";
 import type { PipelineRunHandleTyped } from "../lib/pipeline/spawn.js";
 import type { PipelineSnapshot, PipelineStore } from "../lib/pipeline/store.js";
 import { phaseName } from "../lib/pipeline/phase-names.js";
 import { usePipelineStore } from "../lib/pipeline/useStore.js";
+import { useTheme } from "../lib/theme/index.js";
 import { BudgetExceededModal } from "./BudgetExceededModal.js";
+import { ErrorModal } from "./ErrorModal.js";
 import { Header } from "./Header.js";
 import { LogPane } from "./LogPane.js";
 import { PhaseRow } from "./PhaseRow.js";
@@ -23,6 +26,7 @@ export interface DashboardProps {
 
 export function Dashboard({ store, handle, cwd, onExit }: DashboardProps) {
   const snapshot = usePipelineStore(store);
+  const theme = useTheme();
   const { exit } = useApp();
   const [showLogs, setShowLogs] = useState(true);
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -54,39 +58,27 @@ export function Dashboard({ store, handle, cwd, onExit }: DashboardProps) {
     return () => clearTimeout(timer);
   }, [snapshot.pipelineStatus, onExit, exit]);
 
-  useInput((input, key) => {
-    if (input === "q") {
-      handle?.kill?.();
-      onExit?.();
-      exit();
-      return;
-    }
-    if (input === "s") {
-      handle?.stop?.();
-      return;
-    }
-    if (input === "f") {
-      handle?.kill?.();
-      return;
-    }
-    if (input === "l") {
-      setShowLogs((v) => !v);
-      return;
-    }
-    if (key.upArrow) {
-      setSelectedIdx((i) => Math.max(0, i - 1));
-      return;
-    }
-    if (key.downArrow) {
-      setSelectedIdx((i) => Math.min(Math.max(0, orderedPhases.length - 1), i + 1));
-      return;
-    }
-    if (key.return) {
-      setShowDetail((v) => !v);
-    }
+  // Action-based keybinds (M6 wiring). User overrides via ~/.config/speca/config.toml.
+  useKeybind("exit", () => {
+    handle?.kill?.();
+    onExit?.();
+    exit();
   });
+  useKeybind("stop-graceful", () => handle?.stop?.());
+  useKeybind("stop-force", () => handle?.kill?.());
+  useKeybind("toggle-log", () => setShowLogs((v) => !v));
+  useKeybind("up", () => setSelectedIdx((i) => Math.max(0, i - 1)));
+  useKeybind("down", () =>
+    setSelectedIdx((i) => Math.min(Math.max(0, orderedPhases.length - 1), i + 1)),
+  );
+  useKeybind("confirm", () => setShowDetail((v) => !v));
 
   const selected = orderedPhases[selectedIdx];
+  const errorKind = ((): "circuit-broken" | "pipeline-failure" | null => {
+    if (snapshot.pipelineStatus === "circuit-broken") return "circuit-broken";
+    if (snapshot.pipelineStatus === "failed") return "pipeline-failure";
+    return null;
+  })();
 
   return (
     <Box flexDirection="column">
@@ -104,7 +96,14 @@ export function Dashboard({ store, handle, cwd, onExit }: DashboardProps) {
         />
       ) : null}
 
-      <Box borderStyle="round" flexDirection="column" paddingX={1}>
+      {errorKind ? (
+        <ErrorModal
+          kind={errorKind}
+          message={snapshot.lastError ?? "Pipeline ended in a failure state."}
+        />
+      ) : null}
+
+      <Box borderStyle="round" flexDirection="column" paddingX={1} borderColor={theme.colors.muted}>
         <Box>
           <Box width={8}>
             <Text bold>  Phase</Text>
