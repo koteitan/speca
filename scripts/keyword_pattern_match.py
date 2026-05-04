@@ -19,7 +19,7 @@ if sys.platform == "win32":
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parent.parent
-PATTERNS_CSV = ROOT / "outputs" / "past_defi_patterns.csv"
+PATTERNS_CSV = ROOT / "csv" / "past_defi_patterns.csv"
 FINDINGS_DIR = ROOT / "benchmarks" / "results" / "rq1" / "sherlock_ethereum_audit_contest"
 
 
