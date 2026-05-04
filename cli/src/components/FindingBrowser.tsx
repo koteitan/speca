@@ -20,7 +20,7 @@
  * The component is render-only when `nonInteractive=true` (used by tests)
  * to skip the `useInput` hook, which would crash without a real TTY.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 
 import { CodePeek } from "./CodePeek.js";
@@ -38,6 +38,7 @@ import {
   loadFindings,
 } from "../lib/findings/loader.js";
 import { type SortMode, nextSortMode, sortFindings } from "../lib/findings/sort.js";
+import { useKeybind } from "../lib/keybinds/index.js";
 
 export interface FindingBrowserProps {
   /** Initial dataset (typically pre-loaded by the command). */
@@ -100,95 +101,92 @@ export function FindingBrowser({
 
   const selected = matched[selectedIndex];
 
-  // useInput hook must be called unconditionally to satisfy React's rules of
-  // hooks. The `isActive` flag turns it into a no-op during tests where the
-  // surrounding ink-testing-library does not provide a TTY.
+  // ─── Edit mode: useInput collects characters into the filter buffer. ───
+  // The action layer (useKeybind) handles read-mode shortcuts below.
+  // Both hooks are always called; `isActive` toggles which one fires.
   useInput(
     (input, key) => {
-      if (editing !== "none") {
-        if (key.escape) {
-          setEditing("none");
-          setFilterBuffer("");
-          return;
-        }
-        if (key.return) {
-          let raw = filterBuffer;
-          if (editing === "text") raw = `text:${quoteIfNeeded(filterBuffer)}`;
-          setFilterApplied(raw);
-          setEditing("none");
-          setFilterBuffer("");
-          return;
-        }
-        if (key.backspace || key.delete) {
-          setFilterBuffer((b) => b.slice(0, -1));
-          return;
-        }
-        if (input && !key.ctrl && !key.meta) {
-          setFilterBuffer((b) => b + input);
-        }
-        return;
-      }
-      // Read-mode shortcuts.
-      if (input === "q" || key.escape) {
-        exit();
-        return;
-      }
-      if (key.upArrow || input === "k") {
-        setSelectedIndex((i) => Math.max(0, i - 1));
-        return;
-      }
-      if (key.downArrow || input === "j") {
-        setSelectedIndex((i) => Math.min(Math.max(0, matched.length - 1), i + 1));
-        return;
-      }
-      if (key.pageUp) {
-        setSelectedIndex((i) => Math.max(0, i - 10));
-        return;
-      }
-      if (key.pageDown) {
-        setSelectedIndex((i) => Math.min(Math.max(0, matched.length - 1), i + 10));
-        return;
-      }
-      if (key.return || input === " ") {
-        setExpanded((v) => !v);
-        return;
-      }
-      if (input === "f") {
-        setEditing("filter");
-        setFilterBuffer(filterApplied);
-        return;
-      }
-      if (input === "/") {
-        setEditing("text");
+      if (key.escape) {
+        setEditing("none");
         setFilterBuffer("");
         return;
       }
-      if (input === "s") {
-        setSortMode((m) => nextSortMode(m));
+      if (key.return) {
+        let raw = filterBuffer;
+        if (editing === "text") raw = `text:${quoteIfNeeded(filterBuffer)}`;
+        setFilterApplied(raw);
+        setEditing("none");
+        setFilterBuffer("");
         return;
       }
-      if (input === "c") {
-        if (!selected) return;
-        setPeekLoading(true);
-        loadCodePeek(selected.primaryLocation, { cwd }).then((res) => {
-          setPeek(res);
-          setPeekLoading(false);
-        });
+      if (key.backspace || key.delete) {
+        setFilterBuffer((b) => b.slice(0, -1));
         return;
       }
-      if (input === "r") {
-        setReloadMsg("reloading…");
-        loadFindings(globs, { cwd })
-          .then((res) => {
-            setData(res);
-            setReloadMsg(`reloaded ${res.findings.length} finding(s) from ${res.files.length} file(s)`);
-          })
-          .catch((err: Error) => setReloadMsg(`reload failed: ${err.message}`));
-        return;
+      if (input && !key.ctrl && !key.meta) {
+        setFilterBuffer((b) => b + input);
       }
     },
-    { isActive: !nonInteractive },
+    { isActive: !nonInteractive && editing !== "none" },
   );
+
+  // ─── Read-mode actions via the M6 keybind layer. Each call is gated
+  // on `editing === "none"` so user characters typed into the filter
+  // buffer don't double-trigger actions like `exit` or `sort-mode`.
+  const readModeActive = !nonInteractive && editing === "none";
+
+  useKeybind("exit", () => exit(), { isActive: readModeActive });
+  useKeybind("up", () => setSelectedIndex((i) => Math.max(0, i - 1)), { isActive: readModeActive });
+  useKeybind(
+    "down",
+    () => setSelectedIndex((i) => Math.min(Math.max(0, matched.length - 1), i + 1)),
+    { isActive: readModeActive },
+  );
+  useKeybind("pageUp", () => setSelectedIndex((i) => Math.max(0, i - 10)), { isActive: readModeActive });
+  useKeybind(
+    "pageDown",
+    () => setSelectedIndex((i) => Math.min(Math.max(0, matched.length - 1), i + 10)),
+    { isActive: readModeActive },
+  );
+  useKeybind("confirm", () => setExpanded((v) => !v), { isActive: readModeActive });
+  useKeybind(
+    "filter-mode",
+    () => {
+      setEditing("filter");
+      setFilterBuffer(filterApplied);
+    },
+    { isActive: readModeActive },
+  );
+  useKeybind(
+    "search-mode",
+    () => {
+      setEditing("text");
+      setFilterBuffer("");
+    },
+    { isActive: readModeActive },
+  );
+  useKeybind("sort-mode", () => setSortMode((m) => nextSortMode(m)), { isActive: readModeActive });
+
+  const triggerCodePeek = useCallback(() => {
+    if (!selected) return;
+    setPeekLoading(true);
+    loadCodePeek(selected.primaryLocation, { cwd }).then((res) => {
+      setPeek(res);
+      setPeekLoading(false);
+    });
+  }, [selected, cwd]);
+  useKeybind("code-peek", triggerCodePeek, { isActive: readModeActive });
+
+  const triggerReload = useCallback(() => {
+    setReloadMsg("reloading…");
+    loadFindings(globs, { cwd })
+      .then((res) => {
+        setData(res);
+        setReloadMsg(`reloaded ${res.findings.length} finding(s) from ${res.files.length} file(s)`);
+      })
+      .catch((err: Error) => setReloadMsg(`reload failed: ${err.message}`));
+  }, [globs, cwd]);
+  useKeybind("reload", triggerReload, { isActive: readModeActive });
 
   return (
     <Box flexDirection="column">

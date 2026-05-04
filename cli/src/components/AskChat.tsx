@@ -20,7 +20,7 @@
  *   - input mode:  Ctrl-D / Ctrl-Enter → submit
  */
 
-import { Box, Text, useApp, useInput } from "ink";
+import { Box, Text, useApp } from "ink";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ChatInput } from "./ChatInput.js";
@@ -42,6 +42,7 @@ import {
   touchSessionInfo,
   type SessionInfo,
 } from "../lib/claude-session/store.js";
+import { useKeybind } from "../lib/keybinds/index.js";
 
 interface ChatMessage {
   id: number;
@@ -224,42 +225,41 @@ export function AskChat({
     [finding, maxContextBytes, persistSession, sessionId, spawnImpl],
   );
 
-  // Normal-mode key handling (ChatInput owns input-mode keys).
-  useInput(
-    (input, key) => {
-      if (showContext) {
-        if (key.escape || input === "c" || input === "q") setShowContext(false);
-        return;
-      }
-      if (mode === "normal") {
-        if (input === "i" || input === "a") {
-          setMode("input");
-          return;
-        }
-        if (input === "q" || (key.ctrl && (input === "c" || input === "C"))) {
-          exit();
-          return;
-        }
-        if (input === "c") {
-          setShowContext(true);
-          return;
-        }
-        if (input === "n") {
-          // New session: drop in-memory id + delete disk file. Subsequent
-          // sendQuestion will inject context anew.
-          setSessionId(undefined);
-          setMessages([]);
-          clearSession(projectRoot).catch(() => {
-            // ignore
-          });
-          return;
-        }
-        if (key.upArrow) setScrollOffset((n) => Math.max(0, n - 1));
-        if (key.downArrow) setScrollOffset((n) => n + 1);
-      }
-    },
-    { isActive: !busy || showContext },
-  );
+  // ─── Read-mode actions via the M6 keybind layer. ChatInput owns its own
+  // input-mode keys (typing into the textarea), so the action layer is
+  // gated to "normal" mode + not busy. The "context modal" gets its own
+  // dismissal binding so users can close it even if `c` was rebound.
+  const normalActive = mode === "normal" && (!busy || showContext);
+  const contextModalActive = showContext;
+
+  useKeybind("focus-chat", () => setMode("input"), {
+    isActive: normalActive && !showContext,
+  });
+  useKeybind("exit", () => exit(), { isActive: normalActive && !showContext });
+  useKeybind("show-context", () => setShowContext(true), {
+    isActive: normalActive && !showContext,
+  });
+  useKeybind("new-session", () => {
+    // Drop in-memory id + delete disk file. Subsequent sendQuestion
+    // will inject context anew on the first turn.
+    setSessionId(undefined);
+    setMessages([]);
+    clearSession(projectRoot).catch(() => {
+      // ignore
+    });
+  }, { isActive: normalActive && !showContext });
+  useKeybind("up", () => setScrollOffset((n) => Math.max(0, n - 1)), {
+    isActive: normalActive && !showContext,
+  });
+  useKeybind("down", () => setScrollOffset((n) => n + 1), {
+    isActive: normalActive && !showContext,
+  });
+
+  // Modal dismissal: cancel (Esc) and show-context (c) and exit (q) all
+  // close the context overlay when it is open.
+  useKeybind("cancel", () => setShowContext(false), { isActive: contextModalActive });
+  useKeybind("show-context", () => setShowContext(false), { isActive: contextModalActive });
+  useKeybind("exit", () => setShowContext(false), { isActive: contextModalActive });
 
   const headerRight = useMemo(() => {
     const sid = sessionId ? `${sessionId.slice(0, 8)}…` : "new";

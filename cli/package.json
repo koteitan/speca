@@ -12,7 +12,9 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md",
+    "TESTING.md"
   ],
   "scripts": {
     "sync-schemas": "node scripts/sync-schemas.mjs",

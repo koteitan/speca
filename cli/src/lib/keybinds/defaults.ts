@@ -43,8 +43,18 @@ export const DEFAULT_KEYBINDS: Record<string, string[]> = {
   "filter-mode": ["f"],
   // Finding browser (M4) — cycle sort key.
   "sort-mode": ["s"],
+  // Finding browser (M4) — enter text-search edit mode.
+  "search-mode": ["/"],
+  // Finding browser (M4) — load / refresh the code peek for the selection.
+  "code-peek": ["c"],
+  // Finding browser (M4) — reload the underlying glob from disk.
+  reload: ["r"],
   // Ask Claude (M5) — focus the chat input.
   "focus-chat": ["i"],
+  // Ask Claude (M5) — start a new session (drop session.json + claude session id).
+  "new-session": ["n"],
+  // Ask Claude (M5) — open the context modal showing the injected finding.
+  "show-context": ["c"],
   // Help overlay (any screen).
   help: ["?"],
 };
