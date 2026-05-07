@@ -76,7 +76,13 @@ const sidebars = {
       type: 'category',
       label: '設計の裏側',
       collapsed: true,
-      items: ['design-notes/why-spec-driven'],
+      items: ['design-notes/why-spec-driven', 'design-notes/model-benchmark-takeaways'],
+    },
+    {
+      type: 'category',
+      label: 'コミュニティ',
+      collapsed: false,
+      items: ['community/thanks', 'community/achievements'],
     },
   ],
 };
