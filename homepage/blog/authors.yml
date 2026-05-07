@@ -2,4 +2,14 @@ speca:
   name: SPECA
   title: Nyx Foundation
   url: https://github.com/NyxFoundation/speca
+  image_url: /img/speca_logo.svg
   page: false
+
+gohan:
+  name: gohan
+  title: grandchildrice / Nyx Foundation
+  url: https://github.com/grandchildrice
+  image_url: /img/avatars/gohan.png
+  page: false
+  socials:
+    github: grandchildrice
