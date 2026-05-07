@@ -30,6 +30,12 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: '実戦チュートリアル',
+      collapsed: false,
+      items: ['tutorial/audit-walkthrough'],
+    },
+    {
+      type: 'category',
       label: 'はじめに',
       collapsed: false,
       items: ['getting-started/installation', 'getting-started/quickstart'],
@@ -64,6 +70,13 @@ const sidebars = {
       label: 'リファレンス',
       collapsed: false,
       items: ['references/paper-fusaka', 'references/paper-multi-impl'],
+    },
+    'project-structure',
+    {
+      type: 'category',
+      label: '設計の裏側',
+      collapsed: true,
+      items: ['design-notes/why-spec-driven'],
     },
   ],
 };
