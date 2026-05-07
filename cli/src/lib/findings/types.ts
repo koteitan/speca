@@ -24,6 +24,30 @@ export const SEVERITY_LEVELS = [
 ] as const;
 export type Severity = (typeof SEVERITY_LEVELS)[number];
 
+// -- Verdict ----------------------------------------------------------------
+//
+// Closed list of Phase 04 review verdicts. Sourced from
+// `docs/SPECA_CLI_SPEC.md` §5.4 / cli/CHANGELOG and
+// `scripts/orchestrator/schemas.py::ReviewedItem.review_verdict`.
+//
+// The runtime `Finding.verdict` field stays `string` (forks may add new
+// verdicts via `--config`), but call sites that hand-write a verdict
+// literal can opt into the closed set with `KnownVerdict` so a typo like
+// `"CONFRIMED_FP"` fails to compile.
+export const KNOWN_VERDICTS = [
+  "CONFIRMED_VULNERABILITY",
+  "CONFIRMED_POTENTIAL",
+  "DISPUTED_FP",
+  "DOWNGRADED",
+  "NEEDS_MANUAL_REVIEW",
+  "PASS_THROUGH",
+] as const;
+export type KnownVerdict = (typeof KNOWN_VERDICTS)[number];
+
+export function isKnownVerdict(value: string): value is KnownVerdict {
+  return (KNOWN_VERDICTS as readonly string[]).includes(value);
+}
+
 const SEVERITY_RANK: Record<Severity, number> = {
   Critical: 0,
   High: 1,

@@ -12,6 +12,7 @@ import { describe, expect, it } from "vitest";
 
 import { applyFilter, parseFilter } from "../src/lib/findings/filter.js";
 import type { Finding } from "../src/lib/findings/types.js";
+import { KNOWN_VERDICTS } from "../src/lib/findings/types.js";
 
 function mk(partial: Partial<Finding> & { propertyId: string }): Finding {
   const haystack = [
@@ -50,14 +51,10 @@ function mk(partial: Partial<Finding> & { propertyId: string }): Finding {
 }
 
 const SEVERITIES = ["Critical", "High", "Medium", "Low", "Informational"] as const;
-const VERDICTS = [
-  "CONFIRMED_VULNERABILITY",
-  "CONFIRMED_POTENTIAL",
-  "DISPUTED_FP",
-  "DOWNGRADED",
-  "NEEDS_MANUAL_REVIEW",
-  "PASS_THROUGH",
-] as const;
+// Reuse the canonical verdict list from `lib/findings/types.ts` so a
+// typo'd verdict fails to compile here too (and stays in lockstep with
+// the runtime predicates that consume it).
+const VERDICTS = KNOWN_VERDICTS;
 
 const findingArb = fc.record({
   propertyId: fc.string({ minLength: 3, maxLength: 16 }).map((s) => `PROP-${s}`),

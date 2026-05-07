@@ -210,6 +210,37 @@ describe("runRunCommand — pre-flight checks (#28 ErrorKind wiring)", () => {
     expect(stderr).toContain("kind=stale-resume");
   });
 
+  it("warns to stderr when --phase contains an id outside KNOWN_PHASE_IDS", async () => {
+    const code = await runRunCommand({
+      flags: { phase: ["bogus-phase-99"], noTui: true },
+      cwd,
+      authFile: join(cwd, "no-such-auth.json"),
+      spawn: fakeSpawnDependencyFailure(),
+      startLogs: async () => async () => {},
+      skipPreflight: true,
+    });
+    // Spawn proceeds (forks may legitimately add phases) — exit reflects
+    // the fake's exit code, but the user got the heads-up.
+    expect(code).toBe(1);
+    const stderr = stderrCapture.chunks.join("");
+    expect(stderr).toContain("phase id(s) not in the canonical set");
+    expect(stderr).toContain("bogus-phase-99");
+  });
+
+  it("does NOT warn when every --phase id is in KNOWN_PHASE_IDS", async () => {
+    const code = await runRunCommand({
+      flags: { phase: ["01a", "01b"], noTui: true },
+      cwd,
+      authFile: join(cwd, "no-such-auth.json"),
+      spawn: fakeSpawnDependencyFailure(),
+      startLogs: async () => async () => {},
+      skipPreflight: true,
+    });
+    expect(code).toBe(1);
+    const stderr = stderrCapture.chunks.join("");
+    expect(stderr).not.toContain("phase id(s) not in the canonical set");
+  });
+
   it("--force overrides the stale-resume detector and proceeds to spawn", async () => {
     const outputsDir = join(cwd, "outputs");
     require("node:fs").mkdirSync(outputsDir, { recursive: true });

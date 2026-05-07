@@ -21,6 +21,7 @@ import { reportStderrError } from "../lib/errors/report.js";
 import { emitJson, getOutputMode, printNoTui } from "../lib/io/output-mode.js";
 import type { PipelineEvent } from "../lib/pipeline/events.js";
 import { startLogWatcher } from "../lib/pipeline/log-watcher.js";
+import { isKnownPhaseId, KNOWN_PHASE_IDS } from "../lib/pipeline/phase-names.js";
 import { spawnPipeline, type SpawnPipelineOptions } from "../lib/pipeline/spawn.js";
 import { PipelineStore } from "../lib/pipeline/store.js";
 import { ThemeProvider } from "../lib/theme/index.js";
@@ -88,6 +89,22 @@ function parsePhaseList(raw: unknown): string[] | undefined {
 }
 
 /**
+ * Warn (don't reject) when the user passes a phase id the CLI doesn't
+ * know about. Forks may legitimately add new phases via custom orchestrator
+ * configs, so we forward the unknown id to the Python side and let the
+ * orchestrator emit `phase-failed` if it really is bogus.
+ */
+function warnUnknownPhases(ids: string[]): void {
+  const unknown = ids.filter((id) => !isKnownPhaseId(id));
+  if (unknown.length === 0) return;
+  process.stderr.write(
+    `[speca run] warning: phase id(s) not in the canonical set: ${unknown.join(", ")}\n` +
+      `  Known: ${KNOWN_PHASE_IDS.join(", ")}\n` +
+      "  Continuing — the orchestrator will emit phase-failed if these are unknown to it too.\n",
+  );
+}
+
+/**
  * Headless / pass-through mode. Used for `--no-tui`, `--json`, and when
  * stdout is not a TTY. We forward stderr to our stderr and (for `--json`)
  * stdout NDJSON lines verbatim. The TUI dashboard is bypassed.
@@ -151,6 +168,10 @@ export async function runRunCommand(opts: RunOptions): Promise<number> {
     process.stderr.write("speca run: must pass --phase <id...> or --target <id>\n");
     process.stderr.write(HELP_TEXT);
     return 2;
+  }
+  if (phases?.length) warnUnknownPhases(phases);
+  if (opts.flags.target && !isKnownPhaseId(opts.flags.target)) {
+    warnUnknownPhases([opts.flags.target]);
   }
 
   const cwd = opts.cwd ?? process.cwd();
