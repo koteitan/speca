@@ -1,0 +1,197 @@
+name: release
+# Tag-driven release pipeline for `speca-cli`.
+#
+# Trigger: pushing an annotated or lightweight tag of the form `v*.*.*`
+# (e.g. `v1.0.0`, `v1.0.1`, `v1.1.0-beta.0`). Pre-release tags ending in
+# `-<channel>.<n>` (e.g. `-beta.0`, `-rc.1`) publish to npm under the
+# matching dist-tag; everything else publishes to `latest`.
+#
+# Outputs:
+#   1. npm package on registry.npmjs.org/speca-cli
+#   2. GitHub Release with the tarball attached as a downloadable asset,
+#      using `cli/RELEASE_NOTES_<tag>.md` if present and `--generate-notes`
+#      otherwise.
+#
+# Required repo secrets:
+#   - NPM_TOKEN — npm.org "Automation" token with publish scope.
+#                 (Settings → Secrets and variables → Actions → New secret.)
+#
+# `workflow_dispatch` runs the pipeline in dry-run mode: builds, tests, and
+# packs but does NOT publish or create a release. Use it to sanity-check
+# the pipeline before tagging.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Tag or branch to dry-run against (default: current default branch)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write   # for `gh release create` to push the release record
+  id-token: write   # for npm provenance (sigstore attestation, optional)
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: build → test → publish (dry-run on workflow_dispatch)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+          fetch-depth: 0  # full history for `--generate-notes`
+
+      # ---- Toolchains ----------------------------------------------------
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: cli/package-lock.json
+          registry-url: "https://registry.npmjs.org"
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+      - run: uv python install 3.11
+      - run: uv sync
+
+      # ---- Tag ↔ version consistency -------------------------------------
+      - name: Verify tag matches cli/package.json version
+        if: github.event_name == 'push'
+        working-directory: cli
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(node -p "require('./package.json').version")
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match cli/package.json (\"$PKG\")."
+            echo "::error::Bump cli/package.json before tagging, or retag after the bump."
+            exit 1
+          fi
+          echo "Tag and package version agree: $PKG"
+
+      # ---- Pre-flight tests ----------------------------------------------
+      - name: npm ci
+        working-directory: cli
+        run: npm ci
+
+      - name: typecheck
+        working-directory: cli
+        run: npm run typecheck
+
+      - name: build (sync-schemas + tsc)
+        working-directory: cli
+        run: npm run build
+
+      - name: Schema drift — Pydantic → schemas/
+        run: uv run python scripts/export_schemas.py --check
+
+      - name: Python pytest
+        run: uv run python3 -m pytest tests/ --tb=short -q
+
+      - name: Vitest (incl. Python ↔ TS event contract)
+        working-directory: cli
+        run: npm run test:coverage
+
+      # ---- Pack and verify tarball ---------------------------------------
+      - name: npm pack
+        working-directory: cli
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm pack
+          TARBALL=$(ls speca-cli-*.tgz)
+          echo "TARBALL=$TARBALL" >> "$GITHUB_ENV"
+          echo "TARBALL_PATH=cli/$TARBALL" >> "$GITHUB_ENV"
+
+      - name: Tarball size guard (< 5 MB) and forbidden-content scan
+        working-directory: cli
+        shell: bash
+        # Hard cap defends against future `files` changes that accidentally
+        # bundle benchmarks/, csv/, outputs/, or anything else heavy. Also
+        # explicitly forbids those path segments anywhere in the tarball.
+        run: |
+          set -euo pipefail
+          MAX=$((5 * 1024 * 1024))
+          SIZE=$(stat -c%s "$TARBALL")
+          KB=$((SIZE / 1024))
+          echo "tarball: $TARBALL ($KB KB)"
+          if [ "$SIZE" -gt "$MAX" ]; then
+            echo "::error::Tarball size $KB KB exceeds 5 MB hard cap."
+            echo "::error::Inspect cli/package.json #files and remove large additions."
+            tar tzf "$TARBALL" | head -50
+            exit 1
+          fi
+          # Forbidden patterns — paths that should NEVER ship in the npm pkg.
+          if tar tzf "$TARBALL" | grep -E "(^|/)(benchmarks?|outputs|csv-patterns|graphs)(/|$)|\.csv$" >/dev/null; then
+            echo "::error::Tarball contains forbidden path segment (benchmarks/outputs/csv/graphs)."
+            tar tzf "$TARBALL" | grep -E "(^|/)(benchmarks?|outputs|csv-patterns|graphs)(/|$)|\.csv$"
+            exit 1
+          fi
+          echo "tarball content is clean"
+
+      # ---- Determine npm dist-tag ----------------------------------------
+      - name: Determine npm dist-tag (latest vs pre-release channel)
+        if: github.event_name == 'push'
+        id: dist
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="$GITHUB_REF_NAME"
+          # `vX.Y.Z-<channel>.<N>` → channel becomes the dist-tag.
+          if [[ "$TAG" =~ -([a-zA-Z]+)\.[0-9]+$ ]]; then
+            CHANNEL="${BASH_REMATCH[1]}"
+            echo "dist=$CHANNEL" >> "$GITHUB_OUTPUT"
+          else
+            echo "dist=latest" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Will publish under dist-tag: $(grep '^dist=' "$GITHUB_OUTPUT" | cut -d= -f2)"
+
+      # ---- Publish to npm (skipped on workflow_dispatch dry-run) ---------
+      - name: Publish to npm
+        if: github.event_name == 'push'
+        working-directory: cli
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          npm publish --access public --tag "${{ steps.dist.outputs.dist }}" --provenance
+
+      # ---- GitHub Release ------------------------------------------------
+      - name: Create GitHub Release with tarball asset
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          NOTES_FILE="cli/RELEASE_NOTES_${GITHUB_REF_NAME}.md"
+          if [ -f "$NOTES_FILE" ]; then
+            gh release create "$GITHUB_REF_NAME" \
+              --title "speca-cli ${GITHUB_REF_NAME}" \
+              --notes-file "$NOTES_FILE" \
+              "$TARBALL_PATH"
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              --title "speca-cli ${GITHUB_REF_NAME}" \
+              --generate-notes \
+              "$TARBALL_PATH"
+          fi
+
+      # ---- Dry-run summary -----------------------------------------------
+      - name: Dry-run summary
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Dry-run complete: tarball built and verified, but NOT published."
+          echo "Tarball: $TARBALL_PATH"
+          echo "Trigger an actual release by pushing a tag like \`v1.0.0\`."
