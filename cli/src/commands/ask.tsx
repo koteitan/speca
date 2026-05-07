@@ -48,6 +48,12 @@ export interface AskCommandOptions {
   spawnFn?: typeof spawnAsk;
   /** Override the project root for tests. */
   projectRoot?: string;
+  /**
+   * Override stdin for tests. Any AsyncIterable<string|Buffer> works
+   * (e.g. `Readable.from("the question\n")`). Defaults to
+   * `process.stdin` in production.
+   */
+  stdin?: AsyncIterable<string | Buffer>;
 }
 
 const HELP_TEXT = `\
@@ -201,6 +207,7 @@ export async function runAskCommand(opts: AskCommandOptions): Promise<number> {
       maxContextBytes: opts.flags.maxContext,
       projectRoot: opts.projectRoot,
       spawnFn: opts.spawnFn,
+      stdin: opts.stdin,
       log,
       errorLog,
     });
@@ -235,6 +242,7 @@ interface NonTuiArgs {
   maxContextBytes?: number;
   projectRoot?: string;
   spawnFn?: typeof spawnAsk;
+  stdin?: AsyncIterable<string | Buffer>;
   log: (msg: string) => void;
   errorLog: (msg: string) => void;
 }
@@ -246,15 +254,18 @@ interface NonTuiArgs {
  */
 async function runAskNonTui(args: NonTuiArgs): Promise<number> {
   const spawnImpl = args.spawnFn ?? spawnAsk;
+  const stdin = args.stdin ?? process.stdin;
 
   // Read the question. If stdin is a TTY there's no piped question → just emit
   // the spec'd help and exit (we're not going to prompt in headless mode).
+  // (TTY check only applies to the real process.stdin; injected test streams
+  // are by definition not TTYs and the loop reads them directly.)
   let question = "";
-  if (process.stdin.isTTY) {
+  if (!args.stdin && process.stdin.isTTY) {
     args.errorLog("speca ask --no-tui: pipe a question on stdin (e.g. `echo Q | speca ask --no-tui`).");
     return 2;
   }
-  for await (const chunk of process.stdin) {
+  for await (const chunk of stdin) {
     question += typeof chunk === "string" ? chunk : (chunk as Buffer).toString("utf8");
   }
   question = question.trim();

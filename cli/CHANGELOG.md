@@ -63,11 +63,13 @@ Accumulated changes since v0.9.0. Will graduate to a tagged release once the
 
 ### Tests
 
-- +32 vitest cases (256 → 288): errors-reporter (×13), preflight
+- +34 vitest cases (256 → 290): errors-reporter (×13), preflight
   detectors (×10), browse error-kinds (×2), run pre-flight + phase warn
-  (×5), verdict closed-set (×2).
+  (×5), verdict closed-set (×2), `speca ask` multi-turn chain (×2,
+  closes [#31]).
 
 [#28]: https://github.com/NyxFoundation/speca/issues/28
+[#31]: https://github.com/NyxFoundation/speca/issues/31
 
 ## [0.9.0] - 2026-05-07
 
