@@ -193,6 +193,61 @@ class TestPhase01bRecovery(unittest.TestCase):
             ["INV-001: real one"],
         )
 
+    def test_url_lookup_falls_back_to_queue_when_context_missing(self):
+        """When the CONTEXT file is absent, the queue's ``item_ids`` (URL list
+        for Phase 01b) must still feed the candidate-dir lookup so we can
+        recover ``source_url``. Reproduces the case where a crash before
+        context-write left only the queue on disk."""
+        # Remove the context file written in setUp; the queue alone must
+        # carry enough information for url recovery to succeed.
+        context_path = (
+            self.tmp_root
+            / f"01b_CONTEXT_W0B0_{self.timestamp}.json"
+        )
+        context_path.unlink()
+
+        recovered = self.orchestrator._recover_partial_from_disk(0, 0)
+        self.assertEqual(len(recovered), 1)
+        self.assertEqual(recovered[0]["source_url"], self.source_url)
+
+    def test_url_lookup_yields_empty_when_no_queue_or_context(self):
+        """No queue, no context → recovery still returns the .mmd content but
+        with ``source_url`` set to the empty string (Pydantic-permitted)."""
+        for path in self.tmp_root.glob("01b_CONTEXT_*"):
+            path.unlink()
+        for path in self.tmp_root.glob("01b_ASYNC_QUEUE_*"):
+            path.unlink()
+
+        recovered = self.orchestrator._recover_partial_from_disk(0, 0)
+        self.assertEqual(len(recovered), 1)
+        self.assertEqual(recovered[0]["source_url"], "")
+        # The on-disk artifact (.mmd) is still preserved.
+        self.assertEqual(recovered[0]["title"], "SPEC-A")
+        self.assertEqual(len(recovered[0]["sub_graphs"]), 1)
+
+
+class TestPhase01bCandidateDirNames(unittest.TestCase):
+    """Pure-logic tests for ``Phase01bOrchestrator._candidate_dir_names``."""
+
+    def test_url_with_extension_yields_basename_and_stem(self):
+        candidates = Phase01bOrchestrator._candidate_dir_names(
+            "https://example.com/specs/SPEC-A.md",
+        )
+        self.assertIn("SPEC-A.md", candidates)
+        self.assertIn("SPEC-A", candidates)
+
+    def test_url_with_trailing_slash_drops_it(self):
+        candidates = Phase01bOrchestrator._candidate_dir_names(
+            "https://example.com/specs/EIP-7892/",
+        )
+        self.assertIn("EIP-7892", candidates)
+
+    def test_url_without_path_segments_yields_no_usable_candidates(self):
+        # A bare host has no usable basename — the recovery falls back to "".
+        candidates = Phase01bOrchestrator._candidate_dir_names("https://example.com")
+        for c in candidates:
+            self.assertNotIn("://", c, f"candidate looks like a URL not a dirname: {c!r}")
+
 
 if __name__ == "__main__":
     unittest.main()
