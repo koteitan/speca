@@ -7,6 +7,7 @@ Provides factory functions for creating phase-specific orchestrators.
 from .base import (
     BaseOrchestrator,
     Phase01Orchestrator,
+    Phase01bOrchestrator,
     Phase02cOrchestrator,
     Phase03Orchestrator,
     Phase04Orchestrator,
@@ -34,7 +35,9 @@ def create_orchestrator(
     config = get_phase_config(phase_id)
 
     # Select appropriate orchestrator class
-    if phase_id.startswith("01"):
+    if phase_id == "01b":
+        return Phase01bOrchestrator(phase_id, num_workers, max_concurrent)
+    elif phase_id.startswith("01"):
         return Phase01Orchestrator(phase_id, num_workers, max_concurrent)
     elif phase_id == "02c":
         return Phase02cOrchestrator(phase_id, num_workers, max_concurrent)
