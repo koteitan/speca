@@ -16,6 +16,8 @@ import { render } from "ink";
 import { createElement } from "react";
 
 import { Dashboard } from "../components/Dashboard.js";
+import { detectExpiredAuth, detectStaleResume } from "../lib/checks/preflight.js";
+import { reportStderrError } from "../lib/errors/report.js";
 import { emitJson, getOutputMode, printNoTui } from "../lib/io/output-mode.js";
 import type { PipelineEvent } from "../lib/pipeline/events.js";
 import { startLogWatcher } from "../lib/pipeline/log-watcher.js";
@@ -72,6 +74,10 @@ interface RunOptions {
   spawn?: typeof spawnPipeline;
   /** Test seam — defaults to chokidar log watcher. */
   startLogs?: typeof startLogWatcher;
+  /** Test seam — override the auth.json path consulted by pre-flight. */
+  authFile?: string;
+  /** Test seam — disable pre-flight checks entirely. */
+  skipPreflight?: boolean;
 }
 
 function parsePhaseList(raw: unknown): string[] | undefined {
@@ -111,7 +117,9 @@ async function runHeadless(
     process.stderr.write(line + "\n");
   });
   handle.on("spawn-error", (err) => {
-    process.stderr.write(`[speca run] failed to spawn orchestrator: ${err.message}\n`);
+    reportStderrError("subprocess-crash", {
+      message: `failed to spawn orchestrator: ${err.message}`,
+    });
   });
   return handle.done;
 }
@@ -147,6 +155,27 @@ export async function runRunCommand(opts: RunOptions): Promise<number> {
 
   const cwd = opts.cwd ?? process.cwd();
   const outputDir = opts.flags.outputDir ? resolve(cwd, opts.flags.outputDir) : undefined;
+
+  // Pre-flight checks. Each detector returns null when clean; a non-null
+  // failure short-circuits here with the matching ErrorKind. Callers can
+  // disable with `skipPreflight: true` (used by tests that aren't
+  // exercising this path).
+  if (!opts.skipPreflight) {
+    const expiredAuth = await detectExpiredAuth({ authFile: opts.authFile });
+    if (expiredAuth) {
+      return reportStderrError("auth-expired", expiredAuth);
+    }
+    if (!opts.flags.force) {
+      const stale = await detectStaleResume({
+        cwd,
+        force: false,
+        outputDir,
+      });
+      if (stale) {
+        return reportStderrError("stale-resume", stale);
+      }
+    }
+  }
   const spawnOpts: SpawnPipelineOptions = {
     phases,
     target: opts.flags.target,
@@ -182,7 +211,9 @@ export async function runRunCommand(opts: RunOptions): Promise<number> {
     // events and the log file tail.
   });
   handle.on("spawn-error", (err) => {
-    process.stderr.write(`[speca run] failed to spawn orchestrator: ${err.message}\n`);
+    reportStderrError("subprocess-crash", {
+      message: `failed to spawn orchestrator: ${err.message}`,
+    });
   });
 
   const startLogs = opts.startLogs ?? startLogWatcher;

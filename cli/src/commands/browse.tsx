@@ -13,6 +13,7 @@ import { render } from "ink";
 import { createElement } from "react";
 
 import { FindingBrowser } from "../components/FindingBrowser.js";
+import { reportStderrError } from "../lib/errors/report.js";
 import { applyFilter } from "../lib/findings/filter.js";
 import { loadFindings } from "../lib/findings/loader.js";
 import { emitJson, getOutputMode, printNoTui } from "../lib/io/output-mode.js";
@@ -85,6 +86,29 @@ export async function runBrowseCommand(options: RunBrowseOptions): Promise<numbe
   const globs = positional.length > 0 ? positional : [DEFAULT_GLOB];
   const initial = await loadFindings(globs, { cwd });
   const initialFilter = buildInitialFilter(flags);
+
+  // Schema-mismatch: every matched file produced a loader warning (parse
+  // failure or schema rejection). The loader emits at most one warning per
+  // file, so `warnings.length === files.length` is the precise "0 valid
+  // inputs across the board" signal — distinct from "valid but empty"
+  // (e.g. `{reviewed_items: []}` parses cleanly with no warning).
+  //
+  // Surfaced BEFORE the output-mode branch so it fires uniformly for tui /
+  // no-tui / json callers; otherwise the user sees an empty NDJSON stream
+  // or a zero-row TUI with no hint that the inputs were structurally
+  // unusable.
+  if (
+    initial.findings.length === 0 &&
+    initial.files.length > 0 &&
+    initial.warnings.length === initial.files.length
+  ) {
+    return reportStderrError("schema-mismatch", {
+      message: `${initial.warnings.length} file(s) matched ${globs.join(" ")} but every record failed validation`,
+      hint:
+        "Re-run `npm run sync-schemas` (or re-export upstream JSON Schemas) " +
+        "and verify the partial files were produced by a compatible orchestrator version.",
+    });
+  }
 
   const outputMode = getOutputMode({ noTui: flags.noTui, json: flags.json });
   if (outputMode !== "tui") {

@@ -82,6 +82,7 @@ describe("runRunCommand — headless flow", () => {
       spawn: fakeSpawnDependencyFailure(),
       // Skip log watcher in tests (it tries to mkdir; allowed but unnecessary here).
       startLogs: async () => async () => {},
+      skipPreflight: true,
     });
     expect(code).toBe(1);
   });
@@ -100,6 +101,7 @@ describe("runRunCommand — headless flow", () => {
         cwd,
         spawn: fakeSpawnDependencyFailure(),
         startLogs: async () => async () => {},
+        skipPreflight: true,
       });
       expect(code).toBe(1);
     } finally {
@@ -122,7 +124,113 @@ describe("runRunCommand — headless flow", () => {
       startLogs: (async () => {
         throw new Error("watcher unavailable");
       }) as typeof startLogWatcher,
+      skipPreflight: true,
     });
     expect(code).toBe(1);
+  });
+});
+
+describe("runRunCommand — pre-flight checks (#28 ErrorKind wiring)", () => {
+  let stderrCapture: { chunks: string[]; restore(): void };
+
+  beforeEach(() => {
+    const chunks: string[] = [];
+    const orig = process.stderr.write.bind(process.stderr);
+    process.stderr.write = ((c: string | Uint8Array): boolean => {
+      chunks.push(typeof c === "string" ? c : Buffer.from(c).toString("utf8"));
+      return true;
+    }) as typeof process.stderr.write;
+    stderrCapture = {
+      chunks,
+      restore() {
+        process.stderr.write = orig;
+      },
+    };
+  });
+  afterEach(() => {
+    stderrCapture.restore();
+  });
+
+  it("exits with auth-expired when the only OAuth token is past expiry", async () => {
+    const authFile = join(cwd, "auth.json");
+    const now = Date.now();
+    writeFileSync(
+      authFile,
+      JSON.stringify({
+        version: 1,
+        accounts: {
+          default: {
+            type: "oauth",
+            access_token: "a",
+            refresh_token: "r",
+            expires_at: now - 60_000,
+            scopes: ["user:sessions:claude_code"],
+            created_at: now - 3_600_000,
+          },
+        },
+      }),
+    );
+
+    const code = await runRunCommand({
+      flags: { phase: ["01b"], noTui: true },
+      cwd,
+      authFile,
+      // Pre-flight should fire before spawn — these stay defaults / unused.
+    });
+    expect(code).toBe(1);
+    const stderr = stderrCapture.chunks.join("");
+    expect(stderr).toContain("kind=auth-expired");
+    expect(stderr.toLowerCase()).toContain("expired");
+  });
+
+  it("exits with stale-resume when TARGET_INFO is much newer than the newest 01b partial", async () => {
+    const outputsDir = join(cwd, "outputs");
+    require("node:fs").mkdirSync(outputsDir, { recursive: true });
+    const partialPath = join(outputsDir, "01b_PARTIAL_W0B0.json");
+    writeFileSync(partialPath, "{}");
+    const targetPath = join(outputsDir, "TARGET_INFO.json");
+    writeFileSync(targetPath, "{}");
+
+    // Make TARGET_INFO 10 minutes newer than the partial.
+    const partialMtime = Date.now() / 1000 - 600;
+    const targetMtime = Date.now() / 1000;
+    require("node:fs").utimesSync(partialPath, partialMtime, partialMtime);
+    require("node:fs").utimesSync(targetPath, targetMtime, targetMtime);
+
+    const code = await runRunCommand({
+      flags: { phase: ["01b"], noTui: true },
+      cwd,
+      // Need a non-existent auth file so detectExpiredAuth returns null
+      // (otherwise the dev's real auth.json on a non-test machine could
+      // mask the stale-resume signal).
+      authFile: join(cwd, "no-such-auth.json"),
+    });
+    expect(code).toBe(1);
+    const stderr = stderrCapture.chunks.join("");
+    expect(stderr).toContain("kind=stale-resume");
+  });
+
+  it("--force overrides the stale-resume detector and proceeds to spawn", async () => {
+    const outputsDir = join(cwd, "outputs");
+    require("node:fs").mkdirSync(outputsDir, { recursive: true });
+    writeFileSync(join(outputsDir, "01b_PARTIAL_W0B0.json"), "{}");
+    writeFileSync(join(outputsDir, "TARGET_INFO.json"), "{}");
+    const old = Date.now() / 1000 - 600;
+    const now = Date.now() / 1000;
+    require("node:fs").utimesSync(join(outputsDir, "01b_PARTIAL_W0B0.json"), old, old);
+    require("node:fs").utimesSync(join(outputsDir, "TARGET_INFO.json"), now, now);
+
+    const code = await runRunCommand({
+      flags: { phase: ["01b"], noTui: true, force: true },
+      cwd,
+      authFile: join(cwd, "no-such-auth.json"),
+      spawn: fakeSpawnDependencyFailure(),
+      startLogs: async () => async () => {},
+    });
+    // We pass --force, so stale-resume is skipped and the fake spawn
+    // proceeds to its dependency-failure exit (1).
+    expect(code).toBe(1);
+    const stderr = stderrCapture.chunks.join("");
+    expect(stderr).not.toContain("kind=stale-resume");
   });
 });
