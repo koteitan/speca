@@ -40,15 +40,99 @@ benchmarks/
 │   ├── ground_truth_bugs.yaml
 │   ├── published_baselines.yaml
 │   └── README.md
-├── results/
+├── results/                  ← raw evaluation outputs; large directories are
+│   │                            published as GitHub Release artifacts (see
+│   │                            "Benchmark artifacts" below) rather than
+│   │                            committed going forward.
 │   ├── rq1/sherlock_ethereum_audit_contest/   ← 10× audit outputs, labels, charts
 │   ├── rq2a/                                  ← per-model SPECA outputs + figures
 │   └── rq2b/figures/
 ├── runners/               ← orchestration helpers (target-cloning, batch dispatch)
 ├── scripts/
-│   └── collect_branch_outputs.py
+│   ├── collect_branch_outputs.py
+│   ├── publish-results.sh    ← pack results/<subdir>/ → tarball + manifest
+│   └── restore-results.sh    ← download a release tarball back to results/
 └── archive/               ← deprecated benchmarks (PrimeVul function-level)
 ```
+
+## Benchmark artifacts (GitHub Releases)
+
+Per-RQ raw outputs (the `results/rq*/` trees) are heavy — the `rq2a` model
+sweeps alone are ~340 MB of `*.json` / `*.jsonl`. Going forward they are
+**published as GitHub Release assets** under tags of the form
+`bench-<rq>-<utc-date>[-<suffix>]` (e.g. `bench-rq2a-20260507-sonnet4`)
+rather than committed to the repository. The historical trees that
+existed prior to this convention remain on `main` until a follow-up
+issue migrates them.
+
+### Downloading
+
+```bash
+# List all benchmark releases.
+gh release list --repo NyxFoundation/speca | grep '^bench-'
+
+# Restore a specific run back into benchmarks/results/...
+bash benchmarks/scripts/restore-results.sh bench-rq2a-20260507-sonnet4
+# -> benchmarks/results/rq2a/speca_sonnet4/ populated
+```
+
+`restore-results.sh` reads the `source_path` recorded in the release's
+sidecar `*.manifest.json` and extracts in place, then verifies the
+extracted tree's file count against the manifest. Pass `--out <dir>` to
+extract somewhere other than the original path; pass `--keep-archive` to
+retain the downloaded `.tar.zst` next to the extracted tree.
+
+### Publishing
+
+The recommended path is the **`Publish benchmark artifacts` GitHub
+Action** (`.github/workflows/publish-bench-artifacts.yml`,
+`workflow_dispatch` only). Inputs:
+
+- `subdir` — path under `benchmarks/results/`, e.g. `rq2a/speca_sonnet4`.
+- `tag_suffix` — optional override; defaults to the leaf dir with any
+  leading `speca_` stripped.
+- `tag_date` — optional `YYYYMMDD` override. Empty → today (UTC). Set
+  this when you need re-runs across UTC midnight to land on the same
+  release tag.
+- `notes` — optional markdown blurb appended to the auto-generated
+  release notes.
+- `ref` — optional git ref to checkout (default: current branch).
+
+Each invocation produces a pre-release tagged
+`bench-<rq>-<YYYYMMDD>[-<suffix>]` with two assets:
+`<tag>.tar.zst` (the data) and `<tag>.manifest.json` (provenance:
+`speca_commit`, `n_files`, `bytes_uncompressed`, `bytes_archive`,
+`archive_sha256`, `source_path`, `created_at`, freeform `notes`).
+Re-running the workflow with the same inputs uploads assets with
+`--clobber` *and* refreshes the release notes / pre-release flag via
+`gh release edit`, so the same tag stays in sync.
+
+To publish locally instead (e.g. from a self-hosted runner that already
+holds the data), use the script directly and upload yourself:
+
+```bash
+bash benchmarks/scripts/publish-results.sh \
+  benchmarks/results/rq2a/speca_sonnet4 \
+  bench-rq2a-20260507-sonnet4
+
+gh release create bench-rq2a-20260507-sonnet4 \
+  --title bench-rq2a-20260507-sonnet4 \
+  --prerelease \
+  --notes "Local publish from $(git rev-parse --short HEAD)" \
+  dist/bench-artifacts/bench-rq2a-20260507-sonnet4.tar.zst \
+  dist/bench-artifacts/bench-rq2a-20260507-sonnet4.manifest.json
+```
+
+Tooling required: `tar` with `--zstd` (GNU tar 1.31+; on macOS install
+`gnu-tar` and use `gtar`, or upgrade `bsdtar` to 3.5+), `zstd`, `jq`,
+`python3`, and `gh` (for `restore-results.sh` and the upload step).
+
+> **Note on the `.gitignore` rule.** `benchmarks/results/**` is ignored,
+> so any *new* file dropped under that tree is invisible to `git add`.
+> Files that were already tracked before this rule landed remain
+> tracked — but if you intentionally need to update one of them in
+> place (rare; almost always you should publish a new release artifact
+> instead), use `git add -f <path>`.
 
 ## Prerequisites
 
