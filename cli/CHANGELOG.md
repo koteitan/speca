@@ -5,10 +5,13 @@ All notable changes to `speca-cli` are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2026-05-04
+## [0.9.0] - 2026-05-07
 
-First production release. Implements all M1–M6 milestones from
-[`docs/SPECA_CLI_SPEC.md`](../docs/SPECA_CLI_SPEC.md) §11.
+Soft-launch release ahead of the v1.0.0 GA. All features from the M1–M7
+milestones in [`docs/SPECA_CLI_SPEC.md`](../docs/SPECA_CLI_SPEC.md) §11
+are included; the 0.9.0 version reserves the npm package name and
+exercises the tag-driven release pipeline before we commit to v1.0.0
+stability guarantees.
 
 ### Added
 
