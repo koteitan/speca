@@ -1,0 +1,69 @@
+name: tests-on-push
+# Runs the Python + CLI test suites on every push to any branch.
+#
+# Uses the `self-hosted` runner label. If the repo grows multiple
+# self-hosted runners with different OS/arch profiles, narrow this with
+# additional labels (e.g. `[self-hosted, linux, x64]`).
+#
+# This workflow intentionally has no path filter and no branch filter —
+# the goal is "every push runs tests". The matrix-style cross-platform
+# coverage stays in `cli-ci.yml`, which still runs on push/PR to main.
+
+on:
+  push:
+
+# Cancel an older in-flight run on the same branch when a new push lands.
+# Prevents the self-hosted runner queue from backing up on rapid pushes.
+concurrency:
+  group: tests-on-push-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---- Python toolchain -----------------------------------------------
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+      - name: Install Python 3.11 via uv
+        run: uv python install 3.11
+      - name: Sync Python deps
+        run: uv sync
+      - name: Python pytest
+        run: uv run python3 -m pytest tests/ -v --tb=short
+
+      # ---- Node toolchain -------------------------------------------------
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: cli/package-lock.json
+      - name: npm ci
+        working-directory: cli
+        run: npm ci
+      - name: Typecheck
+        working-directory: cli
+        run: npm run typecheck
+      - name: Build CLI (sync-schemas + tsc)
+        working-directory: cli
+        run: npm run build
+
+      # ---- Cross-language drift checks ------------------------------------
+      - name: Schema drift — Pydantic → schemas/
+        run: uv run python scripts/export_schemas.py --check
+      - name: Schema drift — schemas/ → cli/src/lib/schemas/generated
+        working-directory: cli
+        shell: bash
+        run: |
+          npm run sync-schemas
+          git diff --exit-code -- src/lib/schemas/generated
+
+      # ---- Vitest (incl. Python↔TS event contract + coverage gate) -------
+      - name: Vitest with coverage
+        working-directory: cli
+        run: npm run test:coverage

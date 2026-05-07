@@ -1,0 +1,37 @@
+{
+  "properties": {
+    "duration_s": {
+      "minimum": 0,
+      "title": "Duration S",
+      "type": "number"
+    },
+    "phase": {
+      "title": "Phase",
+      "type": "string"
+    },
+    "total_results": {
+      "minimum": 0,
+      "title": "Total Results",
+      "type": "integer"
+    },
+    "ts": {
+      "description": "RFC 3339 UTC timestamp with millisecond precision.",
+      "title": "Ts",
+      "type": "string"
+    },
+    "type": {
+      "const": "phase-completed",
+      "default": "phase-completed",
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ts",
+    "phase",
+    "duration_s",
+    "total_results"
+  ],
+  "title": "PhaseCompletedEvent",
+  "type": "object"
+}

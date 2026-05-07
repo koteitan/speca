@@ -39,7 +39,10 @@ def export_module():
 
 
 def test_collects_at_least_one_model(export_module):
-    models = export_module.collect_models(export_module.SOURCE_MODULE)
+    models = []
+    for mod in export_module.SOURCE_MODULES:
+        models.extend(export_module.collect_models(mod))
+    models.sort(key=lambda c: c.__name__)
     assert len(models) > 0, "expected at least one BaseModel subclass"
     names = [m.__name__ for m in models]
     # A few key boundary schemas the CLI wizard will validate.
@@ -48,7 +51,10 @@ def test_collects_at_least_one_model(export_module):
 
 
 def test_render_schema_produces_dict(export_module):
-    models = export_module.collect_models(export_module.SOURCE_MODULE)
+    models = []
+    for mod in export_module.SOURCE_MODULES:
+        models.extend(export_module.collect_models(mod))
+    models.sort(key=lambda c: c.__name__)
     schema = export_module.render_schema(models[0])
     assert isinstance(schema, dict)
     # Pydantic-generated schemas always carry these keys
@@ -56,7 +62,10 @@ def test_render_schema_produces_dict(export_module):
 
 
 def test_serialize_is_stable(export_module):
-    models = export_module.collect_models(export_module.SOURCE_MODULE)
+    models = []
+    for mod in export_module.SOURCE_MODULES:
+        models.extend(export_module.collect_models(mod))
+    models.sort(key=lambda c: c.__name__)
     schema = export_module.render_schema(models[0])
     a = export_module.serialize_schema(schema)
     b = export_module.serialize_schema(schema)
@@ -67,7 +76,10 @@ def test_serialize_is_stable(export_module):
 
 
 def test_write_then_check_in_sync(tmp_path, export_module):
-    models = export_module.collect_models(export_module.SOURCE_MODULE)
+    models = []
+    for mod in export_module.SOURCE_MODULES:
+        models.extend(export_module.collect_models(mod))
+    models.sort(key=lambda c: c.__name__)
     out = tmp_path / "out"
     for m in models:
         export_module.write_schema(m, out)
@@ -76,7 +88,10 @@ def test_write_then_check_in_sync(tmp_path, export_module):
 
 
 def test_check_detects_stale(tmp_path, export_module):
-    models = export_module.collect_models(export_module.SOURCE_MODULE)
+    models = []
+    for mod in export_module.SOURCE_MODULES:
+        models.extend(export_module.collect_models(mod))
+    models.sort(key=lambda c: c.__name__)
     out = tmp_path / "out"
     for m in models:
         export_module.write_schema(m, out)
@@ -90,7 +105,10 @@ def test_check_detects_stale(tmp_path, export_module):
 
 
 def test_check_detects_orphan(tmp_path, export_module):
-    models = export_module.collect_models(export_module.SOURCE_MODULE)
+    models = []
+    for mod in export_module.SOURCE_MODULES:
+        models.extend(export_module.collect_models(mod))
+    models.sort(key=lambda c: c.__name__)
     out = tmp_path / "out"
     for m in models:
         export_module.write_schema(m, out)
@@ -110,7 +128,10 @@ def test_committed_schemas_in_sync_with_source(export_module):
     if not SCHEMAS_DIR.exists():
         pytest.skip("schemas/ directory not present in this checkout")
 
-    models = export_module.collect_models(export_module.SOURCE_MODULE)
+    models = []
+    for mod in export_module.SOURCE_MODULES:
+        models.extend(export_module.collect_models(mod))
+    models.sort(key=lambda c: c.__name__)
     diffs = export_module.check_in_sync(models, SCHEMAS_DIR)
     assert diffs == [], (
         "schemas/ is out of sync with orchestrator/schemas.py. "

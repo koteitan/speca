@@ -6,7 +6,28 @@
  * from a future non-Ink front-end.
  */
 import defaultRubric from "../../templates/bug_bounty_rubric_default.json" with { type: "json" };
+import type {
+  BugBountyScopeInput,
+  TargetInfoInput,
+} from "../schemas/index.js";
 import type { BuiltArtefacts, InitAnswers } from "./types.js";
+
+/**
+ * Wizard-emitted TARGET_INFO has the schema-mandated fields plus a few
+ * orchestrator-ignored extras the TUI surfaces. Splitting these into a
+ * dedicated alias keeps the schema-bound part type-checked: if the Pydantic
+ * model renames `target_repo`, `buildTargetInfo` stops compiling and points
+ * the developer at the diff.
+ */
+type WizardTargetInfo = TargetInfoInput & {
+  project_name?: string;
+  target_language?: string;
+  target_layer?: string;
+};
+
+type WizardBugBountyScope = BugBountyScopeInput & {
+  _provenance?: Record<string, unknown>;
+};
 
 interface DefaultRubric {
   program_name: string;
@@ -28,7 +49,7 @@ function cloneDefaultRubric(): DefaultRubric {
   return JSON.parse(JSON.stringify(defaultRubric)) as DefaultRubric;
 }
 
-export function buildTargetInfo(answers: InitAnswers): Record<string, unknown> {
+export function buildTargetInfo(answers: InitAnswers): WizardTargetInfo {
   return {
     target_repo: answers.targetRepo.trim(),
     target_ref_type: answers.targetCommit.trim().toUpperCase() === "HEAD" ? "head" : "commit",
@@ -42,7 +63,7 @@ export function buildTargetInfo(answers: InitAnswers): Record<string, unknown> {
   };
 }
 
-export function buildBugBountyScope(answers: InitAnswers): Record<string, unknown> {
+export function buildBugBountyScope(answers: InitAnswers): WizardBugBountyScope {
   const rubric = cloneDefaultRubric();
   if (answers.rubricMode === "default") {
     return {
@@ -79,8 +100,12 @@ export function buildBugBountyScope(answers: InitAnswers): Record<string, unknow
 }
 
 export function buildArtefacts(answers: InitAnswers): BuiltArtefacts {
+  // The schema-bound builders return strict types (so a Pydantic-side rename
+  // breaks compilation here). `BuiltArtefacts` widens to a plain record for
+  // serialisation — both builders are JSON-shaped, so the widening cast is
+  // sound.
   return {
-    targetInfo: buildTargetInfo(answers),
-    bugBountyScope: buildBugBountyScope(answers),
+    targetInfo: buildTargetInfo(answers) as unknown as Record<string, unknown>,
+    bugBountyScope: buildBugBountyScope(answers) as unknown as Record<string, unknown>,
   };
 }

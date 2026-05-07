@@ -4,10 +4,20 @@
  * side stays the source of truth; we only need labels for the dashboard
  * and this list rarely changes).
  *
- * Unknown phase ids fall back to the id itself so the dashboard still
- * renders cleanly when run against a fork that adds new phases.
+ * `KNOWN_PHASE_IDS` is the closed set of phase ids the CLI knows about; the
+ * derived `KnownPhaseId` union is useful in tests and at internal call sites
+ * where we want a typo to fail compilation. At the orchestrator boundary
+ * (`phaseName`) we still accept arbitrary strings and fall back to the id
+ * itself so a fork that adds new phases renders cleanly.
  */
-export const PHASE_NAMES: Record<string, string> = {
+export const KNOWN_PHASE_IDS = ["01a", "01b", "01e", "02c", "03", "04"] as const;
+export type KnownPhaseId = (typeof KNOWN_PHASE_IDS)[number];
+
+export function isKnownPhaseId(value: string): value is KnownPhaseId {
+  return (KNOWN_PHASE_IDS as readonly string[]).includes(value);
+}
+
+export const PHASE_NAMES: Record<KnownPhaseId, string> = {
   "01a": "Spec Discovery",
   "01b": "Subgraph Extraction",
   "01e": "Property Generation",
@@ -17,5 +27,5 @@ export const PHASE_NAMES: Record<string, string> = {
 };
 
 export function phaseName(id: string): string {
-  return PHASE_NAMES[id] ?? id;
+  return isKnownPhaseId(id) ? PHASE_NAMES[id] : id;
 }

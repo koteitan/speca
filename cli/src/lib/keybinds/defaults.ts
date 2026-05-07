@@ -14,47 +14,86 @@
  * (`[keybinds]` table) and as the `action` argument to `useKeybind`.
  */
 
-export const DEFAULT_KEYBINDS: Record<string, string[]> = {
+/**
+ * Closed list of action names. Anything not listed here is a typo and should
+ * fail to type-check at the `useKeybind` call site.
+ *
+ * Add a new action by appending to this tuple AND populating
+ * `DEFAULT_KEYBINDS` below — the `Record<KeybindAction, string[]>` typing
+ * forces the two to stay in sync.
+ */
+export const KEYBIND_ACTIONS = [
   // Quit / cancel — present on every screen.
-  exit: ["q", "ctrl+c"],
+  "exit",
   // Dismiss a modal without quitting.
-  cancel: ["escape"],
+  "cancel",
   // Confirm a modal action.
-  confirm: ["return"],
+  "confirm",
   // Trigger an optional retry on an error modal.
-  retry: ["r"],
+  "retry",
   // Generic navigation.
+  "up",
+  "down",
+  "left",
+  "right",
+  "pageUp",
+  "pageDown",
+  // Pipeline dashboard (M3) — show / hide log pane.
+  "toggle-log",
+  // Pipeline dashboard (M3) — graceful stop (SIGTERM via handle.stop).
+  // Shares the "s" key with sort-mode; safe because each subcommand only
+  // subscribes to the action it cares about.
+  "stop-graceful",
+  // Pipeline dashboard (M3) — force-kill (SIGKILL via handle.kill).
+  // Shares the "f" key with filter-mode (same caveat as stop-graceful).
+  "stop-force",
+  // Finding browser (M4) — enter filter-edit mode.
+  "filter-mode",
+  // Finding browser (M4) — cycle sort key.
+  "sort-mode",
+  // Finding browser (M4) — enter text-search edit mode.
+  "search-mode",
+  // Finding browser (M4) — load / refresh the code peek for the selection.
+  "code-peek",
+  // Finding browser (M4) — reload the underlying glob from disk.
+  "reload",
+  // Ask Claude (M5) — focus the chat input.
+  "focus-chat",
+  // Ask Claude (M5) — start a new session (drop session.json + claude session id).
+  "new-session",
+  // Ask Claude (M5) — open the context modal showing the injected finding.
+  "show-context",
+  // Help overlay (any screen).
+  "help",
+] as const;
+
+export type KeybindAction = (typeof KEYBIND_ACTIONS)[number];
+
+export function isKeybindAction(value: string): value is KeybindAction {
+  return (KEYBIND_ACTIONS as readonly string[]).includes(value);
+}
+
+export const DEFAULT_KEYBINDS: Record<KeybindAction, string[]> = {
+  exit: ["q", "ctrl+c"],
+  cancel: ["escape"],
+  confirm: ["return"],
+  retry: ["r"],
   up: ["upArrow", "k"],
   down: ["downArrow", "j"],
   left: ["leftArrow", "h"],
   right: ["rightArrow", "l"],
   pageUp: ["pageUp"],
   pageDown: ["pageDown"],
-  // Pipeline dashboard (M3) — show / hide log pane.
   "toggle-log": ["l"],
-  // Pipeline dashboard (M3) — graceful stop (SIGTERM via handle.stop).
-  // Shares the "s" key with sort-mode; safe because each subcommand only
-  // subscribes to the action it cares about.
   "stop-graceful": ["s"],
-  // Pipeline dashboard (M3) — force-kill (SIGKILL via handle.kill).
-  // Shares the "f" key with filter-mode (same caveat as stop-graceful).
   "stop-force": ["f"],
-  // Finding browser (M4) — enter filter-edit mode.
   "filter-mode": ["f"],
-  // Finding browser (M4) — cycle sort key.
   "sort-mode": ["s"],
-  // Finding browser (M4) — enter text-search edit mode.
   "search-mode": ["/"],
-  // Finding browser (M4) — load / refresh the code peek for the selection.
   "code-peek": ["c"],
-  // Finding browser (M4) — reload the underlying glob from disk.
   reload: ["r"],
-  // Ask Claude (M5) — focus the chat input.
   "focus-chat": ["i"],
-  // Ask Claude (M5) — start a new session (drop session.json + claude session id).
   "new-session": ["n"],
-  // Ask Claude (M5) — open the context modal showing the injected finding.
   "show-context": ["c"],
-  // Help overlay (any screen).
   help: ["?"],
 };

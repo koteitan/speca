@@ -1,0 +1,44 @@
+name: cli-mutation
+# Mutation testing for the pure-logic libs in `cli/src/lib/**`.
+#
+# Runs weekly (and on demand) — too slow for every PR but a useful trailing
+# indicator that the test suite is actually catching regressions, not just
+# touching lines for coverage. Score gate is permissive (60%) on the first
+# pass so we can ratchet up; bump `thresholds.break` in `cli/stryker.conf.json`
+# once we know the steady-state score.
+
+on:
+  schedule:
+    - cron: "37 5 * * 1"  # Mondays 05:37 UTC
+  workflow_dispatch: {}
+
+jobs:
+  stryker:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: cli/package-lock.json
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+      - run: uv python install 3.11
+      - run: uv sync
+      - name: npm ci
+        working-directory: cli
+        run: npm ci
+      - name: build (sync schemas + tsc)
+        working-directory: cli
+        run: npm run build
+      - name: stryker
+        working-directory: cli
+        run: npm run stryker
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-mutation-report
+          path: cli/reports/mutation

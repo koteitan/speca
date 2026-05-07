@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "_comment": "Mutation testing for the pure-logic libs. Components (Ink TSX) are excluded — render tests don't kill many UI mutations and slow Stryker down a lot. Run via `npm run stryker`; CI runs this on a schedule, not per-PR.",
+  "packageManager": "npm",
+  "testRunner": "vitest",
+  "reporters": ["clear-text", "html", "progress"],
+  "concurrency": 4,
+  "timeoutMS": 60000,
+  "mutate": [
+    "src/lib/findings/filter.ts",
+    "src/lib/findings/loader.ts",
+    "src/lib/findings/sort.ts",
+    "src/lib/findings/types.ts",
+    "src/lib/pipeline/events.ts",
+    "src/lib/pipeline/store.ts",
+    "src/lib/pipeline/log-watcher.ts",
+    "src/lib/io/output-mode.ts",
+    "src/lib/keybinds/match.ts",
+    "src/lib/keybinds/index.ts"
+  ],
+  "thresholds": {
+    "high": 80,
+    "low": 65,
+    "break": 60
+  }
+}

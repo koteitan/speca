@@ -48,6 +48,13 @@ export interface InitOverrides {
   force?: boolean;
 }
 
+/**
+ * Loose record shape for artefact bodies. The strict per-schema types are
+ * applied by `buildTargetInfo` / `buildBugBountyScope` themselves; this
+ * interface stays permissive so callers (writers, tests) can spread either
+ * artefact into a generic `Record<string, unknown>` for serialisation
+ * without re-asserting the schema type.
+ */
 export interface BuiltArtefacts {
   targetInfo: Record<string, unknown>;
   bugBountyScope: Record<string, unknown>;

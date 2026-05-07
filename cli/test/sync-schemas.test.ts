@@ -43,4 +43,18 @@ describe("sync-schemas.mjs", () => {
     expect(manifest.schemas).toContain("TargetInfo.schema.json");
     expect(manifest.schemas).toContain("BugBountyScopeInfo.schema.json");
   });
+
+  it("emits types.ts mirroring the JSON Schema fields (drift-detection)", () => {
+    execFileSync(process.execPath, [scriptPath], { cwd: cliRoot, stdio: "pipe" });
+    const tsPath = resolve(generatedDir, "types.ts");
+    expect(existsSync(tsPath)).toBe(true);
+    const ts = readFileSync(tsPath, "utf8");
+    // If a field gets renamed in the Pydantic model the assertion fails and
+    // points the reader at the schema source. Names are normative — the
+    // generated TS is what `lib/schemas/index.ts` aliases as `*Input`.
+    expect(ts).toMatch(/export interface TargetInfo /);
+    expect(ts).toMatch(/target_repo:/);
+    expect(ts).toMatch(/export interface BugBountyScopeInfo /);
+    expect(ts).toMatch(/program_name\?:/);
+  });
 });

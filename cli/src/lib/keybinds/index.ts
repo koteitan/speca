@@ -22,24 +22,44 @@
 import { useInput } from "ink";
 import { useMemo } from "react";
 import { loadUserConfig, type UserConfig } from "../config/index.js";
-import { DEFAULT_KEYBINDS } from "./defaults.js";
+import {
+  DEFAULT_KEYBINDS,
+  isKeybindAction,
+  KEYBIND_ACTIONS,
+  type KeybindAction,
+} from "./defaults.js";
 import { matchAny, type KeyEvent } from "./match.js";
 
-export { DEFAULT_KEYBINDS } from "./defaults.js";
+export {
+  DEFAULT_KEYBINDS,
+  KEYBIND_ACTIONS,
+  isKeybindAction,
+  type KeybindAction,
+} from "./defaults.js";
 export { matchKey, matchAny, type KeyEvent } from "./match.js";
 
-export type KeybindMap = Record<string, string[]>;
+export type KeybindMap = Record<KeybindAction, string[]>;
+/**
+ * Loose form of {@link KeybindMap} used at the config-file boundary, where we
+ * may receive arbitrary action keys from `config.toml` and need to filter
+ * them down to the closed `KeybindAction` set.
+ */
+export type RawKeybindMap = Record<string, string[]>;
 
 /**
  * Merge the user's overrides on top of the defaults. Each action keeps its
  * default unless the user has provided a non-empty array for that action.
+ *
+ * Unknown action keys in `userOverrides` are dropped silently — they came
+ * from `config.toml` and a typo there should not crash the CLI.
  */
-export function resolveKeybinds(userOverrides: KeybindMap = {}): KeybindMap {
-  const result: KeybindMap = {};
-  for (const [action, keys] of Object.entries(DEFAULT_KEYBINDS)) {
-    result[action] = keys.slice();
+export function resolveKeybinds(userOverrides: RawKeybindMap = {}): KeybindMap {
+  const result = {} as KeybindMap;
+  for (const action of KEYBIND_ACTIONS) {
+    result[action] = DEFAULT_KEYBINDS[action].slice();
   }
   for (const [action, keys] of Object.entries(userOverrides)) {
+    if (!isKeybindAction(action)) continue;
     if (Array.isArray(keys) && keys.length > 0) {
       result[action] = keys.slice();
     }
@@ -68,10 +88,17 @@ export function resetKeybindCache(): void {
 }
 
 /**
- * Look up the active key descriptors for `action`. Returns `[]` when the
- * action is unknown (neither a default nor a user override).
+ * Look up the active key descriptors for `action`.
+ *
+ * `action` is typed as `KeybindAction` so a typo at the call site is a
+ * compile error. `overrides` accepts the loose `RawKeybindMap` shape so
+ * tests can drive arbitrary key/value pairs without satisfying the closed
+ * action set.
  */
-export function keysForAction(action: string, overrides?: KeybindMap): string[] {
+export function keysForAction(
+  action: KeybindAction,
+  overrides?: RawKeybindMap,
+): string[] {
   const map = overrides ?? getActiveKeybinds();
   return map[action] ?? [];
 }
@@ -80,9 +107,12 @@ export function keysForAction(action: string, overrides?: KeybindMap): string[] 
  * React hook: invoke `handler` whenever the user presses any key bound to
  * `action`. Pass `isActive: false` to temporarily suspend the binding (e.g.
  * while a modal owns input focus).
+ *
+ * `action` is typed as `KeybindAction` so any typo (e.g.
+ * `useKeybind("toogle-log", …)`) fails to compile.
  */
 export function useKeybind(
-  action: string,
+  action: KeybindAction,
   handler: () => void,
   options: { isActive?: boolean } = {},
 ): void {

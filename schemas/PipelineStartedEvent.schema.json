@@ -1,0 +1,45 @@
+{
+  "properties": {
+    "force": {
+      "title": "Force",
+      "type": "boolean"
+    },
+    "max_concurrent": {
+      "minimum": 0,
+      "title": "Max Concurrent",
+      "type": "integer"
+    },
+    "phases": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Phases",
+      "type": "array"
+    },
+    "ts": {
+      "description": "RFC 3339 UTC timestamp with millisecond precision.",
+      "title": "Ts",
+      "type": "string"
+    },
+    "type": {
+      "const": "pipeline-started",
+      "default": "pipeline-started",
+      "title": "Type",
+      "type": "string"
+    },
+    "workers": {
+      "minimum": 0,
+      "title": "Workers",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "ts",
+    "phases",
+    "workers",
+    "max_concurrent",
+    "force"
+  ],
+  "title": "PipelineStartedEvent",
+  "type": "object"
+}

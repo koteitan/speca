@@ -6,13 +6,14 @@ import { render } from "ink";
 import meow from "meow";
 import { createElement } from "react";
 import { printAskHelp, runAskCommand } from "./commands/ask.js";
-import { LOGIN_HELP, loginCommand } from "./commands/auth/login.js";
+import { LOGIN_HELP, loginCommand, loginFlagsSchema } from "./commands/auth/login.js";
 import { StatusCommand } from "./commands/auth/status.js";
 import { BROWSE_HELP, runBrowseCommand } from "./commands/browse.js";
 import { DoctorCommand } from "./commands/doctor.js";
 import { printInitHelp, runInitCommand } from "./commands/init.js";
 import { printRunHelp, runRunCommand } from "./commands/run.js";
 import { VersionCommand } from "./commands/version.js";
+import { parseFlags } from "./lib/cli-flags/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -137,14 +138,14 @@ See 'speca auth login --help' for login-specific flags.
         process.stdout.write(LOGIN_HELP);
         return 0;
       }
-      const mode = cli.flags.mode;
-      if (mode !== undefined && mode !== "max" && mode !== "console") {
-        process.stderr.write(`Invalid --mode value: ${mode}. Expected "max" or "console".\n`);
-        return 1;
+      const parsed = parseFlags(loginFlagsSchema, cli.flags as Record<string, unknown>, "speca auth login");
+      if (!parsed.ok) {
+        process.stderr.write(parsed.message);
+        return 2;
       }
       return loginCommand({
-        apiKey: cli.flags.apiKey,
-        mode: mode as "max" | "console" | undefined,
+        apiKey: parsed.flags.apiKey,
+        mode: parsed.flags.mode,
       });
     }
     case "status": {

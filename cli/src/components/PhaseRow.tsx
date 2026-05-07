@@ -9,12 +9,18 @@ interface PhaseRowProps {
   name?: string;
 }
 
-const STATUS_GLYPH: Record<PhaseState["status"], string> = {
+/**
+ * Status → ASCII glyph mapping. Exported so tests can assert against the
+ * source-of-truth glyph rather than pinning a literal string in two places.
+ */
+export const PHASE_STATUS_GLYPH: Record<PhaseState["status"], string> = {
   pending: "[ ]",
   running: "[>]",
   done: "[OK]",
   failed: "[X]",
 };
+
+const STATUS_GLYPH = PHASE_STATUS_GLYPH;
 
 const STATUS_COLOR: Record<PhaseState["status"], string | undefined> = {
   pending: undefined,

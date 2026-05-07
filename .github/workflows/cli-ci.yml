@@ -5,11 +5,19 @@ on:
     branches: [main]
     paths:
       - "cli/**"
+      - "scripts/orchestrator/event_models.py"
+      - "scripts/orchestrator/json_events.py"
+      - "scripts/export_schemas.py"
+      - "schemas/**"
       - ".github/workflows/cli-ci.yml"
   pull_request:
     branches: [main]
     paths:
       - "cli/**"
+      - "scripts/orchestrator/event_models.py"
+      - "scripts/orchestrator/json_events.py"
+      - "scripts/export_schemas.py"
+      - "schemas/**"
       - ".github/workflows/cli-ci.yml"
 
 jobs:
@@ -28,10 +36,14 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: npm
           cache-dependency-path: cli/package-lock.json
-      - name: Install uv (so `speca doctor` passes)
+      - name: Install uv (so `speca doctor` and the Python contract test pass)
         uses: astral-sh/setup-uv@v6
         with:
           version: "latest"
+      - name: Install Python toolchain via uv (required for events contract test)
+        run: uv python install 3.11
+      - name: Sync project Python deps (Pydantic for the emitter)
+        run: uv sync
       - name: npm ci
         working-directory: cli
         run: npm ci
@@ -41,9 +53,21 @@ jobs:
       - name: build
         working-directory: cli
         run: npm run build
-      - name: vitest
+      - name: schemas in sync (orchestrator → schemas/)
+        run: uv run python scripts/export_schemas.py --check
+      - name: schemas in sync (schemas/ → cli/src/lib/schemas/generated/)
         working-directory: cli
-        run: npm test
+        # Re-running sync-schemas should be a no-op on a clean checkout. If
+        # files differ, the developer forgot to commit the regenerated copies.
+        run: |
+          npm run sync-schemas
+          git diff --exit-code -- src/lib/schemas/generated
+        shell: bash
+      - name: vitest (incl. Python ↔ TS event contract + coverage gate)
+        working-directory: cli
+        # The coverage thresholds in vitest.config.ts gate the build; a
+        # significant drop in line/branch coverage on `lib/**` fails CI.
+        run: npx vitest run --coverage
       - name: speca doctor smoke test (built bundle)
         working-directory: cli
         run: node dist/cli.js doctor
@@ -53,3 +77,68 @@ jobs:
       - name: speca run --help smoke test (M3)
         working-directory: cli
         run: node dist/cli.js run --help
+
+  e2e-orchestrator:
+    name: e2e — orchestrator NDJSON ↔ CLI Zod
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: cli/package-lock.json
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+      - run: uv python install 3.11
+      - run: uv sync
+      - name: npm ci
+        working-directory: cli
+        run: npm ci
+      - name: build CLI
+        working-directory: cli
+        run: npm run build
+      - name: Run orchestrator on Phase 01b (depfail) — capture NDJSON
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/speca-e2e
+          cd /tmp/speca-e2e
+          # Phase 01b in an empty directory hits the dependency check fast
+          # and emits the full lifecycle (started/failed/completed).
+          uv run --project ${{ github.workspace }} python ${{ github.workspace }}/scripts/run_phase.py \
+            --phase 01b --json > events.ndjson 2> orchestrator.stderr || true
+          wc -l events.ndjson
+          head -1 events.ndjson
+      - name: Validate NDJSON against the generated TS Zod schema
+        working-directory: cli
+        run: |
+          set -euo pipefail
+          cat > /tmp/validate.mjs <<'NODE'
+          import { readFileSync } from "node:fs";
+          import { pipelineEventSchema } from "./dist/lib/pipeline/events.js";
+          const lines = readFileSync("/tmp/speca-e2e/events.ndjson", "utf8")
+            .split("\n").filter((l) => l.trim().length > 0);
+          if (lines.length === 0) {
+            console.error("no NDJSON lines emitted");
+            process.exit(1);
+          }
+          const seen = new Set();
+          for (const line of lines) {
+            const r = pipelineEventSchema.safeParse(JSON.parse(line));
+            if (!r.success) {
+              console.error("Zod rejected line:", line);
+              console.error(JSON.stringify(r.error.issues, null, 2));
+              process.exit(1);
+            }
+            seen.add(r.data.type);
+          }
+          for (const required of ["pipeline-started", "phase-started", "phase-failed", "pipeline-completed"]) {
+            if (!seen.has(required)) {
+              console.error("missing event type:", required, "saw:", [...seen]);
+              process.exit(1);
+            }
+          }
+          console.log("OK — validated", lines.length, "events covering", [...seen].join(", "));
+          NODE
+          node /tmp/validate.mjs
