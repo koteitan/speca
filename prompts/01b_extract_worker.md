@@ -28,8 +28,9 @@ Execution hint: This worker prompt is invoked by the phase-01 async orchestrator
     1. Process ALL items in the batch (up to BATCH_SIZE).
     2. For each subgraph, output an enriched `.mmd` Mermaid file (with YAML frontmatter and invariant notes) to <ref id="graphs"/>.
     3. The output files MUST be written even if some items fail.
+    4. Emit a single fenced ```json ... ``` block on outer stdout that aggregates the per-spec results returned by `/subgraph-extractor` into a `{"specs": [...]}` envelope. The orchestrator's result parser scans outer stdout for this block; if it is missing, all `.mmd` files written to disk are orphaned and the next phase has no inputs.
 
-    **FAILURE TO WRITE OUTPUT FILES IS A CRITICAL ERROR.**
+    **FAILURE TO WRITE OUTPUT FILES OR TO EMIT THE JSON ENVELOPE IS A CRITICAL ERROR.**
   </critical_requirements>
 
   <instructions>
@@ -42,7 +43,10 @@ Execution hint: This worker prompt is invoked by the phase-01 async orchestrator
        b. **Collect Result**: Append the skill's returned JSON object to the results array.
        c. **Handle Errors**: If the skill fails for an item, log the error and continue to the next item.
 
-    3. **Confirm Completion**: Print summary and end with: `Output Directory: {{OUTPUT_DIR}}`
+    3. **Confirm Completion**:
+       a. Print a fenced ```json ... ``` block whose body is `{"specs": [<one entry per spec>]}`. Each entry MUST be the per-spec object returned by `/subgraph-extractor` (`source_url`, `title`, `sub_graphs[]`). Include every spec the skill processed successfully — drop only items whose skill call failed.
+       b. After the JSON block, print the short status summary.
+       c. End with the exact line: `Output Directory: {{OUTPUT_DIR}}`
   </instructions>
 
   <output_structure>
@@ -87,6 +91,28 @@ Execution hint: This worker prompt is invoked by the phase-01 async orchestrator
 
 <output>
   <format>Enriched Mermaid files (.mmd) with YAML frontmatter and invariant notes</format>
-  <stdout>Max 8 lines: batch size, items processed, graphs generated, short status.</stdout>
+  <stdout>A fenced ```json``` envelope (see <required_envelope/> below) followed by a short status summary (max 8 lines: batch size, items processed, graphs generated, short status) and the final line.</stdout>
+  <required_envelope>
+    The JSON block printed on outer stdout MUST match this shape exactly. The result parser in `scripts/orchestrator/runner.py` scans for this block and routes it through Pydantic schema `Phase01bPartial`.
+
+    ```json
+    {
+      "specs": [
+        {
+          "source_url": "<spec url>",
+          "title": "<spec title>",
+          "sub_graphs": [
+            {
+              "id": "SG-001",
+              "name": "<unit>",
+              "mermaid_file": "<spec>/SG-001_<unit>.mmd",
+              "invariants": ["INV-001: ..."]
+            }
+          ]
+        }
+      ]
+    }
+    ```
+  </required_envelope>
   <final_line>Output Directory: {{OUTPUT_DIR}}</final_line>
 </output>

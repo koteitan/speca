@@ -334,6 +334,18 @@ class BaseOrchestrator(ABC):
         _sep = '\u2500' * 40
         print(_sep)
 
+        # Loud warning when the phase produced no successful batches but
+        # still spent money. This usually means the worker prompt and the
+        # result parser disagree on the output contract \u2014 see issue #24.
+        spent = cost_stats["total_cost_usd"] if cost_stats else 0.0
+        if cb_stats["total_successes"] == 0 and spent > 0:
+            print(
+                f"WARNING: Phase {self.config.phase_id} produced 0 batch successes despite ${spent:.2f} spent.\n"
+                f"This usually means the worker prompt and the result parser disagree on the output contract.\n"
+                f"See https://github.com/NyxFoundation/speca/issues/24 for context.",
+                file=sys.stderr,
+            )
+
         # Write to GitHub Step Summary if running in GitHub Actions
         self._write_github_step_summary(
             duration, total_results, cb_stats, val_stats, cost_stats,
@@ -472,6 +484,25 @@ class BaseOrchestrator(ABC):
         Override in subclasses for phase-specific enrichment.
         """
         return items
+
+    def _recover_partial_from_disk(
+        self,
+        worker_id: int,
+        batch_index: int,
+    ) -> list[dict[str, Any]]:
+        """Recover a batch's partial result from on-disk artifacts.
+
+        Called when the runner returns an empty list (typically because the
+        worker wrote artifacts but failed to emit the expected JSON envelope
+        on outer stdout). The default implementation returns an empty list;
+        phase-specific subclasses override this hook to scan their working
+        directory and reconstruct a result list compatible with
+        ``ResultCollector.save_partial``.
+
+        See https://github.com/NyxFoundation/speca/issues/24 for the
+        Phase 01b motivating case.
+        """
+        return []
     
     async def execute_batches(self, batches: list[list[dict[str, Any]]]) -> None:
         """
@@ -521,6 +552,15 @@ class BaseOrchestrator(ABC):
                         self.results.extend(result)
                         if result:
                             self.collector.save_partial(result, worker_id, batch_index)
+                        else:
+                            recovered = self._recover_partial_from_disk(worker_id, batch_index)
+                            if recovered:
+                                print(
+                                    f"[W{worker_id}] Batch {batch_index}: recovered {len(recovered)} item(s) from disk after empty stdout result",
+                                    file=sys.stderr,
+                                )
+                                self.results.extend(recovered)
+                                self.collector.save_partial(recovered, worker_id, batch_index)
                 except CircuitBreakerTripped as cb:
                     self._circuit_breaker_tripped = True
                     print(
@@ -822,6 +862,203 @@ class Phase01Orchestrator(BaseOrchestrator):
             enriched.append(enriched_item)
 
         return enriched
+
+
+class Phase01bOrchestrator(Phase01Orchestrator):
+    """Orchestrator for Phase 01b (Subgraph Extraction).
+
+    Inherits all loading/enrichment logic from ``Phase01Orchestrator`` and
+    adds a directory-scanning fallback that reconstructs a Phase 01b partial
+    payload from the on-disk ``.mmd`` artifacts when the worker emits no
+    JSON envelope on outer stdout (issue #24).
+    """
+
+    # Match `INV-...: ...` lines inside `note right of <node> ... end note`
+    # blocks. The captured group is the full invariant text (e.g. "INV-001: x").
+    _INV_LINE_RE = re.compile(r"^\s*(INV-\w+:\s*.+?)\s*$")
+    _NOTE_OPEN_RE = re.compile(r"^\s*note\s+right\s+of\b", re.IGNORECASE)
+    _NOTE_CLOSE_RE = re.compile(r"^\s*end\s+note\b", re.IGNORECASE)
+
+    def _recover_partial_from_disk(
+        self,
+        worker_id: int,
+        batch_index: int,
+    ) -> list[dict[str, Any]]:
+        """Rebuild a Phase 01b partial from ``outputs/graphs/batch_w*b*_*/``.
+
+        Falls back to scanning the on-disk artifacts that the worker (or its
+        skill) wrote, even when the outer stdout JSON envelope was missing.
+        Returns a list whose shape matches what
+        ``ResultCollector.save_partial`` expects for Phase 01b: one dict per
+        spec, conforming to ``SpecSubGraphs``.
+        """
+        import glob as glob_mod
+
+        output_root = get_output_root()
+        batch_dirs = sorted(glob_mod.glob(
+            str(output_root / "graphs" / f"batch_w{worker_id}b{batch_index}_*")
+        ))
+        if not batch_dirs:
+            return []
+
+        # Build a lookup of item_id → source_url from the queue + context
+        # files written for this batch by the runner.
+        url_lookup = self._load_url_lookup_for_batch(worker_id, batch_index)
+
+        recovered: list[dict[str, Any]] = []
+        for batch_dir in batch_dirs:
+            batch_path = Path(batch_dir)
+            if not batch_path.is_dir():
+                continue
+
+            for spec_dir in sorted(batch_path.iterdir()):
+                if not spec_dir.is_dir():
+                    continue
+
+                mmd_files = sorted(spec_dir.glob("*.mmd"))
+                if not mmd_files:
+                    continue
+
+                sub_graphs: list[dict[str, Any]] = []
+                for mmd in mmd_files:
+                    sg_id, sg_name = self._parse_subgraph_id_name(mmd.stem)
+                    invariants = self._extract_invariants(mmd)
+                    sub_graphs.append({
+                        "id": sg_id,
+                        "name": sg_name,
+                        "mermaid_file": f"{spec_dir.name}/{mmd.name}",
+                        "invariants": invariants,
+                    })
+
+                if not sub_graphs:
+                    continue
+
+                source_url = url_lookup.get(spec_dir.name, "")
+                recovered.append({
+                    "source_url": source_url,
+                    "title": spec_dir.name,
+                    "sub_graphs": sub_graphs,
+                })
+
+        return recovered
+
+    def _load_url_lookup_for_batch(
+        self,
+        worker_id: int,
+        batch_index: int,
+    ) -> dict[str, str]:
+        """Build a {spec_dir_name -> source_url} map from queue+context files.
+
+        The runner writes both an ``ASYNC_QUEUE`` and a ``CONTEXT`` file per
+        batch, keyed by ``item_id_field``. For Phase 01b that field is
+        ``url``, so the spec subdirectory the skill creates is derived from
+        the URL by the skill itself. We try a few reasonable matches:
+        exact stem, last path segment, and a sanitised slug.
+        """
+        import glob as glob_mod
+
+        output_root = get_output_root()
+        context_glob = str(
+            output_root / f"01b_CONTEXT_W{worker_id}B{batch_index}_*.json"
+        )
+        queue_glob = str(
+            output_root / f"01b_ASYNC_QUEUE_W{worker_id}B{batch_index}_*.json"
+        )
+
+        urls: list[str] = []
+
+        # Prefer CONTEXT (full item data keyed by url) if present
+        for path in sorted(glob_mod.glob(context_glob)):
+            try:
+                with open(path, encoding="utf-8") as f:
+                    ctx = json.load(f)
+                if isinstance(ctx, dict):
+                    for key, value in ctx.items():
+                        if isinstance(value, dict) and value.get("url"):
+                            urls.append(str(value["url"]))
+                        elif isinstance(key, str) and (key.startswith("http://") or key.startswith("https://")):
+                            urls.append(key)
+            except Exception as e:
+                print(
+                    f"Warning: failed to load 01b context for recovery {path}: {e}",
+                    file=sys.stderr,
+                )
+
+        # Fall back to QUEUE (item_ids list — for 01b that's URLs)
+        if not urls:
+            for path in sorted(glob_mod.glob(queue_glob)):
+                try:
+                    with open(path, encoding="utf-8") as f:
+                        q = json.load(f)
+                    if isinstance(q, dict):
+                        for ident in q.get("item_ids", []) or []:
+                            if isinstance(ident, str) and ident:
+                                urls.append(ident)
+                except Exception as e:
+                    print(
+                        f"Warning: failed to load 01b queue for recovery {path}: {e}",
+                        file=sys.stderr,
+                    )
+
+        # Build {candidate_dir_name -> url} mapping. The skill names the
+        # spec subdir from the URL, so we register a few likely candidates
+        # (last path segment, stem without suffix) for each URL.
+        lookup: dict[str, str] = {}
+        for url in urls:
+            for candidate in self._candidate_dir_names(url):
+                lookup.setdefault(candidate, url)
+        return lookup
+
+    @staticmethod
+    def _candidate_dir_names(url: str) -> list[str]:
+        """Return a few plausible spec-dir names derived from *url*."""
+        candidates: list[str] = []
+        try:
+            stripped = url.rstrip("/")
+            last = stripped.rsplit("/", 1)[-1]
+            if last:
+                candidates.append(last)
+                # File stem (drop extension)
+                stem = Path(last).stem
+                if stem and stem != last:
+                    candidates.append(stem)
+        except Exception:
+            pass
+        return candidates
+
+    @staticmethod
+    def _parse_subgraph_id_name(stem: str) -> tuple[str, str]:
+        """Parse ``SG-001_unit_name`` or ``SG-001`` into (id, name)."""
+        if "_" in stem:
+            sg_id, _, sg_name = stem.partition("_")
+            return sg_id, sg_name
+        return stem, ""
+
+    @classmethod
+    def _extract_invariants(cls, mmd_path: Path) -> list[str]:
+        """Pull ``INV-XXX: ...`` lines from ``note right of`` blocks."""
+        invariants: list[str] = []
+        try:
+            with open(mmd_path, encoding="utf-8") as f:
+                in_note = False
+                for line in f:
+                    if cls._NOTE_OPEN_RE.match(line):
+                        in_note = True
+                        continue
+                    if cls._NOTE_CLOSE_RE.match(line):
+                        in_note = False
+                        continue
+                    if not in_note:
+                        continue
+                    m = cls._INV_LINE_RE.match(line)
+                    if m:
+                        invariants.append(m.group(1))
+        except OSError as e:
+            print(
+                f"Warning: failed to read {mmd_path} during 01b recovery: {e}",
+                file=sys.stderr,
+            )
+        return invariants
 
 
 class Phase02cOrchestrator(BaseOrchestrator):
