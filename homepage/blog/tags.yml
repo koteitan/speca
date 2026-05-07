@@ -2,3 +2,8 @@ announcement:
   label: お知らせ
   permalink: /announcement
   description: SPECA からのお知らせ
+
+vision:
+  label: 展望
+  permalink: /vision
+  description: SPECA の将来構想・方向性
