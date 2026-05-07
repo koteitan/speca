@@ -19,6 +19,17 @@ const sidebars = {
     'intro',
     {
       type: 'category',
+      label: 'やさしいガイド',
+      collapsed: false,
+      items: [
+        'guide/what-is-speca',
+        'guide/how-it-works',
+        'guide/try-it',
+        'guide/faq',
+      ],
+    },
+    {
+      type: 'category',
       label: 'はじめに',
       collapsed: false,
       items: ['getting-started/installation', 'getting-started/quickstart'],
