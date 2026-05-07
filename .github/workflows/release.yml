@@ -64,6 +64,19 @@ jobs:
       - run: uv python install 3.11
       - run: uv sync
 
+      # ripgrep is required by `_execute_grep` in scripts/orchestrator/api_runner.py;
+      # the test_grep_with_glob_filter case in tests/test_api_runner.py fails on
+      # hosted ubuntu without it (the fallback to `grep -rn` doesn't honour the
+      # `--glob` filter). Self-hosted runners typically have rg pre-installed,
+      # but the hosted GHA image does not.
+      - name: Install ripgrep
+        run: |
+          if ! command -v rg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends ripgrep
+          fi
+          rg --version | head -1
+
       # ---- Tag ↔ version consistency -------------------------------------
       - name: Verify tag matches cli/package.json version
         if: github.event_name == 'push'
