@@ -6,6 +6,7 @@ import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import TrackRecord from '@site/src/components/TrackRecord';
 import QuickStart from '@site/src/components/QuickStart';
+import Paper from '@site/src/components/Paper';
 import TerminalMockup from '@site/src/components/TerminalMockup';
 
 import Heading from '@theme/Heading';
@@ -56,6 +57,7 @@ export default function Home() {
       <main>
         <HomepageFeatures />
         <TrackRecord />
+        <Paper />
         <QuickStart />
       </main>
     </Layout>

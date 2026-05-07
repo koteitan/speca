@@ -2,9 +2,10 @@ import Heading from '@theme/Heading';
 import styles from './styles.module.css';
 
 const items = [
-  'Sherlock Ethereum Fusaka 監査: 既知脆弱性 15 件すべてを検出、追加バグ 4 件を独立発見',
-  'RepoAudit C/C++ ベンチマーク: 他のバグ発見 AI と比較して高精度を維持しつつ新規候補バグ 12 件を報告',
-  'Intmax ZK 実装、SP1 zkVM、Ethereum クライアント 20 件以上など多数のプロジェクトを監査',
+  'Sherlock: expert augmented で 15/15 の脆弱性回復、automated-only 8/15 (53%)',
+  'RepoAudit (C/C++): precision 88.9%、recall 100%、F1=0.94、35 既知脆弱性全検出',
+  'Novel bug discovery: 4 件独立発見、1 件は 366 名監査者が見落とした暗号不変式違反',
+  'Cost efficiency: ~$1.69 per bug、severity 保持フィルタ下での cost-effective monitoring',
 ];
 
 export default function TrackRecord() {
@@ -13,8 +14,9 @@ export default function TrackRecord() {
       <div className="container">
         <Heading as="h2" className={styles.heading}>実績</Heading>
         <p className={styles.lead}>
-          複数の本番環境プロジェクトおよびベンチマークでの検証を通じて、
-          既知脆弱性の高い検出率と独立した新規バグ発見能力を確認しています。
+          論文検証により、expert augmented 時の full recovery (15/15) と
+          automated-only (8/15) の実運用性能を定量化。RepoAudit 15 プロジェクト
+          全体で precision 88.9%、recall 100% を達成し、cost-per-bug $1.69 を実証。
         </p>
         <ul className={styles.list}>
           {items.map((item, idx) => (

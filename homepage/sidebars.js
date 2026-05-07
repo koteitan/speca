@@ -48,6 +48,12 @@ const sidebars = {
         'concepts/bug-bounty-scope',
       ],
     },
+    {
+      type: 'category',
+      label: 'リファレンス',
+      collapsed: false,
+      items: ['references/paper'],
+    },
   ],
 };
 
