@@ -1,6 +1,6 @@
 # speca-cli
 
-> **v1.0.0** — TUI front-end for the SPECA security-audit pipeline. Implements milestones M1–M7 of [issue #3](https://github.com/NyxFoundation/speca/issues/3) per [`docs/SPECA_CLI_SPEC.md`](../docs/SPECA_CLI_SPEC.md).
+> **v0.9.0** (soft launch ahead of v1.0.0 GA) — TUI front-end for the SPECA security-audit pipeline. Implements milestones M1–M7 of [issue #3](https://github.com/NyxFoundation/speca/issues/3) per [`docs/SPECA_CLI_SPEC.md`](../docs/SPECA_CLI_SPEC.md).
 
 ## What is speca-cli
 
@@ -25,19 +25,48 @@ If `doctor` reports all green you can move on to `auth login` and `init`. If som
 
 ## Installation
 
-`speca-cli` ships on npm. Pick whichever style you prefer:
+You can use `speca-cli` in two ways. The npm package is the smoothest path; the git build is for hacking on the CLI itself or pinning to an unreleased commit.
+
+### Option 1 — Install from npm (recommended)
 
 ```bash
-# Always-fresh, no global install (recommended for first-time use)
+# Always-fresh, no global install — recommended for first-time use
 npx speca-cli@latest <command>
 
 # Pin to a specific release
-npx speca-cli@1.0.0 <command>
+npx speca-cli@0.9.0 <command>
 
 # Global install
 npm install -g speca-cli
 speca <command>
 ```
+
+The published package is [`speca-cli`](https://www.npmjs.com/package/speca-cli) on the public npm registry. New tagged releases are published automatically by the [release workflow](../.github/workflows/release.yml) when a `v*.*.*` tag is pushed.
+
+### Option 2 — Build from a git checkout
+
+Use this path when you want to test an unreleased branch / PR, run with local code changes, or avoid the npm registry entirely.
+
+```bash
+git clone https://github.com/NyxFoundation/speca.git
+cd speca/cli
+
+npm install        # install dev + runtime deps
+npm run build      # sync-schemas + tsc → dist/
+node dist/cli.js doctor
+```
+
+If you'd like a `speca` shim on your PATH that points at the local build (so you can iterate without re-running `node dist/cli.js …`), use `npm link`:
+
+```bash
+npm link           # run inside cli/ — registers `speca` globally
+speca doctor       # uses your local build
+
+# Later, when you want to drop the shim:
+npm unlink -g speca-cli
+```
+
+For Python-side changes (the orchestrator that the CLI invokes), keep `uv sync` up to date in the repo root and `speca run` will pick them up automatically — `speca-cli` always invokes `uv run python3 scripts/run_phase.py …` against the current working directory's checkout.
 
 ### Requirements
 
@@ -54,7 +83,7 @@ speca <command>
 
 ## Commands
 
-All commands ship in v1.0.0.
+All commands ship in v0.9.0.
 
 | Command | Description |
 |---|---|
@@ -77,7 +106,7 @@ Common flags (apply to every subcommand; see [SPEC §6](../docs/SPECA_CLI_SPEC.m
 
 ### `speca version`
 
-Prints the npm package version (currently `1.0.0`).
+Prints the npm package version (currently `0.9.0`).
 
 ### `speca doctor`
 
@@ -307,7 +336,7 @@ Manual test recipes (smoke tests + unit tests + TUI 目視) live in [`cli/TESTIN
 cd cli
 npm install
 npm run build
-npm test                                # 220/220 vitest
+npm test                                # 256/256 vitest
 node dist/cli.js doctor                 # environment health
 node dist/cli.js run --phase 01b --json # NDJSON pass-through
 ```

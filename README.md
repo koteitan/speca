@@ -25,7 +25,19 @@ Security-critical software is routinely audited by tools that reason about vulne
 
 ### speca-cli (TUI front-end)
 
-A Node.js + Ink terminal UI for SPECA — `npx speca-cli@next doctor` to bootstrap, then `speca auth login` and `speca init` to configure a target without hand-editing JSON. Currently shipping M2 (`auth` + `init`); pipeline run / browse land in M3+. Full docs: [`cli/README.md`](cli/README.md). Japanese 5-minute quickstart for hirorogo team: [`docs/hiro/cli-quickstart.md`](docs/hiro/cli-quickstart.md).
+A Node.js + Ink terminal UI for SPECA. The pipeline run, finding browser, and "Ask Claude" chat all run from one command — no hand-editing JSON, no log-tailing in another terminal. Soft-launched at v0.9.0 ahead of the v1.0.0 GA.
+
+```bash
+# Install from npm (recommended)
+npx speca-cli@latest doctor          # zero-install bootstrap
+npm install -g speca-cli             # or globally
+
+# Or build from this git checkout
+cd cli && npm install && npm run build
+node dist/cli.js doctor
+```
+
+`speca auth login` → `speca init` → `speca run --target 03` is the typical first-run loop. Full docs: [`cli/README.md`](cli/README.md). npm package: [`speca-cli`](https://www.npmjs.com/package/speca-cli). Japanese 5-minute quickstart: [`docs/hiro/cli-quickstart.md`](docs/hiro/cli-quickstart.md).
 
 ### Headline Results
 
