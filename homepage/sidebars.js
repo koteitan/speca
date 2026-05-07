@@ -82,8 +82,9 @@ const sidebars = {
       type: 'category',
       label: 'コミュニティ',
       collapsed: false,
-      items: ['community/thanks', 'community/achievements'],
+      items: ['community/thanks'],
     },
+    'achievements',
   ],
 };
 

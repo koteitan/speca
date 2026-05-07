@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 9
 title: 実績
 ---
 
@@ -7,7 +7,7 @@ title: 実績
 
 SPECA を使って見つけたバグ、提出した報告、当てた賞金、書いたツール拡張など、コミュニティの実績をここに集めるページです。**誰でも自由に追記できます**。
 
-> 自分の SPECA 利用結果をここに載せたい方は、このファイル (`homepage/docs/community/achievements.md`) を直接編集する pull request を [NyxFoundation/speca](https://github.com/NyxFoundation/speca) に出してください。匿名希望の場合はハンドル名のみで OK です。
+> 自分の SPECA 利用結果をここに載せたい方は、このファイル (`homepage/docs/achievements.md`) を直接編集する pull request を [NyxFoundation/speca](https://github.com/NyxFoundation/speca) に出してください。匿名希望の場合はハンドル名のみで OK です。
 
 ## 追記テンプレート
 
