@@ -16,7 +16,7 @@ gohan:
 
 hirorogo:
   name: Hiro
-  title: hirorogo / Nyx Foundation
+  title: 愛知県立愛知総合工科高等学校 / Aichi High School of Technology and Engineering
   url: https://github.com/hirorogo
   image_url: /img/avatars/hirorogo.png
   page: false
@@ -25,7 +25,7 @@ hirorogo:
 
 sururu-k:
   name: sururu-k
-  title: PR opener (NyxFoundation)
+  title: 愛知県立愛知総合工科高等学校 (alt of hirorogo)
   url: https://github.com/sururu-k
   image_url: /img/avatars/hirorogo.png
   page: false
