@@ -4,32 +4,32 @@ import styles from './styles.module.css';
 
 const FeatureList = [
   {
-    title: 'Spec-driven',
+    title: '仕様駆動監査',
     description: (
       <>
-        SPECA transforms specifications (BIPs, EIPs, RFCs, design docs) into
-        formal program graphs and security properties. Findings cite the spec
-        clause they came from.
+        自然言語仕様 (EIP、コンセンサス仕様など) から型付きセキュリティ
+        プロパティ (Invariant / Precondition / Postcondition / Assumption)
+        を抽出し、仕様レベルでしか表現できない脆弱性を検出します。
       </>
     ),
   },
   {
-    title: 'Proof-based audit',
+    title: 'Proof-Attempt 推論',
     description: (
       <>
-        A three-phase Map → Prove → Stress-Test pipeline runs Claude Code agents
-        against the target codebase. Gaps in proof become candidate findings;
-        budget and circuit breakers keep cost bounded.
+        STRIDE + CWE Top 25 に基づく脅威モデルで整理した各プロパティに対し、
+        「このプロパティが成立することを証明してみろ」と構造的に問い、
+        仕様と実装のギャップを検出します。
       </>
     ),
   },
   {
-    title: 'Recall-safe filtering',
+    title: '完全な解釈可能性',
     description: (
       <>
-        A 3-gate FP filter (Dead Code → Trust Boundary → Scope Check) preserves
-        real findings. Only these three gates may dispute a verdict, so audit
-        recall is never silently traded away.
+        全監査ステップを JSON で構造化。3-gate review ループ
+        (Dead Code / Trust Boundary / Scope) で偽陽性を根本原因ごとに分解し、
+        監査可能・解釈可能な監査結果を提供します。
       </>
     ),
   },

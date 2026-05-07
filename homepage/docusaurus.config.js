@@ -4,7 +4,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'SPECA',
-  tagline: 'Specification-to-Property Agentic Auditing',
+  tagline: '仕様からセキュリティギャップを発見する Specification-to-Property Agentic Auditing',
   favicon: 'img/speca_logo.png',
 
   future: {

@@ -3,6 +3,8 @@ import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
+import TrackRecord from '@site/src/components/TrackRecord';
+import QuickStart from '@site/src/components/QuickStart';
 
 import Heading from '@theme/Heading';
 import styles from './index.module.css';
@@ -20,12 +22,12 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro">
-            Get started
+            ドキュメントを読む
           </Link>
           <Link
             className={clsx('button button--secondary button--lg', styles.secondaryCta)}
             href="https://github.com/NyxFoundation/speca">
-            View on GitHub
+            GitHub で見る
           </Link>
         </div>
       </div>
@@ -42,6 +44,8 @@ export default function Home() {
       <HomepageHeader />
       <main>
         <HomepageFeatures />
+        <TrackRecord />
+        <QuickStart />
       </main>
     </Layout>
   );
