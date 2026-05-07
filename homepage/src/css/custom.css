@@ -128,6 +128,12 @@
   width: auto;
 }
 
+/* Dark mode: SPECA logo SVG is fill #0a0909 (near-black). Invert so the
+   mark is readable on the dark navbar background. */
+[data-theme='dark'] .navbar__logo img {
+  filter: invert(1);
+}
+
 /* Footer: light + restrained. */
 .footer--light {
   background: var(--nyx-color-surface-muted);
