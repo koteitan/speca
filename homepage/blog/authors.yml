@@ -13,3 +13,21 @@ gohan:
   page: false
   socials:
     github: grandchildrice
+
+hirorogo:
+  name: Hiro
+  title: hirorogo / Nyx Foundation
+  url: https://github.com/hirorogo
+  image_url: /img/avatars/hirorogo.png
+  page: false
+  socials:
+    github: hirorogo
+
+sururu-k:
+  name: sururu-k
+  title: PR opener (NyxFoundation)
+  url: https://github.com/sururu-k
+  image_url: /img/avatars/hirorogo.png
+  page: false
+  socials:
+    github: sururu-k

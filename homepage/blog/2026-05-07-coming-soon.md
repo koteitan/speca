@@ -1,7 +1,7 @@
 ---
 slug: coming-soon
 title: 近日更新予定
-authors: [gohan, speca]
+authors: [gohan, hirorogo, speca]
 tags: [announcement]
 ---
 
