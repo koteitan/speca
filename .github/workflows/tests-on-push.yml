@@ -67,3 +67,45 @@ jobs:
       - name: Vitest with coverage
         working-directory: cli
         run: npm run test:coverage
+
+      # ---- E2E: orchestrator NDJSON → CLI Zod -----------------------------
+      # Runs run_phase.py with --json against an empty workdir (Phase 01b
+      # hits the dependency check fast and emits the full lifecycle), then
+      # validates every line via the generated Zod union from the built CLI.
+      - name: E2E — orchestrator NDJSON → CLI Zod
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/speca-e2e
+          cd /tmp/speca-e2e
+          uv run --project ${{ github.workspace }} python ${{ github.workspace }}/scripts/run_phase.py \
+            --phase 01b --json > events.ndjson 2> orchestrator.stderr || true
+          wc -l events.ndjson
+          cd ${{ github.workspace }}/cli
+          # Script lives next to dist/ so its `./dist/lib/...` import resolves.
+          cat > validate-events.mjs <<'NODE'
+          import { readFileSync } from "node:fs";
+          import { pipelineEventSchema } from "./dist/lib/pipeline/events.js";
+          const lines = readFileSync("/tmp/speca-e2e/events.ndjson", "utf8")
+            .split("\n").filter((l) => l.trim().length > 0);
+          if (lines.length === 0) { console.error("no NDJSON lines emitted"); process.exit(1); }
+          const seen = new Set();
+          for (const line of lines) {
+            const r = pipelineEventSchema.safeParse(JSON.parse(line));
+            if (!r.success) {
+              console.error("Zod rejected line:", line);
+              console.error(JSON.stringify(r.error.issues, null, 2));
+              process.exit(1);
+            }
+            seen.add(r.data.type);
+          }
+          for (const required of ["pipeline-started", "phase-started", "phase-failed", "pipeline-completed"]) {
+            if (!seen.has(required)) {
+              console.error("missing event type:", required, "saw:", [...seen]);
+              process.exit(1);
+            }
+          }
+          console.log("OK — validated", lines.length, "events covering", [...seen].join(", "));
+          NODE
+          node validate-events.mjs
+          rm -f validate-events.mjs

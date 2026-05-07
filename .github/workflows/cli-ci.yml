@@ -112,9 +112,13 @@ jobs:
           head -1 events.ndjson
       - name: Validate NDJSON against the generated TS Zod schema
         working-directory: cli
+        # Script is written under `cli/` (not `/tmp/`) so its relative
+        # `./dist/lib/pipeline/events.js` import resolves correctly. Earlier
+        # we wrote to `/tmp/validate.mjs` and hit ERR_MODULE_NOT_FOUND when
+        # Node resolved `./dist/...` against the script's directory.
         run: |
           set -euo pipefail
-          cat > /tmp/validate.mjs <<'NODE'
+          cat > validate-events.mjs <<'NODE'
           import { readFileSync } from "node:fs";
           import { pipelineEventSchema } from "./dist/lib/pipeline/events.js";
           const lines = readFileSync("/tmp/speca-e2e/events.ndjson", "utf8")
@@ -141,4 +145,5 @@ jobs:
           }
           console.log("OK — validated", lines.length, "events covering", [...seen].join(", "));
           NODE
-          node /tmp/validate.mjs
+          node validate-events.mjs
+          rm -f validate-events.mjs
