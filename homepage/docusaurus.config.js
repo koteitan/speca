@@ -111,7 +111,7 @@ const config = {
             ],
           },
         ],
-        copyright: `© ${new Date().getFullYear()} Nyx Foundation. SPECA は Apache License 2.0 で公開されています。`,
+        copyright: `© ${new Date().getFullYear()} Nyx Foundation. SPECA は MIT License で公開されています。`,
       },
       prism: {
         theme: prismThemes.github,
