@@ -5,6 +5,70 @@ All notable changes to `speca-cli` are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Accumulated changes since v0.9.0. Will graduate to a tagged release once the
+0.9.x soak window produces meaningful feedback.
+
+### Added
+
+- **`speca run` pre-flight checks** ([#28]):
+  - `auth-expired` — refuses to spawn when the active OAuth token is past
+    its `expires_at`. API-key accounts and missing auth files are
+    untouched.
+  - `stale-resume` — refuses to spawn (without `--force`) when
+    `outputs/TARGET_INFO.json` was rewritten meaningfully later than the
+    newest `outputs/01b_PARTIAL_*.json`. 60-second grace window absorbs
+    back-to-back `init` + `run`.
+- **`speca browse` schema-mismatch gate** ([#28]) — exits with a
+  parseable `[ERROR kind=schema-mismatch] …` line when every matched
+  partial file fails loader validation, instead of dropping into a
+  zero-row TUI.
+- **`subprocess-crash` reporter** ([#28]) — `speca run`'s spawn-error
+  handler now uses the canonical kind=subprocess-crash format on both
+  headless and TUI paths.
+- **`KNOWN_VERDICTS` const tuple** in `cli/src/lib/findings/types.ts` so
+  call sites that hand-write a verdict literal can opt into the closed
+  set via `KnownVerdict` (a typo'd verdict fails to compile).
+- **`warnUnknownPhases` heads-up** in `speca run` — warns to stderr when
+  `--phase` / `--target` carry an id outside `KNOWN_PHASE_IDS`. Forks
+  may legitimately add phases via custom orchestrator configs, so the
+  unknown id is forwarded; the warn just removes the surprise factor.
+- **`cli/src/lib/errors/report.ts`** — stderr-side reporter that mirrors
+  `<ErrorModal>` wording, with a parseable `kind=<kind>` token so CI
+  scripts can match specific failure modes.
+- **Post-publish smoke job** in `.github/workflows/release.yml` —
+  spins up a clean ubuntu runner after every successful `npm publish`,
+  installs the freshly-published version, and runs
+  `speca version` / `speca help` / `speca doctor` plus an `npx` route
+  check. Catches tarball / bin-shim / dependency-pinning regressions
+  the in-tree tests can't see.
+- **Git-build install path** in `cli/README.md` and root `README.md` —
+  the npm route stays the recommended one, but contributors testing
+  unreleased branches now have a documented `git clone && npm install
+  && npm run build` recipe (plus `npm link`).
+
+### Fixed
+
+- All seven `ErrorKind`s defined in `cli/src/lib/errors/kinds.ts` now
+  have at least one production caller. Before this release four kinds
+  (auth-expired / schema-mismatch / stale-resume / subprocess-crash)
+  had infrastructure but no code path firing them.
+
+### Changed
+
+- `speca version` / version-string mentions in docs now reflect the
+  shipped `0.9.0` (was stale `1.0.0` / `M2`-era text in the root
+  README).
+
+### Tests
+
+- +32 vitest cases (256 → 288): errors-reporter (×13), preflight
+  detectors (×10), browse error-kinds (×2), run pre-flight + phase warn
+  (×5), verdict closed-set (×2).
+
+[#28]: https://github.com/NyxFoundation/speca/issues/28
+
 ## [0.9.0] - 2026-05-07
 
 Soft-launch release ahead of the v1.0.0 GA. All features from the M1–M7
