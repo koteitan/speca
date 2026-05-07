@@ -5,7 +5,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 const config = {
   title: 'SPECA',
   tagline: '仕様からセキュリティギャップを発見する Specification-to-Property Agentic Auditing',
-  favicon: 'img/speca_logo.png',
+  favicon: 'img/speca_logo.svg',
 
   future: {
     v4: true,
@@ -56,7 +56,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      image: 'img/speca_logo.png',
+      image: 'img/speca_logo.svg',
       colorMode: {
         respectPrefersColorScheme: true,
       },
@@ -64,7 +64,7 @@ const config = {
         title: 'SPECA',
         logo: {
           alt: 'SPECA logo',
-          src: 'img/speca_logo.png',
+          src: 'img/speca_logo.svg',
         },
         items: [
           {
