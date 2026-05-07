@@ -24,12 +24,33 @@
   opacity: 0.85;
 }
 
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--nyx-space-6);
+}
+
+@media screen and (max-width: 996px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .card {
   border: 1px solid var(--nyx-color-border-strong);
   border-radius: var(--nyx-radius-sm);
   padding: var(--nyx-space-7);
-  max-width: 720px;
   background: var(--nyx-color-surface-muted);
+  display: flex;
+  flex-direction: column;
+}
+
+.summary {
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-sm);
+  line-height: 1.6;
+  margin: 0 0 var(--nyx-space-6);
+  opacity: 0.85;
 }
 
 [data-theme='dark'] .card {

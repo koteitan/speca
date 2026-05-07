@@ -52,7 +52,7 @@ const sidebars = {
       type: 'category',
       label: 'リファレンス',
       collapsed: false,
-      items: ['references/paper'],
+      items: ['references/paper-fusaka', 'references/paper-multi-impl'],
     },
   ],
 };

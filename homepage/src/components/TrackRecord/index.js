@@ -2,10 +2,10 @@ import Heading from '@theme/Heading';
 import styles from './styles.module.css';
 
 const items = [
-  'Sherlock: expert augmented で 15/15 の脆弱性回復、automated-only 8/15 (53%)',
-  'RepoAudit (C/C++): precision 88.9%、recall 100%、F1=0.94、35 既知脆弱性全検出',
-  'Novel bug discovery: 4 件独立発見、1 件は 366 名監査者が見落とした暗号不変式違反',
-  'Cost efficiency: ~$1.69 per bug、severity 保持フィルタ下での cost-effective monitoring',
+  'Sherlock コンテスト: 専門家の補助ありで既知 H/M/L 脆弱性 15 件すべて回復、完全自動だと 8 件 (53%)',
+  'RepoAudit (C/C++ 15 プロジェクト): 既知 35 件のバグをすべて検出、F1 = 0.94 / 精度 88.9%',
+  '独立発見した未公開バグ 4 件 — うち 1 件は 366 名のコンテスト監査者が見落とした暗号不変式違反',
+  '1 バグあたり約 $1.69 / H/M/L バグ 1 件あたり約 $30、severity を落とさないフィルタで効率的な常時監視',
 ];
 
 export default function TrackRecord() {
@@ -14,9 +14,10 @@ export default function TrackRecord() {
       <div className="container">
         <Heading as="h2" className={styles.heading}>実績</Heading>
         <p className={styles.lead}>
-          論文検証により、expert augmented 時の full recovery (15/15) と
-          automated-only (8/15) の実運用性能を定量化。RepoAudit 15 プロジェクト
-          全体で precision 88.9%、recall 100% を達成し、cost-per-bug $1.69 を実証。
+          研究論文での評価を通じて、コンテストの既知脆弱性を高い割合で
+          回復できることと、加えて未公開バグを独立に発見できることが
+          確認されています。RepoAudit ベンチマークでも精度 88.9% / 再現率 100% を達成し、
+          1 バグあたり $1.69 という費用対効果を実証しました。
         </p>
         <ul className={styles.list}>
           {items.map((item, idx) => (
