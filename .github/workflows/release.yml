@@ -44,11 +44,20 @@ jobs:
     name: build → test → publish (dry-run on workflow_dispatch)
     runs-on: ubuntu-22.04
     timeout-minutes: 30
+    outputs:
+      version: ${{ steps.parse.outputs.version }}
+      dist-tag: ${{ steps.dist.outputs.dist }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.ref || github.ref }}
           fetch-depth: 0  # full history for `--generate-notes`
+
+      - name: Parse semver from tag
+        id: parse
+        if: github.event_name == 'push'
+        shell: bash
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
       # ---- Toolchains ----------------------------------------------------
       - uses: actions/setup-node@v4
@@ -208,3 +217,116 @@ jobs:
           echo "Dry-run complete: tarball built and verified, but NOT published."
           echo "Tarball: $TARBALL_PATH"
           echo "Trigger an actual release by pushing a tag like \`v1.0.0\`."
+
+  # =====================================================================
+  # post-publish-smoke
+  # ---------------------------------------------------------------------
+  # Spin up a clean ubuntu runner that has not seen our build cache, fetch
+  # the published `speca-cli@<version>` from npmjs.org, and run the
+  # documented first-touch commands (`speca version`, `speca --help`,
+  # `speca doctor`). This catches three classes of regression that the
+  # in-tree tests can't:
+  #
+  #   1. The published tarball is missing files (e.g. a stray `dist/` path
+  #      that wasn't copied into the package by `files`).
+  #   2. The shebang or bin entry resolves wrong on a fresh PATH.
+  #   3. The package's runtime deps are mis-pinned (production-only
+  #      install fails to resolve a transitive that worked locally because
+  #      it was a devDependency).
+  #
+  # `speca doctor` is run with `|| true` because the runner has no `uv`
+  # / `claude` installed, so doctor will report FAIL and exit non-zero —
+  # the smoke only verifies the binary doesn't crash.
+  # =====================================================================
+  post-publish-smoke:
+    name: post-publish — install from npm and smoke
+    needs: release
+    if: github.event_name == 'push'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Wait for the published version to surface on registry.npmjs.org
+        shell: bash
+        # npm publish returns before the registry's CDN has caught up.
+        # Poll up to 2 minutes (24 × 5 s) for the new version to appear.
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.release.outputs.version }}"
+          echo "Looking for speca-cli@${VERSION} on the registry..."
+          for i in $(seq 1 24); do
+            if FOUND=$(npm view "speca-cli@${VERSION}" version 2>/dev/null) && [ "$FOUND" = "$VERSION" ]; then
+              echo "Visible: speca-cli@${FOUND}"
+              exit 0
+            fi
+            echo "  attempt $i/24 — not yet visible, sleeping 5s..."
+            sleep 5
+          done
+          echo "::error::speca-cli@${VERSION} did not appear on the registry within 2 minutes"
+          exit 1
+
+      - name: Global install
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install -g "speca-cli@${{ needs.release.outputs.version }}"
+          which speca
+
+      - name: speca version — must print the published semver
+        shell: bash
+        # `speca version` renders Ink, but in a non-TTY CI environment it
+        # still emits the version string (Ink falls back to a static
+        # render when stdout is not a TTY). We grep the captured output
+        # for the exact version we just published.
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.release.outputs.version }}"
+          OUTPUT=$(speca version 2>&1)
+          echo "--- speca version output ---"
+          echo "$OUTPUT"
+          echo "----------------------------"
+          if ! grep -q "$VERSION" <<< "$OUTPUT"; then
+            echo "::error::Output did not contain $VERSION"
+            exit 1
+          fi
+
+      - name: speca help — must print the documented subcommand list
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUTPUT=$(speca help 2>&1 || true)
+          echo "$OUTPUT"
+          for cmd in version doctor auth init run browse ask; do
+            grep -q "$cmd" <<< "$OUTPUT" || { echo "::error::help missing $cmd"; exit 1; }
+          done
+
+      - name: speca doctor — must run end-to-end without crashing
+        shell: bash
+        # The runner doesn't have uv or claude installed, so doctor will
+        # report FAIL and exit non-zero. We accept that — the smoke is
+        # confirming the binary loads, parses, and the doctor command
+        # produces structured output (i.e., not a JS module-resolution
+        # error or an Ink render crash).
+        run: |
+          set -euo pipefail
+          OUTPUT=$(speca doctor 2>&1 || true)
+          echo "$OUTPUT"
+          # The output must include the doctor's check-name labels.
+          for label in node uv git; do
+            grep -qiE "$label" <<< "$OUTPUT" || { echo "::error::doctor output missing $label row"; exit 1; }
+          done
+
+      - name: npx speca-cli@version doctor — second route, no global install
+        shell: bash
+        # Some users will use `npx` instead of `npm install -g`. Verify
+        # that route works too (different install cache, different PATH
+        # resolution).
+        run: |
+          set -euo pipefail
+          npm uninstall -g speca-cli || true
+          OUTPUT=$(npx -y "speca-cli@${{ needs.release.outputs.version }}" version 2>&1)
+          echo "$OUTPUT"
+          grep -q "${{ needs.release.outputs.version }}" <<< "$OUTPUT"
