@@ -3,10 +3,21 @@
  */
 
 .heroBanner {
-  padding: 6rem var(--nyx-space-7);
+  padding: 6rem var(--nyx-space-7) var(--nyx-space-8);
   text-align: center;
   position: relative;
   overflow: hidden;
+}
+
+.heroLogo {
+  display: block;
+  margin: 0 auto var(--nyx-space-7);
+  width: 120px;
+  height: auto;
+}
+
+[data-theme='dark'] .heroLogo {
+  filter: invert(1);
 }
 
 @media screen and (max-width: 996px) {

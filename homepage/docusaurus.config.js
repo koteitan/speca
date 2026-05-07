@@ -83,6 +83,12 @@ const config = {
       },
       footer: {
         style: 'light',
+        logo: {
+          alt: 'Nyx Foundation',
+          src: 'img/nyx_foundation.png',
+          href: 'https://nyx.foundation/',
+          width: 200,
+        },
         links: [
           {
             title: 'Docs',

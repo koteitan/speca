@@ -1,19 +1,29 @@
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import TrackRecord from '@site/src/components/TrackRecord';
 import QuickStart from '@site/src/components/QuickStart';
+import TerminalMockup from '@site/src/components/TerminalMockup';
 
 import Heading from '@theme/Heading';
 import styles from './index.module.css';
 
 function HomepageHeader() {
   const {siteConfig} = useDocusaurusContext();
+  const logoUrl = useBaseUrl('/img/speca_logo.svg');
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
+        <img
+          src={logoUrl}
+          alt="SPECA"
+          width="120"
+          height="120"
+          className={styles.heroLogo}
+        />
         <Heading as="h1" className="hero__title">
           {siteConfig.title}
         </Heading>
@@ -30,6 +40,7 @@ function HomepageHeader() {
             GitHub で見る
           </Link>
         </div>
+        <TerminalMockup />
       </div>
     </header>
   );
