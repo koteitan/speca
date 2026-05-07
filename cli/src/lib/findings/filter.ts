@@ -26,6 +26,7 @@
  */
 import type { Finding } from "./types.js";
 import { normaliseSeverity, severityRank } from "./types.js";
+import { assertNever } from "../util/assertNever.js";
 
 // ---- AST ------------------------------------------------------------------
 
@@ -290,6 +291,8 @@ function compile(node: Node | null): (f: Finding) => boolean {
       return compileField(node);
     case "text":
       return (f) => f.searchHaystack.includes(node.value);
+    default:
+      return assertNever(node, "filter.compile");
   }
 }
 
@@ -315,6 +318,8 @@ function compileField(node: Extract<Node, { kind: "field" }>): (f: Finding) => b
         (f.primaryLocation ? matchers.some((m) => m(f.primaryLocation!.file)) : false);
     case "text":
       return (f) => matchers.some((m) => m(f.searchHaystack));
+    default:
+      return assertNever(node.field, "filter.compileField");
   }
 }
 

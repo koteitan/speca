@@ -7,12 +7,25 @@
  * The schemas live under `./generated/` and are produced by
  * `npm run sync-schemas` from the repo-root `schemas/` directory (which is in
  * turn produced by `scripts/export_schemas.py`, U2 in the CLI roadmap).
+ *
+ * The `Input` types are also generated (`./generated/types.ts`) so renaming a
+ * field in the Pydantic model surfaces as a compile error here, not a silent
+ * runtime drift.
  */
 import Ajv, { type ErrorObject, type ValidateFunction } from "ajv";
 import addFormats from "ajv-formats";
 
 import targetInfoSchema from "./generated/TargetInfo.schema.json" with { type: "json" };
 import bugBountyScopeSchema from "./generated/BugBountyScopeInfo.schema.json" with { type: "json" };
+import type { TargetInfo, BugBountyScopeInfo } from "./generated/types.js";
+
+/**
+ * `TargetInfoInput` / `BugBountyScopeInput` are kept as named aliases so
+ * existing imports continue to work; the actual shape comes from the
+ * generated types.
+ */
+export type TargetInfoInput = TargetInfo;
+export type BugBountyScopeInput = BugBountyScopeInfo;
 
 export type ValidationResult<T> =
   | { ok: true; data: T }
@@ -47,28 +60,6 @@ function toErrors(errors: ErrorObject[] | null | undefined): ValidationError[] {
     path: e.instancePath || "/",
     message: `${e.message ?? "invalid"}${e.params ? ` (${JSON.stringify(e.params)})` : ""}`,
   }));
-}
-
-export interface TargetInfoInput {
-  target_repo: string;
-  target_ref_type?: string;
-  target_ref_label?: string;
-  target_commit?: string;
-  target_commit_short?: string;
-  // Allow extra fields the wizard adds (project_name, target_language, etc.)
-  // for downstream consumers; the Pydantic model ignores them.
-  [key: string]: unknown;
-}
-
-export interface BugBountyScopeInput {
-  program_name?: string;
-  program_url?: string;
-  inherited_from?: string;
-  in_scope_components?: string[];
-  out_of_scope_components?: string[];
-  scope_notes?: string[];
-  severity_classification?: Record<string, unknown>;
-  [key: string]: unknown;
 }
 
 export function validateTargetInfo(data: unknown): ValidationResult<TargetInfoInput> {

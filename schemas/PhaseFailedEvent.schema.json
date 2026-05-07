@@ -1,0 +1,36 @@
+{
+  "properties": {
+    "duration_s": {
+      "minimum": 0,
+      "title": "Duration S",
+      "type": "number"
+    },
+    "phase": {
+      "title": "Phase",
+      "type": "string"
+    },
+    "reason": {
+      "title": "Reason",
+      "type": "string"
+    },
+    "ts": {
+      "description": "RFC 3339 UTC timestamp with millisecond precision.",
+      "title": "Ts",
+      "type": "string"
+    },
+    "type": {
+      "const": "phase-failed",
+      "default": "phase-failed",
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ts",
+    "phase",
+    "reason",
+    "duration_s"
+  ],
+  "title": "PhaseFailedEvent",
+  "type": "object"
+}

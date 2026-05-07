@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render } from "ink-testing-library";
 import { createElement } from "react";
 import { Dashboard } from "../src/components/Dashboard.js";
+import { PHASE_STATUS_GLYPH } from "../src/components/PhaseRow.js";
 import { PipelineStore } from "../src/lib/pipeline/store.js";
 
 const ts = "2026-05-03T12:00:00.000+00:00";
@@ -43,13 +44,19 @@ describe("Dashboard rendering", () => {
       duration_s: 1,
       total_results: 3,
     });
+    // Pre-render: state derivation is correct.
+    const snap = store.getSnapshot();
+    expect(snap.phases.get("01a")?.status).toBe("done");
+    expect(snap.phases.get("01b")?.status).toBe("pending");
+
     const ui = render(createElement(Dashboard, { store, cwd: "/tmp/proj" }));
     const out = ui.lastFrame() ?? "";
+    // Render: glyph derives from status via the documented mapping.
+    expect(out).toContain(PHASE_STATUS_GLYPH.done);
+    expect(out).toContain(PHASE_STATUS_GLYPH.pending);
     expect(out).toContain("01a");
     expect(out).toContain("Spec Discovery");
-    expect(out).toContain("[OK]");
     expect(out).toContain("01b");
-    expect(out).toContain("[ ]");
     ui.unmount();
   });
 
@@ -70,9 +77,11 @@ describe("Dashboard rendering", () => {
       reason: "dependency check failed",
       duration_s: 0.1,
     });
+    expect(store.getSnapshot().phases.get("01b")?.status).toBe("failed");
+
     const ui = render(createElement(Dashboard, { store, cwd: "/tmp/proj" }));
     const out = ui.lastFrame() ?? "";
-    expect(out).toContain("[X]");
+    expect(out).toContain(PHASE_STATUS_GLYPH.failed);
     expect(out).toContain("dependency check failed");
     ui.unmount();
   });
@@ -141,6 +150,37 @@ describe("Dashboard rendering", () => {
     expect(out).toContain("force");
     expect(out).toContain("toggle log");
     expect(out).toContain("quit");
+    ui.unmount();
+  });
+
+  it("re-renders when the store snapshot updates after a new event", async () => {
+    // Verifies the subscription wiring (useSyncExternalStore) — without
+    // this, snapshot mutations would never reach the rendered frame.
+    const store = new PipelineStore();
+    store.applyEvent({
+      type: "pipeline-started",
+      ts,
+      phases: ["01a"],
+      workers: 4,
+      max_concurrent: 8,
+      force: false,
+    });
+    const ui = render(createElement(Dashboard, { store, cwd: "/tmp/proj" }));
+    expect(ui.lastFrame() ?? "").toContain(PHASE_STATUS_GLYPH.pending);
+
+    store.applyEvent({
+      type: "phase-started",
+      ts,
+      phase: "01a",
+      workers: 4,
+      max_concurrent: 8,
+      force: false,
+      model: "sonnet",
+    });
+    // React schedules the re-render asynchronously; flush microtasks so
+    // ink-testing-library captures the new frame.
+    await new Promise((r) => setImmediate(r));
+    expect(ui.lastFrame() ?? "").toContain(PHASE_STATUS_GLYPH.running);
     ui.unmount();
   });
 });

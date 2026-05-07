@@ -21,8 +21,10 @@
     "build": "npm run sync-schemas && tsc",
     "dev": "tsx src/cli.tsx",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
+    "stryker": "stryker run",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
@@ -41,10 +43,16 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/which": "^3.0.4",
+    "@vitest/coverage-v8": "^2.1.9",
+    "fast-check": "^4.7.0",
     "ink-testing-library": "^4.0.0",
+    "json-schema-to-typescript": "^15.0.4",
+    "json-schema-to-zod": "^2.8.1",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"

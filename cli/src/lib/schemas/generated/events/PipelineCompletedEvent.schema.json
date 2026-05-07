@@ -1,0 +1,47 @@
+{
+  "properties": {
+    "duration_s": {
+      "minimum": 0,
+      "title": "Duration S",
+      "type": "number"
+    },
+    "phases": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Phases",
+      "type": "array"
+    },
+    "results": {
+      "additionalProperties": {
+        "type": "boolean"
+      },
+      "title": "Results",
+      "type": "object"
+    },
+    "ts": {
+      "description": "RFC 3339 UTC timestamp with millisecond precision.",
+      "title": "Ts",
+      "type": "string"
+    },
+    "type": {
+      "const": "pipeline-completed",
+      "default": "pipeline-completed",
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ts",
+    "phases",
+    "results",
+    "duration_s"
+  ],
+  "title": "PipelineCompletedEvent",
+  "type": "object",
+  "_generated": {
+    "generator": "cli/scripts/sync-schemas.mjs",
+    "source_dir": "schemas/",
+    "note": "AUTO-GENERATED — DO NOT EDIT. Run `npm run sync-schemas` to refresh."
+  }
+}

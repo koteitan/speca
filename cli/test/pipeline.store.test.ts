@@ -155,3 +155,15 @@ describe("PipelineStore — subscribe / getSnapshot", () => {
     expect(store.getSnapshot().cost.max_budget_usd).toBe(20);
   });
 });
+
+describe("applyPipelineEvent — exhaustiveness backstop", () => {
+  it("throws assertNever when given a future event type that slipped past the type system", () => {
+    // Simulates a Python orchestrator that emits a NEW event variant the TS
+    // side hasn't been updated for. With assertNever wired into the reducer,
+    // we surface this loud and early instead of silently dropping the event.
+    const future = { type: "future-event-not-in-union", ts: "2099-01-01" } as unknown as PipelineEvent;
+    expect(() => applyPipelineEvent(createInitialSnapshot(), future)).toThrowError(
+      /assertNever.*applyPipelineEvent/,
+    );
+  });
+});

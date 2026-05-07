@@ -1,95 +1,36 @@
 /**
  * NDJSON event schemas emitted by `scripts/run_phase.py --json`.
  *
- * Source of truth: `scripts/orchestrator/json_events.py` (U1, see SPEC §8.4 / §12.1).
+ * Source of truth: `scripts/orchestrator/event_models.py` (Pydantic). The
+ * Zod schemas below are auto-generated from the JSON Schemas exported from
+ * that module, via `cli/scripts/sync-schemas.mjs`. A Pydantic-side rename
+ * surfaces here as a CLI build error rather than silent runtime drift.
  *
- * The Python orchestrator emits one JSON object per line on stdout when
- * invoked with `--json`. Each line carries a `type` discriminator plus
- * type-specific payload fields. We model each event as a Zod schema so the
- * TS side narrows safely and warns (not crashes) on unknown shapes.
+ * Don't add hand-written event schemas in this file — extend
+ * `event_models.py` and run `npm run sync-schemas` instead.
  */
-import { z } from "zod";
 
-const baseFields = {
-  ts: z.string(),
-};
+import {
+  pipelineEventSchema,
+  PipelineStartedEventSchema as pipelineStartedSchema,
+  PhaseStartedEventSchema as phaseStartedSchema,
+  PhaseCompletedEventSchema as phaseCompletedSchema,
+  PhaseFailedEventSchema as phaseFailedSchema,
+  BudgetExceededEventSchema as budgetExceededSchema,
+  CircuitBreakerTrippedEventSchema as circuitBreakerTrippedSchema,
+  PipelineCompletedEventSchema as pipelineCompletedSchema,
+  type PipelineEvent,
+  type PipelineStartedEvent,
+  type PhaseStartedEvent,
+  type PhaseCompletedEvent,
+  type PhaseFailedEvent,
+  type BudgetExceededEvent,
+  type CircuitBreakerTrippedEvent,
+  type PipelineCompletedEvent,
+} from "../schemas/generated/events/schemas.js";
 
-export const pipelineStartedSchema = z
-  .object({
-    type: z.literal("pipeline-started"),
-    phases: z.array(z.string()),
-    workers: z.number().int().nonnegative(),
-    max_concurrent: z.number().int().nonnegative(),
-    force: z.boolean(),
-    ...baseFields,
-  })
-  .passthrough();
-
-export const phaseStartedSchema = z
-  .object({
-    type: z.literal("phase-started"),
-    phase: z.string(),
-    workers: z.number().int().nonnegative(),
-    max_concurrent: z.number().int().nonnegative(),
-    force: z.boolean(),
-    model: z.string().nullable().optional(),
-    ...baseFields,
-  })
-  .passthrough();
-
-export const phaseCompletedSchema = z
-  .object({
-    type: z.literal("phase-completed"),
-    phase: z.string(),
-    duration_s: z.number().nonnegative(),
-    total_results: z.number().int().nonnegative(),
-    ...baseFields,
-  })
-  .passthrough();
-
-export const phaseFailedSchema = z
-  .object({
-    type: z.literal("phase-failed"),
-    phase: z.string(),
-    reason: z.string(),
-    duration_s: z.number().nonnegative(),
-    ...baseFields,
-  })
-  .passthrough();
-
-export const budgetExceededSchema = z
-  .object({
-    type: z.literal("budget-exceeded"),
-    phase: z.string(),
-    cost_usd: z.number().nullable().optional(),
-    max_budget_usd: z.number().nullable().optional(),
-    duration_s: z.number().nonnegative(),
-    ...baseFields,
-  })
-  .passthrough();
-
-export const circuitBreakerTrippedSchema = z
-  .object({
-    type: z.literal("circuit-breaker-tripped"),
-    phase: z.string(),
-    reason: z.string(),
-    stats: z.record(z.unknown()).optional(),
-    duration_s: z.number().nonnegative(),
-    ...baseFields,
-  })
-  .passthrough();
-
-export const pipelineCompletedSchema = z
-  .object({
-    type: z.literal("pipeline-completed"),
-    phases: z.array(z.string()),
-    results: z.record(z.boolean()),
-    duration_s: z.number().nonnegative(),
-    ...baseFields,
-  })
-  .passthrough();
-
-export const pipelineEventSchema = z.discriminatedUnion("type", [
+export {
+  pipelineEventSchema,
   pipelineStartedSchema,
   phaseStartedSchema,
   phaseCompletedSchema,
@@ -97,16 +38,17 @@ export const pipelineEventSchema = z.discriminatedUnion("type", [
   budgetExceededSchema,
   circuitBreakerTrippedSchema,
   pipelineCompletedSchema,
-]);
-
-export type PipelineStartedEvent = z.infer<typeof pipelineStartedSchema>;
-export type PhaseStartedEvent = z.infer<typeof phaseStartedSchema>;
-export type PhaseCompletedEvent = z.infer<typeof phaseCompletedSchema>;
-export type PhaseFailedEvent = z.infer<typeof phaseFailedSchema>;
-export type BudgetExceededEvent = z.infer<typeof budgetExceededSchema>;
-export type CircuitBreakerTrippedEvent = z.infer<typeof circuitBreakerTrippedSchema>;
-export type PipelineCompletedEvent = z.infer<typeof pipelineCompletedSchema>;
-export type PipelineEvent = z.infer<typeof pipelineEventSchema>;
+};
+export type {
+  PipelineEvent,
+  PipelineStartedEvent,
+  PhaseStartedEvent,
+  PhaseCompletedEvent,
+  PhaseFailedEvent,
+  BudgetExceededEvent,
+  CircuitBreakerTrippedEvent,
+  PipelineCompletedEvent,
+};
 
 export type PipelineEventType = PipelineEvent["type"];
 

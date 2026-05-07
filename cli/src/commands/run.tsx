@@ -17,10 +17,12 @@ import { createElement } from "react";
 
 import { Dashboard } from "../components/Dashboard.js";
 import { emitJson, getOutputMode, printNoTui } from "../lib/io/output-mode.js";
+import type { PipelineEvent } from "../lib/pipeline/events.js";
 import { startLogWatcher } from "../lib/pipeline/log-watcher.js";
 import { spawnPipeline, type SpawnPipelineOptions } from "../lib/pipeline/spawn.js";
 import { PipelineStore } from "../lib/pipeline/store.js";
 import { ThemeProvider } from "../lib/theme/index.js";
+import { assertNever } from "../lib/util/assertNever.js";
 
 export interface RunCommandFlags {
   phase?: string[];
@@ -114,24 +116,24 @@ async function runHeadless(
   return handle.done;
 }
 
-function formatEventSummary(event: { type: string } & Record<string, unknown>): string | null {
+export function formatEventSummary(event: PipelineEvent): string {
   switch (event.type) {
     case "pipeline-started":
       return `[pipeline] started: phases=${JSON.stringify(event.phases)}`;
     case "pipeline-completed":
-      return `[pipeline] completed in ${(event.duration_s as number)?.toFixed?.(2)}s`;
+      return `[pipeline] completed in ${event.duration_s.toFixed(2)}s`;
     case "phase-started":
       return `[${event.phase}] started (workers=${event.workers}, max-concurrent=${event.max_concurrent})`;
     case "phase-completed":
-      return `[${event.phase}] done (${event.total_results} results, ${(event.duration_s as number)?.toFixed?.(2)}s)`;
+      return `[${event.phase}] done (${event.total_results} results, ${event.duration_s.toFixed(2)}s)`;
     case "phase-failed":
       return `[${event.phase}] FAILED: ${event.reason}`;
     case "budget-exceeded":
-      return `[${event.phase}] BUDGET EXCEEDED: $${event.cost_usd} / $${event.max_budget_usd}`;
+      return `[${event.phase}] BUDGET EXCEEDED: $${event.cost_usd ?? 0} / $${event.max_budget_usd ?? 0}`;
     case "circuit-breaker-tripped":
       return `[${event.phase}] CIRCUIT BREAKER TRIPPED: ${event.reason}`;
     default:
-      return null;
+      return assertNever(event, "formatEventSummary");
   }
 }
 

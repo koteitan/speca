@@ -10,6 +10,7 @@
  */
 import type { LogLine } from "./log-watcher.js";
 import type { PipelineEvent } from "./events.js";
+import { assertNever } from "../util/assertNever.js";
 
 export type PhaseStatus = "pending" | "running" | "done" | "failed";
 
@@ -167,6 +168,8 @@ export function applyPipelineEvent(prev: PipelineSnapshot, event: PipelineEvent)
       }
       return snap;
     }
+    default:
+      return assertNever(event, "applyPipelineEvent");
   }
 }
 

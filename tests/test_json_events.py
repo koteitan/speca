@@ -25,7 +25,13 @@ def test_disabled_emitter_writes_nothing():
 def test_enabled_emitter_writes_one_ndjson_line_per_event():
     buf = io.StringIO()
     emitter = JsonEventEmitter(enabled=True, stream=buf)
-    emitter.emit("phase-started", phase="01a", workers=4)
+    emitter.emit(
+        "phase-started",
+        phase="01a",
+        workers=4,
+        max_concurrent=8,
+        force=False,
+    )
     emitter.emit("phase-completed", phase="01a", duration_s=1.23, total_results=7)
 
     lines = buf.getvalue().splitlines()
@@ -35,6 +41,8 @@ def test_enabled_emitter_writes_one_ndjson_line_per_event():
     assert started["type"] == "phase-started"
     assert started["phase"] == "01a"
     assert started["workers"] == 4
+    assert started["max_concurrent"] == 8
+    assert started["force"] is False
     assert ISO_UTC_RE.match(started["ts"])
 
     completed = json.loads(lines[1])
@@ -43,14 +51,32 @@ def test_enabled_emitter_writes_one_ndjson_line_per_event():
     assert completed["total_results"] == 7
 
 
-def test_emitter_serialises_non_json_payloads_via_default_str():
-    """Non-JSON-serialisable values (e.g. Path) must not crash the emitter."""
+def test_emitter_rejects_unknown_event_type():
+    """Pydantic-backed emitter must surface unknown event types loudly.
+
+    Replaces the old `default=str` test: with strict per-event models we no
+    longer accept arbitrary kwargs, so the property under test shifted from
+    "tolerate non-JSON values" to "fail fast on contract violations".
+    """
     buf = io.StringIO()
     emitter = JsonEventEmitter(enabled=True, stream=buf)
-    emitter.emit("phase-failed", phase="03", reason="boom", path=Path("/tmp/x"))
+    try:
+        emitter.emit("nonexistent-event", phase="03")
+        raise AssertionError("expected ValueError for unknown event type")
+    except ValueError as exc:
+        assert "unknown event_type" in str(exc)
+    assert buf.getvalue() == ""
 
-    record = json.loads(buf.getvalue())
-    assert record["path"] == str(Path("/tmp/x"))
+
+def test_emitter_rejects_payload_missing_required_fields():
+    buf = io.StringIO()
+    emitter = JsonEventEmitter(enabled=True, stream=buf)
+    try:
+        emitter.emit("phase-failed", phase="03")
+        raise AssertionError("expected ValueError for missing duration_s")
+    except ValueError as exc:
+        assert "phase-failed" in str(exc)
+    assert buf.getvalue() == ""
 
 
 def test_emitter_disables_itself_on_broken_pipe():
@@ -62,9 +88,16 @@ def test_emitter_disables_itself_on_broken_pipe():
             pass
 
     emitter = JsonEventEmitter(enabled=True, stream=BrokenStream())
-    emitter.emit("phase-started", phase="01a")
-    # Subsequent emits must be no-ops (no exception).
-    emitter.emit("phase-completed", phase="01a")
+    emitter.emit(
+        "phase-started",
+        phase="01a",
+        workers=4,
+        max_concurrent=8,
+        force=False,
+    )
+    # Subsequent emits must be no-ops (no exception). We pass full payloads
+    # because the emitter raises early on contract violations now.
+    emitter.emit("phase-completed", phase="01a", duration_s=0.0, total_results=0)
     assert emitter.enabled is False
 
 

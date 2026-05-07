@@ -4,11 +4,14 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   DEFAULT_KEYBINDS,
+  KEYBIND_ACTIONS,
+  isKeybindAction,
   keysForAction,
   matchAny,
   matchKey,
   resetKeybindCache,
   resolveKeybinds,
+  type KeybindAction,
 } from "../src/lib/keybinds/index.js";
 import { configFilePath } from "../src/lib/config/index.js";
 
@@ -110,7 +113,50 @@ exit = ["x", "ctrl+d"]
     expect(keysForAction("exit")).toEqual(["x", "ctrl+d"]);
   });
 
-  it("returns [] for a totally unknown action", () => {
-    expect(keysForAction("does-not-exist")).toEqual([]);
+  it("returns [] for a totally unknown action when looked up loosely", () => {
+    // The compile-time signature of `keysForAction` rejects unknown actions,
+    // so we cast to exercise the runtime fallback explicitly. Production
+    // callers should never need this — the cast is purely a regression
+    // guard against the lookup returning `undefined` if the active map ever
+    // loses an action that used to be present.
+    expect(keysForAction("does-not-exist" as unknown as KeybindAction)).toEqual([]);
+  });
+});
+
+describe("KEYBIND_ACTIONS — closed set + drift detection", () => {
+  it("isKeybindAction agrees with KEYBIND_ACTIONS membership", () => {
+    for (const action of KEYBIND_ACTIONS) {
+      expect(isKeybindAction(action)).toBe(true);
+    }
+    expect(isKeybindAction("toogle-log")).toBe(false);
+    expect(isKeybindAction("")).toBe(false);
+  });
+
+  it("DEFAULT_KEYBINDS covers every action in KEYBIND_ACTIONS", () => {
+    // The Record<KeybindAction, string[]> typing already enforces this at
+    // compile time. The runtime check defends against a stray cast that
+    // erases a key.
+    for (const action of KEYBIND_ACTIONS) {
+      expect(Array.isArray(DEFAULT_KEYBINDS[action])).toBe(true);
+      expect(DEFAULT_KEYBINDS[action].length).toBeGreaterThan(0);
+    }
+  });
+
+  it("DEFAULT_KEYBINDS has no extra keys outside KEYBIND_ACTIONS", () => {
+    const known = new Set<string>(KEYBIND_ACTIONS);
+    for (const key of Object.keys(DEFAULT_KEYBINDS)) {
+      expect(known.has(key)).toBe(true);
+    }
+  });
+
+  it("resolveKeybinds drops unknown user-supplied actions", () => {
+    const m = resolveKeybinds({
+      exit: ["x"],
+      "totally-unknown-action": ["z"],
+      "another-typo": [],
+    });
+    expect(m.exit).toEqual(["x"]);
+    expect((m as Record<string, unknown>)["totally-unknown-action"]).toBeUndefined();
+    expect((m as Record<string, unknown>)["another-typo"]).toBeUndefined();
   });
 });

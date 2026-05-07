@@ -16,8 +16,26 @@
 
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output, stderr as errorOut } from "node:process";
+import { z } from "zod";
 import { authorize, exchange } from "../../auth/auth.js";
 import { OAUTH_SCOPES } from "../../auth/constants.js";
+
+/**
+ * Zod schema for `speca auth login` flags. Used by `cli.tsx` via
+ * {@link parseFlags} so an invalid `--mode` value is rejected with a typed
+ * error before we touch the OAuth machinery.
+ *
+ * The schema is intentionally permissive about extra flags (meow may
+ * surface flags from other subcommands when `allowUnknownFlags: true`); we
+ * only validate the keys this command actually consumes.
+ */
+export const loginFlagsSchema = z
+  .object({
+    apiKey: z.string().min(1).optional(),
+    mode: z.enum(["max", "console"]).optional(),
+  })
+  .passthrough();
+export type LoginFlags = z.infer<typeof loginFlagsSchema>;
 import {
   resolveAccountId,
   saveAccount,

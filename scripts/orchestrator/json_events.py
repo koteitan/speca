@@ -4,25 +4,49 @@ Emits one JSON object per line on stdout for pipeline-level transitions.
 Consumers (TUI dashboards, CI scripts) read these events instead of
 scraping decorative log output.
 
-Event shape:
-    {"type": <event-type>, "ts": <iso-utc>, "phase": <phase-id>, ...payload}
+Wire shape: validated via the Pydantic models in
+``orchestrator.event_models``. JSON Schemas exported from those models are
+the language-neutral data contract the TypeScript CLI consumes.
 
-Event types (per docs/SPECA_CLI_SPEC.md §8.2 / §12.1):
-    phase-started            {phase, workers, max_concurrent, force, model?}
-    phase-completed          {phase, duration_s, total_results}
-    phase-failed             {phase, reason, duration_s}
-    budget-exceeded          {phase, cost_usd, max_budget_usd, duration_s}
-    circuit-breaker-tripped  {phase, reason, stats, duration_s}
-    pipeline-started         {phases, workers, max_concurrent, force}
-    pipeline-completed       {phases, results, duration_s}
+See ``docs/SPECA_CLI_SPEC.md`` §8.2 / §12.1 for the event taxonomy.
 """
 
 from __future__ import annotations
 
-import json
 import sys
 from datetime import datetime, timezone
 from typing import IO, Any
+
+from pydantic import ValidationError
+
+from .event_models import (
+    BudgetExceededEvent,
+    CircuitBreakerTrippedEvent,
+    PhaseCompletedEvent,
+    PhaseFailedEvent,
+    PhaseStartedEvent,
+    PipelineCompletedEvent,
+    PipelineStartedEvent,
+)
+
+
+# Map of public event-type strings to the Pydantic class that validates
+# them. Adding a new event type means extending this map and
+# ``event_models``; the JSON Schema export then picks the new class up
+# automatically and the CLI Zod regeneration follows.
+_TYPE_TO_MODEL: dict[str, Any] = {
+    "pipeline-started": PipelineStartedEvent,
+    "phase-started": PhaseStartedEvent,
+    "phase-completed": PhaseCompletedEvent,
+    "phase-failed": PhaseFailedEvent,
+    "budget-exceeded": BudgetExceededEvent,
+    "circuit-breaker-tripped": CircuitBreakerTrippedEvent,
+    "pipeline-completed": PipelineCompletedEvent,
+}
+
+
+def _now_ts() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
 
 class JsonEventEmitter:
@@ -30,6 +54,11 @@ class JsonEventEmitter:
 
     Stays a no-op when ``enabled=False`` so callers can wire it
     unconditionally and toggle behaviour from the CLI flag.
+
+    ``emit`` keeps its kwargs-based signature for backwards compatibility,
+    but every record is now routed through a Pydantic model that pins the
+    wire shape; an unknown ``event_type`` or a malformed payload raises
+    early instead of silently producing a record the CLI cannot parse.
     """
 
     def __init__(self, enabled: bool, stream: IO[str] | None = None) -> None:
@@ -42,13 +71,24 @@ class JsonEventEmitter:
     def emit(self, event_type: str, **payload: Any) -> None:
         if not self.enabled:
             return
-        record: dict[str, Any] = {
-            "type": event_type,
-            "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
-        }
-        record.update(payload)
+        model_cls = _TYPE_TO_MODEL.get(event_type)
+        if model_cls is None:
+            raise ValueError(
+                f"JsonEventEmitter.emit: unknown event_type {event_type!r}; "
+                "add it to orchestrator.event_models and _TYPE_TO_MODEL."
+            )
         try:
-            line = json.dumps(record, ensure_ascii=False, default=str)
+            event = model_cls(ts=payload.pop("ts", _now_ts()), **payload)
+        except ValidationError as exc:
+            raise ValueError(
+                f"JsonEventEmitter.emit: payload for {event_type!r} fails "
+                f"the contract — {exc.errors(include_url=False)}"
+            ) from exc
+        # ``exclude_none=False`` keeps explicit ``null`` fields on the wire
+        # (e.g. ``cost_usd: null`` for the early-budget-exceeded path); the
+        # CLI Zod schema accepts both null and number for those fields.
+        line = event.model_dump_json(exclude_none=False)
+        try:
             self._stream.write(line + "\n")
             self._stream.flush()
         except (BrokenPipeError, ValueError):

@@ -149,6 +149,15 @@ export interface LogWatcherOptions {
   onLine: (line: LogLine) => void;
   /** Called for malformed JSON / unknown shapes (warning only). */
   onWarn?: (msg: string) => void;
+  /**
+   * Polling interval in ms used by chokidar when watching for changes.
+   * Polling is preferred over native inotify/FSEvents because both can
+   * coalesce many appends into a single `change` event on tight loops, and
+   * because chokidar v4+ dropped glob support — we now watch a directory
+   * directly, which is exactly the surface where event coalescing bites
+   * hardest. Defaults to 200ms (CPU-cheap for 1-2 active log files).
+   */
+  pollIntervalMs?: number;
 }
 
 interface FileCursor {
@@ -165,6 +174,7 @@ interface FileCursor {
  */
 export async function startLogWatcher(opts: LogWatcherOptions): Promise<() => Promise<void>> {
   const { dir, onLine, onWarn } = opts;
+  const pollIntervalMs = opts.pollIntervalMs ?? 200;
   const cursors = new Map<string, FileCursor>();
   const absDir = resolve(dir);
   // Ensure dir exists so chokidar's `add` event fires consistently.
@@ -174,11 +184,44 @@ export async function startLogWatcher(opts: LogWatcherOptions): Promise<() => Pr
     // best-effort
   }
 
-  const watcher: FSWatcher = chokidar.watch(`${absDir.replace(/\\/g, "/")}/**/*.log.jsonl`, {
+  // Chokidar v4+ dropped glob support, so we watch the directory itself
+  // (recursive by default for directory targets) and filter file paths by
+  // the canonical `.log.jsonl` suffix in the event handler. Passing a glob
+  // here would silently produce zero events on chokidar ≥ 4.
+  //
+  // We force `usePolling: true`. Native inotify/FSEvents coalesce rapid
+  // appends and can drop intermediate change events on tight write loops;
+  // polling at ~200ms reads up to current EOF deterministically and matches
+  // what `tail -F` does. The cost (one stat per file per interval) is
+  // negligible for the 1-3 active log files the orchestrator writes.
+  const watcher: FSWatcher = chokidar.watch(absDir, {
     ignoreInitial: false,
     persistent: true,
     awaitWriteFinish: false,
+    usePolling: true,
+    interval: pollIntervalMs,
+    binaryInterval: pollIntervalMs,
   });
+
+  /**
+   * Per-path read serialiser. Two `change` events for the same file can land
+   * close together (e.g. fsync + truncation, or a fast writer flushing many
+   * times); without this lock the cursor state machine interleaves and we
+   * either double-emit or drop lines.
+   */
+  const inflight = new Map<string, Promise<void>>();
+  function scheduleRead(path: string): void {
+    if (!path.endsWith(".log.jsonl")) return;
+    const prev = inflight.get(path) ?? Promise.resolve();
+    const next = prev.then(() => readNewBytes(path)).catch((err) => {
+      onWarn?.(`log-watcher: read error on ${basename(path)}: ${(err as Error).message}`);
+    });
+    inflight.set(path, next);
+    // Don't let a finished chain pin memory — drop it once it's the head.
+    void next.then(() => {
+      if (inflight.get(path) === next) inflight.delete(path);
+    });
+  }
 
   async function readNewBytes(path: string): Promise<void> {
     let cursor = cursors.get(path);
@@ -244,14 +287,21 @@ export async function startLogWatcher(opts: LogWatcherOptions): Promise<() => Pr
     }
   }
 
-  watcher.on("add", (p) => {
-    void readNewBytes(p);
-  });
-  watcher.on("change", (p) => {
-    void readNewBytes(p);
-  });
+  watcher.on("add", scheduleRead);
+  watcher.on("change", scheduleRead);
 
   return async () => {
     await watcher.close();
+    // Drain any inflight reads so callers can rely on `stop()` being a true
+    // quiescence point (important for tests that rmdir the watch root).
+    await Promise.all(inflight.values());
+    // Final flush: poll every known cursor once more. With aggressive
+    // event coalescing (or a contended event loop where the last polling
+    // tick was missed) the previous schedule-on-change loop can leave
+    // bytes-after-last-read on disk. Reading them here gives `stop()` a
+    // strict "no pending lines" guarantee.
+    const flushOps: Promise<void>[] = [];
+    for (const path of cursors.keys()) flushOps.push(readNewBytes(path));
+    await Promise.all(flushOps);
   };
 }

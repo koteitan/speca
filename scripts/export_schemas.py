@@ -24,7 +24,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUT_DIR = REPO_ROOT / "schemas"
-SOURCE_MODULE = "orchestrator.schemas"
+# Source modules whose Pydantic models contribute to the published schemas.
+# Each module's BaseModel subclasses get rendered as a separate
+# `<ModelName>.schema.json`. The list is order-insensitive — `write_schema`
+# and the manifest sort by name.
+SOURCE_MODULES = ("orchestrator.schemas", "orchestrator.event_models")
 
 # Make `orchestrator` importable when invoked from the repo root, mirroring
 # the pattern in `scripts/run_phase.py`.
@@ -43,7 +47,11 @@ def _import_pydantic_basemodel():
 
 
 def collect_models(module_name: str) -> list[type]:
-    """Return all BaseModel subclasses defined directly in ``module_name``."""
+    """Return all BaseModel subclasses defined directly in ``module_name``.
+
+    Private classes (leading underscore) are skipped — those are mixins /
+    bases not meant to appear on the wire.
+    """
     BaseModel = _import_pydantic_basemodel()
     module = importlib.import_module(module_name)
     models: list[type] = []
@@ -52,6 +60,7 @@ def collect_models(module_name: str) -> list[type]:
             issubclass(obj, BaseModel)
             and obj is not BaseModel
             and obj.__module__ == module_name  # exclude re-exports
+            and not obj.__name__.startswith("_")
         ):
             models.append(obj)
     models.sort(key=lambda c: c.__name__)
@@ -129,7 +138,10 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    models = collect_models(SOURCE_MODULE)
+    models: list[type] = []
+    for mod in SOURCE_MODULES:
+        models.extend(collect_models(mod))
+    models.sort(key=lambda c: c.__name__)
 
     if args.list:
         for m in models:
