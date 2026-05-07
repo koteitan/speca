@@ -244,3 +244,9 @@ web/dist/
 
 # Friend's submission drafts — NEVER commit
 outputs/submitted/friend/
+
+# Per-target audit experiment outputs — NEVER commit to speca
+# (These belong in a separate fork/repo. Patterns here keep speca clean
+# even when SPECA_OUTPUT_DIR points at a sibling/test directory.)
+outputs/test-*/
+outputs-*/
