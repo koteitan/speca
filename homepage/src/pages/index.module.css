@@ -1,0 +1,29 @@
+/**
+ * Hero layout — vertical rhythm uses Nyx spacing tokens.
+ */
+
+.heroBanner {
+  padding: 6rem var(--nyx-space-7);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: var(--nyx-space-8) var(--nyx-space-6);
+  }
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nyx-space-5);
+  margin-top: var(--nyx-space-8);
+  flex-wrap: wrap;
+}
+
+.secondaryCta {
+  /* same default styling as the primary CTA — Nyx brand keeps both calm */
+}

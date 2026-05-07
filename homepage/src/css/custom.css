@@ -1,0 +1,201 @@
+/**
+ * Nyx Foundation token-driven theme for SPECA.
+ * Tokens map to Infima CSS vars used by the Docusaurus classic theme.
+ *
+ * Source: Nyx Foundation brand guide (ui-serif, minimal, WCAG 2.2 AA).
+ */
+
+:root {
+  /* Typography */
+  --nyx-font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --nyx-font-size-xs: 14px;
+  --nyx-font-size-sm: 16px;
+  --nyx-font-size-md: 18px;
+  --nyx-font-size-lg: 24px;
+  --nyx-font-size-xl: 30px;
+  --nyx-font-size-2xl: 36px;
+  --nyx-font-size-3xl: 72px;
+  --nyx-font-line-height-base: 20px;
+
+  /* Spacing scale */
+  --nyx-space-1: 4px;
+  --nyx-space-2: 6px;
+  --nyx-space-3: 8px;
+  --nyx-space-4: 10px;
+  --nyx-space-5: 12px;
+  --nyx-space-6: 16px;
+  --nyx-space-7: 24px;
+  --nyx-space-8: 32px;
+
+  /* Radius */
+  --nyx-radius-xs: 6px;
+  --nyx-radius-sm: 8px;
+
+  /* Motion */
+  --nyx-motion-instant: 150ms;
+  --nyx-motion-fast: 300ms;
+
+  /* Surface + text */
+  --nyx-color-text-primary: #000000;
+  --nyx-color-surface-muted: #ffffff;
+  --nyx-color-border-muted: oklch(0.872 0.01 258.338);
+  --nyx-color-border-strong: oklch(0.928 0.006 264.531);
+
+  /* Infima primary mapping (used for links / active nav) — black-on-white */
+  --ifm-color-primary: #000000;
+  --ifm-color-primary-dark: #000000;
+  --ifm-color-primary-darker: #000000;
+  --ifm-color-primary-darkest: #000000;
+  --ifm-color-primary-light: #1a1a1a;
+  --ifm-color-primary-lighter: #262626;
+  --ifm-color-primary-lightest: #404040;
+
+  /* Infima typographic mapping */
+  --ifm-font-family-base: var(--nyx-font-family);
+  --ifm-font-size-base: var(--nyx-font-size-xs);
+  --ifm-line-height-base: 1.6;
+  --ifm-h1-font-size: var(--nyx-font-size-2xl);
+  --ifm-h2-font-size: var(--nyx-font-size-xl);
+  --ifm-h3-font-size: var(--nyx-font-size-lg);
+  --ifm-h4-font-size: var(--nyx-font-size-md);
+
+  /* Spacing / radius / borders */
+  --ifm-spacing-horizontal: var(--nyx-space-7);
+  --ifm-global-radius: var(--nyx-radius-xs);
+  --ifm-card-border-radius: var(--nyx-radius-sm);
+  --ifm-toc-border-color: var(--nyx-color-border-muted);
+  --ifm-color-emphasis-200: var(--nyx-color-border-muted);
+  --ifm-color-emphasis-300: var(--nyx-color-border-strong);
+  --ifm-hr-border-color: var(--nyx-color-border-muted);
+
+  /* Surface */
+  --ifm-background-color: var(--nyx-color-surface-muted);
+  --ifm-color-content: var(--nyx-color-text-primary);
+
+  /* Code */
+  --ifm-code-font-size: 90%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.06);
+
+  /* Motion */
+  --ifm-transition-fast: var(--nyx-motion-instant);
+  --ifm-transition-slow: var(--nyx-motion-fast);
+}
+
+/* Dark mode: invert surface + soften text. Brand stays minimal. */
+[data-theme='dark'] {
+  --ifm-color-primary: #ffffff;
+  --ifm-color-primary-dark: #f2f2f2;
+  --ifm-color-primary-darker: #e6e6e6;
+  --ifm-color-primary-darkest: #cccccc;
+  --ifm-color-primary-light: #ffffff;
+  --ifm-color-primary-lighter: #ffffff;
+  --ifm-color-primary-lightest: #ffffff;
+
+  --ifm-background-color: #000000;
+  --ifm-color-content: #ffffff;
+  --ifm-color-emphasis-200: oklch(0.32 0.005 258);
+  --ifm-color-emphasis-300: oklch(0.42 0.004 258);
+  --ifm-toc-border-color: oklch(0.32 0.005 258);
+
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.08);
+}
+
+/* WCAG 2.2 AA: focus-visible must be unmistakable on every interactive element. */
+:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--nyx-radius-xs);
+}
+
+/* Tighten navbar to brand: serif title, hairline border. */
+.navbar {
+  border-bottom: 1px solid var(--nyx-color-border-muted);
+  box-shadow: none;
+}
+
+[data-theme='dark'] .navbar {
+  border-bottom-color: oklch(0.32 0.005 258);
+}
+
+.navbar__title {
+  font-family: var(--nyx-font-family);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.navbar__logo img {
+  height: 28px;
+  width: auto;
+}
+
+/* Footer: light + restrained. */
+.footer--light {
+  background: var(--nyx-color-surface-muted);
+  border-top: 1px solid var(--nyx-color-border-muted);
+}
+
+.footer__title {
+  font-family: var(--nyx-font-family);
+  font-weight: 600;
+  font-size: var(--nyx-font-size-sm);
+  letter-spacing: 0.02em;
+}
+
+/* Hero is the most opinionated surface. Override hero--primary defaults. */
+.hero--primary {
+  background: var(--nyx-color-surface-muted);
+  color: var(--nyx-color-text-primary);
+  border-bottom: 1px solid var(--nyx-color-border-muted);
+}
+
+[data-theme='dark'] .hero--primary {
+  background: #000000;
+  color: #ffffff;
+  border-bottom-color: oklch(0.32 0.005 258);
+}
+
+.hero__title {
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-3xl);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.hero__subtitle {
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-md);
+  font-weight: 400;
+  margin-top: var(--nyx-space-6);
+  opacity: 0.85;
+}
+
+/* Buttons: outlined by default, no chrome. */
+.button--secondary {
+  background: var(--nyx-color-surface-muted);
+  color: var(--nyx-color-text-primary);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  font-family: var(--nyx-font-family);
+  font-weight: 400;
+  transition: background var(--nyx-motion-instant) ease,
+              border-color var(--nyx-motion-instant) ease;
+}
+
+.button--secondary:hover {
+  background: var(--nyx-color-text-primary);
+  color: var(--nyx-color-surface-muted);
+  border-color: var(--nyx-color-text-primary);
+}
+
+[data-theme='dark'] .button--secondary {
+  background: transparent;
+  color: #ffffff;
+  border-color: oklch(0.42 0.004 258);
+}
+
+[data-theme='dark'] .button--secondary:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
