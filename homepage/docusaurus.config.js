@@ -20,8 +20,8 @@ const config = {
   onBrokenLinks: 'throw',
 
   i18n: {
-    defaultLocale: 'en',
-    locales: ['en'],
+    defaultLocale: 'ja',
+    locales: ['ja'],
   },
 
   presets: [
@@ -71,9 +71,9 @@ const config = {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
-            label: 'Docs',
+            label: 'ドキュメント',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
+          {to: '/blog', label: 'ブログ', position: 'left'},
           {
             href: 'https://github.com/NyxFoundation/speca',
             label: 'GitHub',
@@ -91,17 +91,17 @@ const config = {
         },
         links: [
           {
-            title: 'Docs',
+            title: 'ドキュメント',
             items: [
-              {label: 'Get started', to: '/docs/intro'},
+              {label: 'はじめる', to: '/docs/intro'},
             ],
           },
           {
-            title: 'Project',
+            title: 'プロジェクト',
             items: [
               {label: 'GitHub', href: 'https://github.com/NyxFoundation/speca'},
               {label: 'Issues', href: 'https://github.com/NyxFoundation/speca/issues'},
-              {label: 'Releases', href: 'https://github.com/NyxFoundation/speca/releases'},
+              {label: 'リリース', href: 'https://github.com/NyxFoundation/speca/releases'},
             ],
           },
           {
@@ -111,7 +111,7 @@ const config = {
             ],
           },
         ],
-        copyright: `© ${new Date().getFullYear()} Nyx Foundation. SPECA is released under the Apache License 2.0.`,
+        copyright: `© ${new Date().getFullYear()} Nyx Foundation. SPECA は Apache License 2.0 で公開されています。`,
       },
       prism: {
         theme: prismThemes.github,
