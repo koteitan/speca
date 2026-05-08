@@ -18,6 +18,7 @@ how to verify), see the documentation site:
 | Path | Role |
 |---|---|
 | [`build_derived.py`](build_derived.py) | Read CSV(s) → unified parquet + `manifest.json` under `dist/datasets/<domain>/`. Layout mirrors the HF target: `<domain>/train.parquet`. |
+| [`blame_walk.py`](blame_walk.py) | Enrich `introduced_in_commit` in an existing ethereum parquet by resolving each row's fix event to a vulnerable-state commit (parent of the fix). See [Blame-walk step](#blame-walk-step) below. |
 | [`publish_hf.py`](publish_hf.py) | Render the global dataset card from `templates/README.md.j2`, stage `<domain>/{train.parquet,manifest.json}` + `README.md`, then `upload_folder` with `delete_patterns=["<domain>/*"]` so other configs survive. `--dry-run` skips network. |
 | [`load.py`](load.py) | Single helper consumers should call: `load_findings(domain="defi")` returns a pandas DataFrame, defaulting to HF, with a `local_parquet=` override for offline / dev. |
 | [`templates/README.md.j2`](templates/README.md.j2) | Jinja template for the global HF dataset card (schema + provenance only — per-domain build state lives in `<domain>/manifest.json`). |
@@ -70,6 +71,39 @@ PY
 | `introduced_in_commit` | str | Provenance commit (Phase B replay; `""` for defi) |
 | `domain` | str | Matches the config name |
 | `scraped_at` | str | ISO 8601 UTC |
+
+## Blame-walk step
+
+After `build_derived.py` produces `dist/datasets/ethereum/train.parquet`, run
+`blame_walk.py` to fill in `introduced_in_commit`. The v1 semantic is
+**vulnerable-state commit = parent of the fix commit** (not the true introducing
+commit — that requires `git log -G` across each client repo and is deferred to a
+follow-up). For Phase B replay this is sufficient: auditing the pre-fix state
+asks "would the prompt catch this bug in the broken codebase?" `blame_walk.py`
+writes the enriched parquet in-place and emits a manifest at
+`dist/datasets/ethereum/blame_walk_manifest.json`.
+
+```bash
+uv run --group datasets python3 -m scripts.datasets.blame_walk \
+    --in  dist/datasets/ethereum/train.parquet \
+    --out dist/datasets/ethereum/train.parquet \
+    --manifest dist/datasets/ethereum/blame_walk_manifest.json
+```
+
+**Per-source coverage matrix (v1):**
+
+| Source prefix | Resolution strategy | v1 coverage |
+|---|---|---|
+| `PR#<n>` | Merge commit's first parent | Resolvable |
+| `RELEASE#<tag>#<hex>` | Tag commit's first parent (annotated tags dereffed) | Resolvable |
+| `COMMIT#<12hex>` | Commit's first parent (full SHA preferred from source_url) | Resolvable |
+| `GHSA-*` | Advisory's `patched_versions` → tag → first parent | Resolvable |
+| `ISSUE#<n>` | No canonical fix commit in schema | Always `""` (TODO) |
+| `CHANGELOG#<hex>` | No version anchor in unified schema | Always `""` (TODO) |
+
+Expected overall coverage depends on the mix of source types in the parquet.
+Rows from the PR, RELEASE, COMMIT, and GHSA crawlers are fully resolvable;
+ISSUE and CHANGELOG rows remain empty until a follow-up enricher lands.
 
 ## Adding a new domain (worked example: `ethereum`)
 
