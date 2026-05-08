@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import Translate from '@docusaurus/Translate';
 import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import TrackRecord from '@site/src/components/TrackRecord';
@@ -33,12 +34,12 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro">
-            ドキュメントを読む
+            <Translate id="hero.docs" description="hero CTA: read docs">ドキュメントを読む</Translate>
           </Link>
           <Link
             className={clsx('button button--secondary button--lg', styles.secondaryCta)}
             href="https://github.com/NyxFoundation/speca">
-            GitHub で見る
+            <Translate id="hero.github" description="hero CTA: view on GitHub">GitHub で見る</Translate>
           </Link>
         </div>
         <TerminalMockup />

@@ -325,5 +325,141 @@
   "theme.tags.tagsPageTitle": {
     "message": "Tags",
     "description": "The title of the tag list page"
+  },
+  "hero.docs": {
+    "message": "Read the documentation",
+    "description": "hero CTA: read docs"
+  },
+  "hero.github": {
+    "message": "View on GitHub",
+    "description": "hero CTA: view on GitHub"
+  },
+  "homepage.feature1.title": {
+    "message": "Specification-Driven Auditing",
+    "description": "HomepageFeatures: feature 1 title"
+  },
+  "homepage.feature1.description": {
+    "message": "Extracts typed security properties (Invariant / Precondition / Postcondition / Assumption) from natural-language specifications (such as EIPs and consensus specifications) and detects vulnerabilities that can only be expressed at the specification level.",
+    "description": "HomepageFeatures: feature 1 description"
+  },
+  "homepage.feature2.title": {
+    "message": "Proof-Attempt Reasoning",
+    "description": "HomepageFeatures: feature 2 title"
+  },
+  "homepage.feature2.description": {
+    "message": "For each property organized under a STRIDE + CWE Top 25 threat model, SPECA structurally challenges the system to \"prove that this property holds,\" thereby surfacing gaps between the specification and the implementation.",
+    "description": "HomepageFeatures: feature 2 description"
+  },
+  "homepage.feature3.title": {
+    "message": "Full Interpretability",
+    "description": "HomepageFeatures: feature 3 title"
+  },
+  "homepage.feature3.description": {
+    "message": "Every audit step is structured as JSON. A 3-gate review loop (Dead Code / Trust Boundary / Scope) decomposes false positives by root cause, delivering audit results that are both auditable and interpretable.",
+    "description": "HomepageFeatures: feature 3 description"
+  },
+  "paper.fusaka.title": {
+    "message": "SPECA: Specification-Checklist-Driven Auditing — A Case Study on Ethereum Clients",
+    "description": "Paper: fusaka title"
+  },
+  "paper.fusaka.summary": {
+    "message": "The first SPECA paper. A real-world case study that converts specifications into an \"audit checklist\" and applies it to the 11 clients participating in Ethereum Fusaka.",
+    "description": "Paper: fusaka summary"
+  },
+  "paper.fusaka.highlight1": {
+    "message": "Reused the checklist across implementations, attributing 76.5% of valid findings to cross-implementation analysis",
+    "description": "Paper: fusaka highlight 1"
+  },
+  "paper.fusaka.highlight2": {
+    "message": "Achieved a 31.5% valid-finding acceptance rate in the Fusaka contest (above the 27.6% average)",
+    "description": "Paper: fusaka highlight 2"
+  },
+  "paper.fusaka.highlight3": {
+    "message": "Detected 2 out of 3 High-severity vulnerabilities in V2 re-evaluation",
+    "description": "Paper: fusaka highlight 3"
+  },
+  "paper.fusaka.highlight4": {
+    "message": "Agent-driven workflow reduced manual verification to 40 minutes per submission",
+    "description": "Paper: fusaka highlight 4"
+  },
+  "paper.multiImpl.title": {
+    "message": "Beyond Code Reasoning — Specification-Anchored Auditing of Multi-Implementation Distributed Protocols",
+    "description": "Paper: multi-impl title"
+  },
+  "paper.multiImpl.summary": {
+    "message": "A follow-up paper that generalizes the methodology of the Fusaka case study to multi-implementation distributed protocols beyond Ethereum.",
+    "description": "Paper: multi-impl summary"
+  },
+  "paper.multiImpl.highlight1": {
+    "message": "Recovered 15/15 known H/M/L Sherlock vulnerabilities (with expert assistance); 8/15 in fully automated mode",
+    "description": "Paper: multi-impl highlight 1"
+  },
+  "paper.multiImpl.highlight2": {
+    "message": "Independently discovered 4 previously undisclosed bugs, including a cryptographic-algorithm invariant violation missed by 366 contest auditors",
+    "description": "Paper: multi-impl highlight 2"
+  },
+  "paper.multiImpl.highlight3": {
+    "message": "RepoAudit (15 C/C++ projects): F1 = 0.94 / Precision 88.9% / Recall 100%",
+    "description": "Paper: multi-impl highlight 3"
+  },
+  "paper.multiImpl.highlight4": {
+    "message": "Approximately ~$1.69 per bug, and roughly ~$30 per confirmed H/M/L bug",
+    "description": "Paper: multi-impl highlight 4"
+  },
+  "paper.heading": {
+    "message": "Research Papers",
+    "description": "Paper section heading"
+  },
+  "paper.lead": {
+    "message": "SPECA is grounded in two research papers. The first is a real-world case study of an Ethereum Fusaka audit, and the second extends the same methodology to multi-implementation distributed protocols in general.",
+    "description": "Paper section lead paragraph"
+  },
+  "paper.readArxiv": {
+    "message": "Read on arXiv",
+    "description": "Paper: read on arXiv link"
+  },
+  "paper.pdf": {
+    "message": "PDF",
+    "description": "Paper: PDF link"
+  },
+  "quickStart.heading": {
+    "message": "Get Started",
+    "description": "QuickStart section heading"
+  },
+  "quickStart.lead": {
+    "message": "Clone the repository and either run the Python orchestrator directly or launch SPECA via npm. Multi-language support spans Go, Rust, Nim, TypeScript, C, and more, with full automation through GitHub Actions.",
+    "description": "QuickStart section lead paragraph"
+  },
+  "quickStart.python": {
+    "message": "Run the Python orchestrator directly",
+    "description": "QuickStart: Python orchestrator subheading"
+  },
+  "quickStart.cli": {
+    "message": "Use speca-cli (npm release forthcoming)",
+    "description": "QuickStart: speca-cli subheading"
+  },
+  "trackRecord.item1": {
+    "message": "Sherlock contests: recovered all 15 known H/M/L vulnerabilities with expert assistance; 8 (53%) under full automation",
+    "description": "TrackRecord item 1"
+  },
+  "trackRecord.item2": {
+    "message": "RepoAudit (15 C/C++ projects): detected all 35 known bugs, F1 = 0.94 / Precision 88.9%",
+    "description": "TrackRecord item 2"
+  },
+  "trackRecord.item3": {
+    "message": "Independently discovered 4 previously undisclosed bugs — one of which was a cryptographic-algorithm invariant violation missed by 366 contest auditors",
+    "description": "TrackRecord item 3"
+  },
+  "trackRecord.item4": {
+    "message": "Approximately ~$1.69 per bug / ~$30 per H/M/L bug, enabling efficient continuous monitoring with severity-preserving filters",
+    "description": "TrackRecord item 4"
+  },
+  "trackRecord.heading": {
+    "message": "Track Record",
+    "description": "TrackRecord section heading"
+  },
+  "trackRecord.lead": {
+    "message": "Evaluations across the research papers confirm that SPECA recovers a high proportion of known contest vulnerabilities and additionally discovers previously undisclosed bugs independently. On the RepoAudit benchmark it achieves 88.9% precision and 100% recall, while demonstrating cost efficiency at approximately $1.69 per bug.",
+    "description": "TrackRecord section lead paragraph"
   }
 }
