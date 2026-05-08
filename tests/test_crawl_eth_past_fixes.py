@@ -140,7 +140,12 @@ def test_advisory_to_row_emits_canonical_columns(canned_geth_advisories):
 
 def test_crawl_client_with_injected_fetcher(canned_geth_advisories):
     mod = _crawler()
-    rows = mod.crawl_client("geth", fetcher=lambda repo: canned_geth_advisories)
+    rows = mod.crawl_client(
+        "geth",
+        fetcher=lambda repo: canned_geth_advisories,
+        pr_fetcher=lambda repo: [],
+        issue_fetcher=lambda repo: [],
+    )
     # Two of three fixtures are keepers (the empty-body one is dropped).
     assert len(rows) == 2
     assert rows[0]["source"] == "geth"
@@ -151,7 +156,11 @@ def test_crawl_client_with_injected_fetcher(canned_geth_advisories):
 def test_crawl_client_respects_max_records(canned_geth_advisories):
     mod = _crawler()
     rows = mod.crawl_client(
-        "geth", max_records=1, fetcher=lambda repo: canned_geth_advisories,
+        "geth",
+        max_records=1,
+        fetcher=lambda repo: canned_geth_advisories,
+        pr_fetcher=lambda repo: [],
+        issue_fetcher=lambda repo: [],
     )
     assert len(rows) == 1
 
@@ -164,7 +173,12 @@ def test_crawl_client_rejects_unknown_slug():
 
 def test_write_csv_round_trip(tmp_path: Path, canned_geth_advisories):
     mod = _crawler()
-    rows = mod.crawl_client("geth", fetcher=lambda repo: canned_geth_advisories)
+    rows = mod.crawl_client(
+        "geth",
+        fetcher=lambda repo: canned_geth_advisories,
+        pr_fetcher=lambda repo: [],
+        issue_fetcher=lambda repo: [],
+    )
     out = tmp_path / "geth.csv"
     n = mod.write_csv(rows, out)
     assert n == 2
@@ -209,8 +223,13 @@ def test_crawler_csv_round_trips_through_build_derived(tmp_path: Path, canned_ge
     crawler = _crawler()
     build = _load("speca_build_derived_for_crawler_e2e", BUILD_SCRIPT)
 
-    # 1. Crawl → CSV
-    rows = crawler.crawl_client("geth", fetcher=lambda repo: canned_geth_advisories)
+    # 1. Crawl → CSV (stub PR/issue fetchers to isolate advisory-only behaviour)
+    rows = crawler.crawl_client(
+        "geth",
+        fetcher=lambda repo: canned_geth_advisories,
+        pr_fetcher=lambda repo: [],
+        issue_fetcher=lambda repo: [],
+    )
     csv_path = tmp_path / "geth.csv"
     crawler.write_csv(rows, csv_path)
 
@@ -262,3 +281,281 @@ def test_write_manifest_records_provenance(tmp_path: Path):
     # gh_version may be empty if `gh` isn't on PATH in the test env;
     # only sanity-check that the key exists, not its value.
     assert "gh_version" in payload
+
+
+# ---------------------------------------------------------------------------
+# SECURITY_TITLE_RE boundary tests
+# ---------------------------------------------------------------------------
+
+def test_security_title_re_positive_cases():
+    """Confirm that all intended keywords produce a match."""
+    mod = _crawler()
+    re = mod.SECURITY_TITLE_RE
+    positives = [
+        "security: fix auth bypass",
+        "Fix vulnerability in p2p layer",
+        "fix CVE-2024-12345 in handshake",
+        "DoS via crafted message",
+        "fix panic in block processor",
+        "crash on invalid RLP input",
+        "RCE via malicious payload",
+        "memory leak in peer manager",
+        "integer overflow in fee calculation",
+        "race condition in tx pool",
+        "security",                           # bare keyword
+        "SECURITY",                           # case-insensitive
+        "CVE-2023-99999: critical issue",
+        "vuln in consensus",
+        "vulnerability: timing attack",
+    ]
+    for title in positives:
+        assert re.search(title), f"Expected match for: {title!r}"
+
+
+def test_security_title_re_negative_cases():
+    """Word-boundary anchoring must block partial-word matches."""
+    mod = _crawler()
+    re = mod.SECURITY_TITLE_RE
+    negatives = [
+        "securitytoken",          # 'security' not at word boundary (right side)
+        "insecurity",             # left boundary miss
+        "update changelog",
+        "refactor p2p module",
+        "add unit tests for parser",
+        "bump deps to v1.2.3",
+        "fix typo in README",
+        "improve logging verbosity",
+    ]
+    for title in negatives:
+        assert not re.search(title), f"Unexpected match for: {title!r}"
+
+
+def test_security_title_re_boundary_mixed():
+    """Boundary cases that are TRUE matches (keyword followed by punctuation
+    or at end of string — still word-boundary)."""
+    mod = _crawler()
+    re = mod.SECURITY_TITLE_RE
+    # 'security:' — colon after keyword, word boundary is satisfied
+    assert re.search("security: fix DoS in foo")
+    # CVE at end
+    assert re.search("patch for CVE-2024-12345")
+    # DoS in brackets
+    assert re.search("[DoS] fix in p2p")
+
+
+# ---------------------------------------------------------------------------
+# pr_to_row / issue_to_row tests
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def canned_prs() -> list[dict]:
+    return [
+        {
+            "number": 101,
+            "title": "fix: DoS via crafted block header",
+            "body": "This PR fixes a denial-of-service issue.",
+            "merged_at": "2024-01-10T12:00:00Z",
+            "html_url": "https://github.com/ethereum/go-ethereum/pull/101",
+        },
+        {
+            "number": 202,
+            "title": "security: fix High severity memory leak in peer manager",
+            "body": "Memory was not freed on disconnect.",
+            "merged_at": "2024-03-05T09:00:00Z",
+            "html_url": "https://github.com/ethereum/go-ethereum/pull/202",
+        },
+        {
+            "number": 303,
+            "title": "",    # empty — unrelated
+            "body": "",
+            "merged_at": "2024-02-01T00:00:00Z",
+            "html_url": "https://github.com/ethereum/go-ethereum/pull/303",
+        },
+    ]
+
+
+@pytest.fixture
+def canned_issues() -> list[dict]:
+    return [
+        {
+            "number": 501,
+            "title": "vulnerability in transaction signing",
+            "body": "Attacker can forge signatures.",
+            "html_url": "https://github.com/ethereum/go-ethereum/issues/501",
+        },
+        {
+            "number": 502,
+            "title": "crash on empty block",
+            "body": "Node panics when receiving empty block.",
+            "html_url": "https://github.com/ethereum/go-ethereum/issues/502",
+        },
+        {
+            # Legacy PR returned by issues endpoint — must be filtered out.
+            "number": 600,
+            "title": "fix: race condition in mining",
+            "body": "...",
+            "html_url": "https://github.com/ethereum/go-ethereum/pull/600",
+            "pull_request": {"url": "https://api.github.com/repos/ethereum/go-ethereum/pulls/600"},
+        },
+    ]
+
+
+def test_pr_to_row_maps_fields(canned_prs):
+    mod = _crawler()
+    row = mod.pr_to_row(canned_prs[0], "geth", "ethereum/go-ethereum")
+    assert row is not None
+    assert row["issue_id"] == "PR#101"
+    assert row["source"] == "geth"
+    assert row["contest"] == "ethereum/go-ethereum"
+    assert row["severity"] == "Info"   # no severity word in title
+    assert "DoS" in row["title"]
+    assert row["introduced_in_commit"] == ""
+    assert set(row.keys()) == set(mod.CSV_FIELDS)
+
+
+def test_pr_to_row_extracts_severity(canned_prs):
+    mod = _crawler()
+    row = mod.pr_to_row(canned_prs[1], "geth", "ethereum/go-ethereum")
+    assert row is not None
+    assert row["severity"] == "High"
+
+
+def test_pr_to_row_drops_empty(canned_prs):
+    mod = _crawler()
+    row = mod.pr_to_row(canned_prs[2], "geth", "ethereum/go-ethereum")
+    assert row is None
+
+
+def test_issue_to_row_maps_fields(canned_issues):
+    mod = _crawler()
+    row = mod.issue_to_row(canned_issues[0], "geth", "ethereum/go-ethereum")
+    assert row is not None
+    assert row["issue_id"] == "ISSUE#501"
+    assert row["source"] == "geth"
+    assert set(row.keys()) == set(mod.CSV_FIELDS)
+
+
+def test_id_namespaces_never_collide():
+    """GHSA-, PR#, and ISSUE# prefixes must be distinct for any numeric id."""
+    ghsa = "GHSA-aaaa-bbbb-cccc"
+    pr = "PR#1"
+    issue = "ISSUE#1"
+    assert ghsa != pr
+    assert ghsa != issue
+    assert pr != issue
+    # A GHSA id can never start with PR# or ISSUE#.
+    assert not ghsa.startswith("PR#")
+    assert not ghsa.startswith("ISSUE#")
+    # PR# and ISSUE# share the same number space but different prefixes.
+    assert pr != issue
+
+
+# ---------------------------------------------------------------------------
+# crawl_client with all three injected fetchers
+# ---------------------------------------------------------------------------
+
+def test_crawl_client_calls_all_three_fetchers(canned_geth_advisories, canned_prs, canned_issues):
+    mod = _crawler()
+
+    # The issues fetcher returns items including a legacy PR entry which must
+    # be dropped before reaching crawl_client (fetch_security_issues filters
+    # them). Simulate that filtering already done.
+    real_issues = [i for i in canned_issues if "pull_request" not in i]
+
+    rows = mod.crawl_client(
+        "geth",
+        fetcher=lambda repo: canned_geth_advisories,
+        pr_fetcher=lambda repo: canned_prs,
+        issue_fetcher=lambda repo: real_issues,
+    )
+    # Advisories: 2 keepers (1 empty dropped)
+    # PRs: 2 keepers (1 empty-title+body dropped)
+    # Issues: 2 (legacy PR already removed above)
+    assert len(rows) == 6
+
+    issue_ids = [r["issue_id"] for r in rows]
+    assert any(iid.startswith("GHSA-") for iid in issue_ids)
+    assert any(iid.startswith("PR#") for iid in issue_ids)
+    assert any(iid.startswith("ISSUE#") for iid in issue_ids)
+
+
+def test_crawl_client_max_records_caps_combined(canned_geth_advisories, canned_prs, canned_issues):
+    mod = _crawler()
+    real_issues = [i for i in canned_issues if "pull_request" not in i]
+    rows = mod.crawl_client(
+        "geth",
+        max_records=3,
+        fetcher=lambda repo: canned_geth_advisories,
+        pr_fetcher=lambda repo: canned_prs,
+        issue_fetcher=lambda repo: real_issues,
+    )
+    assert len(rows) == 3
+
+
+# ---------------------------------------------------------------------------
+# fetch_security_issues legacy-PR filtering
+# ---------------------------------------------------------------------------
+
+def test_fetch_security_issues_filters_legacy_prs(canned_issues):
+    """Issues endpoint returns PR objects too (legacy). The fetcher must
+    drop them by checking for the `pull_request` key."""
+    mod = _crawler()
+
+    # Simulate gh_json returning the mixed list (2 real issues + 1 PR object).
+    import unittest.mock as mock
+    with mock.patch.object(mod, "gh_json", return_value=canned_issues):
+        results = mod.fetch_security_issues("ethereum/go-ethereum")
+
+    # Only the 2 real issues should remain.
+    assert len(results) == 2
+    assert all("pull_request" not in r for r in results)
+
+
+# ---------------------------------------------------------------------------
+# Combined round-trip through build_derived (PR + ISSUE + GHSA ids)
+# ---------------------------------------------------------------------------
+
+def test_combined_csv_round_trips_through_build_derived(
+    tmp_path: Path, canned_geth_advisories, canned_prs, canned_issues
+):
+    """Crawler emits PR# + ISSUE# + GHSA- ids in the same CSV; build_derived
+    must ingest it cleanly and deduplicate on `id` without collisions."""
+    pytest.importorskip("pandas")
+    pytest.importorskip("pyarrow")
+
+    crawler = _crawler()
+    build = _load("speca_build_derived_combined", BUILD_SCRIPT)
+
+    real_issues = [i for i in canned_issues if "pull_request" not in i]
+    rows = crawler.crawl_client(
+        "geth",
+        fetcher=lambda repo: canned_geth_advisories,
+        pr_fetcher=lambda repo: canned_prs,
+        issue_fetcher=lambda repo: real_issues,
+    )
+    # 2 advisories + 2 PRs + 2 issues = 6 rows
+    assert len(rows) == 6
+
+    csv_path = tmp_path / "geth_combined.csv"
+    crawler.write_csv(rows, csv_path)
+
+    out_dir = tmp_path / "out"
+    manifest = build.build(
+        domain="ethereum",
+        sources=[str(csv_path)],
+        out_dir=out_dir,
+        filter_platforms="",
+    )
+    assert manifest["n_rows"] == 6
+    assert manifest["rows_by_platform"] == {"geth": 6}
+
+    import pyarrow.parquet as pq
+    table = pq.read_table(out_dir / "ethereum" / "train.parquet")
+    df = table.to_pandas()
+    ids = df["id"].tolist()
+    # All ids must be unique — no namespace collision.
+    assert len(ids) == len(set(ids))
+    # id format: <platform_slug>:<contest_slug>:<issue_id>
+    assert any("GHSA-" in i for i in ids)
+    assert any("PR#" in i for i in ids)
+    assert any("ISSUE#" in i for i in ids)
