@@ -64,4 +64,4 @@ CLI の動作を調べたい場合は `cli/src/cli.tsx` がエントリポイン
 
 各 Phase の具体的な分析ロジックは対応する `prompts/` 以下のプロンプトに書かれています。Phase 01e・02c・03・04 はプロンプトにすべてのロジックがインライン化されています。
 
-設計の背景や判断の理由は [CLAUDE.md](https://github.com/NyxFoundation/speca/blob/main/CLAUDE.md) にまとめてあります。
+設計判断の **背景** — ハーネスの不変条件、プロンプト vs スキル選別、自明でないコンテキスト流通の判断 — は [エージェント設計](./agent-design/overview.md) のセクションを参照してください。設計の背景や判断の理由は [CLAUDE.md](https://github.com/NyxFoundation/speca/blob/main/CLAUDE.md) にもまとめてあります。

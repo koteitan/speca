@@ -6,6 +6,8 @@ sidebar_position: 6
 
 形式的な証明試行ベースの監査。各プロパティについて Map → Prove → Stress-Test を実行します。
 
+![Phase 03 の制御フロー](/img/diagrams/proof-attempt.png)
+
 ## 入力
 
 - Phase 02c の出力 (`outputs/02c_PARTIAL_*.json`)

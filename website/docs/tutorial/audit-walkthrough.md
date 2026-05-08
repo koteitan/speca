@@ -2,118 +2,119 @@
 sidebar_position: 1
 ---
 
-# テストリポジトリで監査をしてみよう
+# テストリポジトリで監査を体験
 
-speca-cli がインストール済みの方向けに、公開リポジトリを使って監査の一連の流れを体験するハンズオンです。ターゲットには OpenZeppelin の `Ownable.sol` (アクセス制御の定番実装) を使います。短いコードで動作全体を確認できるため、最初の練習に向いています。
+すでに `speca-cli` をインストール済みのユーザー向けハンズオンです。対象は OpenZeppelin の `Ownable.sol` (代表的なアクセス制御実装)。コードが短いので初回エンドツーエンド実行に向きます。
 
-## 前提と準備
-
-speca-cli が動作することを確認します。
+## 0. 環境チェック
 
 ```bash
-node cli/dist/cli.js doctor
+speca doctor
 ```
 
-出力例:
+期待される出力:
 
 ```
 [ok] Node.js 20.x
 [ok] Python 3.11 (uv)
 [ok] Claude Code CLI authenticated
+[ok] MCP servers: fetch, tree_sitter
 ```
 
-エラーがある場合は [とりあえず動かしてみる](../guide/try-it.md) に戻って環境を整えてください。
+`[err]` 行があれば、まず [とりあえず動かしてみる](../guide/try-it.md) に戻って環境を整備してください。
 
-## 1. 設定ファイルを準備する
+## 1. 設定ファイルを書く
 
-`speca init` を実行すると、2 つのファイルを対話形式で作成できます。
+対話 (`speca init`) でも、手書きでも構いません。本ウォークスルーでは以下の値を使います。
 
-```bash
-node cli/dist/cli.js init
-```
-
-今回は以下の内容で `outputs/TARGET_INFO.json` を用意します。
+`outputs/TARGET_INFO.json`:
 
 ```json
 {
-  "repo_url": "https://github.com/OpenZeppelin/openzeppelin-contracts",
-  "commit": "v4.9.6",
-  "language": "solidity",
-  "description": "OpenZeppelin Contracts v4.9.6"
+  "project_name": "openzeppelin-ownable-walkthrough",
+  "target_repo": "https://github.com/OpenZeppelin/openzeppelin-contracts",
+  "target_commit": "v4.9.6",
+  "target_language": "Solidity",
+  "target_layer": "library",
+  "description": "OpenZeppelin Contracts v4.9.6 — Ownable.sol"
 }
 ```
 
-`outputs/BUG_BOUNTY_SCOPE.json` にはスコープ情報を書きます。
+`outputs/BUG_BOUNTY_SCOPE.json`:
 
 ```json
 {
-  "scope": "Access control invariants in contracts/access/Ownable.sol",
-  "out_of_scope": "UI, deployment scripts",
-  "severity_levels": ["High", "Medium", "Low"]
+  "program_name": "openzeppelin-ownable-walkthrough",
+  "scope_version": "1.0",
+  "in_scope": ["contracts/access/Ownable.sol"],
+  "out_of_scope": ["test/", "scripts/"],
+  "severity_classification": {
+    "HIGH":   { "description": "Unauthorized owner change",
+                "cwe": ["CWE-862", "CWE-863"],
+                "examples": ["Bypass of onlyOwner"] },
+    "MEDIUM": { "description": "Two-step transfer divergence from spec",
+                "cwe": ["CWE-841"],
+                "examples": ["Pending owner not cleared"] },
+    "LOW":    { "description": "Quality / informational",
+                "cwe": ["CWE-710"],
+                "examples": ["Misleading event"] }
+  },
+  "scope_notes": "Walkthrough — single contract."
 }
 ```
 
-この 2 ファイルがパイプライン全体の入力になります。
+両者のスキーマ詳細は [設定ファイル](../getting-started/config-files.md) にあります。
 
-## 2. speca init を実行する
-
-```bash
-node cli/dist/cli.js init
-```
-
-init は上記の JSON を読み込んで内部設定を確定し、Phase 01a の仕様クロール準備を完了します。成功すると以下のようなメッセージが表示されます。
-
-```
-[init] TARGET_INFO loaded: OpenZeppelin Contracts v4.9.6
-[init] BUG_BOUNTY_SCOPE loaded: 1 scope entry
-[init] Ready. Run: speca run --target 04
-```
-
-## 3. 監査を実行する
+## 2. 監査を実行
 
 ```bash
-node cli/dist/cli.js run --target 04
+speca run --target 04 --workers 4
 ```
 
-`--target 04` は Phase 04 まで全フェーズを順に実行することを意味します。実行中は NDJSON 形式のログがターミナルに流れます。
+TUI ダッシュボードにイベントが流れます。1 コントラクトなら 2〜4 分で終わります:
 
 ```
 {"phase":"01a","status":"running","found":3}
 {"phase":"01b","status":"running","subgraph":"Ownable-ownership-transfer"}
-{"phase":"01e","status":"running","property":"PROP-001","description":"onlyOwner修飾子が全ての管理関数に適用されているか"}
+{"phase":"01e","status":"running","property":"PROP-001",
+ "description":"onlyOwner is applied to all administrative functions"}
 {"phase":"02c","status":"running","resolved":5}
-{"phase":"03","status":"running","proof_attempt":"PROP-001","result":"gap_found"}
+{"phase":"03","status":"running","property":"PROP-001","result":"gap_found"}
 {"phase":"04","status":"running","verdict":"CONFIRMED_POTENTIAL"}
 ```
 
-各行の `phase` フィールドを見れば、今どの段階を実行しているかが分かります。`result: gap_found` は「証明できない部分が見つかった」ことを意味し、Phase 04 で最終判定が下ります。
+`result: gap_found` は「証明の閉じない部分が見つかった」状態。最終 `verdict` は Phase 04 の 3 ゲート通過後に決まります。TUI の代わりに NDJSON を流すには `speca run --target 04 --json`。
 
-## 4. 結果を眺める
-
-```bash
-node cli/dist/cli.js browse outputs/04_PARTIAL_*.json
-```
-
-検出された候補が一覧で表示されます。各行には以下の情報が含まれます。
-
-- `property_id`: どのセキュリティプロパティに対する検出か
-- `severity`: High / Medium / Low の重要度
-- `verdict`: CONFIRMED_VULNERABILITY / CONFIRMED_POTENTIAL / DISPUTED_FP など
-- `location`: 問題のあるコードファイルと行番号
-- `description`: なぜ問題と判断したかの説明
-
-## 5. 結果の解釈
-
-`Ownable.sol` は短くシンプルなコードなので、今回は大きな脆弱性は見つからないはずです。代わりに「仕様の範囲でオーナー移譲の確認フロー (2-step transfer) が実装されているか」といった条件が CONFIRMED_POTENTIAL として報告されることがあります。
-
-**何が見つかっても、見つからなくても** 、パイプラインが動いて結果が出れば成功です。「検出なし = バグなし」ではなく「指定したスコープと仕様の範囲では問題が見つからなかった」と読んでください。
-
-## 6. 次は自分のリポジトリで
-
-動作を確認したら、`outputs/TARGET_INFO.json` と `outputs/BUG_BOUNTY_SCOPE.json` を自分のプロジェクトの情報に書き換えて同じ手順を繰り返してください。スコープを具体的に書くほど、結果の精度が上がります。
-
-より複雑なターゲット (例: [Lighthouse Ethereum client](https://github.com/sigp/lighthouse)) で試す場合は、仕様書の量が多いため Phase 01a と 01b に時間がかかります。`--workers 4` オプションで並列度を上げると処理が速くなります。
+## 3. 結果を閲覧
 
 ```bash
-node cli/dist/cli.js run --target 04 --workers 4
+speca browse
 ```
+
+各行に表示されるもの:
+
+- `property_id` — 該当のセキュリティプロパティ
+- `severity` — High / Medium / Low / Informational
+- `verdict` — `CONFIRMED_VULNERABILITY` / `CONFIRMED_POTENTIAL` / `DISPUTED_FP` / …
+- `location` — ファイルと行範囲
+- `proof_gap` / `description` — 検出根拠
+
+`c` でコード覗き、`f` でフィルタ調整、`q` で終了。
+
+## 4. 結果の読み方
+
+`Ownable.sol` は短く実績のあるコードなので、クリーン実行で High 重大度の脆弱性が出る可能性は低いです。よく出るパターンとしては、二段階所有権移譲フロー (仕様の "transfer 時に pending owner をクリアする" ルール) に対する `CONFIRMED_POTENTIAL`、あるいは Trust Boundary ゲートで弾かれる `DISPUTED_FP` です。
+
+**何も見つからなかったとしても、パイプラインがエンドツーエンドで通った時点で成功です。** "no findings" は「指定スコープと生成プロパティの範囲では proof gap が残らなかった」という意味で、「バグがない」ではありません。
+
+## 5. 自分のリポジトリへ
+
+`outputs/TARGET_INFO.json` と `outputs/BUG_BOUNTY_SCOPE.json` を自分のプロジェクトの値に差し替えて `speca run --target 04` を再実行します。スコープ (`in_scope` パスと重大度ルブリック) を具体的に書くほど結果の質が上がります。
+
+[Lighthouse Ethereum クライアント](https://github.com/sigp/lighthouse) のような大規模対象では、仕様コーパスが大きいため Phase 01a / 01b に時間がかかります。並列度を上げてください:
+
+```bash
+speca run --target 04 --workers 8 --max-concurrent 16 --budget 80
+```
+
+`--budget 80` はフェーズを $80 で停止 (終了コード 64)。トレードオフの詳細は [モデル選定の設計ノート](../design-notes/model-benchmark-takeaways.md) を参照してください。

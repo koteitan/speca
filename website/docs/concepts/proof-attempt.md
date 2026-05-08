@@ -50,12 +50,15 @@ Gap at line 85 in error_handler():
 
 ## Phase 03 での実装
 
-```
-Map:  property をコード上にマップ
-  ↓
-Prove: 「property は成立するか」を問う
-  ↓
-Stress-Test: edge case を試す
-```
+監査は固定の Map → Prove → Stress-Test フローに従います。各分岐は `03_PARTIAL_*.json` の verdict と直接対応します。
 
-詳細は [パイプライン - Phase 03](../pipeline/audit-map.md) を参照。
+![証明試行の制御フロー](/img/diagrams/proof-attempt.png)
+
+- **Map** — プロパティを実装で担保しているコードを特定 (Phase 02c の事前解決があればそれを使用)。
+- **Prove** — プロパティが全実行パスで成立する証明を試みる。サブクレームを明示的に書き出す。
+- **証明が成立** → `Pass` (finding なし)。
+- **gap が残る** → **Stress-Test** で具体的な反例を探す。
+  - **攻撃可能** → `Vulnerability` (証明が能動的に破れる)。
+  - **反例未構築** → `Potential` (proof gap は残るがエクスプロイトは未構築)。
+
+Phase 03 の verdict はそのまま Phase 04 の [3 ゲートレビュー](../concepts/gate-review.md) に渡されます。JSON 形式とプロンプトレベルの詳細は [パイプライン — Phase 03](../pipeline/audit-map.md) を参照してください。

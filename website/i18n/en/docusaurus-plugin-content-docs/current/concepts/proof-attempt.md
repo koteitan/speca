@@ -50,12 +50,15 @@ A structured claim suppresses speculation through:
 
 ## Implementation in Phase 03
 
-```
-Map:  map the property onto the code
-  ↓
-Prove: ask "does the property hold?"
-  ↓
-Stress-Test: try edge cases
-```
+The audit follows a fixed Map → Prove → Stress-Test flow. The branch points correspond directly to the verdicts written in `03_PARTIAL_*.json`.
 
-See [Pipeline - Phase 03](../pipeline/audit-map.md) for details.
+![Proof-attempt flow](/img/diagrams/proof-attempt.png)
+
+- **Map** — locate the code that is responsible for enforcing the property (uses the pre-resolution from Phase 02c when available).
+- **Prove** — try to construct a proof that the property holds across all execution paths. Sub-claims are explicit.
+- **Proof holds** → `Pass` (no finding).
+- **Gaps remain** → run **Stress-Test** to look for a concrete counterexample.
+  - **Attack plausible** → `Vulnerability` (proof actively fails).
+  - **No counterexample yet** → `Potential` (proof gap survives but no exploit constructed).
+
+The Phase 03 verdicts feed directly into the [3-gate review](../concepts/gate-review.md) in Phase 04. See [Pipeline — Phase 03](../pipeline/audit-map.md) for the JSON shape and prompt-level details.

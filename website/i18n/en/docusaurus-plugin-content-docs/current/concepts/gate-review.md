@@ -11,6 +11,10 @@ FINDING candidates produced by the proof-based audit in Phase 03 are validated t
 - **Recall**: preserve the detection rate of H/M/L vulnerabilities (target >90%)
 - **Precision**: systematically reduce false positives
 
+The empirical claim — recall stays at 100% while precision rises from 56.9% to 66.7% — is shown directly on RQ1 data:
+
+![Phase 03 vs Phase 04 — recall, precision, F1](/img/charts/rq1_phase_comparison.png)
+
 This tension is resolved by designing the gates to be "narrow" (with strict rejection conditions):
 
 - A gate only returns DISPUTED_FP (other reductions are performed in earlier stages)
@@ -76,4 +80,4 @@ Gate 3 → DISPUTED_FP or CONFIRMED ⇒ STOP
 | `NEEDS_MANUAL_REVIEW` | Difficult to judge |
 | `PASS_THROUGH` | Other |
 
-For implementation details, see [Pipeline - Phase 04](../pipeline/review.md).
+For implementation details, see [Pipeline - Phase 04](../pipeline/review.md). For the per-gate verified-FP rate on the same RQ1 data, see [Results / 3-gate filter effectiveness](../results-overview.md#per-gate-verified-fp-rate).

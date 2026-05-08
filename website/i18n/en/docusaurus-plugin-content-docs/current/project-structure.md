@@ -64,4 +64,4 @@ If you want to investigate the CLI behavior, the entry point is `cli/src/cli.tsx
 
 The concrete analysis logic for each Phase is written in the corresponding prompt under `prompts/`. Phases 01e, 02c, 03, and 04 inline all logic into the prompt.
 
-Background and rationale of design decisions are summarized in [CLAUDE.md](https://github.com/NyxFoundation/speca/blob/main/CLAUDE.md).
+For the *why* behind the layout — the harness invariants, prompt-vs-skill split, and the non-obvious context-flow decisions — see the [Agent design](./agent-design/overview.md) section. Background and rationale of design decisions are also summarized in [CLAUDE.md](https://github.com/NyxFoundation/speca/blob/main/CLAUDE.md).

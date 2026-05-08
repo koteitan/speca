@@ -4,92 +4,121 @@ sidebar_position: 3
 
 # Try it now
 
-A 5-minute walkthrough for trying SPECA.
+Five-minute walkthrough — first audit on a small public repo.
 
 ## Prerequisites
 
 - Node.js 20 or later
-- The Python environment manager `uv` ([install](https://docs.astral.sh/uv/getting-started/installation/))
-- Git
-- Claude Code CLI ([install](https://claude.ai/download); a free tier is available, but a Claude Pro or Max subscription is recommended for running audits)
+- Python 3.11 + [`uv`](https://docs.astral.sh/uv/getting-started/installation/)
+- git
+- A Claude API key (paid via Claude Pro/Max subscription, or a metered API key)
 
 ## Step by step
 
-### 1. Clone the repository
+### 1. Install the CLI
 
 ```bash
-git clone https://github.com/NyxFoundation/speca.git
-cd speca
+npm install -g speca-cli
+speca doctor
 ```
 
-### 2. Set up the Python environment
+`speca doctor` validates Node, Python, Claude Code, and the MCP servers. If anything is `[err]`, follow the printed remediation hint.
+
+If you would rather avoid a global install, every command below works with `npx speca-cli@latest …` substituted for `speca`.
+
+### 2. Sign in to Claude
 
 ```bash
-uv sync
+speca auth login
 ```
 
-Installs the Python packages required by the project.
+Either pastes an API key into `~/.config/speca/auth.json` or piggybacks on the Claude Code session you already have.
 
-### 3. Build the CLI tool
+### 3. Generate the two config files
 
 ```bash
-cd cli
-npm install
-npm run build
-cd ..
+speca init
 ```
 
-Builds the Node.js command-line tool (speca-cli).
+Asks for the target repo URL, the language and layer, and the scope rubric. Writes `outputs/TARGET_INFO.json` and `outputs/BUG_BOUNTY_SCOPE.json`. For a hand-tuned setup, see [Configuration files](../getting-started/config-files.md).
 
-### 4. Verify your environment
+### 4. Run the audit
 
 ```bash
-node cli/dist/cli.js doctor
+speca run --target 04 --workers 4
 ```
 
-Checks whether each dependency — Node.js, Python, and the Claude API — is correctly configured. If any error appears, follow the message displayed to fix the issue.
+Phases 01a → 01b → 01e → 02c → 03 → 04 run in order; the TUI dashboard streams progress and cost in real time. A small repo is typically 5–15 minutes; a production-size client is 1–3 hours. Add `--budget 50` to cap cost at $50.
 
-### 5. Initialize the project configuration
+The dashboard looks roughly like this — a header with running cost, then per-phase progress with the active worker count:
+
+```
+SPECA · openzeppelin-ownable-walkthrough          cost: $1.42 / $50 budget
+─────────────────────────────────────────────────────────────────────────
+01a Spec Discovery     ████████████████████  done   23 sections   $0.18
+01b Subgraph Extract   ████████████████████  done   12 subgraphs  $0.24
+01e Property Gen       ████████████████████  done   18 props      $0.31
+02c Code Resolution    ████████░░░░░░░░░░░░  3 / 18 workers=4    $0.21
+03 Audit Map           ░░░░░░░░░░░░░░░░░░░░  pending             —
+04 Review              ░░░░░░░░░░░░░░░░░░░░  pending             —
+```
+
+### 5. Browse the findings
 
 ```bash
-node cli/dist/cli.js init
+speca browse
+speca browse --severity Critical
+speca browse --filter "verdict:CONFIRMED_*"
 ```
 
-Interactively prompts for the URL of the target repository, the security scope, and similar information. This generates `outputs/TARGET_INFO.json` and `outputs/BUG_BOUNTY_SCOPE.json`. These two files serve as the inputs to the entire pipeline.
+Each row shows property, code excerpt, proof gap, and gate trace. `c` opens code peek, `f` edits the filter, `q` quits. See [CLI reference / browse](../getting-started/cli-reference.md#speca-browse) for the full filter DSL.
 
-### 6. Run the audit
+### 6. Drill in
 
 ```bash
-node cli/dist/cli.js run --target 04
+speca ask                                # pick the first finding
+speca ask PROP-abc-001 --from outputs/04_PARTIAL_*.json
 ```
 
-Executes Phase 01a through Phase 04 in sequence. The run takes anywhere from a few minutes to several tens of minutes. Progress is shown in the terminal in real time.
+Resumes a Claude Code session pre-loaded with the finding's context.
 
-### 7. Review the results
+## Cost & runtime expectations
 
-```bash
-node cli/dist/cli.js browse
-```
+| Codebase | Wall-clock | Cost (Sonnet 4.5) |
+|---|---|---|
+| Small contract (~1 K LoC) | 5–10 min | $1–5 |
+| Mid-size repo (~50 K LoC) | 15–40 min | $20–50 |
+| Production client (~500 K LoC) | 1–3 hours | $50–100 |
 
-Displays the candidate vulnerabilities that were detected. Each entry includes its code location, the security property, a severity, and a verdict.
+For tighter cost control, see [model selection notes](../design-notes/model-benchmark-takeaways.md).
 
 ## Troubleshooting
 
-### The run ends with "Empty results"
+### "Empty results" on Phase 01a
 
-`outputs/BUG_BOUNTY_SCOPE.json` may be missing or empty. Check the following.
+`outputs/BUG_BOUNTY_SCOPE.json` is missing or its `in_scope` is empty. Re-run `speca init` or hand-edit; see [Configuration files](../getting-started/config-files.md).
 
-- Did you run `speca init` to generate the configuration file?
-- Does the target repository's GitHub Issues or Wiki contain specification information?
+### Run aborted with exit code 64 / 65
 
-For more details, see the "specs not found" entry in the [FAQ](faq.md).
+- **64** — `--budget` was hit. Re-invoke with a higher cap or trim scope.
+- **65** — circuit breaker tripped. Inspect `outputs/logs/<phase>_*.jsonl` for the underlying API error; usually transient (rate limit / 5xx). See [harness internals](../agent-design/harness.md).
 
 ### Other errors
 
-Consult the [FAQ](faq.md) or report the issue on [GitHub Issues](https://github.com/NyxFoundation/speca/issues).
+[FAQ](faq.md) · [GitHub Issues](https://github.com/NyxFoundation/speca/issues).
+
+## After your first audit
+
+Once `speca browse` opens you have a list of findings. The next-step questions usually are:
+
+- **"Which one is real?"** — start with `--severity High --filter "verdict:CONFIRMED_*"`. Verdict semantics: [3-gate review](../concepts/gate-review.md).
+- **"Why was X dismissed?"** — every `DISPUTED_FP` records the gate that filtered it. Inspect with `Enter`-to-expand in `browse`.
+- **"What's the exact proof step that fails?"** — `speca ask <property_id>` opens a session with the finding's full context.
+- **"Does any of this trace back to a real spec sentence?"** — yes, every finding does. The chain is shown in the [worked example](../concepts/worked-example.md).
 
 ## Next steps
 
-- Learn how to read the results in detail: [Concepts](../concepts/spec-driven.md)
-- Command reference: [Quickstart](../getting-started/quickstart.md)
-- Frequently asked questions: [FAQ](faq.md)
+- [CLI reference](../getting-started/cli-reference.md) — every flag
+- [Pipeline overview](../pipeline/overview.md) — what each phase does
+- [Concepts](../concepts/spec-driven.md) — why the design works
+- [Worked example](../concepts/worked-example.md) — one property end-to-end

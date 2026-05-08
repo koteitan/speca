@@ -6,6 +6,10 @@ sidebar_position: 2
 
 SPECA は 6 つの段階 (Phase) を順に実行します。ここでは各段階を日本語で説明してから、内部での技術的な名前を紹介します。
 
+![SPECA パイプライン](/img/diagrams/pipeline.png)
+
+1 つのプロパティが全 6 段を通る様子をリアルな JSON 例で追うなら [ワークドエグザンプル](../concepts/worked-example.md) を見てください。
+
 ## 1. 仕様書を集める (Phase 01a)
 
 インターネットからプロジェクトの仕様書やドキュメント (GitHub Issues、スコープ定義など) を自動で探し出します。

@@ -17,6 +17,7 @@
 const sidebars = {
   tutorialSidebar: [
     'intro',
+    'results-overview',
     {
       type: 'category',
       label: 'やさしいガイド',
@@ -38,7 +39,12 @@ const sidebars = {
       type: 'category',
       label: 'はじめに',
       collapsed: false,
-      items: ['getting-started/installation', 'getting-started/quickstart'],
+      items: [
+        'getting-started/installation',
+        'getting-started/quickstart',
+        'getting-started/cli-reference',
+        'getting-started/config-files',
+      ],
     },
     {
       type: 'category',
@@ -63,6 +69,18 @@ const sidebars = {
         'concepts/proof-attempt',
         'concepts/gate-review',
         'concepts/bug-bounty-scope',
+        'concepts/worked-example',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'エージェント設計',
+      collapsed: false,
+      items: [
+        'agent-design/overview',
+        'agent-design/harness',
+        'agent-design/prompts-and-skills',
+        'agent-design/context-engineering',
       ],
     },
     {

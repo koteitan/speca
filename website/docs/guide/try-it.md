@@ -4,92 +4,121 @@ sidebar_position: 3
 
 # とりあえず動かしてみる
 
-5 分で SPECA を試すための手順です。
+5 分で完了するウォークスルー。小さな公開リポジトリに対して初回監査を走らせます。
 
-## 必要なもの
+## 前提
 
 - Node.js 20 以上
-- Python 環境管理ツール `uv` ([インストール](https://docs.astral.sh/uv/getting-started/installation/))
-- Git
-- Claude Code CLI ([インストール](https://claude.ai/download)、無料版あり。監査実行には Claude Pro または Max サブスクリプションを推奨)
+- Python 3.11 + [`uv`](https://docs.astral.sh/uv/getting-started/installation/)
+- git
+- Claude API キー (Claude Pro/Max 契約による課金、または従量制 API キー)
 
-## ステップバイステップ
+## 手順
 
-### 1. リポジトリを clone する
-
-```bash
-git clone https://github.com/NyxFoundation/speca.git
-cd speca
-```
-
-### 2. Python 環境をセットアップする
+### 1. CLI をインストール
 
 ```bash
-uv sync
+npm install -g speca-cli
+speca doctor
 ```
 
-プロジェクトに必要な Python パッケージをインストールします。
+`speca doctor` が Node / Python / Claude Code / MCP サーバーを検証します。`[err]` 行があれば、表示される対処メッセージに従ってください。
 
-### 3. CLI ツールをビルドする
+グローバルインストールを避けたい場合は、本サイトの `speca` を `npx speca-cli@latest` に置換すれば全コマンドが動きます。
+
+### 2. Claude にサインイン
 
 ```bash
-cd cli
-npm install
-npm run build
-cd ..
+speca auth login
 ```
 
-Node.js 版のコマンドラインツール (speca-cli) をビルドします。
+API キーを `~/.config/speca/auth.json` に保存するか、既存の Claude Code セッションに乗ります。
 
-### 4. 環境を確認する
+### 3. 設定ファイルを生成
 
 ```bash
-node cli/dist/cli.js doctor
+speca init
 ```
 
-Node.js・Python・Claude API の各依存関係が正しく設定されているか確認します。エラーが出た場合は、表示されたメッセージに従って修正してください。
+対象リポジトリ URL、言語とレイヤー、スコープルブリックを尋ねられます。`outputs/TARGET_INFO.json` と `outputs/BUG_BOUNTY_SCOPE.json` を書き出します。手動で書く場合は [設定ファイル](../getting-started/config-files.md) を参照してください。
 
-### 5. プロジェクト設定を初期化する
+### 4. 監査を実行
 
 ```bash
-node cli/dist/cli.js init
+speca run --target 04 --workers 4
 ```
 
-対象リポジトリの URL やセキュリティスコープなどを対話形式で入力します。`outputs/TARGET_INFO.json` と `outputs/BUG_BOUNTY_SCOPE.json` が生成されます。これら 2 つのファイルがパイプライン全体の入力になります。
+Phase 01a → 01b → 01e → 02c → 03 → 04 が順に実行され、TUI ダッシュボードに進捗とコストがリアルタイム表示されます。小型リポジトリは典型的に 5〜15 分、本番サイズのクライアントは 1〜3 時間。`--budget 50` で $50 を上限に固定できます。
 
-### 6. 監査を実行する
+ダッシュボードは大体こんな見た目になります — ヘッダに累積コスト、各フェーズに進捗とアクティブワーカー数:
+
+```
+SPECA · openzeppelin-ownable-walkthrough          cost: $1.42 / $50 budget
+─────────────────────────────────────────────────────────────────────────
+01a Spec Discovery     ████████████████████  done   23 sections   $0.18
+01b Subgraph Extract   ████████████████████  done   12 subgraphs  $0.24
+01e Property Gen       ████████████████████  done   18 props      $0.31
+02c Code Resolution    ████████░░░░░░░░░░░░  3 / 18 workers=4    $0.21
+03 Audit Map           ░░░░░░░░░░░░░░░░░░░░  pending             —
+04 Review              ░░░░░░░░░░░░░░░░░░░░  pending             —
+```
+
+### 5. 結果を閲覧
 
 ```bash
-node cli/dist/cli.js run --target 04
+speca browse
+speca browse --severity Critical
+speca browse --filter "verdict:CONFIRMED_*"
 ```
 
-Phase 01a から Phase 04 まで順に実行します。完了まで数分〜数十分かかります。進捗はターミナルにリアルタイムで表示されます。
+各行はプロパティ・コード抜粋・proof gap・ゲートトレースを表示します。`c` でコード覗き、`f` でフィルタ編集、`q` で終了。完全なフィルタ DSL は [CLI リファレンス / browse](../getting-started/cli-reference.md#speca-browse) にあります。
 
-### 7. 結果を確認する
+### 6. 個別調査
 
 ```bash
-node cli/dist/cli.js browse
+speca ask                                # 最初の finding を選択
+speca ask PROP-abc-001 --from outputs/04_PARTIAL_*.json
 ```
 
-検出された脆弱性の候補を一覧表示します。各項目にはコード位置・セキュリティプロパティ・重要度 (severity) と判定 (verdict) が付いています。
+その finding のコンテキストをロードした Claude Code セッションを開きます。
+
+## コストと所要時間の目安
+
+| コードベース | 実時間 | コスト (Sonnet 4.5) |
+|---|---|---|
+| 小型コントラクト (~1K LoC) | 5〜10 分 | $1〜5 |
+| 中規模リポジトリ (~50K LoC) | 15〜40 分 | $20〜50 |
+| 本番クライアント (~500K LoC) | 1〜3 時間 | $50〜100 |
+
+コスト管理の詳細は [モデル選定の設計ノート](../design-notes/model-benchmark-takeaways.md) を参照してください。
 
 ## トラブルシューティング
 
-### 「Empty results」で終わる
+### Phase 01a で「Empty results」
 
-`outputs/BUG_BOUNTY_SCOPE.json` が見つからない、または中身が空の可能性があります。以下を確認してください。
+`outputs/BUG_BOUNTY_SCOPE.json` が無いか、`in_scope` が空です。`speca init` を再実行するか手で編集します。詳細は [設定ファイル](../getting-started/config-files.md)。
 
-- `speca init` を実行して設定ファイルを生成したか
-- 対象リポジトリの GitHub Issues や Wiki に仕様情報があるか
+### 終了コード 64 / 65 で停止した
 
-詳しくは [FAQ](faq.md) の「specs が見つからない」の項目を参照してください。
+- **64** — `--budget` に到達。上限を引き上げるかスコープを絞ります。
+- **65** — サーキットブレーカー作動。`outputs/logs/<phase>_*.jsonl` で原因を確認 (大半は一時的な API エラー)。詳細は [ハーネスの内部](../agent-design/harness.md)。
 
 ### その他のエラー
 
-[FAQ](faq.md) を確認するか、[GitHub Issues](https://github.com/NyxFoundation/speca/issues) へ報告してください。
+[FAQ](faq.md) · [GitHub Issues](https://github.com/NyxFoundation/speca/issues)。
+
+## 初回監査が終わったあと
+
+`speca browse` が開いたら finding のリストが手元に来ています。次の質問はだいたいこうなります:
+
+- **「どれが本物?」** — まず `--severity High --filter "verdict:CONFIRMED_*"`。verdict の意味は [3 ゲートレビュー](../concepts/gate-review.md)。
+- **「なぜ X は dismiss された?」** — `DISPUTED_FP` は弾いたゲートを記録しています。`browse` の `Enter` で展開できます。
+- **「証明のどのステップが失敗したのか?」** — `speca ask <property_id>` で finding のフルコンテキスト付きセッションを開きます。
+- **「どこかで本物の仕様の文に遡れる?」** — はい、すべての finding が遡れます。連鎖は [ワークドエグザンプル](../concepts/worked-example.md) に図示されています。
 
 ## 次のステップ
 
-- 結果の読み方を詳しく知りたい: [概念](../concepts/spec-driven.md)
-- コマンドの詳細: [クイックスタート](../getting-started/quickstart.md)
-- よくある質問: [FAQ](faq.md)
+- [CLI リファレンス](../getting-started/cli-reference.md) — 全フラグ
+- [パイプライン概要](../pipeline/overview.md) — 各フェーズの役割
+- [概念](../concepts/spec-driven.md) — なぜこの設計が成立するか
+- [ワークドエグザンプル](../concepts/worked-example.md) — 1 つのプロパティを最後まで追う

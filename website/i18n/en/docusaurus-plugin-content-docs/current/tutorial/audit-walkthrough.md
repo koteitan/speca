@@ -4,116 +4,117 @@ sidebar_position: 1
 
 # Auditing a test repository
 
-This is a hands-on walkthrough — for users who already have speca-cli installed — that takes you through the full audit flow on a public repository. The target is OpenZeppelin's `Ownable.sol` (a canonical access-control implementation). Because the code is short, it is well-suited as a first exercise for observing the entire pipeline end-to-end.
+Hands-on walkthrough — already-installed `speca-cli` against a small public repo. The target is OpenZeppelin's `Ownable.sol`, a canonical access-control implementation. Because the code is short, it is well-suited as a first end-to-end run.
 
-## Prerequisites and setup
-
-Confirm that speca-cli works.
+## 0. Confirm the environment
 
 ```bash
-node cli/dist/cli.js doctor
+speca doctor
 ```
 
-Example output:
+Expected:
 
 ```
 [ok] Node.js 20.x
 [ok] Python 3.11 (uv)
 [ok] Claude Code CLI authenticated
+[ok] MCP servers: fetch, tree_sitter
 ```
 
-If any errors appear, return to [Try it now](../guide/try-it.md) and fix your environment first.
+If any line is `[err]`, return to [Try it now](../guide/try-it.md) first.
 
-## 1. Prepare the configuration files
+## 1. Author the configuration files
 
-Running `speca init` creates two files interactively.
+You can do this interactively (`speca init`) or by hand. For this walkthrough, use the values below.
 
-```bash
-node cli/dist/cli.js init
-```
-
-For this walkthrough, prepare `outputs/TARGET_INFO.json` with the following contents.
+`outputs/TARGET_INFO.json`:
 
 ```json
 {
-  "repo_url": "https://github.com/OpenZeppelin/openzeppelin-contracts",
-  "commit": "v4.9.6",
-  "language": "solidity",
-  "description": "OpenZeppelin Contracts v4.9.6"
+  "project_name": "openzeppelin-ownable-walkthrough",
+  "target_repo": "https://github.com/OpenZeppelin/openzeppelin-contracts",
+  "target_commit": "v4.9.6",
+  "target_language": "Solidity",
+  "target_layer": "library",
+  "description": "OpenZeppelin Contracts v4.9.6 — Ownable.sol"
 }
 ```
 
-Write the scope information into `outputs/BUG_BOUNTY_SCOPE.json`.
+`outputs/BUG_BOUNTY_SCOPE.json`:
 
 ```json
 {
-  "scope": "Access control invariants in contracts/access/Ownable.sol",
-  "out_of_scope": "UI, deployment scripts",
-  "severity_levels": ["High", "Medium", "Low"]
+  "program_name": "openzeppelin-ownable-walkthrough",
+  "scope_version": "1.0",
+  "in_scope": ["contracts/access/Ownable.sol"],
+  "out_of_scope": ["test/", "scripts/"],
+  "severity_classification": {
+    "HIGH":   { "description": "Unauthorized owner change",
+                "cwe": ["CWE-862", "CWE-863"],
+                "examples": ["Bypass of onlyOwner"] },
+    "MEDIUM": { "description": "Two-step transfer divergence from spec",
+                "cwe": ["CWE-841"],
+                "examples": ["Pending owner not cleared"] },
+    "LOW":    { "description": "Quality / informational",
+                "cwe": ["CWE-710"],
+                "examples": ["Misleading event"] }
+  },
+  "scope_notes": "Walkthrough — single contract."
 }
 ```
 
-These two files are the inputs for the entire pipeline.
+Both schemas are documented in [Configuration files](../getting-started/config-files.md).
 
-## 2. Run speca init
-
-```bash
-node cli/dist/cli.js init
-```
-
-`init` reads the JSON files above to finalize the internal configuration and completes the preparation for the Phase 01a specification crawl. On success, you will see a message such as:
-
-```
-[init] TARGET_INFO loaded: OpenZeppelin Contracts v4.9.6
-[init] BUG_BOUNTY_SCOPE loaded: 1 scope entry
-[init] Ready. Run: speca run --target 04
-```
-
-## 3. Run the audit
+## 2. Run the audit
 
 ```bash
-node cli/dist/cli.js run --target 04
+speca run --target 04 --workers 4
 ```
 
-`--target 04` means "execute every phase in sequence up through Phase 04." During execution, NDJSON-formatted logs stream to your terminal.
+The TUI dashboard streams events. With a single contract this completes in 2–4 minutes:
 
 ```
 {"phase":"01a","status":"running","found":3}
 {"phase":"01b","status":"running","subgraph":"Ownable-ownership-transfer"}
-{"phase":"01e","status":"running","property":"PROP-001","description":"Whether the onlyOwner modifier is applied to all administrative functions"}
+{"phase":"01e","status":"running","property":"PROP-001",
+ "description":"onlyOwner is applied to all administrative functions"}
 {"phase":"02c","status":"running","resolved":5}
-{"phase":"03","status":"running","proof_attempt":"PROP-001","result":"gap_found"}
+{"phase":"03","status":"running","property":"PROP-001","result":"gap_found"}
 {"phase":"04","status":"running","verdict":"CONFIRMED_POTENTIAL"}
 ```
 
-The `phase` field on each line tells you which stage is currently running. `result: gap_found` means "a portion that cannot be proven was found"; the final verdict is rendered in Phase 04.
+`result: gap_found` means *"a portion of the proof could not be closed"*; the final `verdict` is decided in Phase 04 after the 3 gates. To stream raw NDJSON instead of the TUI: `speca run --target 04 --json`.
 
-## 4. Review the results
-
-```bash
-node cli/dist/cli.js browse outputs/04_PARTIAL_*.json
-```
-
-The detected candidates are listed. Each row contains the following information.
-
-- `property_id`: which security property the finding pertains to
-- `severity`: High / Medium / Low
-- `verdict`: CONFIRMED_VULNERABILITY / CONFIRMED_POTENTIAL / DISPUTED_FP, etc.
-- `location`: the offending code file and line number
-- `description`: an explanation of why it was judged to be a problem
-
-## 5. Interpreting the results
-
-`Ownable.sol` is short and simple, so this exercise is unlikely to surface major vulnerabilities. Instead, conditions such as "is the two-step ownership-transfer confirmation flow implemented within the bounds of the specification?" may be reported as CONFIRMED_POTENTIAL.
-
-**Whether or not anything is found**, success means that the pipeline ran and produced results. Read "no findings" not as "no bugs," but as "no problems were found within the specified scope and specification."
-
-## 6. Now try your own repository
-
-Once you have confirmed that everything works, replace `outputs/TARGET_INFO.json` and `outputs/BUG_BOUNTY_SCOPE.json` with the information for your own project and repeat the same steps. The more concretely you describe the scope, the higher the result quality.
-
-For more complex targets (for example, the [Lighthouse Ethereum client](https://github.com/sigp/lighthouse)), Phases 01a and 01b take longer because there is more specification material. You can speed processing up by raising parallelism with the `--workers 4` option.
+## 3. Browse the findings
 
 ```bash
-node cli/dist/cli.js run --target 04 --workers 4
+speca browse
 ```
+
+Each row shows:
+
+- `property_id` — the security property the finding pertains to
+- `severity` — High / Medium / Low / Informational
+- `verdict` — `CONFIRMED_VULNERABILITY` / `CONFIRMED_POTENTIAL` / `DISPUTED_FP` / …
+- `location` — file and line range
+- `proof_gap` / `description` — why it was flagged
+
+Use `c` to peek at the code, `f` to refine the filter, and `q` to quit.
+
+## 4. How to interpret the result
+
+`Ownable.sol` is short and well-trodden, so a clean run is unlikely to surface high-severity vulnerabilities. What you may see is `CONFIRMED_POTENTIAL` against the two-step transfer flow (the spec's "pending owner clears on transfer" rule), or `DISPUTED_FP` filtered out by the Trust Boundary gate.
+
+**Whether or not anything is found, success means the pipeline ran end-to-end.** "No findings" should be read as *"no proof gap survived in the specified scope and against the property set we generated,"* not *"no bugs."*
+
+## 5. Move to your own repo
+
+Replace `outputs/TARGET_INFO.json` and `outputs/BUG_BOUNTY_SCOPE.json` with your own project's values and re-run `speca run --target 04`. The more concretely you describe the scope (`in_scope` paths, severity rubric), the better the results.
+
+For larger targets like the [Lighthouse Ethereum client](https://github.com/sigp/lighthouse), Phases 01a and 01b take longer because the spec corpus is bigger. Crank up parallelism:
+
+```bash
+speca run --target 04 --workers 8 --max-concurrent 16 --budget 80
+```
+
+`--budget 80` hard-stops the phase at $80 (exit code 64). For more on the trade-offs, see [model-benchmark takeaways](../design-notes/model-benchmark-takeaways.md).

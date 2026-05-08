@@ -6,6 +6,10 @@ sidebar_position: 2
 
 SPECA executes six stages (Phases) in sequence. Each stage is described below in plain terms, followed by its internal technical name.
 
+![SPECA pipeline](/img/diagrams/pipeline.png)
+
+To follow one property through all six stages with realistic JSON at every step, see the [worked example](../concepts/worked-example.md).
+
 ## 1. Collect specifications (Phase 01a)
 
 Automatically discovers project specifications and documentation (GitHub Issues, scope definitions, and so on) from the internet.

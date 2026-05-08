@@ -23,6 +23,10 @@
     "message": "Concepts",
     "description": "The label for category '概念' in sidebar 'tutorialSidebar'"
   },
+  "sidebar.tutorialSidebar.category.エージェント設計": {
+    "message": "Agent design",
+    "description": "The label for category 'エージェント設計' in sidebar 'tutorialSidebar'"
+  },
   "sidebar.tutorialSidebar.category.リファレンス": {
     "message": "References",
     "description": "The label for category 'リファレンス' in sidebar 'tutorialSidebar'"

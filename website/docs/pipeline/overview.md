@@ -4,47 +4,69 @@ sidebar_position: 1
 
 # パイプライン概要
 
-SPECA は 6 つの順序付きフェーズで構成されます。前 2 つのフェーズは仕様分析 (一度のみ実行)、後 4 つは実装監査 (対象ごとに実行)。
+SPECA は 6 ステージから成るパイプラインです。前半 3 ステージは仕様を型付きプロパティに変換 (Knowledge Structuring)、後半 3 ステージはそのプロパティを実装に対して監査します (Systematic Auditing)。
 
-## フェーズ依存チェーン
+![SPECA パイプライン](/img/diagrams/pipeline.png)
+
+## フェーズ番号 — 論文 vs 内部 ID
+
+2 本の SPECA 論文ではステージを **Phase 1〜6** と呼びます。一方、コードベースは開発時の順序を反映した内部 ID (`01a` / `01b` / `01e` / `02c` / `03` / `04`) を使います。指しているステージは同じです。
+
+| 論文 | 内部 ID | プレーン名 | ページ |
+|---|---|---|---|
+| Phase 1 | `01a` | Spec Discovery (仕様収集) | [01a](./01a-spec-discovery.md) |
+| Phase 2 | `01b` | Subgraph Extraction (サブグラフ抽出) | [01b](./01b-subgraph-extraction.md) |
+| Phase 3 | `01e` | Property Generation (プロパティ生成) | [01e](./01e-property-generation.md) |
+| Phase 4 | `02c` | Code Pre-resolution (コード位置事前解決) | [02c](./02c-code-resolution.md) |
+| Phase 5 | `03` | Property Audit (Map / Prove / Stress-Test) | [03](./audit-map.md) |
+| Phase 6 | `04` | Severity Review (3 ゲート FP フィルタ) | [04](./review.md) |
+
+CLI とオーケストレータは常に内部 ID を使います (例: `speca run --target 04`)。
+
+## 依存関係
 
 ```
 01a (Spec Discovery)
   ↓
 01b (Subgraph Extraction)
   ↓
-01e (Property Generation) ← BUG_BOUNTY_SCOPE.json 必須
+01e (Property Generation)        ← BUG_BOUNTY_SCOPE.json 必須
   ↓
-02c (Code Pre-resolution) ← TARGET_INFO.json 必須
+02c (Code Pre-resolution)        ← TARGET_INFO.json 必須
   ↓
-03 (Audit Map)
+03 (Audit Map: Map → Prove → Stress-Test)
   ↓
-04 (Review)
+04 (Review: Dead Code → Trust Boundary → Scope)
 ```
 
-## 各フェーズ
+前半 3 フェーズ (01a / 01b / 01e) は仕様とスコープルブリックのみに依存するため、複数の実装間でキャッシュ・再利用できます。後半 3 フェーズ (02c / 03 / 04) は対象コードベースに依存し、実装ごとに走らせます。
+
+## 入出力一覧
 
 | ID | 名前 | 入力 | 出力 |
 |---|---|---|---|
-| **01a** | [仕様発見](./01a-spec-discovery.md) | SPEC_URLS env | STATE.json |
-| **01b** | [サブグラフ抽出](./01b-subgraph-extraction.md) | STATE.json | Mermaid + PARTIAL_*.json |
-| **01e** | [プロパティ生成](./01e-property-generation.md) | Subgraph + STRIDE/CWE | PARTIAL_*.json |
-| **02c** | [コード解析](./02c-code-resolution.md) | Properties + ソース | PARTIAL_*.json |
-| **03** | [監査マップ](./audit-map.md) | Properties + コード | PARTIAL_*.json |
-| **04** | [レビュー](./review.md) | Findings | PARTIAL_*.json (6 verdicts) |
+| **01a** | [Spec Discovery](./01a-spec-discovery.md) | `SPEC_URLS` 環境変数 | `01a_STATE.json` |
+| **01b** | [Subgraph Extraction](./01b-subgraph-extraction.md) | `01a_STATE.json` | Mermaid `.mmd` + `01b_PARTIAL_*.json` |
+| **01e** | [Property Generation](./01e-property-generation.md) | サブグラフ + STRIDE/CWE Top 25 | `01e_PARTIAL_*.json` |
+| **02c** | [Code Resolution](./02c-code-resolution.md) | プロパティ + ソース | `02c_PARTIAL_*.json` |
+| **03** | [Audit Map](./audit-map.md) | プロパティ + コード | `03_PARTIAL_*.json` |
+| **04** | [Review](./review.md) | Phase 03 findings | `04_PARTIAL_*.json` (6 種類の verdict) |
 
-## データフロー
+## データフローの規約
 
-- **パーシャルファイル**: `outputs/<phase_id>_PARTIAL_W{worker}B{batch}_{timestamp}.json`
+- **Partial ファイル**: `outputs/<phase_id>_PARTIAL_W{worker}B{batch}_{timestamp}.json`
 - **キューファイル**: `outputs/<phase_id>_QUEUE_{worker}.json`
 - **ログ**: `outputs/logs/{phase_id}_*.jsonl`
 
-各フェーズは上流のパーシャルファイルをグロブパターンで消費し、処理済みアイテムをスキップして (resume)、結果を即座に保存します。
+各フェーズは上流の partial ファイルを glob で消費し、resume により処理済み項目をスキップ、各バッチ完了直後に結果を即書き込みます。検証エラーで partial の保存をブロックすることはありません。
 
-## サーキットブレーカー・予算・リジューム
+## ハーネス共通機能
 
-- **Circuit Breaker**: 全ワーカーで共有。連続エラーまたは API 異常で自動停止
-- **予算**: フェーズごとに BudgetExceeded で硬停止。トークン浪費を防止
-- **Resume**: 既処理アイテムは自動スキップ。中断・再実行時にトークン節約
+オーケストレータは全フェーズで共通の 4 つの機能を提供します。詳細は [エージェント設計 — ハーネス](../agent-design/harness.md) にあります。
 
-詳細は各フェーズドキュメントを参照してください。
+- **Circuit Breaker** — フェーズ内のすべてのワーカーで共有。連続失敗・総リトライ・空結果連発のいずれかで停止。
+- **Cost Tracker** — フェーズごとの USD 予算上限。超過すると `BudgetExceeded` を投げてフェーズを即停止。
+- **Resume Manager** — `*_PARTIAL_*.json` を走査し処理済み項目を判定、再実行はデフォルトでスキップ。
+- **Log Watcher** — stream-json ログをリアルタイムに追従し、TUI ダッシュボードへイベント転送。
+
+各フェーズへのモデル割り当てとプロンプト/スキルの選び分けは [プロンプトとスキル](../agent-design/prompts-and-skills.md) を参照してください。

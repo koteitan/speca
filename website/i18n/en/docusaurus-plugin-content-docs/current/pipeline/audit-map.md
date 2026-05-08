@@ -6,6 +6,8 @@ sidebar_position: 6
 
 A formal, proof-attempt-based audit. For each property, it executes Map → Prove → Stress-Test in sequence.
 
+![Phase 03 control flow](/img/diagrams/proof-attempt.png)
+
 ## Input
 
 - The output of Phase 02c (`outputs/02c_PARTIAL_*.json`).
