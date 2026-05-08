@@ -120,7 +120,7 @@ def test_build_round_trip(fixture_csv: Path, tmp_path: Path):
     assert manifest["n_rows"] == 3, "duplicate row should have been deduped"
     assert manifest["rows_by_platform"] == {"code4rena": 1, "sherlock": 1, "codehawks": 1}
 
-    parquet = tmp_path / "defi" / "data" / "train.parquet"
+    parquet = tmp_path / "defi" / "train.parquet"
     assert parquet.exists()
     table = pq.read_table(parquet)
     expected_cols = {

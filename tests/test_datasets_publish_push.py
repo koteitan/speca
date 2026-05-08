@@ -2,8 +2,8 @@
 
 We monkeypatch `huggingface_hub.HfApi` so the test runs offline, then
 assert that `push()` calls `create_repo` and `upload_folder` with the
-correct arguments — in particular `revision="main"` and
-`delete_patterns=["data/*"]` so stale files get pruned.
+correct arguments — `revision="main"` and `delete_patterns=["<domain>/*"]`
+so OTHER domain folders stay intact across publishes.
 """
 
 from __future__ import annotations
@@ -39,18 +39,18 @@ def _load():
 
 @pytest.fixture
 def staged(tmp_path: Path) -> Path:
-    """Mimic what `_stage()` produces: a temp dir with data/ + README.md."""
-    (tmp_path / "data").mkdir()
-    (tmp_path / "data" / "train.parquet").write_bytes(b"PARQUET-FAKE")
+    """Mimic what `_stage()` produces for a `defi` push: a tempdir with
+    README.md at root + defi/{train.parquet,manifest.json}."""
+    (tmp_path / "defi").mkdir()
+    (tmp_path / "defi" / "train.parquet").write_bytes(b"PARQUET-FAKE")
+    (tmp_path / "defi" / "manifest.json").write_text("{}")
     (tmp_path / "README.md").write_text("# fake card\n")
     return tmp_path
 
 
 def test_repo_id_validation_rejects_path_traversal():
     mod = _load()
-    # The CLI validation lives in main(); push() trusts its caller, so we
-    # exercise the regex directly.
-    assert mod.REPO_RE.fullmatch("NyxFoundation/defi-audit-findings")
+    assert mod.REPO_RE.fullmatch("NyxFoundation/vulnerability-reports")
     assert mod.REPO_RE.fullmatch("NyxFoundation/x.y_z-1")
     assert not mod.REPO_RE.fullmatch("NyxFoundation/../foo")
     assert not mod.REPO_RE.fullmatch("NyxFoundation/x/y")
@@ -58,20 +58,19 @@ def test_repo_id_validation_rejects_path_traversal():
     assert not mod.REPO_RE.fullmatch("/foo")
 
 
-def test_size_category_boundaries():
+def test_default_repo_constant():
     mod = _load()
-    cases = [
-        (0, "n<1K"), (999, "n<1K"),
-        (1_000, "1K<n<10K"), (9_999, "1K<n<10K"),
-        (10_000, "10K<n<100K"), (99_999, "10K<n<100K"),
-        (100_000, "100K<n<1M"), (999_999, "100K<n<1M"),
-        (1_000_000, "1M<n<10M"), (9_999_999, "1M<n<10M"),
-        (10_000_000, "10M<n<100M"),
-        (100_000_000, "100M<n<1B"),
-        (1_000_000_000, "n>1B"),
-    ]
-    for n, expected in cases:
-        assert mod.size_category(n) == expected, f"n={n}"
+    assert mod.DEFAULT_REPO == "NyxFoundation/vulnerability-reports"
+
+
+def test_domain_validation():
+    mod = _load()
+    assert mod.DOMAIN_RE.fullmatch("defi")
+    assert mod.DOMAIN_RE.fullmatch("ai-agents")
+    assert not mod.DOMAIN_RE.fullmatch("DeFi")
+    assert not mod.DOMAIN_RE.fullmatch("--bad")
+    assert not mod.DOMAIN_RE.fullmatch("foo--bar")
+    assert not mod.DOMAIN_RE.fullmatch("foo_bar")
 
 
 def test_push_invokes_hf_api_correctly(monkeypatch: pytest.MonkeyPatch, staged: Path):
@@ -113,38 +112,43 @@ def test_push_invokes_hf_api_correctly(monkeypatch: pytest.MonkeyPatch, staged: 
     monkeypatch.setitem(sys.modules, "huggingface_hub", fake_hub)
     monkeypatch.setitem(sys.modules, "huggingface_hub.utils", fake_utils)
 
-    url = mod.push(staged, "NyxFoundation/defi-audit-findings", token="t", commit_message="msg")
+    url = mod.push(staged, "NyxFoundation/vulnerability-reports",
+                   domain="defi", token="t", commit_message="msg")
     assert "abc" in url
-    assert calls["create_repo"]["repo_id"] == "NyxFoundation/defi-audit-findings"
+    assert calls["create_repo"]["repo_id"] == "NyxFoundation/vulnerability-reports"
     assert calls["create_repo"]["repo_type"] == "dataset"
-    assert calls["create_repo"]["exist_ok"] is True
 
     uf = calls["upload_folder"]
-    assert uf["repo_id"] == "NyxFoundation/defi-audit-findings"
+    assert uf["repo_id"] == "NyxFoundation/vulnerability-reports"
     assert uf["repo_type"] == "dataset"
     assert uf["revision"] == "main"
     assert uf["commit_message"] == "msg"
-    assert uf["delete_patterns"] == ["data/*"]
+    # Crucially, scoped to ONLY this domain's folder so other domains
+    # under the same repo aren't deleted on a partial publish.
+    assert uf["delete_patterns"] == ["defi/*"]
     assert Path(uf["folder_path"]) == staged
 
 
-def test_stage_does_not_pollute_src(tmp_path: Path):
-    """Regression: --dry-run / --src must NOT write README into the source
-    directory. The build_derived output is treated as read-only."""
+def test_stage_layout_mirrors_hf_repo(tmp_path: Path):
+    """`_stage()` must produce <td>/README.md + <td>/<domain>/{train.parquet,manifest.json}
+    so `upload_folder` lands the parquet at the correct config path."""
     mod = _load()
 
     src = tmp_path / "defi"
-    (src / "data").mkdir(parents=True)
-    parquet = src / "data" / "train.parquet"
+    src.mkdir(parents=True)
+    parquet = src / "train.parquet"
     parquet.write_bytes(b"PARQUET-FAKE")
-    manifest = {"parquet_path": "data/train.parquet"}
+    manifest = {"parquet_path": "train.parquet", "domain": "defi", "scraped_at": "t"}
     (src / "manifest.json").write_text(json.dumps(manifest))
 
-    td = mod._stage(src, manifest, "card body")
+    td = mod._stage(src, manifest, "defi", "card body")
     try:
         staging = Path(td.name)
+        # Global README at root.
         assert (staging / "README.md").read_text() == "card body"
-        assert (staging / "data" / "train.parquet").exists()
+        # Domain-folder layout.
+        assert (staging / "defi" / "train.parquet").exists()
+        assert (staging / "defi" / "manifest.json").exists()
         # Source is untouched.
         assert not (src / "README.md").exists(), "src/README.md must not be written"
     finally:

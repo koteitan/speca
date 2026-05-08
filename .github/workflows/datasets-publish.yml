@@ -143,14 +143,15 @@ jobs:
       - name: Publish to HuggingFace
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          DOMAIN: ${{ inputs.domain }}
           DRY_RUN: ${{ inputs.dry_run }}
           SRC_DIR: ${{ steps.build.outputs.src_dir }}
         shell: bash
         run: |
           set -euo pipefail
-          REPO="NyxFoundation/${DOMAIN}-audit-findings"
-          ARGS=(--src "$SRC_DIR" --repo "$REPO")
+          # publish_hf.py defaults to NyxFoundation/vulnerability-reports;
+          # the domain comes from <src>/manifest.json so we don't pass it
+          # again here.
+          ARGS=(--src "$SRC_DIR")
           if [ "$DRY_RUN" = "true" ]; then
             ARGS+=(--dry-run)
           else
@@ -171,11 +172,13 @@ jobs:
           set -euo pipefail
           {
             if [ "$DRY_RUN" = "true" ]; then
-              echo "### \`$DOMAIN\` dataset built (DRY-RUN — not pushed)"
+              echo "### \`$DOMAIN\` config built (DRY-RUN — not pushed)"
             else
-              echo "### \`$DOMAIN\` dataset published"
+              echo "### \`$DOMAIN\` config published"
               echo
-              echo "Dataset URL: https://huggingface.co/datasets/NyxFoundation/${DOMAIN}-audit-findings"
+              echo "Dataset URL: https://huggingface.co/datasets/NyxFoundation/vulnerability-reports"
+              echo
+              echo "Load with: \`load_dataset(\"NyxFoundation/vulnerability-reports\", \"$DOMAIN\", split=\"train\")\`"
             fi
             echo
             echo '```json'

@@ -2,40 +2,56 @@
 language:
   - en
 license: mit
-pretty_name: "SPECA {{ domain | capitalize }} Audit Findings"
+pretty_name: "SPECA Vulnerability Reports"
 tags:
   - "security"
   - "smart-contracts"
   - "vulnerabilities"
-  - "{{ domain }}"
-size_categories:
-  - "{{ size_category }}"
-configs:
-  - config_name: default
-    data_files:
-      - split: train
-        path: data/train.parquet
+  - "audit"
 ---
 
-# SPECA {{ domain | capitalize }} Audit Findings
+# SPECA Vulnerability Reports
 
-A normalized corpus of public smart-contract audit findings in the
-**{{ domain }}** domain, curated by the [SPECA](https://github.com/NyxFoundation/speca)
-project. Each row is one expert-judged audit issue, deduplicated across
-public competitive-audit platforms.
+A normalized corpus of public smart-contract audit findings, curated by
+the [SPECA](https://github.com/NyxFoundation/speca) project. Each row is
+one expert-judged audit issue, deduplicated across public competitive-audit
+platforms.
+
+The dataset is split into one **config per security domain** (`defi`,
+`lending`, `oracle`, …). HuggingFace auto-detects each `<domain>/`
+folder as a config; pick the domain you want at load time.
+
+## Loading
+
+```python
+from datasets import load_dataset
+
+# A specific domain (recommended).
+ds = load_dataset("{{ repo_id }}", "defi", split="train")
+
+# Or, from inside the SPECA repo:
+from scripts.datasets.load import load_findings
+df = load_findings(domain="defi").to_pandas()
+```
+
+## Schema
 
 | Field | Type | Description |
 |---|---|---|
-| `id` | string | Stable key, `<platform>:<contest>:<issue_id>`. |
+| `id` | string | Stable key, `<platform>:<contest-slug>:<issue_id>`. |
 | `source_platform` | string | One of `code4rena`, `sherlock`, `codehawks`. |
-| `contest` | string | Platform-specific contest identifier. |
-| `issue_id` | string | Platform-local issue / finding id. |
+| `contest` | string | Slugified contest identifier. |
+| `issue_id` | string | Platform-local issue / finding id, `#`-stripped. |
 | `severity` | string | `High` / `Medium` / `Low` / `Info`. |
 | `title` | string | Verbatim issue title from the upstream platform. |
 | `description` | string | Verbatim issue body. |
-| `source_url` | string | Best-effort link to the upstream issue (deterministic for code4rena; may be empty for others). |
-| `domain` | string | Always `{{ domain }}` in this dataset. |
+| `source_url` | string | Best-effort upstream link (deterministic for code4rena; may be empty for others — check the scraper output if you need a guaranteed URL). |
+| `domain` | string | Matches the config name (`defi`, `lending`, …). |
 | `scraped_at` | string | ISO 8601 UTC timestamp of the underlying scrape that produced this row. |
+
+Per-build state for each domain — row count, scrape time, source CSVs,
+`speca_commit` — lives in `<domain>/manifest.json` rather than this card,
+so re-publishing one domain doesn't churn another's metadata.
 
 ## Provenance
 
@@ -48,54 +64,11 @@ All findings originate from public competitive-audit platforms:
 - [CodeHawks](https://codehawks.cyfrin.io/) — contest reports published
   on the CodeHawks platform.
 
-This dataset redistributes the **publicly accessible** finding metadata
-(title, description, severity, source URL) under MIT-licensed reuse.
-The `source_url` column points back to the upstream record. If you are
-the original author of a finding and want it removed, please open an
-issue on the [SPECA repository](https://github.com/NyxFoundation/speca/issues).
-
-## Build details
-
-| | |
-|---|---|
-| Domain | `{{ domain }}` |
-| Rows | {{ n_rows }} |
-| Parquet bytes | {{ parquet_bytes }} |
-| `scraped_at` | {{ scraped_at }} |
-| Built from speca commit | `{{ speca_commit }}` |
-
-### Rows by source platform
-
-| Platform | Rows |
-|---|---|
-{% for plat, n in rows_by_platform.items() -%}
-| `{{ plat }}` | {{ n }} |
-{% endfor %}
-
-### Rows by severity
-
-| Severity | Rows |
-|---|---|
-{% for sev, n in rows_by_severity.items() -%}
-| `{{ sev }}` | {{ n }} |
-{% endfor %}
-
-## Usage
-
-```python
-from datasets import load_dataset
-
-ds = load_dataset("{{ repo_id }}", split="train")
-print(ds[0])
-```
-
-Or, from inside the SPECA repo:
-
-```python
-from scripts.datasets.load import load_findings
-
-df = load_findings(domain="{{ domain }}").to_pandas()
-```
+This dataset redistributes the publicly accessible finding metadata
+(title, description, severity, source URL). The `source_url` column
+points back to the upstream record. If you are the original author of a
+finding and want it removed, please open an issue on the
+[SPECA repository](https://github.com/NyxFoundation/speca/issues).
 
 ## How this dataset is built
 
@@ -107,9 +80,10 @@ of the SPECA repo:
    under `benchmarks/data/defi_audit_reports/`.
 2. `scripts/datasets/build_derived.py` normalizes those CSVs (and the
    curated `csv/similar_audit_findings.csv`) into the schema above and
-   emits a parquet + manifest under `dist/datasets/{{ domain }}/`.
+   emits a parquet + manifest under `dist/datasets/<domain>/`.
 3. `scripts/datasets/publish_hf.py` pushes the parquet plus this README
-   to `{{ repo_id }}` on the `main` branch.
+   to `{{ repo_id }}` on the `main` branch, scoped to the published
+   domain's folder.
 
 The `.github/workflows/datasets-publish.yml` workflow runs the last two
 steps on a self-hosted runner via `workflow_dispatch`.

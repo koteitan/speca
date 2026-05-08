@@ -2,9 +2,9 @@
 
 The push path is exercised in CI under `.github/workflows/datasets-publish.yml`
 with `HF_TOKEN`; here we just verify:
-  1. The dataset card template renders against a fully-populated manifest.
-  2. The size_categories bucket logic is correct at the boundary.
-  3. `--dry-run` exits 0 and emits the expected stdout markers.
+  1. The dataset card template renders (it is now global / domain-agnostic
+     and only takes `repo_id`).
+  2. `--dry-run` exits 0, prints the staged tree, and leaves --src clean.
 """
 
 from __future__ import annotations
@@ -39,47 +39,23 @@ def _load_publish_module():
     return mod
 
 
-def test_size_category_buckets():
+def test_render_card_is_global_and_uses_repo_id():
+    """Card content describes the project; only `repo_id` is templated.
+    No per-domain stats — those live in <domain>/manifest.json."""
     mod = _load_publish_module()
-    assert mod.size_category(0) == "n<1K"
-    assert mod.size_category(999) == "n<1K"
-    assert mod.size_category(1_000) == "1K<n<10K"
-    assert mod.size_category(9_999) == "1K<n<10K"
-    assert mod.size_category(10_000) == "10K<n<100K"
-    assert mod.size_category(100_000) == "100K<n<1M"
-    assert mod.size_category(2_000_000) == "1M<n<10M"
-    assert mod.size_category(20_000_000) == "10M<n<100M"
-    assert mod.size_category(2_000_000_000) == "n>1B"
-
-
-def test_render_card_includes_provenance():
-    mod = _load_publish_module()
-    manifest = {
-        "domain": "defi",
-        "n_rows": 3909,
-        "parquet_bytes": 18_300_000,
-        "scraped_at": "2026-05-07T00:00:00Z",
-        "speca_commit": "deadbeef",
-        "rows_by_platform": {"code4rena": 3570, "sherlock": 263, "codehawks": 76},
-        "rows_by_severity": {"High": 1299, "Medium": 2610},
-        "parquet_path": "data/train.parquet",
-    }
-    card = mod.render_card(manifest, repo_id="NyxFoundation/defi-audit-findings")
+    card = mod.render_card(repo_id="NyxFoundation/vulnerability-reports")
 
     # YAML frontmatter
     assert card.startswith("---\n")
-    assert "license: mit" in card
-    # size_categories tag picks the right bucket for ~3.9k rows
-    assert "1K<n<10K" in card
-    # Per-platform stats rendered
-    assert "| `code4rena` | 3570 |" in card
-    assert "| `sherlock` | 263 |" in card
-    # Provenance section + repo id propagated
+    assert 'license: mit' in card
+    assert 'pretty_name: "SPECA Vulnerability Reports"' in card
+    # repo_id propagates
+    assert 'NyxFoundation/vulnerability-reports' in card
+    # Provenance covers all three platforms
     assert "Code4rena" in card and "Sherlock" in card and "CodeHawks" in card
-    assert "NyxFoundation/defi-audit-findings" in card
-    # Build details bound to the manifest
-    assert "deadbeef" in card
-    assert "3909" in card
+    # The card mentions `manifest.json` since per-domain build details
+    # live there, not in the global card.
+    assert "manifest.json" in card
 
 
 def test_dry_run_cli_round_trip(tmp_path: Path):
@@ -104,11 +80,15 @@ def test_dry_run_cli_round_trip(tmp_path: Path):
     )
 
     src = out_dir / "defi"
+    # Build now writes train.parquet directly under the domain dir
+    # (no `data/` subdir), mirroring the HF target layout.
+    assert (src / "train.parquet").exists()
+    assert (src / "manifest.json").exists()
+
     result = subprocess.run(
         [
             sys.executable, str(PUBLISH_SCRIPT),
             "--src", str(src),
-            "--repo", "NyxFoundation/defi-audit-findings",
             "--dry-run",
         ],
         check=True,
@@ -116,10 +96,12 @@ def test_dry_run_cli_round_trip(tmp_path: Path):
         text=True,
     )
     assert "[dry-run] would push:" in result.stdout
-    assert "data/train.parquet" in result.stdout
+    # Staged paths reflect the HF folder-per-config layout.
+    assert "defi/train.parquet" in result.stdout
+    assert "defi/manifest.json" in result.stdout
     assert "README.md" in result.stdout
-    # Source dir must NOT be polluted with the rendered README — we stage
-    # into a tempdir instead. Regression guard for issue #34 review.
+    assert "config: defi" in result.stdout
+    # Source dir must NOT be polluted with the rendered README.
     assert not (src / "README.md").exists(), "src must stay read-only on dry-run"
 
     # Manifest still valid JSON.

@@ -1,16 +1,21 @@
 # `scripts/datasets/` — SPECA → HuggingFace pipeline
 
 Builds normalized audit-finding parquets from raw scraper output and
-pushes them to `NyxFoundation/<domain>-audit-findings` on HuggingFace.
+pushes them to `NyxFoundation/vulnerability-reports` on HuggingFace.
+
+The repo holds one **config per security domain** — the publisher writes
+to `<domain>/train.parquet` + `<domain>/manifest.json`, leaving other
+domains' folders untouched. HF auto-detects each `<domain>/` as a config;
+consumers load with `load_dataset(repo, "<domain>", split="train")`.
 
 ## Files
 
 | Path | Role |
 |---|---|
-| [`build_derived.py`](build_derived.py) | Read CSV(s) → unified parquet + `manifest.json` under `dist/datasets/<domain>/`. |
-| [`publish_hf.py`](publish_hf.py) | Render the dataset card from `templates/README.md.j2` and push parquet + README to HF on `main`. `--dry-run` skips network. |
-| [`load.py`](load.py) | Single helper consumers should call: `load_findings(domain="defi")` returns a pandas DataFrame, defaulting to HF, with a `local_parquet=` override for offline / dev. |
-| [`templates/README.md.j2`](templates/README.md.j2) | Jinja template for the HF dataset card. |
+| [`build_derived.py`](build_derived.py) | Read CSV(s) → unified parquet + `manifest.json` under `dist/datasets/<domain>/`. Layout mirrors the HF target: `<domain>/train.parquet` directly. |
+| [`publish_hf.py`](publish_hf.py) | Render the global dataset card from `templates/README.md.j2`, stage `<domain>/train.parquet` + `<domain>/manifest.json` + `README.md`, then `upload_folder` with `delete_patterns=["<domain>/*"]` so other configs survive. `--dry-run` skips network. |
+| [`load.py`](load.py) | Single helper consumers should call: `load_findings(domain="defi")` returns a pandas DataFrame, defaulting to HF (`NyxFoundation/vulnerability-reports`, config = domain), with a `local_parquet=` override for offline / dev. |
+| [`templates/README.md.j2`](templates/README.md.j2) | Jinja template for the GLOBAL HF dataset card (schema + provenance only — per-domain build state lives in `<domain>/manifest.json`). |
 
 ## Install
 
@@ -28,15 +33,15 @@ uv run --group datasets python3 scripts/datasets/build_derived.py \
   --out-dir dist/datasets
 
 # 2. Render the dataset card and dry-run the upload.
+#    --repo defaults to NyxFoundation/vulnerability-reports.
 uv run --group datasets python3 scripts/datasets/publish_hf.py \
   --src dist/datasets/defi \
-  --repo NyxFoundation/defi-audit-findings \
   --dry-run
 
 # 3. Load it back the way consumers will:
 uv run --group datasets python3 - <<'PY'
 from scripts.datasets.load import load_findings
-df = load_findings(domain="defi", local_parquet="dist/datasets/defi/data/train.parquet")
+df = load_findings(domain="defi", local_parquet="dist/datasets/defi/train.parquet")
 print(df.shape, df.columns.tolist())
 PY
 ```
@@ -49,7 +54,7 @@ only, self-hosted, gated to a maintainer allowlist). Inputs:
 
 | Input | Purpose |
 |---|---|
-| `domain` | Drives the repo name (`NyxFoundation/<domain>-audit-findings`). |
+| `domain` | Config name (`defi`, `lending`, `oracle`, …). Becomes the top-level folder in the HF repo. |
 | `source` | CSV path to ingest. Default: `csv/similar_audit_findings.csv`. |
 | `filter_platforms` | Comma-separated; default `code4rena,sherlock,codehawks`. |
 | `severity_filter` | Comma-separated; empty means all severities. |

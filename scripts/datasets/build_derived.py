@@ -1,8 +1,9 @@
 """build_derived.py — normalize raw scraper / curated CSVs into a unified
 parquet table per domain, plus a JSON manifest.
 
-Output layout (per --domain):
-    <out-dir>/<domain>/data/train.parquet
+Output layout (per --domain) — mirrors the on-HF folder-per-config layout
+under NyxFoundation/vulnerability-reports:
+    <out-dir>/<domain>/train.parquet
     <out-dir>/<domain>/manifest.json
 
 Unified schema (one row per audit finding):
@@ -235,9 +236,8 @@ def build(
     df = df.drop_duplicates(subset=["id"], keep="first").reset_index(drop=True)
 
     domain_dir = out_dir / domain
-    data_dir = domain_dir / "data"
-    data_dir.mkdir(parents=True, exist_ok=True)
-    parquet_path = data_dir / "train.parquet"
+    domain_dir.mkdir(parents=True, exist_ok=True)
+    parquet_path = domain_dir / "train.parquet"
 
     table = pa.Table.from_pandas(df, preserve_index=False)
     pq.write_table(table, parquet_path, compression="zstd")

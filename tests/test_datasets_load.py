@@ -48,7 +48,7 @@ def fixture_parquet(tmp_path: Path) -> Path:
 
     build = _load_module("speca_build_for_load", BUILD_SCRIPT)
     build.build(domain="defi", sources=[str(csv_path)], out_dir=tmp_path)
-    return tmp_path / "defi" / "data" / "train.parquet"
+    return tmp_path / "defi" / "train.parquet"
 
 
 def test_load_local_parquet_with_compat_alias(fixture_parquet: Path):
@@ -84,10 +84,11 @@ def test_load_hf_path_monkeypatch(monkeypatch: pytest.MonkeyPatch):
         def to_pandas(self):
             return self._df
 
-    def fake_load_dataset(repo_id, split, revision):
+    def fake_load_dataset(repo_id, name, split, revision):
         import pandas as pd
 
         captured["repo_id"] = repo_id
+        captured["name"] = name
         captured["split"] = split
         captured["revision"] = revision
         return _FakeDataset(
@@ -117,7 +118,8 @@ def test_load_hf_path_monkeypatch(monkeypatch: pytest.MonkeyPatch):
 
     df = load.load_findings(domain="defi")
     assert len(df) == 1
-    assert captured["repo_id"] == "NyxFoundation/defi-audit-findings"
+    assert captured["repo_id"] == "NyxFoundation/vulnerability-reports"
+    assert captured["name"] == "defi", "domain must be passed as the HF config name"
     assert captured["split"] == "train"
     assert captured["revision"] == "main"
     assert "source" in df.columns  # alias still applied
@@ -128,10 +130,11 @@ def test_load_hf_explicit_repo(monkeypatch: pytest.MonkeyPatch):
 
     captured = {}
 
-    def fake_load_dataset(repo_id, split, revision):
+    def fake_load_dataset(repo_id, name, split, revision):
         import pandas as pd
 
         captured["repo_id"] = repo_id
+        captured["name"] = name
         return type(
             "F", (), {"to_pandas": lambda self: pd.DataFrame({"source_platform": []})}
         )()
@@ -142,5 +145,6 @@ def test_load_hf_explicit_repo(monkeypatch: pytest.MonkeyPatch):
     fake_mod.load_dataset = fake_load_dataset
     monkeypatch.setitem(sys.modules, "datasets", fake_mod)
 
-    load.load_findings(repo_id="custom/repo")
+    load.load_findings(domain="lending", repo_id="custom/repo")
     assert captured["repo_id"] == "custom/repo"
+    assert captured["name"] == "lending"
