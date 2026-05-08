@@ -20,10 +20,10 @@ on:
         type: string
         default: "defi"
       source:
-        description: "CSV path to ingest (relative to repo root)"
+        description: "CSV path(s), comma-separated. All sources are unioned into the same domain parquet."
         required: true
         type: string
-        default: "csv/similar_audit_findings.csv"
+        default: "csv/similar_audit_findings.csv,csv/past_defi_patterns.csv,csv/past_defi_patterns_round2.csv,csv/past_defi_patterns_round3.csv,csv/past_defi_patterns_round3_codehawks.csv,csv/past_defi_patterns_round3_sherlock.csv,csv/chainlink_v2_audit_patterns.csv,csv/audit_findings_db.csv"
       filter_platforms:
         description: "Comma-separated platforms to include"
         required: false
@@ -90,17 +90,25 @@ jobs:
             echo "::error::domain must match ^[a-z0-9]+(-[a-z0-9]+)*$ (no leading/trailing/double dashes); got '$DOMAIN'"
             exit 1
           fi
-          # Source path must exist, be relative, and contain no '..' segment.
-          if [ ! -f "$SOURCE" ]; then
-            echo "::error::source CSV not found: $SOURCE"; exit 1
-          fi
-          case "$SOURCE" in
-            /*) echo "::error::source must be relative"; exit 1 ;;
-          esac
-          IFS='/' read -ra SRC_SEGS <<< "$SOURCE"
-          for s in "${SRC_SEGS[@]}"; do
-            if [ "$s" = ".." ]; then
-              echo "::error::'..' segment not allowed in source path"; exit 1
+          # `source` is comma-separated. Each entry must exist, be
+          # relative, and contain no '..' segment. We validate the union
+          # here so a typo'd path is caught before the build step.
+          IFS=',' read -ra SOURCES <<< "$SOURCE"
+          [ ${#SOURCES[@]} -ge 1 ] || { echo "::error::source must list at least one CSV"; exit 1; }
+          for src in "${SOURCES[@]}"; do
+            src="${src# }"; src="${src% }"   # trim leading/trailing space
+            [ -n "$src" ] || { echo "::error::empty entry in source list"; exit 1; }
+            case "$src" in
+              /*) echo "::error::source entry '$src' must be relative"; exit 1 ;;
+            esac
+            IFS='/' read -ra SRC_SEGS <<< "$src"
+            for s in "${SRC_SEGS[@]}"; do
+              if [ "$s" = ".." ]; then
+                echo "::error::'..' segment not allowed in source path '$src'"; exit 1
+              fi
+            done
+            if [ ! -f "$src" ]; then
+              echo "::error::source CSV not found: $src"; exit 1
             fi
           done
           # `ref` (if provided) must be a branch/tag ref or a 40-hex SHA.
@@ -126,10 +134,16 @@ jobs:
           set -euo pipefail
           ARGS=(
             --domain "$DOMAIN"
-            --source "$SOURCE"
             --out-dir dist/datasets
             --filter-platforms "$FILTER_PLATFORMS"
           )
+          # Repeat --source per entry so build_derived.py's action="append"
+          # unions them into one parquet (with manifest.sources listing all).
+          IFS=',' read -ra SOURCES <<< "$SOURCE"
+          for src in "${SOURCES[@]}"; do
+            src="${src# }"; src="${src% }"
+            ARGS+=(--source "$src")
+          done
           if [ -n "$SEVERITY_FILTER" ]; then
             ARGS+=(--severity-filter "$SEVERITY_FILTER")
           fi

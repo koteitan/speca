@@ -129,7 +129,11 @@ def normalize_row(row: dict, domain: str, scraped_at: str, platform_hint: str = 
     issue_id = first_present(row, ISSUE_KEYS)
     severity = first_present(row, ("severity",)).capitalize()
     title = first_present(row, ("title",))
-    description = first_present(row, ("description",))
+    # `description_excerpt` is the truncated form used by the
+    # past_defi_patterns / chainlink_v2 CSVs; treat it as the description
+    # so those sources can be unioned into the same parquet without losing
+    # the body text.
+    description = first_present(row, ("description", "description_excerpt"))
     source_url = first_present(row, ("source_url",)) or synth_source_url(
         platform, contest, issue_id
     )

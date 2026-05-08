@@ -107,6 +107,26 @@ def test_normalize_drops_empty_rows():
     assert mod.normalize_row(row, domain="defi", scraped_at="t") is None
 
 
+def test_normalize_uses_description_excerpt_when_description_missing():
+    """past_defi_patterns / chainlink_v2 CSVs ship `description_excerpt`
+    instead of `description`; the normalizer should fall back to it so
+    those sources can union with similar_audit_findings.csv."""
+    mod = _load_build_module()
+    row = {
+        "source": "code4rena", "contest": "2024-01-foo", "issue_id": "5",
+        "severity": "High", "title": "T",
+        "description_excerpt": "An excerpted body...",
+    }
+    out = mod.normalize_row(row, domain="defi", scraped_at="t")
+    assert out is not None
+    assert out["description"] == "An excerpted body..."
+
+    # If both are present, `description` wins (it's the canonical full text).
+    row2 = dict(row, description="full body")
+    out2 = mod.normalize_row(row2, domain="defi", scraped_at="t")
+    assert out2["description"] == "full body"
+
+
 def test_build_round_trip(fixture_csv: Path, tmp_path: Path):
     import pyarrow.parquet as pq
     mod = _load_build_module()
