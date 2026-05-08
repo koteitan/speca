@@ -95,7 +95,10 @@ def _stage(src: Path, manifest: dict, domain: str, card: str) -> tempfile.Tempor
     domain_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(parquet_src, domain_dir / "train.parquet")
     shutil.copy2(manifest_src, domain_dir / "manifest.json")
-    (staging / "README.md").write_text(card)
+    # The dataset card carries em-dashes / non-ASCII; force utf-8 so
+    # write_text doesn't fall back to the system locale (cp932 on
+    # Japanese Windows) and choke.
+    (staging / "README.md").write_text(card, encoding="utf-8")
     return td
 
 
@@ -188,7 +191,10 @@ def main() -> int:
             print("[dry-run] would push:")
             for p in sorted(staging.rglob("*")):
                 if p.is_file():
-                    print(f"  - {p.relative_to(staging)} ({p.stat().st_size} bytes)")
+                    # POSIX-style separators so the dry-run preview
+                    # mirrors the HF on-repo layout regardless of OS.
+                    rel = p.relative_to(staging).as_posix()
+                    print(f"  - {rel} ({p.stat().st_size} bytes)")
             print(f"  to repo: {args.repo} (revision: main, config: {domain})")
             print(f"  commit message: {commit_message!r}")
             return 0

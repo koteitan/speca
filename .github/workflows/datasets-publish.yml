@@ -1,11 +1,21 @@
 name: "Publish dataset to HuggingFace"
 
-# Manual-only pipeline that builds a normalized parquet from
-# csv/similar_audit_findings.csv (or another CSV passed as input) and
-# pushes it to NyxFoundation/<domain>-audit-findings on HuggingFace.
+# Manual-only pipeline that builds a normalized parquet for one domain
+# config and pushes it to the multi-config NyxFoundation/vulnerability-reports
+# dataset on HuggingFace. Each domain lives under its own folder
+# (`defi/`, `ethereum/`, …) and `delete_patterns` is scoped so other
+# configs survive a partial publish.
 #
 # Cadence is intentionally workflow_dispatch — we have no schedule yet
 # while the data corpus is small and curation is human-driven.
+#
+# Domain-specific dispatch presets (override these defaults):
+#   defi (current default):
+#     source           = benchmarks/data/defi_audit_reports/{code4rena,sherlock,codehawks}_all_issues.csv
+#     filter_platforms = code4rena,sherlock,codehawks
+#   ethereum (issue #2 Phase A):
+#     source           = benchmarks/data/ethereum_past_fixes/<crawler>.csv
+#     filter_platforms = ''   (empty — accept the 11 client slugs as-is)
 #
 # Required repo secrets:
 #   - HF_TOKEN — HuggingFace user/org token with write access to the
@@ -15,17 +25,17 @@ on:
   workflow_dispatch:
     inputs:
       domain:
-        description: "Domain slug (drives repo name: NyxFoundation/<domain>-audit-findings)"
+        description: "Domain slug — top-level folder under NyxFoundation/vulnerability-reports (e.g. defi, ethereum)"
         required: true
         type: string
         default: "defi"
       source:
-        description: "CSV path(s), comma-separated. All sources are unioned into the same domain parquet. Default points at scraper output; populate it locally via scripts/scrape_*.py before dispatching."
+        description: "CSV path(s), comma-separated. All sources are unioned into the same domain parquet. Default points at the defi scraper output; for ethereum, point at benchmarks/data/ethereum_past_fixes/<crawler>.csv."
         required: true
         type: string
         default: "benchmarks/data/defi_audit_reports/code4rena_all_issues.csv,benchmarks/data/defi_audit_reports/sherlock_all_issues.csv,benchmarks/data/defi_audit_reports/codehawks_all_issues.csv"
       filter_platforms:
-        description: "Comma-separated platforms to include"
+        description: "Comma-separated platforms to include. Empty disables filtering — use that for ethereum (where source_platform is a client slug like geth/nethermind/...)."
         required: false
         type: string
         default: "code4rena,sherlock,codehawks"

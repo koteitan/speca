@@ -145,10 +145,17 @@ def test_build_round_trip(fixture_csv: Path, tmp_path: Path):
     table = pq.read_table(parquet)
     expected_cols = {
         "id", "source_platform", "contest", "issue_id", "severity",
-        "title", "description", "source_url", "domain", "scraped_at",
+        "title", "description", "source_url",
+        # Phase B replay column for ethereum past-fixes; empty string for
+        # defi rows but always present so the parquet schema is stable.
+        "introduced_in_commit",
+        "domain", "scraped_at",
     }
     assert set(table.column_names) == expected_cols
     assert table.num_rows == 3
+    # introduced_in_commit defaults to "" for defi sources (no provenance column).
+    df = table.to_pandas()
+    assert (df["introduced_in_commit"] == "").all()
 
     # Manifest is on disk too.
     on_disk = json.loads((tmp_path / "defi" / "manifest.json").read_text())
