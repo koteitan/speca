@@ -71,6 +71,19 @@ const sidebars = {
       collapsed: false,
       items: ['references/paper-fusaka', 'references/paper-multi-impl'],
     },
+    {
+      type: 'category',
+      label: '運用ガイド',
+      collapsed: false,
+      items: [
+        'operations/overview',
+        'operations/dataset-refresh',
+        'operations/release-artifacts',
+        'operations/benchmark-rq1',
+        'operations/benchmark-rq2a',
+        'operations/benchmark-rq2b',
+      ],
+    },
     'project-structure',
     {
       type: 'category',
