@@ -1,0 +1,266 @@
+name: "Publish benchmark artifacts"
+
+# Bundles a directory under benchmarks/results/ into a zstd tarball plus a
+# JSON manifest, and attaches both to a GitHub Release tagged
+# `bench-<rq>-<utc-date>[-<suffix>]`. Re-running with the same inputs
+# uploads with --clobber AND refreshes notes/title/prerelease via
+# `gh release edit`, so the same release tag stays in sync.
+#
+# Trigger: workflow_dispatch only — never auto-publish.
+#
+# Pre-release: keeps `bench-*` tags out of the "Latest release" slot,
+# which is reserved for `v*.*.*` CLI releases.
+
+on:
+  workflow_dispatch:
+    inputs:
+      subdir:
+        description: "Path to publish, relative to benchmarks/results/ (e.g. rq2a/speca_sonnet4)"
+        required: true
+        type: string
+      tag_suffix:
+        description: "Suffix appended to the tag (e.g. 'sonnet4'). Empty → derived from leaf dir."
+        required: false
+        type: string
+        default: ""
+      tag_date:
+        description: "UTC date in YYYYMMDD form to embed in the tag. Empty → today (UTC)."
+        required: false
+        type: string
+        default: ""
+      notes:
+        description: "Optional release notes (markdown)"
+        required: false
+        type: string
+        default: ""
+      ref:
+        description: "Git ref to checkout (default: current branch)"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: write   # for `gh release create` / `gh release upload`
+
+jobs:
+  resolve:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    outputs:
+      src: ${{ steps.r.outputs.src }}
+      tag: ${{ steps.r.outputs.tag }}
+      rq: ${{ steps.r.outputs.rq }}
+      leaf: ${{ steps.r.outputs.leaf }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref_name }}
+
+      - name: Resolve source path + tag
+        id: r
+        shell: bash
+        env:
+          SUBDIR: ${{ inputs.subdir }}
+          TAG_SUFFIX: ${{ inputs.tag_suffix }}
+          TAG_DATE: ${{ inputs.tag_date }}
+        run: |
+          set -euo pipefail
+
+          SUBDIR="${SUBDIR#/}"
+          SUBDIR="${SUBDIR#benchmarks/results/}"
+          [ -n "$SUBDIR" ] || { echo "::error::subdir must be non-empty"; exit 1; }
+          case "$SUBDIR" in
+            /*) echo "::error::subdir must be relative"; exit 1 ;;
+          esac
+          # Per-segment scrub: reject empty / `..` / control chars / backslash.
+          IFS='/' read -ra SEGS <<< "$SUBDIR"
+          for s in "${SEGS[@]}"; do
+            [ -n "$s" ]    || { echo "::error::empty segment in subdir"; exit 1; }
+            [ "$s" != ".." ] || { echo "::error::'..' segment not allowed"; exit 1; }
+            case "$s" in
+              *$'\n'*|*$'\t'*|*$'\\'*) echo "::error::illegal char in segment '$s'"; exit 1 ;;
+            esac
+          done
+
+          SRC="benchmarks/results/$SUBDIR"
+          [ -d "$SRC" ] || { echo "::error::source dir not found: $SRC"; exit 1; }
+
+          RQ="${SUBDIR%%/*}"
+          case "$RQ" in
+            rq[0-9]*) ;;
+            *) echo "::error::first path segment must start with 'rq'; got '$RQ'"; exit 1 ;;
+          esac
+
+          LEAF="$(basename "$SRC")"
+          if [ -n "$TAG_SUFFIX" ]; then
+            SUFFIX="$TAG_SUFFIX"
+          else
+            SUFFIX="${LEAF#speca_}"
+            # If the leaf was exactly `speca`, the strip leaves an empty
+            # suffix; fall back to the unstripped leaf.
+            [ -n "$SUFFIX" ] || SUFFIX="$LEAF"
+          fi
+          # Suffix sanity: ASCII alnum + '-' / '_' / '.' only.
+          [ -n "$SUFFIX" ] || { echo "::error::derived empty tag_suffix"; exit 1; }
+          case "$SUFFIX" in
+            *[!A-Za-z0-9._-]*) echo "::error::tag_suffix must be [A-Za-z0-9._-]+; got '$SUFFIX'"; exit 1 ;;
+          esac
+
+          if [ -n "$TAG_DATE" ]; then
+            case "$TAG_DATE" in
+              [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]) ;;
+              *) echo "::error::tag_date must be YYYYMMDD (8 digits)"; exit 1 ;;
+            esac
+            DATE="$TAG_DATE"
+          else
+            DATE="$(date -u +%Y%m%d)"
+          fi
+
+          TAG="bench-${RQ}-${DATE}-${SUFFIX}"
+
+          {
+            echo "src=$SRC"
+            echo "tag=$TAG"
+            echo "rq=$RQ"
+            echo "leaf=$LEAF"
+          } >> "$GITHUB_OUTPUT"
+          echo "Resolved: src=$SRC tag=$TAG"
+
+  publish:
+    needs: resolve
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    # Concurrency on the resolved tag prevents two runs from racing on the
+    # same release. Different tags publish in parallel.
+    concurrency:
+      group: publish-bench-${{ needs.resolve.outputs.tag }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref_name }}
+
+      - name: Install zstd + jq (preinstalled on ubuntu-22.04, defensive)
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tool in zstd jq; do
+            if ! command -v "$tool" >/dev/null 2>&1; then
+              sudo apt-get update -qq
+              sudo apt-get install -y --no-install-recommends "$tool"
+            fi
+          done
+          tar --version | head -1
+          zstd --version | head -1
+          jq --version
+
+      - name: Pack tarball + manifest
+        id: pack
+        shell: bash
+        env:
+          SRC: ${{ needs.resolve.outputs.src }}
+          TAG: ${{ needs.resolve.outputs.tag }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          set -euo pipefail
+          OUT_DIR="dist/bench-artifacts"
+          ARGS=(--out-dir "$OUT_DIR" --force)
+          if [ -n "$NOTES" ]; then
+            ARGS+=(--notes "$NOTES")
+          fi
+          bash benchmarks/scripts/publish-results.sh "$SRC" "$TAG" "${ARGS[@]}"
+          {
+            echo "out_dir=$OUT_DIR"
+            echo "tarball=$OUT_DIR/${TAG}.tar.zst"
+            echo "manifest=$OUT_DIR/${TAG}.manifest.json"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Compose release notes
+        id: notes
+        shell: bash
+        env:
+          MANIFEST: ${{ steps.pack.outputs.manifest }}
+          USER_NOTES: ${{ inputs.notes }}
+          REF: ${{ inputs.ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+          NOTES_FILE="$RUNNER_TEMP/release-notes.md"
+          {
+            echo "## Benchmark artifact"
+            echo
+            jq -r '
+              "- **RQ**: \(.rq)",
+              "- **source_path**: `\(.source_path)`",
+              "- **speca_commit**: `\(.speca_commit)`",
+              "- **created_at**: \(.created_at)",
+              "- **n_files**: \(.n_files)",
+              "- **bytes_uncompressed**: \(.bytes_uncompressed)",
+              "- **bytes_archive**: \(.bytes_archive)",
+              "- **archive_sha256**: `\(.archive_sha256)`"
+            ' "$MANIFEST"
+            echo
+            echo "Restore with:"
+            echo
+            echo '```bash'
+            echo "bash benchmarks/scripts/restore-results.sh $(jq -r .tag "$MANIFEST")"
+            echo '```'
+            if [ -n "$USER_NOTES" ]; then
+              echo
+              echo "## Notes"
+              echo
+              cat <<<"$USER_NOTES"
+            fi
+            echo
+            echo "<sub>Built from ref \`$REF\` by workflow \`publish-bench-artifacts\`.</sub>"
+          } > "$NOTES_FILE"
+          echo "file=$NOTES_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.resolve.outputs.tag }}
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+          MANIFEST: ${{ steps.pack.outputs.manifest }}
+          NOTES_FILE: ${{ steps.notes.outputs.file }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; refreshing assets + metadata."
+            gh release upload "$TAG" "$TARBALL" "$MANIFEST" --clobber
+            # `gh release upload` does NOT touch notes / prerelease / title.
+            # Edit them explicitly so re-runs stay consistent.
+            gh release edit "$TAG" \
+              --title "$TAG" \
+              --notes-file "$NOTES_FILE" \
+              --prerelease
+          else
+            echo "Creating release $TAG (pre-release)."
+            gh release create "$TAG" \
+              --title "$TAG" \
+              --notes-file "$NOTES_FILE" \
+              --prerelease \
+              "$TARBALL" "$MANIFEST"
+          fi
+
+      - name: Summary
+        shell: bash
+        env:
+          TAG: ${{ needs.resolve.outputs.tag }}
+          MANIFEST: ${{ steps.pack.outputs.manifest }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Published \`$TAG\`"
+            echo
+            echo '```json'
+            cat "$MANIFEST"
+            echo
+            echo '```'
+            echo
+            echo "Release page: ${{ github.server_url }}/${{ github.repository }}/releases/tag/$TAG"
+          } >> "$GITHUB_STEP_SUMMARY"

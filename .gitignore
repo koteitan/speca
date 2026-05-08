@@ -231,6 +231,15 @@ benchmarks/data/**/raw/
 .mcp.json
 outputs/.mcp_configs/
 
+# Benchmark results — published as GitHub Release assets, not committed.
+# Already-tracked files under benchmarks/results/ stay tracked until the
+# follow-up migration issue runs `git rm`; this rule only stops *new*
+# files from sneaking in. .gitkeep keeps the dir present for tooling.
+benchmarks/results/**
+!benchmarks/results/.gitkeep
+# Locally built bench artifacts before they are uploaded to a Release.
+dist/bench-artifacts/
+
 # Claude Code worktrees
 .claude/worktrees/
 
