@@ -47,6 +47,12 @@ Pass `--filter-platforms ''` (empty) to disable platform filtering when
 unioning a domain whose platforms aren't pre-enumerated here (e.g.
 ethereum's 11 clients).
 
+Downstream enrichment (NOT produced here — classification is a separate step
+so re-builds do not re-trigger Haiku):
+    stride      str   STRIDE threat category assigned by classify_stride_cwe.py
+    cwe_top25   str   CWE-Top-25 (2024) id or "N/A", assigned by classify_stride_cwe.py
+    Run: python -m scripts.datasets.classify_stride_cwe --in <train.parquet> --out <out.parquet>
+
 Example:
     python scripts/datasets/build_derived.py \\
         --domain defi \\
