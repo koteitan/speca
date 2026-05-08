@@ -2,8 +2,9 @@
 
 Builds the [`NyxFoundation/vulnerability-reports`](https://huggingface.co/datasets/NyxFoundation/vulnerability-reports)
 audit-finding dataset on HuggingFace. Multi-config repo (one config per
-security domain — currently `defi`, ~4,500 rows from Code4rena +
-Sherlock + CodeHawks).
+security domain — currently `defi` from Code4rena + Sherlock + CodeHawks,
+with `ethereum` past-fix coverage of the 11 in-scope clients in flight
+per [issue #2](https://github.com/NyxFoundation/speca/issues/2)).
 
 ## Operator guide
 
@@ -60,11 +61,45 @@ PY
 | Field | Type | Description |
 |---|---|---|
 | `id` | str | `<platform>:<contest-slug>:<issue_id>` (hash fallback if any segment missing) |
-| `source_platform` | str | `code4rena` / `sherlock` / `codehawks` |
-| `contest` | str | Slugified contest identifier |
-| `issue_id` | str | Platform-local issue id, `#`-stripped |
+| `source_platform` | str | defi: `code4rena` / `sherlock` / `codehawks`. ethereum: client slug (`geth`, `nethermind`, `besu`, `erigon`, `reth`, `lighthouse`, `lodestar`, `nimbus`, `prysm`, `teku`, `grandine`) |
+| `contest` | str | Slugified contest (defi) or repo slug (ethereum) |
+| `issue_id` | str | Platform-local issue / PR id, `#`-stripped |
 | `severity` | str | `High` / `Medium` / `Low` / `Info` |
 | `title`, `description` | str | Verbatim from upstream |
 | `source_url` | str | Best-effort upstream link (deterministic for code4rena) |
+| `introduced_in_commit` | str | Provenance commit (Phase B replay; `""` for defi) |
 | `domain` | str | Matches the config name |
 | `scraped_at` | str | ISO 8601 UTC |
+
+## Adding a new domain (worked example: `ethereum`)
+
+The pipeline is domain-agnostic — `--domain ethereum` already works as
+soon as a CSV exists. Two operator-facing knobs need different values
+than the defi defaults:
+
+1. **`--source`** must point at the ethereum past-fix crawler output
+   under `benchmarks/data/ethereum_past_fixes/`. The CSV must include
+   `source, contest, issue_id, severity, title, description, source_url,
+   introduced_in_commit`. `source` is the client slug (one of the 11
+   above).
+2. **`--filter-platforms ''`** (empty) disables the platform allow-list
+   so the 11 client slugs aren't filtered out by the defi defaults.
+
+Local dry-run:
+
+```bash
+uv run --group datasets python3 scripts/datasets/build_derived.py \
+  --domain ethereum \
+  --source benchmarks/data/ethereum_past_fixes/<crawler>.csv \
+  --filter-platforms '' \
+  --out-dir dist/datasets
+
+uv run --group datasets python3 scripts/datasets/publish_hf.py \
+  --src dist/datasets/ethereum --dry-run
+```
+
+When dispatching `.github/workflows/datasets-publish.yml`, set
+`domain=ethereum`, swap the `source` input to the ethereum CSV path(s),
+and clear `filter_platforms`. The published parquet lands at
+`NyxFoundation/vulnerability-reports/ethereum/train.parquet`; the
+`defi/` config is untouched (`delete_patterns` is scoped per domain).

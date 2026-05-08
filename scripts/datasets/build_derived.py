@@ -7,16 +7,18 @@ under NyxFoundation/vulnerability-reports:
     <out-dir>/<domain>/manifest.json
 
 Unified schema (one row per audit finding):
-    id              str   '<platform>:<contest>:<issue_id>' (hash fallback)
-    source_platform str   'code4rena' | 'sherlock' | 'codehawks'
-    contest         str   contest identifier (repo / slug / id)
-    issue_id        str   platform-local issue id, '#'-stripped
-    severity        str   'High' | 'Medium' | 'Low' | 'Info'
-    title           str   verbatim
-    description     str   verbatim
-    source_url      str   row's `source_url` if present, else best-effort synth
-    domain          str   passed via --domain
-    scraped_at      str   ISO 8601 UTC, --scraped-at or now()
+    id                     str   '<platform>:<contest>:<issue_id>' (hash fallback)
+    source_platform        str   defi: 'code4rena' | 'sherlock' | 'codehawks'
+                                 ethereum: '<client>' (geth, nethermind, ...)
+    contest                str   contest identifier (defi) / repo slug (ethereum)
+    issue_id               str   platform-local issue / PR id, '#'-stripped
+    severity               str   'High' | 'Medium' | 'Low' | 'Info'
+    title                  str   verbatim
+    description            str   verbatim
+    source_url             str   row's `source_url` if present, else best-effort synth
+    introduced_in_commit   str   provenance commit (ethereum past-fix replay; '' for defi)
+    domain                 str   passed via --domain
+    scraped_at             str   ISO 8601 UTC, --scraped-at or now()
 
 Sources accepted:
     1. csv/similar_audit_findings.csv shape:
@@ -30,8 +32,20 @@ Sources accepted:
     4. CodeHawks scraper:
          contest_slug, contest_name, contest_reward, finding_id, severity,
          title, description, source_url, submitter, num_duplicates
+    5. Ethereum past-fix crawler (benchmarks/data/ethereum_past_fixes/*.csv):
+         source, contest, issue_id, severity, title, description, source_url,
+         introduced_in_commit
+       `source` is the client slug (geth, nethermind, besu, erigon, reth,
+       lighthouse, lodestar, nimbus, prysm, teku, grandine); `contest` is
+       typically the upstream repo slug; `introduced_in_commit` is the SHA
+       that introduced the bug (used by Phase B to slice the corpus by
+       commit-time for held-out replay).
 
 Pass `--platform-hint <p>` if a CSV lacks a `source` column.
+
+Pass `--filter-platforms ''` (empty) to disable platform filtering when
+unioning a domain whose platforms aren't pre-enumerated here (e.g.
+ethereum's 11 clients).
 
 Example:
     python scripts/datasets/build_derived.py \\
@@ -63,6 +77,14 @@ import pyarrow.parquet as pq
 _CSV_FIELD_LIMIT_BYTES = 8 * 1024 * 1024
 
 PLATFORMS = ("code4rena", "sherlock", "codehawks")
+
+# Ethereum bug-bounty in-scope clients (issue #2). Used as the default
+# platform allow-list when --domain=ethereum and --filter-platforms is
+# not given explicitly.
+ETH_CLIENTS = (
+    "geth", "nethermind", "besu", "erigon", "reth",
+    "lighthouse", "lodestar", "nimbus", "prysm", "teku", "grandine",
+)
 
 # CSV column aliases — first key found wins. Per-platform scraper outputs
 # populate different keys for the same logical contest (e.g. Code4rena's
@@ -137,6 +159,9 @@ def normalize_row(row: dict, domain: str, scraped_at: str, platform_hint: str = 
     source_url = first_present(row, ("source_url",)) or synth_source_url(
         platform, contest, issue_id
     )
+    # Provenance commit for Phase B replay (ethereum past-fixes). Empty
+    # for defi / curated CSVs that don't carry this column.
+    introduced_in_commit = first_present(row, ("introduced_in_commit",))
 
     if not title and not description:
         return None
@@ -157,6 +182,7 @@ def normalize_row(row: dict, domain: str, scraped_at: str, platform_hint: str = 
         "title": title,
         "description": description,
         "source_url": source_url,
+        "introduced_in_commit": introduced_in_commit,
         "domain": domain,
         "scraped_at": scraped_at,
     }
@@ -184,23 +210,30 @@ def load_rows(
     domain: str,
     scraped_at: str,
     platform_hint: str,
-    allowed_platforms: set[str],
+    allowed_platforms: set[str] | None,
     allowed_severities: set[str],
     max_rows: int,
 ) -> list[dict]:
+    """Load + normalize. `allowed_platforms=None` disables platform
+    filtering — used when the domain's platform universe isn't
+    pre-enumerated (e.g. ethereum's 11 clients passed in via the CSV)."""
     csv.field_size_limit(_CSV_FIELD_LIMIT_BYTES)
     out: list[dict] = []
     for src in sources:
         path = Path(src)
         if not path.exists():
             sys.exit(f"source not found: {path}")
-        with path.open(newline="") as f:
+        # Force utf-8 — scraper outputs are utf-8 (GHSA bodies often
+        # carry curly quotes / non-ASCII names) and Python's default
+        # falls back to the system locale (cp932 on Japanese Windows),
+        # which decode-errors on those characters.
+        with path.open(newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for raw in reader:
                 norm = normalize_row(raw, domain, scraped_at, platform_hint)
                 if norm is None:
                     continue
-                if norm["source_platform"] not in allowed_platforms:
+                if allowed_platforms is not None and norm["source_platform"] not in allowed_platforms:
                     continue
                 if allowed_severities and norm["severity"] not in allowed_severities:
                     continue
@@ -220,11 +253,24 @@ def build(
     severity_filter: str = "",
     max_rows: int = 0,
 ) -> dict:
-    """Library entry point. Returns the manifest dict."""
+    """Library entry point. Returns the manifest dict.
+
+    `filter_platforms` semantics:
+        - non-empty CSV string  → keep only those platforms (e.g. defi default).
+        - empty string ('')     → no platform filter (e.g. ethereum, where
+                                  the CSV carries arbitrary client slugs).
+    """
     scraped_at = scraped_at or datetime.now(timezone.utc).strftime(
         "%Y-%m-%dT%H:%M:%SZ"
     )
-    allowed_platforms = {p.strip().lower() for p in filter_platforms.split(",") if p.strip()}
+    raw_filter = (filter_platforms or "").strip()
+    if raw_filter:
+        allowed_platforms: set[str] | None = {
+            p.strip().lower() for p in raw_filter.split(",") if p.strip()
+        }
+    else:
+        # No filter — accept whatever `source_platform` the CSV carries.
+        allowed_platforms = None
     allowed_severities = {
         s.strip().capitalize() for s in severity_filter.split(",") if s.strip()
     }
@@ -252,6 +298,11 @@ def build(
     # Always a list (empty == no severity filter applied) so consumers
     # don't need an isinstance() branch.
     severities_included = sorted(allowed_severities)
+    # platforms_included: explicit allow-list when --filter-platforms is
+    # set; empty list when filtering is disabled. Consumers can grep
+    # rows_by_platform for the platforms that actually landed in the
+    # parquet either way.
+    platforms_included = sorted(allowed_platforms) if allowed_platforms is not None else []
 
     manifest = {
         "domain": domain,
@@ -259,7 +310,7 @@ def build(
         "sources": list(sources),
         "scraped_at": scraped_at,
         "speca_commit": speca_commit(),
-        "platforms_included": sorted(allowed_platforms),
+        "platforms_included": platforms_included,
         "severities_included": severities_included,
         "rows_by_platform": rows_by_platform,
         "rows_by_severity": rows_by_severity,
@@ -288,7 +339,10 @@ def main() -> None:
     p.add_argument("--platform-hint", default="",
                    help="Override platform when CSV lacks a source column.")
     p.add_argument("--filter-platforms", default=",".join(PLATFORMS),
-                   help="Comma-separated platforms to include.")
+                   help="Comma-separated platforms to include. "
+                        "Pass '' (empty) to disable filtering — needed for "
+                        "domains like ethereum whose source_platform values "
+                        "(client slugs) aren't pre-enumerated.")
     p.add_argument("--severity-filter", default="",
                    help="Comma-separated severities to include (default: all).")
     p.add_argument("--max-rows", type=int, default=0,
