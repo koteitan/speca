@@ -29,7 +29,7 @@ speca/
 │   ├── BUG_BOUNTY_SCOPE.json
 │   └── {phase}_PARTIAL_*.json
 ├── automation/             # GitHub Actions ワークフロー定義
-├── homepage/               # Docusaurus ドキュメントサイト (このサイト)
+├── website/               # Docusaurus ドキュメントサイト (このサイト)
 ├── .claude/
 │   └── skills/             # Claude Code スキル定義 (01a / 01b)
 ├── CLAUDE.md               # アーキテクチャ・設計判断・コマンドリファレンス

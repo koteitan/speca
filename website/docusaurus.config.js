@@ -36,7 +36,7 @@ const config = {
         docs: {
           sidebarPath: './sidebars.js',
           editUrl:
-            'https://github.com/NyxFoundation/speca/tree/dev/homepage/',
+            'https://github.com/NyxFoundation/speca/tree/dev/website/',
         },
         blog: {
           showReadingTime: true,
@@ -45,7 +45,7 @@ const config = {
             xslt: true,
           },
           editUrl:
-            'https://github.com/NyxFoundation/speca/tree/dev/homepage/',
+            'https://github.com/NyxFoundation/speca/tree/dev/website/',
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn',

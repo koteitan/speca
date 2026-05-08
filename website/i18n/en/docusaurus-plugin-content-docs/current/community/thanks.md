@@ -28,4 +28,4 @@ Without these public resources, SPECA's evaluation and property extraction would
 
 ## How to add entries
 
-If an external resource is missing, please open a pull request that directly edits this file (`homepage/docs/community/thanks.md`) against [NyxFoundation/speca](https://github.com/NyxFoundation/speca).
+If an external resource is missing, please open a pull request that directly edits this file (`website/docs/community/thanks.md`) against [NyxFoundation/speca](https://github.com/NyxFoundation/speca).

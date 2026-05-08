@@ -6,15 +6,32 @@
  */
 
 :root {
-  /* Typography */
-  --nyx-font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --nyx-font-size-xs: 14px;
-  --nyx-font-size-sm: 16px;
-  --nyx-font-size-md: 18px;
-  --nyx-font-size-lg: 24px;
-  --nyx-font-size-xl: 30px;
-  --nyx-font-size-2xl: 36px;
-  --nyx-font-size-3xl: 72px;
+  /* Typography
+   *
+   * Prefer the native system sans-serif on each OS. Loading order keeps
+   * Latin readable on macOS / Windows / Linux first, then falls back
+   * through high-quality JP sans-serifs (Hiragino, Yu Gothic, Meiryo,
+   * Noto Sans JP) for hiragana / katakana / kanji. No external font
+   * fetch — fast first paint, no FOUT.
+   */
+  --nyx-font-family-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+    "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI",
+    "Yu Gothic", Meiryo, "Noto Sans JP", "Noto Sans", system-ui, sans-serif;
+  --nyx-font-family-serif:
+    "Source Serif Pro", "Hiragino Mincho ProN", "Yu Mincho",
+    Georgia, Cambria, "Times New Roman", Times, serif;
+  /* Body / UI text uses sans. Hero / display can opt into serif via
+     `font-family: var(--nyx-font-family-serif)`. */
+  --nyx-font-family: var(--nyx-font-family-sans);
+
+  --nyx-font-size-xs: 15px;   /* small UI labels */
+  --nyx-font-size-sm: 16px;   /* secondary body */
+  --nyx-font-size-md: 17px;   /* base body — Docusaurus default is 16px */
+  --nyx-font-size-lg: 22px;
+  --nyx-font-size-xl: 28px;
+  --nyx-font-size-2xl: 34px;
+  --nyx-font-size-3xl: 64px;
   --nyx-font-line-height-base: 20px;
 
   /* Spacing scale */
@@ -52,12 +69,15 @@
 
   /* Infima typographic mapping */
   --ifm-font-family-base: var(--nyx-font-family);
-  --ifm-font-size-base: var(--nyx-font-size-xs);
-  --ifm-line-height-base: 1.6;
+  --ifm-font-size-base: var(--nyx-font-size-md);    /* 17px body — readable */
+  --ifm-line-height-base: 1.7;                      /* a touch more breathing room */
   --ifm-h1-font-size: var(--nyx-font-size-2xl);
   --ifm-h2-font-size: var(--nyx-font-size-xl);
   --ifm-h3-font-size: var(--nyx-font-size-lg);
   --ifm-h4-font-size: var(--nyx-font-size-md);
+  /* Anti-aliasing for crisper sans-serif rendering on macOS / Linux. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 
   /* Spacing / radius / borders */
   --ifm-spacing-horizontal: var(--nyx-space-7);

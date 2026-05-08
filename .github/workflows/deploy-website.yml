@@ -1,0 +1,96 @@
+name: "Deploy website to Cloudflare Pages"
+
+# Builds the Docusaurus docs site under `website/` and deploys to
+# Cloudflare Pages. Runs automatically when website/ content changes on
+# main, and can be triggered manually for any branch via workflow_dispatch
+# (PR-style preview deploys).
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN  — Cloudflare → My Profile → API Tokens → Create
+#                           with permission "Account › Cloudflare Pages › Edit"
+#                           scoped to the relevant account.
+#   CLOUDFLARE_ACCOUNT_ID — copy from the right sidebar of any Cloudflare
+#                           dashboard page.
+#
+# One-time Cloudflare Pages setup (do this once before the first run):
+#   1. Cloudflare → Workers & Pages → Create application → Pages → "Create
+#      with direct upload"
+#   2. Project name: `speca` (must match `--project-name` below).
+#   3. Production branch: `main`.
+#   4. (Optional) Custom domain: `nyx.foundation` → bind under the project's
+#      Custom Domains tab. Until then, deploys land at
+#      `https://speca.pages.dev/`.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - ".github/workflows/deploy-website.yml"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to build + deploy (default: triggering ref). Non-main refs land as preview deploys."
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  # Serialize deploys per-ref so a fast follow-up commit doesn't race the
+  # previous build. Cancel-in-progress is OFF so we don't leave a half-built
+  # site published.
+  group: deploy-website-${{ github.event.inputs.ref || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install dependencies
+        working-directory: website
+        run: npm ci
+
+      - name: Build (both locales)
+        working-directory: website
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # `--branch` makes non-main refs land as preview deploys
+          # (each gets a unique preview URL); pushes to main go to
+          # production automatically because main matches the project's
+          # production-branch setting.
+          command: >-
+            pages deploy website/build
+            --project-name=speca
+            --branch=${{ github.event.inputs.ref || github.ref_name }}
+
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Cloudflare Pages deploy"
+            echo
+            echo "- Ref: \`${{ github.event.inputs.ref || github.ref_name }}\`"
+            echo "- Project: \`speca\`"
+            echo "- Production URL: https://speca.pages.dev/ (and the project's custom domain, once bound)"
+          } >> "$GITHUB_STEP_SUMMARY"

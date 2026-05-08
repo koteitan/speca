@@ -1,4 +1,4 @@
-# `homepage/` — SPECA documentation site (Docusaurus)
+# `website/` — SPECA documentation site (Docusaurus)
 
 Source for the documentation deployed at
 [https://nyx.foundation/](https://nyx.foundation/). Built
@@ -25,7 +25,7 @@ fix it before pushing.
 ## Layout
 
 ```
-homepage/
+website/
 ├── docs/                                   ← Japanese (default locale) doc source
 │   ├── intro.md
 │   ├── guide/ tutorial/ getting-started/   ← introductory sections
@@ -65,9 +65,9 @@ i18n: {
 
 ### Workflow for adding / refreshing translations
 
-1. Edit the original JP doc under `homepage/docs/<path>.md`.
+1. Edit the original JP doc under `website/docs/<path>.md`.
 2. Add or update the English version at
-   `homepage/i18n/en/docusaurus-plugin-content-docs/current/<path>.md`.
+   `website/i18n/en/docusaurus-plugin-content-docs/current/<path>.md`.
 3. If you change UI labels (sidebar categories, navbar/footer items),
    regenerate the translation JSONs:
    ```bash
@@ -77,11 +77,37 @@ i18n: {
    English strings (the generator stamps each new key with the JP
    source as a placeholder).
 
-## Deployment
+## Deployment — Cloudflare Pages
+
+This site deploys to **Cloudflare Pages** via the
+[`.github/workflows/deploy-website.yml`](../.github/workflows/deploy-website.yml)
+GitHub Action. Pushes to `main` that touch `website/**` deploy to the
+production branch automatically; manual `workflow_dispatch` for any
+ref produces a preview deploy.
+
+One-time setup:
+
+1. **Create the Cloudflare Pages project** named `speca`
+   (Cloudflare dashboard → Workers & Pages → Create application →
+   Pages → "Create with direct upload"). Set production branch to `main`.
+2. **Add repo secrets** (Settings → Secrets and variables → Actions):
+   - `CLOUDFLARE_API_TOKEN` — Cloudflare → My Profile → API Tokens →
+     Create. Permission: *Account › Cloudflare Pages › Edit* scoped to
+     the relevant account.
+   - `CLOUDFLARE_ACCOUNT_ID` — copy from the right sidebar of any
+     Cloudflare dashboard page.
+3. **Bind the custom domain** `nyx.foundation` (or whichever) under the
+   project's Custom Domains tab. Until then deploys land at
+   `https://speca.pages.dev/`.
+
+Manual deploy from a local checkout (rare; most days the GitHub Action
+handles it):
 
 ```bash
-USE_SSH=true npm run deploy            # SSH route
-GIT_USER=<github-username> npm run deploy   # HTTPS route
+cd website
+npm run build
+npx wrangler pages deploy build --project-name=speca
 ```
 
-Both routes build and push to the `gh-pages` branch.
+Configuration: [`wrangler.toml`](wrangler.toml) sets `pages_build_output_dir = "build"`
+so `wrangler pages dev` works without arguments.

@@ -44,7 +44,7 @@ is the canonical reference:
 - [Benchmark Release artifacts](https://nyx.foundation/docs/operations/release-artifacts)
 - [Reproducing RQ1](https://nyx.foundation/docs/operations/benchmark-rq1) · [RQ2](https://nyx.foundation/docs/operations/benchmark-rq2a) · [RQ2b](https://nyx.foundation/docs/operations/benchmark-rq2b)
 
-The Markdown sources live under [`homepage/docs/operations/`](../homepage/docs/operations/) — the documentation site is built from those.
+The Markdown sources live under [`website/docs/operations/`](../website/docs/operations/) — the documentation site is built from those.
 
 ## TL;DR — `benchmarks/results/` is on Releases, not in git
 

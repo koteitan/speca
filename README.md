@@ -48,7 +48,7 @@ Full setup details → **[Installation](https://nyx.foundation/docs/getting-star
 
 All detailed documentation is unified on the documentation site at
 [https://nyx.foundation/](https://nyx.foundation/). Source
-markdown lives under [`homepage/docs/`](homepage/docs/). The site is
+markdown lives under [`website/docs/`](website/docs/). The site is
 bilingual — Japanese is the default locale; English is selectable via
 the locale dropdown.
 
@@ -70,7 +70,7 @@ speca/
 ├── prompts/             # Per-phase worker prompts
 ├── benchmarks/          # RQ1 / RQ2 / RQ2b harnesses + paper figures
 ├── cli/                 # speca-cli (Node + Ink TUI)
-├── homepage/            # Docusaurus documentation source (deployed at nyx.foundation)
+├── website/             # Docusaurus documentation source (deployed at nyx.foundation)
 ├── tests/               # pytest suite
 └── outputs/             # Phase outputs (gitignored)
 ```

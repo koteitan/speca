@@ -1,0 +1,16 @@
+# Cloudflare Pages configuration for the SPECA documentation site.
+#
+# Used by `wrangler pages deploy` (manual) and by the
+# `.github/workflows/deploy-website.yml` GitHub Action (automated).
+#
+# Local one-shot deploy:
+#   cd website
+#   npm run build
+#   npx wrangler pages deploy build --project-name=speca
+
+name = "speca"
+compatibility_date = "2024-12-01"
+
+# `wrangler pages deploy <dir>` overrides this, but setting it makes
+# `wrangler pages dev` work without arguments.
+pages_build_output_dir = "build"

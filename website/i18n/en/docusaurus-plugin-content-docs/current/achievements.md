@@ -7,7 +7,7 @@ title: Achievements
 
 This page collects community achievements with SPECA — bugs found, reports submitted, bounties earned, tooling extensions written, and so on. **Anyone is free to add to it**.
 
-> If you would like to list your own SPECA results here, please open a pull request that directly edits this file (`homepage/docs/achievements.md`) against [NyxFoundation/speca](https://github.com/NyxFoundation/speca). If you wish to remain anonymous, a handle alone is fine.
+> If you would like to list your own SPECA results here, please open a pull request that directly edits this file (`website/docs/achievements.md`) against [NyxFoundation/speca](https://github.com/NyxFoundation/speca). If you wish to remain anonymous, a handle alone is fine.
 
 ## Entry template
 
@@ -40,7 +40,7 @@ This page collects community achievements with SPECA — bugs found, reports sub
 - Reporter: hirorogo
 - Target: NyxFoundation/speca repository
 - Type: contribution (documentation, not a bug)
-- Summary: Built a Docusaurus-based homepage under `homepage/`. Created Japanese documentation, references for the two papers, an easy-to-follow guide, hands-on tutorials, design backstory notes, and a blog section.
+- Summary: Built a Docusaurus-based homepage under `website/`. Created Japanese documentation, references for the two papers, an easy-to-follow guide, hands-on tutorials, design backstory notes, and a blog section.
 - Reference links: [PR #36](https://github.com/NyxFoundation/speca/pull/36)
 
 ---
