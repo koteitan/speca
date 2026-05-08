@@ -42,6 +42,40 @@ DEFAULT_KEYWORDS = "geth,ethereum client,execution specs,EIP"
 DEFAULT_SPEC_URLS = "https://ethereum.github.io/execution-specs/src/,https://geth.ethereum.org/docs"
 
 
+def _finalize_01a_state() -> None:
+    """Consolidate the latest 01a PARTIAL into outputs/<root>/01a_STATE.json.
+
+    Phase 01a is single-batch (one seed item) and the worker writes the result
+    to 01a_PARTIAL_W0B0_<ts>.json wrapped as ``{"items": [<phase01a_state>]}``.
+    Downstream phases (01b) expect the unwrapped payload at 01a_STATE.json.
+    """
+    output_root = get_output_root()
+    state_path = output_root / "01a_STATE.json"
+    partials = sorted(output_root.glob("01a_PARTIAL_*.json"))
+    if not partials:
+        return
+    latest = partials[-1]
+    try:
+        with open(latest, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        print(f"Warning: failed to read {latest} for 01a finalization: {e}", file=sys.stderr)
+        return
+
+    payload = data
+    if isinstance(data, dict) and isinstance(data.get("items"), list) and data["items"]:
+        payload = data["items"][0]
+
+    try:
+        with open(state_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2, ensure_ascii=False)
+    except OSError as e:
+        print(f"Warning: failed to write {state_path}: {e}", file=sys.stderr)
+        return
+
+    print(f"  ✓ Wrote 01a_STATE.json from {latest.name} ({len(payload.get('found_specs', []))} specs)")
+
+
 def check_dependencies(phase_id: str) -> bool:
     """Check if all dependencies for a phase are met."""
     config = get_phase_config(phase_id)
@@ -58,7 +92,18 @@ def check_dependencies(phase_id: str) -> bool:
         # but generally input_patterns imply requirement.
         # Note: glob() returns a generator, list() consumes it.
         resolved = resolve_pattern(pattern)
-        matches = list(Path(".").glob(resolved))
+        # Path(".").glob() rejects absolute patterns on Python 3.12+
+        # (NotImplementedError: Non-relative patterns are unsupported).
+        # SPECA_OUTPUT_DIR is often absolute (e.g. when speca-cli passes
+        # --output-dir as an absolute path), so split off the anchor and
+        # glob from the parent directly.
+        resolved_path = Path(resolved)
+        if resolved_path.is_absolute():
+            anchor = resolved_path.parts[0]
+            relative = Path(*resolved_path.parts[1:])
+            matches = list(Path(anchor).glob(str(relative)))
+        else:
+            matches = list(Path(".").glob(resolved))
         if not matches:
             # Check if it's a "worker-sharded" pattern (contains *)
             # If so, it might be that the previous phase produced nothing, 
@@ -159,6 +204,17 @@ async def run_phase(
 
     # Set default environment variables for 01a if not set
     if phase_id == "01a":
+        # Resume short-circuit: if STATE.json already exists and --force was
+        # not requested, skip 01a entirely. The orchestrator's per-item resume
+        # logic does not reliably detect 01a completion (id_field=url vs the
+        # synthetic seed item's id), so we gate on the consolidated artefact.
+        state_path = get_output_root() / "01a_STATE.json"
+        if state_path.exists() and not force:
+            print(f"  ✓ 01a_STATE.json already exists, skipping. Use --force to re-run.")
+            duration = round(time.time() - start_time, 2)
+            emitter.emit("phase-completed", phase=phase_id, duration_s=duration, total_results=0)
+            return True
+
         if "KEYWORDS" not in os.environ:
             print(f"Using default KEYWORDS: {DEFAULT_KEYWORDS}")
             os.environ["KEYWORDS"] = DEFAULT_KEYWORDS
@@ -217,6 +273,15 @@ async def run_phase(
 
         await orchestrator.run()
         duration = round(time.time() - start_time, 2)
+
+        # Phase 01a finalization: consolidate the latest PARTIAL into 01a_STATE.json.
+        # The 01a config declares output_pattern=01a_STATE.json and 01b's
+        # input_patterns=[01a_STATE.json], but the runner only writes
+        # 01a_PARTIAL_*.json. Without this consolidation step downstream phases
+        # can't find their input.
+        if phase_id == "01a":
+            _finalize_01a_state()
+
         emitter.emit(
             "phase-completed",
             phase=phase_id,

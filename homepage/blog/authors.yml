@@ -1,0 +1,33 @@
+speca:
+  name: SPECA
+  title: Nyx Foundation
+  url: https://github.com/NyxFoundation/speca
+  image_url: /img/speca_logo.svg
+  page: false
+
+gohan:
+  name: gohan
+  title: grandchildrice / Nyx Foundation
+  url: https://github.com/grandchildrice
+  image_url: /img/avatars/gohan.png
+  page: false
+  socials:
+    github: grandchildrice
+
+hirorogo:
+  name: Hiro
+  title: 愛知県立愛知総合工科高等学校 / Aichi High School of Technology and Engineering
+  url: https://github.com/hirorogo
+  image_url: /img/avatars/hirorogo.png
+  page: false
+  socials:
+    github: hirorogo
+
+sururu-k:
+  name: sururu-k
+  title: 愛知県立愛知総合工科高等学校 (alt of hirorogo)
+  url: https://github.com/sururu-k
+  image_url: /img/avatars/hirorogo.png
+  page: false
+  socials:
+    github: sururu-k
