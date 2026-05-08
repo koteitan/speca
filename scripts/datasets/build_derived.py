@@ -223,7 +223,11 @@ def load_rows(
         path = Path(src)
         if not path.exists():
             sys.exit(f"source not found: {path}")
-        with path.open(newline="") as f:
+        # Force utf-8 — scraper outputs are utf-8 (GHSA bodies often
+        # carry curly quotes / non-ASCII names) and Python's default
+        # falls back to the system locale (cp932 on Japanese Windows),
+        # which decode-errors on those characters.
+        with path.open(newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for raw in reader:
                 norm = normalize_row(raw, domain, scraped_at, platform_hint)
