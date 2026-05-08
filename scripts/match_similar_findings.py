@@ -1,8 +1,19 @@
-"""Match Phase 03 findings against filtered similar audit findings using Claude LLM.
+"""Match Phase 03 findings against the public audit-findings corpus
+(NyxFoundation/<domain>-audit-findings on HuggingFace) using Claude LLM.
 
 Two-pass approach:
-  Pass 1: Keyword pre-filter to narrow CSV findings to those most relevant to each Phase 03 finding
+  Pass 1: Keyword pre-filter to narrow corpus to those most relevant to each Phase 03 finding
   Pass 2: LLM comparison in batches of 10
+
+Requires the optional `datasets` dependency group:
+    uv sync --group datasets
+
+Environment overrides:
+  SPECA_FINDINGS_DOMAIN       Domain slug (default: defi). Resolves to
+                              NyxFoundation/<domain>-audit-findings.
+  SPECA_FINDINGS_LOCAL_PARQUET  Optional path to a local parquet built by
+                              scripts/datasets/build_derived.py — bypasses
+                              HF for offline / dev use.
 """
 
 import csv
@@ -27,7 +38,6 @@ csv.field_size_limit(sys.maxsize)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
-FILTERED_CSV = os.path.join(OUTPUT_DIR, "similar_audit_findings.csv")
 MATCH_OUTPUT = os.path.join(OUTPUT_DIR, "similar_audit_matches.json")
 CLAUDE_EXE = r"C:\Users\shieru_k\AppData\Roaming\npm\claude.cmd"
 
@@ -35,13 +45,23 @@ BATCH_SIZE = 10
 
 
 def load_filtered_findings():
-    """Load the filtered CSV findings."""
-    findings = []
-    with open(FILTERED_CSV, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            findings.append(row)
-    return findings
+    """Load the audit-findings corpus from HuggingFace (or a local parquet
+    if `SPECA_FINDINGS_LOCAL_PARQUET` is set), and return it as a list of
+    plain dicts so the rest of this script can keep its dict-based API.
+    """
+    # Lazy import — pandas / datasets live in the optional `datasets` group.
+    # Ensure the repo root is on sys.path so `scripts.datasets.*` resolves
+    # when this file is run directly (`python3 scripts/match_similar_findings.py`).
+    from pathlib import Path
+    repo_root = Path(__file__).resolve().parent.parent
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+    from scripts.datasets.load import load_findings
+
+    domain = os.environ.get("SPECA_FINDINGS_DOMAIN", "defi")
+    local = os.environ.get("SPECA_FINDINGS_LOCAL_PARQUET") or None
+    df = load_findings(domain=domain, local_parquet=local)
+    return df.to_dict(orient="records")
 
 
 def load_phase03_findings():
@@ -98,11 +118,15 @@ def keyword_prefilter(phase03_finding, csv_findings):
     if not categories:
         categories.append(("generic", ["approv", "allowance", "multicall", "callback"]))
 
-    # Score each CSV finding: must match at least 2 categories (or 1 if few categories)
+    # Score each finding: must match at least 2 categories (or 1 if few categories).
+    # Coerce title/description with `or ""` because parquet round-trip can yield
+    # None / NaN whereas the legacy csv.DictReader path always gave a string.
     min_matches = min(2, len(categories))
     relevant = []
     for row in csv_findings:
-        text = (row.get("title", "") + " " + row.get("description", "")[:1000]).lower()
+        title = row.get("title") or ""
+        description = (row.get("description") or "")[:1000]
+        text = (str(title) + " " + str(description)).lower()
         score = sum(1 for _, kws in categories if any(kw in text for kw in kws))
         if score >= min_matches:
             relevant.append(row)
@@ -129,11 +153,15 @@ def build_prompt(phase03_finding, csv_batch, batch_idx):
 
     csv_summaries = []
     for i, row in enumerate(csv_batch):
-        desc = truncate_description(row.get("description", ""), 400)
+        # Read `source_platform` directly — don't lean on the back-compat
+        # `source` alias added by load_findings(); the alias is for legacy
+        # downstream uses, not for this script.
+        platform = row.get("source_platform") or row.get("source") or ""
+        desc = truncate_description(row.get("description") or "", 400)
         csv_summaries.append(
-            f"[{i+1}] Source: {row['source']} | Contest: {row['contest']} | "
-            f"ID: {row['issue_id']} | Severity: {row['severity']}\n"
-            f"Title: {row['title']}\n"
+            f"[{i+1}] Source: {platform} | Contest: {row.get('contest', '')} | "
+            f"ID: {row.get('issue_id', '')} | Severity: {row.get('severity', '')}\n"
+            f"Title: {row.get('title', '')}\n"
             f"Description: {desc}"
         )
 
@@ -266,11 +294,11 @@ def main():
                     if 0 <= csv_idx < len(relevant_csv):
                         row = relevant_csv[csv_idx]
                         finding_matches.append({
-                            "csv_source": row["source"],
-                            "csv_contest": row["contest"],
-                            "csv_issue_id": row["issue_id"],
-                            "csv_title": row["title"],
-                            "csv_severity": row["severity"],
+                            "csv_source": row.get("source_platform") or row.get("source", ""),
+                            "csv_contest": row.get("contest", ""),
+                            "csv_issue_id": row.get("issue_id", ""),
+                            "csv_title": row.get("title", ""),
+                            "csv_severity": row.get("severity", ""),
                             "relevance": m.get("relevance", "unknown"),
                             "reason": m.get("reason", ""),
                         })

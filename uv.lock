@@ -2523,6 +2523,13 @@ benchmark = [
     { name = "matplotlib" },
     { name = "numpy" },
 ]
+datasets = [
+    { name = "datasets" },
+    { name = "huggingface-hub" },
+    { name = "jinja2" },
+    { name = "pandas" },
+    { name = "pyarrow" },
+]
 dev = [
     { name = "pytest" },
 ]
@@ -2542,6 +2549,13 @@ requires-dist = [
 benchmark = [
     { name = "matplotlib", specifier = ">=3.7" },
     { name = "numpy", specifier = ">=1.24" },
+]
+datasets = [
+    { name = "datasets", specifier = ">=2.16" },
+    { name = "huggingface-hub", specifier = ">=0.20" },
+    { name = "jinja2", specifier = ">=3.0" },
+    { name = "pandas", specifier = ">=2.0" },
+    { name = "pyarrow", specifier = ">=14.0" },
 ]
 dev = [{ name = "pytest", specifier = ">=7.0" }]
 
