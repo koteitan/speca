@@ -422,6 +422,23 @@ def main():
              "Properties below this threshold are skipped. Default comes from PhaseConfig.",
     )
 
+    # Phase 01a: discovery seed inputs
+    parser.add_argument(
+        "--keywords",
+        default=None,
+        help="Comma-separated keywords used by Phase 01a's spec-discovery skill. "
+             "Sets the KEYWORDS env var; if neither --keywords nor $KEYWORDS is set, "
+             "the Ethereum-default seeds are used. Pass an explicit value when running "
+             "against a non-Ethereum target (e.g. 'litecoin,scrypt,LTC').",
+    )
+    parser.add_argument(
+        "--spec-urls",
+        default=None,
+        help="Comma-separated seed URLs to crawl in Phase 01a. Sets the SPEC_URLS env var; "
+             "if neither --spec-urls nor $SPEC_URLS is set, the Ethereum-default URLs are used. "
+             "Pass explicit URLs when running against a non-Ethereum target.",
+    )
+
     parser.add_argument(
         "--json",
         action="store_true",
@@ -444,6 +461,14 @@ def main():
     # Set output directory early, before any orchestrator import evaluates paths
     if args.output_dir:
         os.environ["SPECA_OUTPUT_DIR"] = args.output_dir
+
+    # Promote --keywords / --spec-urls into the env for Phase 01a. CLI flags
+    # take precedence over an inherited env value so a single command line
+    # is fully reproducible without remembering shell-level exports.
+    if args.keywords:
+        os.environ["KEYWORDS"] = args.keywords
+    if args.spec_urls:
+        os.environ["SPEC_URLS"] = args.spec_urls
 
     # Determine execution order
     if args.target:
