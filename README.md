@@ -46,16 +46,20 @@ Full setup details → **[Installation](https://nyx.foundation/speca/docs/gettin
 
 ## Documentation
 
-すべての詳細は [https://nyx.foundation/speca/](https://nyx.foundation/speca/) のドキュメントサイトに集約されています。リポジトリ内のソースは [`homepage/docs/`](homepage/docs/) にあります。
+All detailed documentation is unified on the documentation site at
+[https://nyx.foundation/speca/](https://nyx.foundation/speca/). Source
+markdown lives under [`homepage/docs/`](homepage/docs/). The site is
+bilingual — Japanese is the default locale; English is selectable via
+the locale dropdown.
 
 | Topic | Page |
 |---|---|
-| What SPECA is and why | [やさしいガイド](https://nyx.foundation/speca/docs/guide/what-is-speca) · [How it works](https://nyx.foundation/speca/docs/guide/how-it-works) · [FAQ](https://nyx.foundation/speca/docs/guide/faq) |
-| Hands-on tutorial | [監査ウォークスルー](https://nyx.foundation/speca/docs/tutorial/audit-walkthrough) |
+| What SPECA is and why | [Beginner's guide](https://nyx.foundation/speca/docs/guide/what-is-speca) · [How it works](https://nyx.foundation/speca/docs/guide/how-it-works) · [FAQ](https://nyx.foundation/speca/docs/guide/faq) |
+| Hands-on tutorial | [Audit walkthrough](https://nyx.foundation/speca/docs/tutorial/audit-walkthrough) |
 | Pipeline phases | [Overview](https://nyx.foundation/speca/docs/pipeline/overview) → [01a Spec discovery](https://nyx.foundation/speca/docs/pipeline/01a-spec-discovery) → [01b Subgraph](https://nyx.foundation/speca/docs/pipeline/01b-subgraph-extraction) → [01e Property](https://nyx.foundation/speca/docs/pipeline/01e-property-generation) → [02c Code resolution](https://nyx.foundation/speca/docs/pipeline/02c-code-resolution) → [Audit map](https://nyx.foundation/speca/docs/pipeline/audit-map) → [Review](https://nyx.foundation/speca/docs/pipeline/review) |
 | Concepts | [Spec-driven auditing](https://nyx.foundation/speca/docs/concepts/spec-driven) · [Proof-attempt](https://nyx.foundation/speca/docs/concepts/proof-attempt) · [Gate review](https://nyx.foundation/speca/docs/concepts/gate-review) · [Bug-bounty scope](https://nyx.foundation/speca/docs/concepts/bug-bounty-scope) |
 | Operations (datasets / benchmarks) | [Overview](https://nyx.foundation/speca/docs/operations/overview) · [Refresh dataset](https://nyx.foundation/speca/docs/operations/dataset-refresh) · [Release artifacts](https://nyx.foundation/speca/docs/operations/release-artifacts) · [RQ1](https://nyx.foundation/speca/docs/operations/benchmark-rq1) · [RQ2](https://nyx.foundation/speca/docs/operations/benchmark-rq2a) · [RQ2b](https://nyx.foundation/speca/docs/operations/benchmark-rq2b) |
-| Project layout | [プロジェクト構成](https://nyx.foundation/speca/docs/project-structure) |
+| Project layout | [Project structure](https://nyx.foundation/speca/docs/project-structure) |
 | References | [Paper (Fusaka)](https://nyx.foundation/speca/docs/references/paper-fusaka) · [Paper (multi-impl)](https://nyx.foundation/speca/docs/references/paper-multi-impl) |
 
 ## Repository layout

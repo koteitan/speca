@@ -42,7 +42,7 @@ is the canonical reference:
 - [Operator overview](https://nyx.foundation/speca/docs/operations/overview)
 - [Refreshing the audit-finding dataset](https://nyx.foundation/speca/docs/operations/dataset-refresh)
 - [Benchmark Release artifacts](https://nyx.foundation/speca/docs/operations/release-artifacts)
-- [RQ1 reproduction](https://nyx.foundation/speca/docs/operations/benchmark-rq1) · [RQ2](https://nyx.foundation/speca/docs/operations/benchmark-rq2a) · [RQ2b](https://nyx.foundation/speca/docs/operations/benchmark-rq2b)
+- [Reproducing RQ1](https://nyx.foundation/speca/docs/operations/benchmark-rq1) · [RQ2](https://nyx.foundation/speca/docs/operations/benchmark-rq2a) · [RQ2b](https://nyx.foundation/speca/docs/operations/benchmark-rq2b)
 
 The Markdown sources live under [`homepage/docs/operations/`](../homepage/docs/operations/) — the documentation site is built from those.
 

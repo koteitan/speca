@@ -1,34 +1,40 @@
-# docs/hiro — SPECA ベンチマーク委託作業ドキュメント
+# docs/hiro — SPECA benchmark contract-work notes
 
-> **最終更新:** 2026-03-04
+> **Last updated:** 2026-03-04
 
-## ファイル一覧
+Internal working notes for the SPECA benchmark contract track. The
+sub-files retain their original Japanese content; only this index is in
+English.
 
-| ファイル | 種別 | 内容 |
-|----------|------|------|
-| [ann.md](ann.md) | 構想 | SPECA 拡張アイデア 14 案 (ブレスト) |
-| ~~RQ2_BENCHMARK_GUIDE.md~~ | アーカイブ | 旧 PrimeVul ガイド → `benchmarks/archive/` に移動 |
-| [LOCAL_VERIFICATION_GUIDE.md](LOCAL_VERIFICATION_GUIDE.md) | 手順書 | ローカル環境でのパイプライン検証 |
-| [WEB_APP_DESIGN.md](WEB_APP_DESIGN.md) | 設計案 | 結果可視化 Web アプリの設計提案 (未実装) |
-| [mobile-setup.md](mobile-setup.md) | セットアップ | スマホから Claude Code SSH 接続ガイド |
-| [prbun.md](prbun.md) | アーカイブ | 66 件バグ修正 PR の記録 |
-| [arc/kijaku.md](arc/kijaku.md) | バグ管理 | 脆弱性 + ロジックバグ トラッカー (57 件) |
-| [引き継ぎ/hikitugi.md](引き継ぎ/hikitugi.md) | 引き継ぎ | プロジェクト状態・引き継ぎドキュメント |
+## Files
 
-## 作業状況
+| File | Type | Content |
+|------|------|---------|
+| [ann.md](ann.md) | Ideation | 14 SPECA extension ideas (brainstorm) |
+| ~~RQ2_BENCHMARK_GUIDE.md~~ | Archived | Old PrimeVul guide — the `benchmarks/archive/` directory has since been removed; see git history for content |
+| [LOCAL_VERIFICATION_GUIDE.md](LOCAL_VERIFICATION_GUIDE.md) | Procedure | Pipeline verification on a local environment |
+| [WEB_APP_DESIGN.md](WEB_APP_DESIGN.md) | Design | Result-visualization web-app design (not yet implemented) |
+| [mobile-setup.md](mobile-setup.md) | Setup | SSH-from-mobile guide for Claude Code |
+| [prbun.md](prbun.md) | Archived | Record of 66 bug-fix PRs |
+| [arc/kijaku.md](arc/kijaku.md) | Bug tracking | Vulnerability + logic-bug tracker (57 items) |
+| [引き継ぎ/hikitugi.md](引き継ぎ/hikitugi.md) | Handover | Project-state / handover document |
 
-### 完了済み
-- RQ1 Sherlock Ethereum 評価: Recall 100% (15/15), Precision 66.3%
-- ~~RQ2 PrimeVul ベースライン~~ → アーカイブ済み (`benchmarks/archive/rq2_primevul/`)
-- **RQ2a RepoAudit ベースライン可視化** (5図, `benchmarks/results/rq2a/figures/`)
-- **RQ2b ChatAFL ベースライン可視化** (5図, `benchmarks/results/rq2b/figures/`) ★NEW
-- **GitHub Actions ワークフロー** (rq2a-01/02, rq2b-01/02) ★NEW
-- ベンチマーク課題分析 + 考察 (issiuse.md)
-- SPECA 拡張構想 14 案 (ann.md)
+## Status
 
-### 未完了
-- **RQ2a: SPECA を RepoAudit 15 プロジェクトで実行** (最優先)
-- RQ2a: ground_truth_bugs.yaml のバグ詳細を埋める
-- **RQ2b: ChatAFL 著者コンタクト** → file/function/line 取得
-- RQ2b: SPECA を 6 プロトコル実装で実行
-- Human label (22 件) の手動レビュー
+### Done
+
+- RQ1 Sherlock Ethereum evaluation: recall 100% (15/15), precision 66.3%.
+- ~~RQ2 PrimeVul baseline~~ — archived (was at `benchmarks/archive/rq2_primevul/`, since removed).
+- **RQ2a RepoAudit baseline visualization** — 5 figures under `benchmarks/results/rq2a/figures/`.
+- **RQ2b ChatAFL baseline visualization** — 5 figures under `benchmarks/results/rq2b/figures/`.
+- GitHub Actions workflows: `rq2a-01`/`02`, `rq2b-01`/`02`.
+- Benchmark issue analysis and discussion.
+- 14 SPECA extension ideas (`ann.md`).
+
+### In progress / pending
+
+- **RQ2a: run SPECA against the 15 RepoAudit projects** (highest priority).
+- RQ2a: fill in `ground_truth_bugs.yaml` bug detail.
+- **RQ2b: contact ChatAFL authors** to obtain file / function / line info.
+- RQ2b: run SPECA against the 6 protocol implementations.
+- Manual review of the human-label set (22 items).

@@ -1,0 +1,42 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.やさしいガイド": {
+    "message": "Beginner's guide",
+    "description": "The label for category 'やさしいガイド' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.実戦チュートリアル": {
+    "message": "Hands-on tutorial",
+    "description": "The label for category '実戦チュートリアル' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.はじめに": {
+    "message": "Getting started",
+    "description": "The label for category 'はじめに' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.パイプライン": {
+    "message": "Pipeline",
+    "description": "The label for category 'パイプライン' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.概念": {
+    "message": "Concepts",
+    "description": "The label for category '概念' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.リファレンス": {
+    "message": "References",
+    "description": "The label for category 'リファレンス' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.運用ガイド": {
+    "message": "Operations",
+    "description": "The label for category '運用ガイド' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.設計の裏側": {
+    "message": "Design notes",
+    "description": "The label for category '設計の裏側' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.コミュニティ": {
+    "message": "Community",
+    "description": "The label for category 'コミュニティ' in sidebar 'tutorialSidebar'"
+  }
+}

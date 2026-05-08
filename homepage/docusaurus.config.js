@@ -21,7 +21,11 @@ const config = {
 
   i18n: {
     defaultLocale: 'ja',
-    locales: ['ja'],
+    locales: ['ja', 'en'],
+    localeConfigs: {
+      ja: {label: '日本語'},
+      en: {label: 'English'},
+    },
   },
 
   presets: [
@@ -74,6 +78,10 @@ const config = {
             label: 'ドキュメント',
           },
           {to: '/blog', label: 'ブログ', position: 'left'},
+          {
+            type: 'localeDropdown',
+            position: 'right',
+          },
           {
             href: 'https://github.com/NyxFoundation/speca',
             label: 'GitHub',

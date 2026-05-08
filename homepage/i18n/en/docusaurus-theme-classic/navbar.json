@@ -1,0 +1,22 @@
+{
+  "title": {
+    "message": "SPECA",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "SPECA logo",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.ドキュメント": {
+    "message": "Documentation",
+    "description": "Navbar item with label ドキュメント"
+  },
+  "item.label.ブログ": {
+    "message": "Blog",
+    "description": "Navbar item with label ブログ"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

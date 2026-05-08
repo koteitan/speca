@@ -21,9 +21,9 @@ the SPECA documentation site:
 
 Quick links:
 
-- [インストール](https://nyx.foundation/speca/docs/getting-started/installation) · [クイックスタート](https://nyx.foundation/speca/docs/getting-started/quickstart)
-- [監査ウォークスルー](https://nyx.foundation/speca/docs/tutorial/audit-walkthrough)
-- [パイプライン概要](https://nyx.foundation/speca/docs/pipeline/overview)
+- [Installation](https://nyx.foundation/speca/docs/getting-started/installation) · [Quickstart](https://nyx.foundation/speca/docs/getting-started/quickstart)
+- [Audit walkthrough](https://nyx.foundation/speca/docs/tutorial/audit-walkthrough)
+- [Pipeline overview](https://nyx.foundation/speca/docs/pipeline/overview)
 
 ## Internal references
 

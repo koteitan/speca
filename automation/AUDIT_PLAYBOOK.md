@@ -165,6 +165,5 @@ After all phases complete:
 ## Notes
 
 - Each phase commits and pushes results immediately after completion
-- The web client (`web/`) can be started at any time to monitor progress
-- All UI is in Japanese — results are visible at `http://localhost:5173`
-- Token and repo are configured in the web client's Settings page
+- Use `speca-cli browse outputs/04_PARTIAL_*.json` to inspect findings
+  interactively, or `speca ask` to query Claude about a specific finding

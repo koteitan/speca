@@ -1,41 +1,87 @@
-# Website
+# `homepage/` — SPECA documentation site (Docusaurus)
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+Source for the documentation deployed at
+[https://nyx.foundation/speca/](https://nyx.foundation/speca/). Built
+with [Docusaurus](https://docusaurus.io/).
 
-## Installation
+This is the **single source of truth** for SPECA's user-facing
+documentation; the in-repo `*/README.md` files are slim landing pages
+that point here.
 
-```bash
-yarn
-```
-
-## Local Development
-
-```bash
-yarn start
-```
-
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
-
-## Build
+## Local development
 
 ```bash
-yarn build
+npm install      # one-time
+npm start        # http://localhost:3000 — JP locale only, fast HMR
+npm start -- --locale en   # serve the English locale instead
+
+npm run build    # static build for both locales (used by CI)
+npm run serve    # serve the built site locally
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+`onBrokenLinks: 'throw'` is on, so a broken link breaks the build —
+fix it before pushing.
+
+## Layout
+
+```
+homepage/
+├── docs/                                   ← Japanese (default locale) doc source
+│   ├── intro.md
+│   ├── guide/ tutorial/ getting-started/   ← introductory sections
+│   ├── pipeline/                           ← phase-by-phase docs
+│   ├── concepts/                           ← core ideas (proof-attempt, gates, etc.)
+│   ├── references/                         ← paper appendices
+│   ├── operations/                         ← operator runbooks (datasets, benchmarks)
+│   └── design-notes/                       ← rationale / postmortems
+├── i18n/en/                                ← English translations (UI + per-doc overrides)
+├── src/                                    ← React components, custom CSS
+├── static/                                 ← img/, favicon, etc.
+├── docusaurus.config.js                    ← site config + i18n setup
+└── sidebars.js                             ← navigation tree
+```
+
+## Bilingual (JP + EN)
+
+The site is configured for two locales (`docusaurus.config.js`):
+
+```js
+i18n: {
+  defaultLocale: 'ja',
+  locales: ['ja', 'en'],
+}
+```
+
+- Default-locale (JP) doc source lives directly under `docs/`.
+- English translations live under `i18n/en/`:
+  - **UI strings** (navbar / footer / sidebar category labels) are in
+    `i18n/en/docusaurus-theme-classic/*.json` and
+    `i18n/en/docusaurus-plugin-content-docs/current.json`. Already
+    translated.
+  - **Doc content** translations belong under
+    `i18n/en/docusaurus-plugin-content-docs/current/<same-path-as-docs>.md`.
+    Not yet populated — until a page is added there, the EN locale falls
+    back to the JP source.
+
+### Workflow for adding / refreshing translations
+
+1. Edit the original JP doc under `homepage/docs/<path>.md`.
+2. Add or update the English version at
+   `homepage/i18n/en/docusaurus-plugin-content-docs/current/<path>.md`.
+3. If you change UI labels (sidebar categories, navbar/footer items),
+   regenerate the translation JSONs:
+   ```bash
+   npm run write-translations -- --locale en
+   ```
+   Then edit the freshly generated `i18n/en/**/*.json` to fill in the
+   English strings (the generator stamps each new key with the JP
+   source as a placeholder).
 
 ## Deployment
 
-Using SSH:
-
 ```bash
-USE_SSH=true yarn deploy
+USE_SSH=true npm run deploy            # SSH route
+GIT_USER=<github-username> npm run deploy   # HTTPS route
 ```
 
-Not using SSH:
-
-```bash
-GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+Both routes build and push to the `gh-pages` branch.
