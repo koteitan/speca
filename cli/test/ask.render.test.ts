@@ -28,6 +28,32 @@ function delay(ms: number): Promise<void> {
 }
 
 /**
+ * Poll `getFrame()` until the rendered frame contains every required snippet,
+ * or `timeoutMs` elapses. Returns the last frame seen (so callers can run
+ * additional assertions for diagnostics on timeout).
+ *
+ * Replaces fixed `await delay(N)` waits in the streaming test — Windows GHA
+ * runners have a 15.6 ms timer floor, and the fake event stream + React
+ * batching + the post-turn `persistSession` write occasionally pushed the
+ * full chain past a 300 ms budget, causing the assertion to fire before the
+ * assistant text actually rendered.
+ */
+async function waitForFrame(
+  getFrame: () => string | undefined,
+  contains: readonly string[],
+  timeoutMs = 2000,
+): Promise<string> {
+  const start = Date.now();
+  let frame = getFrame() ?? "";
+  while (Date.now() - start < timeoutMs) {
+    frame = getFrame() ?? "";
+    if (contains.every((s) => frame.includes(s))) return frame;
+    await delay(10);
+  }
+  return frame;
+}
+
+/**
  * Build a fake spawnAsk that replays a canned event stream. The event order
  * matches what real `claude --output-format stream-json` produces.
  */
@@ -120,10 +146,16 @@ describe("<AskChat /> message rendering", () => {
     await delay(20);
     // Ctrl-D byte = 0x04
     stdin.write("");
-    // Allow the async event iteration AND the post-turn persistSession
-    // write to finish before unmount + tmpdir teardown.
-    await delay(300);
-    const frame = lastFrame() ?? "";
+    // Poll until the streamed assistant text has rendered. A fixed delay
+    // is too brittle on Windows GHA runners — timer resolution (~16 ms) +
+    // the post-turn persistSession file write occasionally push the chain
+    // past any single sleep we'd pick.
+    const frame = await waitForFrame(lastFrame, [
+      "You:",
+      "hi",
+      "Claude:",
+      "Hello from the fake assistant.",
+    ]);
     expect(frame).toContain("You:");
     expect(frame).toContain("hi");
     expect(frame).toContain("Claude:");
