@@ -20,3 +20,13 @@ benchmark = [
   "matplotlib>=3.7",
   "numpy>=1.24",
 ]
+# Used by scripts/datasets/* (build_derived, publish_hf, load helper) and
+# any consumer that loads from the NyxFoundation HF org. Install with
+# `uv sync --group datasets`.
+datasets = [
+  "huggingface_hub>=0.20",
+  "datasets>=2.16",
+  "pandas>=2.0",
+  "pyarrow>=14.0",
+  "jinja2>=3.0",
+]

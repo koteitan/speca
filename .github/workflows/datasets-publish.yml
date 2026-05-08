@@ -1,0 +1,188 @@
+name: "Publish dataset to HuggingFace"
+
+# Manual-only pipeline that builds a normalized parquet from
+# csv/similar_audit_findings.csv (or another CSV passed as input) and
+# pushes it to NyxFoundation/<domain>-audit-findings on HuggingFace.
+#
+# Cadence is intentionally workflow_dispatch — we have no schedule yet
+# while the data corpus is small and curation is human-driven.
+#
+# Required repo secrets:
+#   - HF_TOKEN — HuggingFace user/org token with write access to the
+#                NyxFoundation org. Settings → Secrets → Actions.
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: "Domain slug (drives repo name: NyxFoundation/<domain>-audit-findings)"
+        required: true
+        type: string
+        default: "defi"
+      source:
+        description: "CSV path to ingest (relative to repo root)"
+        required: true
+        type: string
+        default: "csv/similar_audit_findings.csv"
+      filter_platforms:
+        description: "Comma-separated platforms to include"
+        required: false
+        type: string
+        default: "code4rena,sherlock,codehawks"
+      severity_filter:
+        description: "Comma-separated severities to include (empty = all)"
+        required: false
+        type: string
+        default: ""
+      max_rows:
+        description: "Cap row count (0 = no cap, useful for dry-run)"
+        required: false
+        type: string
+        default: "0"
+      dry_run:
+        description: "If true, render but skip the HF push"
+        required: false
+        type: boolean
+        default: false
+      ref:
+        description: "Git ref to checkout (default: current branch)"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: datasets-publish-${{ inputs.domain }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
+    runs-on: self-hosted
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref_name }}
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+      - run: uv python install 3.11
+      - name: Install dataset deps
+        run: uv sync --group datasets
+
+      - name: Validate inputs
+        shell: bash
+        env:
+          DOMAIN: ${{ inputs.domain }}
+          SOURCE: ${{ inputs.source }}
+          REF_INPUT: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          # Domain must match HF dataset naming: lower-case alnum segments
+          # joined by single dashes (no leading/trailing/double dashes).
+          if ! [[ "$DOMAIN" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+            echo "::error::domain must match ^[a-z0-9]+(-[a-z0-9]+)*$ (no leading/trailing/double dashes); got '$DOMAIN'"
+            exit 1
+          fi
+          # Source path must exist, be relative, and contain no '..' segment.
+          if [ ! -f "$SOURCE" ]; then
+            echo "::error::source CSV not found: $SOURCE"; exit 1
+          fi
+          case "$SOURCE" in
+            /*) echo "::error::source must be relative"; exit 1 ;;
+          esac
+          IFS='/' read -ra SRC_SEGS <<< "$SOURCE"
+          for s in "${SRC_SEGS[@]}"; do
+            if [ "$s" = ".." ]; then
+              echo "::error::'..' segment not allowed in source path"; exit 1
+            fi
+          done
+          # `ref` (if provided) must be a branch/tag ref or a 40-hex SHA.
+          # Empty falls back to github.ref_name (which the runner already
+          # validates).
+          if [ -n "$REF_INPUT" ]; then
+            if ! [[ "$REF_INPUT" =~ ^(refs/(heads|tags)/[A-Za-z0-9._/-]+|[a-f0-9]{40})$ ]]; then
+              echo "::error::ref must be 'refs/heads/<name>', 'refs/tags/<name>', or a 40-hex SHA; got '$REF_INPUT'"
+              exit 1
+            fi
+          fi
+
+      - name: Build derived parquet
+        id: build
+        shell: bash
+        env:
+          DOMAIN: ${{ inputs.domain }}
+          SOURCE: ${{ inputs.source }}
+          FILTER_PLATFORMS: ${{ inputs.filter_platforms }}
+          SEVERITY_FILTER: ${{ inputs.severity_filter }}
+          MAX_ROWS: ${{ inputs.max_rows }}
+        run: |
+          set -euo pipefail
+          ARGS=(
+            --domain "$DOMAIN"
+            --source "$SOURCE"
+            --out-dir dist/datasets
+            --filter-platforms "$FILTER_PLATFORMS"
+          )
+          if [ -n "$SEVERITY_FILTER" ]; then
+            ARGS+=(--severity-filter "$SEVERITY_FILTER")
+          fi
+          if [ "${MAX_ROWS:-0}" != "0" ]; then
+            ARGS+=(--max-rows "$MAX_ROWS")
+          fi
+          uv run --group datasets python3 scripts/datasets/build_derived.py "${ARGS[@]}"
+          echo "src_dir=dist/datasets/$DOMAIN" >> "$GITHUB_OUTPUT"
+          echo "manifest=dist/datasets/$DOMAIN/manifest.json" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to HuggingFace
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          SRC_DIR: ${{ steps.build.outputs.src_dir }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # publish_hf.py defaults to NyxFoundation/vulnerability-reports;
+          # the domain comes from <src>/manifest.json so we don't pass it
+          # again here.
+          ARGS=(--src "$SRC_DIR")
+          if [ "$DRY_RUN" = "true" ]; then
+            ARGS+=(--dry-run)
+          else
+            if [ -z "${HF_TOKEN:-}" ]; then
+              echo "::error::HF_TOKEN secret is not set; cannot push. Re-run with dry_run=true to render-only."
+              exit 1
+            fi
+          fi
+          uv run --group datasets python3 scripts/datasets/publish_hf.py "${ARGS[@]}"
+
+      - name: Summary
+        shell: bash
+        env:
+          MANIFEST: ${{ steps.build.outputs.manifest }}
+          DOMAIN: ${{ inputs.domain }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          {
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "### \`$DOMAIN\` config built (DRY-RUN — not pushed)"
+            else
+              echo "### \`$DOMAIN\` config published"
+              echo
+              echo "Dataset URL: https://huggingface.co/datasets/NyxFoundation/vulnerability-reports"
+              echo
+              echo "Load with: \`load_dataset(\"NyxFoundation/vulnerability-reports\", \"$DOMAIN\", split=\"train\")\`"
+            fi
+            echo
+            echo '```json'
+            cat "$MANIFEST"
+            echo
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
