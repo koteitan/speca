@@ -7,4 +7,4 @@ for the exploratory ProFuzzBench / dynamic-testing comparison track.
 Operator documentation — status, reproduction steps, known gaps — lives
 on the documentation site:
 
-→ **[Reproducing RQ2b](https://nyx.foundation/speca/docs/operations/benchmark-rq2b)**
+→ **[Reproducing RQ2b](https://nyx.foundation/docs/operations/benchmark-rq2b)**

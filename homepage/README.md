@@ -1,7 +1,7 @@
 # `homepage/` — SPECA documentation site (Docusaurus)
 
 Source for the documentation deployed at
-[https://nyx.foundation/speca/](https://nyx.foundation/speca/). Built
+[https://nyx.foundation/](https://nyx.foundation/). Built
 with [Docusaurus](https://docusaurus.io/).
 
 This is the **single source of truth** for SPECA's user-facing

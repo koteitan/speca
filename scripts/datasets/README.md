@@ -10,7 +10,7 @@ Sherlock + CodeHawks).
 For the full end-to-end flow (when to dispatch, what inputs to pass,
 how to verify), see the documentation site:
 
-→ **[Refreshing the audit-finding dataset](https://nyx.foundation/speca/docs/operations/dataset-refresh)**
+→ **[Refreshing the audit-finding dataset](https://nyx.foundation/docs/operations/dataset-refresh)**
 
 ## Files
 

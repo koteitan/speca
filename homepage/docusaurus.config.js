@@ -12,7 +12,7 @@ const config = {
   },
 
   url: 'https://nyx.foundation',
-  baseUrl: '/speca/',
+  baseUrl: '/',
 
   organizationName: 'NyxFoundation',
   projectName: 'speca',

@@ -7,4 +7,4 @@ This directory holds the evaluation code (`evaluate.py`, `visualize.py`,
 Operator documentation — how to reproduce, what each output file means,
 how to extend to new codebases — lives on the documentation site:
 
-→ **[Reproducing RQ2](https://nyx.foundation/speca/docs/operations/benchmark-rq2a)**
+→ **[Reproducing RQ2](https://nyx.foundation/docs/operations/benchmark-rq2a)**
