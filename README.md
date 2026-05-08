@@ -15,8 +15,8 @@
 
 **SPECA** is a specification-anchored security audit framework that derives explicit, typed security properties from natural-language specifications and audits implementations through structured **proof-attempt** reasoning. Where code-driven auditors look for known bug patterns, SPECA invents a property vocabulary from the spec and asks each implementation to prove the invariants — turning specification-level violations into detectable, traceable findings.
 
-📖 **Documentation:** [https://speca.pages.dev/](https://speca.pages.dev/)
-🧪 **Dataset (audit findings):** [`NyxFoundation/vulnerability-reports`](https://huggingface.co/datasets/NyxFoundation/vulnerability-reports) on HuggingFace
+📖 **Documentation:** [https://speca.pages.dev/](https://speca.pages.dev/)<br>
+🧪 **Dataset (audit findings):** [`NyxFoundation/vulnerability-reports`](https://huggingface.co/datasets/NyxFoundation/vulnerability-reports) on HuggingFace<br>
 📦 **CLI on npm:** [`speca-cli`](https://www.npmjs.com/package/speca-cli)
 
 ## Headline results
