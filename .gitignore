@@ -231,12 +231,22 @@ benchmarks/data/**/raw/
 .mcp.json
 outputs/.mcp_configs/
 
-# Benchmark results — published as GitHub Release assets, not committed.
-# Already-tracked files under benchmarks/results/ stay tracked until the
-# follow-up migration issue runs `git rm`; this rule only stops *new*
-# files from sneaking in. .gitkeep keeps the dir present for tooling.
+# Benchmark results — bulky raw outputs are published as GitHub Release
+# assets (`bench-<rq>-<date>-...`) instead of being committed. We do
+# allow small documentation artifacts (charts, paper figures, human
+# review guides) so the in-repo README renders correctly on GitHub.
+# (gitignore does NOT strip trailing comments — keep these on their own
+#  lines, otherwise the comment becomes part of the pattern.)
 benchmarks/results/**
+# Re-include directory entries so children can be selectively un-ignored.
+!benchmarks/results/**/
 !benchmarks/results/.gitkeep
+# Rendered figures referenced from README.md.
+!benchmarks/results/**/*.png
+# Paper-style tables (e.g. rq2b_table.tex).
+!benchmarks/results/**/*.tex
+# Human-readable guides (REVIEW_GUIDE.md, etc.).
+!benchmarks/results/**/*.md
 # Locally built bench artifacts before they are uploaded to a Release.
 dist/bench-artifacts/
 

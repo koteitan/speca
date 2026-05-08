@@ -25,11 +25,23 @@ uv sync --group datasets
 
 ## Local end-to-end (dry-run, no HF push)
 
+`csv/` is no longer in the repo — the canonical store is HF. Run
+scrapers first to populate `benchmarks/data/defi_audit_reports/`:
+
 ```bash
-# 1. Build a parquet from the canonical CSV.
+# 0. Scrape (one-time per refresh; writes header-only stubs into
+#    real corpora). Skip if the runner already has scrape output.
+uv run python3 scripts/scrape_code4rena.py
+uv run python3 scripts/scrape_sherlock.py
+uv run python3 scripts/scrape_codehawks.py
+
+# 1. Build a parquet from the scraper output.
+#    --source can be repeated to union multiple CSVs.
 uv run --group datasets python3 scripts/datasets/build_derived.py \
   --domain defi \
-  --source csv/similar_audit_findings.csv \
+  --source benchmarks/data/defi_audit_reports/code4rena_all_issues.csv \
+  --source benchmarks/data/defi_audit_reports/sherlock_all_issues.csv \
+  --source benchmarks/data/defi_audit_reports/codehawks_all_issues.csv \
   --out-dir dist/datasets
 
 # 2. Render the dataset card and dry-run the upload.
@@ -55,7 +67,7 @@ only, self-hosted, gated to a maintainer allowlist). Inputs:
 | Input | Purpose |
 |---|---|
 | `domain` | Config name (`defi`, `lending`, `oracle`, …). Becomes the top-level folder in the HF repo. |
-| `source` | CSV path to ingest. Default: `csv/similar_audit_findings.csv`. |
+| `source` | Comma-separated CSV paths; all are unioned into the same parquet. Default points at the three scraper-output paths under `benchmarks/data/defi_audit_reports/` — populate them locally before dispatching. |
 | `filter_platforms` | Comma-separated; default `code4rena,sherlock,codehawks`. |
 | `severity_filter` | Comma-separated; empty means all severities. |
 | `max_rows` | Cap row count, useful for sanity checks. `0` = no cap. |
@@ -80,14 +92,39 @@ HF org. Set under Settings → Secrets and variables → Actions.
 | `domain` | Always the input `--domain`. |
 | `scraped_at` | ISO 8601 UTC. |
 
-## What this PR does NOT include (follow-ups)
+## Adding a new domain config
 
-- A scheduled scrape → publish loop. Cadence is intentionally manual.
-- Migration of `expanded_pattern_search.py`, `find_precedents_and_bugs.py`,
-  `filter_similar_audits.py` to the HF loader. Only `match_similar_findings.py`
-  is migrated as a proof point.
-- HF revision tagging per scrape. We push to `main` only for now; bring
-  back per-date revisions once the corpus is large enough that consumers
-  benefit from pinning.
-- Removal of the bulky CSVs in `csv/` from git history. That's a separate
-  history-rewrite issue once this loop has shipped at least one release.
+The dataset is multi-config: `defi/train.parquet`, `lending/train.parquet`,
+`oracle/train.parquet`, …. To add one:
+
+1. Get a CSV (or multiple) for the domain into a runner-accessible path.
+   The schema must include at least `source` (or `source_platform`),
+   `severity`, `title`, and either `description` or `description_excerpt`.
+   `contest` and `issue_id` are recommended for stable IDs.
+2. Dispatch `Publish dataset to HuggingFace` with `domain=<your-slug>`
+   and `source=<csv-path>`. Slug must match `[a-z0-9]+(-[a-z0-9]+)*`.
+3. The publisher uses `delete_patterns=["<domain>/*"]`, so it only
+   touches that domain's folder; existing configs (`defi`, etc.) are
+   untouched. The repo-root `README.md` is regenerated each push but
+   the content is global, so it's idempotent across domains.
+4. After the first push, HF auto-detects the new folder as a config —
+   `load_dataset(repo, "<your-slug>", split="train")` will work without
+   any further setup.
+
+## Known limitations / follow-ups
+
+- **No scheduled scrape → publish loop.** Operators run `scripts/scrape_*.py`
+  locally (or on the runner) and dispatch the publish workflow manually.
+  Auto-scheduled refresh is a separate, not-yet-implemented step.
+- **Three CSV consumers still read local files** — `expanded_pattern_search.py`,
+  `find_precedents_and_bugs.py`, `filter_similar_audits.py`. Only
+  `match_similar_findings.py` was migrated to the HF loader; the others
+  point at scraper output paths under `benchmarks/data/defi_audit_reports/`.
+  Migrating them is a small follow-up PR.
+- **No HF revisions per scrape.** We push to `main` only. If/when the
+  corpus stabilizes and consumers want to pin a snapshot, switch to
+  per-date revisions in `publish_hf.push()`.
+- **`csv/` is gone.** The historical CSVs were folded into the HF
+  `defi` config and removed from the working tree (gitignored). They
+  still exist in git history; the `git filter-repo` clone-shrink chore
+  is a separate ticket.

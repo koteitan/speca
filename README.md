@@ -906,11 +906,56 @@ An instructive non-monotonic pattern: Sonnet 4 discovers **18** beyond-GT candid
 
 ## Reproducing the Benchmarks
 
-All evaluation scripts, per-repository outputs, and labeling artifacts ship with the repo:
+Evaluation scripts, labelers, and rendered figures ship with the repo;
+the heavy raw outputs (per-repository audit traces, finding labels,
+LLM cache files — ~350 MB across the three RQs) live on **GitHub
+Releases** as `bench-<rq>-<utc-date>-<suffix>` tarballs.
 
-- [`benchmarks/results/rq1/sherlock_ethereum_audit_contest/`](./benchmarks/results/rq1/sherlock_ethereum_audit_contest/) — RQ1 raw outputs, labels, and chart-generation scripts.
-- [`benchmarks/results/rq2a/`](./benchmarks/results/rq2a/) — RQ2 RepoAudit outputs and figures.
-- [`benchmarks/README.md`](./benchmarks/README.md) — full reproduction instructions.
+To pull a benchmark's raw outputs back into your checkout:
+
+```bash
+# List available bench tarballs
+gh release list --repo NyxFoundation/speca | grep '^bench-'
+
+# Restore one in place (verifies sha256 + file count)
+bash benchmarks/scripts/restore-results.sh bench-rq1-20260508-sherlock_ethereum_audit_contest
+```
+
+What stays in the working tree is just the **rendered figures, paper
+tables, and human-readable review guides** (a few MB of `*.png`/`*.tex`/`*.md`)
+— enough for the in-repo README to render correctly on GitHub. The
+`benchmarks/results/**` `.gitignore` allowlists those file types and
+ignores the bulk.
+
+Pointers:
+
+- [`benchmarks/results/rq1/sherlock_ethereum_audit_contest/`](./benchmarks/results/rq1/sherlock_ethereum_audit_contest/) — RQ1 figures + analysis docs (raw outputs on `bench-rq1-*` releases).
+- [`benchmarks/results/rq2a/figures/`](./benchmarks/results/rq2a/figures/) — RQ2 figures (raw model-sweep outputs on `bench-rq2a-*` releases).
+- [`benchmarks/README.md`](./benchmarks/README.md) — full reproduction instructions, restore/publish flow, and per-RQ runner workflows.
+
+## Data corpus on HuggingFace
+
+The audit-finding corpus that feeds property generation, FP-filter
+training, and the `match_similar_findings` consumer is published as a
+multi-config HuggingFace dataset:
+
+- **`NyxFoundation/vulnerability-reports`** — one config per security
+  domain. Currently `defi` (~4.5K rows: Code4rena + Sherlock + CodeHawks
+  unioned and deduped). Future configs (`lending`, `oracle`, `checklist`)
+  added by re-dispatching the publish workflow with new sources.
+
+```python
+from datasets import load_dataset
+ds = load_dataset("NyxFoundation/vulnerability-reports", "defi", split="train")
+
+# Or, from inside the SPECA repo:
+from scripts.datasets.load import load_findings
+df = load_findings(domain="defi")
+```
+
+Build / publish lives in [`scripts/datasets/`](./scripts/datasets/) — see
+its README for the operator workflow and how to extend it to new
+domains.
 
 ## Contributing
 
