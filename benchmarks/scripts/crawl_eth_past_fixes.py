@@ -126,12 +126,23 @@ def fetch_advisories(repo: str) -> list[dict]:
     """List published GHSA advisories on `<owner>/<repo>`. `gh api
     --paginate` walks the Link-header cursor automatically — works
     whether the upstream uses page numbers or before/after cursors
-    (GHSA's endpoint is the latter)."""
+    (GHSA's endpoint is the latter).
+
+    Two `gh api` gotchas baked in here:
+      1. `-X GET` is REQUIRED. Without it, gh sees a `-f` field and
+         flips the method to POST — and POST /security-advisories means
+         "create advisory", which 403s for any token without the
+         `repository_security_advisories` admin scope.
+      2. Do NOT pass `state=published`. Same admin scope requirement;
+         the default already returns only published rows for non-admin
+         tokens.
+    Both pitfalls verified by smoke-testing ethereum/go-ethereum on
+    2026-05-09 with a `repo` + `read:org` token (sururu-k)."""
     chunk = gh_json([
         "api", f"repos/{repo}/security-advisories",
+        "-X", "GET",
         "--paginate",
         "-f", f"per_page={ADVISORIES_PER_PAGE}",
-        "-f", "state=published",
     ])
     return chunk if isinstance(chunk, list) else []
 
