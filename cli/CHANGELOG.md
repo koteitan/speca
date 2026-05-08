@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Accumulated changes since v0.9.0. Will graduate to a tagged release once the
-0.9.x soak window produces meaningful feedback.
+## [0.9.1] - 2026-05-08
+
+Patch release on the 0.9.x soak line. Closes the four `ErrorKind` paths
+that shipped infrastructure-only in v0.9.0, syncs version mentions across
+in-tree docs, and adds a post-publish smoke job to the release pipeline so
+tarball / bin-shim / dependency-pinning regressions are caught on every
+publish rather than the next time a user runs `npx speca-cli@latest`.
 
 ### Added
 
