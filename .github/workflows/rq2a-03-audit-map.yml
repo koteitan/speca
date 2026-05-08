@@ -250,9 +250,10 @@ jobs:
   # 3. Collect all results and push to master
   # ------------------------------------------------------------------
   collect:
-    if: ${{ github.actor == 'grandchildrice' || github.actor == 'hirorogo' }}
+    # `always()` so we still gather partial results when audit jobs failed,
+    # combined with the actor allowlist so unauthorized pushes don't run it.
+    if: ${{ always() && (github.actor == 'grandchildrice' || github.actor == 'hirorogo') }}
     needs: audit
-    if: always()
     runs-on: self-hosted
 
     steps:
