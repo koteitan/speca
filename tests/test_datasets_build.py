@@ -47,7 +47,10 @@ def _load_build_module():
 def fixture_csv(tmp_path: Path) -> Path:
     """A tiny CSV mirroring `csv/similar_audit_findings.csv`'s schema."""
     p = tmp_path / "fixture.csv"
-    with p.open("w", newline="") as f:
+    # Force utf-8 — the fixture body contains a U+2026 ellipsis; without
+    # this Python falls back to the system locale (cp932 on Japanese
+    # Windows) and writes bytes that build_derived's utf-8 reader rejects.
+    with p.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["source", "contest", "issue_id", "severity", "title", "description"])
         w.writerow([
