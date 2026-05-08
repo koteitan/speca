@@ -1021,8 +1021,17 @@ class ClaudeRunner:
         Warns on validation errors but returns the item regardless,
         consistent with the project's lenient validation approach.
         """
-        # Minimal structural validation: must have at least one expected key
-        expected_keys = {"property_id", "check_id", "checklist_id", "spec_id", "id", "subgraph_id"}
+        # Minimal structural validation: must have at least one expected key.
+        # The set covers identifiers used across all phases:
+        #   01a discovery results (`start_url`, `source_url`)
+        #   01b subgraph specs (`source_url`, `id`, `subgraph_id`)
+        #   01e/02c/03/04 finding-shaped items (`property_id`, `check_id`,
+        #   `checklist_id`, `spec_id`).
+        expected_keys = {
+            "property_id", "check_id", "checklist_id", "spec_id",
+            "id", "subgraph_id",
+            "start_url", "source_url", "url",
+        }
         if not any(k in item for k in expected_keys):
             print(
                 f"Warning: result item missing expected identifier key "
