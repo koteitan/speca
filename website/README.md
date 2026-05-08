@@ -1,8 +1,8 @@
 # `website/` — SPECA documentation site (Docusaurus)
 
 Source for the documentation deployed at
-[https://nyx.foundation/](https://nyx.foundation/). Built
-with [Docusaurus](https://docusaurus.io/).
+[https://speca.pages.dev/](https://speca.pages.dev/) (Cloudflare Pages
+project `speca`). Built with [Docusaurus](https://docusaurus.io/).
 
 This is the **single source of truth** for SPECA's user-facing
 documentation; the in-repo `*/README.md` files are slim landing pages

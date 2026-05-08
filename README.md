@@ -15,7 +15,7 @@
 
 **SPECA** is a specification-anchored security audit framework that derives explicit, typed security properties from natural-language specifications and audits implementations through structured **proof-attempt** reasoning. Where code-driven auditors look for known bug patterns, SPECA invents a property vocabulary from the spec and asks each implementation to prove the invariants — turning specification-level violations into detectable, traceable findings.
 
-📖 **Documentation:** [https://nyx.foundation/](https://nyx.foundation/)
+📖 **Documentation:** [https://speca.pages.dev/](https://speca.pages.dev/)
 🧪 **Dataset (audit findings):** [`NyxFoundation/vulnerability-reports`](https://huggingface.co/datasets/NyxFoundation/vulnerability-reports) on HuggingFace
 📦 **CLI on npm:** [`speca-cli`](https://www.npmjs.com/package/speca-cli)
 
@@ -42,25 +42,25 @@ uv run python3 scripts/run_phase.py --target 04 --workers 4
 
 Outputs land in `outputs/<phase>_PARTIAL_*.json`. Browse with `speca-cli browse outputs/04_PARTIAL_*.json`.
 
-Full setup details → **[Installation](https://nyx.foundation/docs/getting-started/installation)** · **[Quickstart (5 min)](https://nyx.foundation/docs/getting-started/quickstart)**.
+Full setup details → **[Installation](https://speca.pages.dev/docs/getting-started/installation)** · **[Quickstart (5 min)](https://speca.pages.dev/docs/getting-started/quickstart)**.
 
 ## Documentation
 
 All detailed documentation is unified on the documentation site at
-[https://nyx.foundation/](https://nyx.foundation/). Source
+[https://speca.pages.dev/](https://speca.pages.dev/). Source
 markdown lives under [`website/docs/`](website/docs/). The site is
 bilingual — Japanese is the default locale; English is selectable via
 the locale dropdown.
 
 | Topic | Page |
 |---|---|
-| What SPECA is and why | [Beginner's guide](https://nyx.foundation/docs/guide/what-is-speca) · [How it works](https://nyx.foundation/docs/guide/how-it-works) · [FAQ](https://nyx.foundation/docs/guide/faq) |
-| Hands-on tutorial | [Audit walkthrough](https://nyx.foundation/docs/tutorial/audit-walkthrough) |
-| Pipeline phases | [Overview](https://nyx.foundation/docs/pipeline/overview) → [01a Spec discovery](https://nyx.foundation/docs/pipeline/01a-spec-discovery) → [01b Subgraph](https://nyx.foundation/docs/pipeline/01b-subgraph-extraction) → [01e Property](https://nyx.foundation/docs/pipeline/01e-property-generation) → [02c Code resolution](https://nyx.foundation/docs/pipeline/02c-code-resolution) → [Audit map](https://nyx.foundation/docs/pipeline/audit-map) → [Review](https://nyx.foundation/docs/pipeline/review) |
-| Concepts | [Spec-driven auditing](https://nyx.foundation/docs/concepts/spec-driven) · [Proof-attempt](https://nyx.foundation/docs/concepts/proof-attempt) · [Gate review](https://nyx.foundation/docs/concepts/gate-review) · [Bug-bounty scope](https://nyx.foundation/docs/concepts/bug-bounty-scope) |
-| Operations (datasets / benchmarks) | [Overview](https://nyx.foundation/docs/operations/overview) · [Refresh dataset](https://nyx.foundation/docs/operations/dataset-refresh) · [Release artifacts](https://nyx.foundation/docs/operations/release-artifacts) · [RQ1](https://nyx.foundation/docs/operations/benchmark-rq1) · [RQ2](https://nyx.foundation/docs/operations/benchmark-rq2a) · [RQ2b](https://nyx.foundation/docs/operations/benchmark-rq2b) |
-| Project layout | [Project structure](https://nyx.foundation/docs/project-structure) |
-| References | [Paper (Fusaka)](https://nyx.foundation/docs/references/paper-fusaka) · [Paper (multi-impl)](https://nyx.foundation/docs/references/paper-multi-impl) |
+| What SPECA is and why | [Beginner's guide](https://speca.pages.dev/docs/guide/what-is-speca) · [How it works](https://speca.pages.dev/docs/guide/how-it-works) · [FAQ](https://speca.pages.dev/docs/guide/faq) |
+| Hands-on tutorial | [Audit walkthrough](https://speca.pages.dev/docs/tutorial/audit-walkthrough) |
+| Pipeline phases | [Overview](https://speca.pages.dev/docs/pipeline/overview) → [01a Spec discovery](https://speca.pages.dev/docs/pipeline/01a-spec-discovery) → [01b Subgraph](https://speca.pages.dev/docs/pipeline/01b-subgraph-extraction) → [01e Property](https://speca.pages.dev/docs/pipeline/01e-property-generation) → [02c Code resolution](https://speca.pages.dev/docs/pipeline/02c-code-resolution) → [Audit map](https://speca.pages.dev/docs/pipeline/audit-map) → [Review](https://speca.pages.dev/docs/pipeline/review) |
+| Concepts | [Spec-driven auditing](https://speca.pages.dev/docs/concepts/spec-driven) · [Proof-attempt](https://speca.pages.dev/docs/concepts/proof-attempt) · [Gate review](https://speca.pages.dev/docs/concepts/gate-review) · [Bug-bounty scope](https://speca.pages.dev/docs/concepts/bug-bounty-scope) |
+| Operations (datasets / benchmarks) | [Overview](https://speca.pages.dev/docs/operations/overview) · [Refresh dataset](https://speca.pages.dev/docs/operations/dataset-refresh) · [Release artifacts](https://speca.pages.dev/docs/operations/release-artifacts) · [RQ1](https://speca.pages.dev/docs/operations/benchmark-rq1) · [RQ2](https://speca.pages.dev/docs/operations/benchmark-rq2a) · [RQ2b](https://speca.pages.dev/docs/operations/benchmark-rq2b) |
+| Project layout | [Project structure](https://speca.pages.dev/docs/project-structure) |
+| References | [Paper (Fusaka)](https://speca.pages.dev/docs/references/paper-fusaka) · [Paper (multi-impl)](https://speca.pages.dev/docs/references/paper-multi-impl) |
 
 ## Repository layout
 
@@ -70,7 +70,7 @@ speca/
 ├── prompts/             # Per-phase worker prompts
 ├── benchmarks/          # RQ1 / RQ2 / RQ2b harnesses + paper figures
 ├── cli/                 # speca-cli (Node + Ink TUI)
-├── website/             # Docusaurus documentation source (deployed at nyx.foundation)
+├── website/             # Docusaurus documentation source (deployed at speca.pages.dev)
 ├── tests/               # pytest suite
 └── outputs/             # Phase outputs (gitignored)
 ```
@@ -85,7 +85,7 @@ branches off `main`; CI runs the test suite on every push.
 uv run python3 -m pytest tests/ -v --tb=short
 ```
 
-For onboarding a new target, you typically only need to write a `BUG_BOUNTY_SCOPE.json` and `TARGET_INFO.json` — no code change required. See [Bug-bounty scope](https://nyx.foundation/docs/concepts/bug-bounty-scope) for the schema.
+For onboarding a new target, you typically only need to write a `BUG_BOUNTY_SCOPE.json` and `TARGET_INFO.json` — no code change required. See [Bug-bounty scope](https://speca.pages.dev/docs/concepts/bug-bounty-scope) for the schema.
 
 ## Citation
 

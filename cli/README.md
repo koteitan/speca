@@ -17,13 +17,13 @@ first-run loop.
 End-user documentation, command reference, and the typical workflow live on
 the SPECA documentation site:
 
-→ **[https://nyx.foundation/](https://nyx.foundation/)**
+→ **[https://speca.pages.dev/](https://speca.pages.dev/)**
 
 Quick links:
 
-- [Installation](https://nyx.foundation/docs/getting-started/installation) · [Quickstart](https://nyx.foundation/docs/getting-started/quickstart)
-- [Audit walkthrough](https://nyx.foundation/docs/tutorial/audit-walkthrough)
-- [Pipeline overview](https://nyx.foundation/docs/pipeline/overview)
+- [Installation](https://speca.pages.dev/docs/getting-started/installation) · [Quickstart](https://speca.pages.dev/docs/getting-started/quickstart)
+- [Audit walkthrough](https://speca.pages.dev/docs/tutorial/audit-walkthrough)
+- [Pipeline overview](https://speca.pages.dev/docs/pipeline/overview)
 
 ## Internal references
 

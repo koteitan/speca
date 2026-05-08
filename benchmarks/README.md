@@ -8,9 +8,9 @@ third track. Numbers below match the paper verbatim.
 
 | Benchmark | Dataset | Targets | Ground Truth | Status | Reproduction guide |
 |---|---|---|---|---|---|
-| **RQ1** | Sherlock Ethereum Fusaka Audit Contest | 10 production Ethereum clients (Go, Rust, Nim, TypeScript, C) | 15 H/M/L issues from 366 expert submissions | ✅ Reported in paper | [docs](https://nyx.foundation/docs/operations/benchmark-rq1) |
-| **RQ2** | RepoAudit (ICML 2025) | 15 OSS C/C++ projects (avg 251K LoC) | 35 non-disputed + 5 disputed bugs | ✅ Reported in paper | [docs](https://nyx.foundation/docs/operations/benchmark-rq2a) |
-| RQ2b | ProFuzzBench (ChatAFL, NDSS 2024) | 6 text-based protocol implementations | 9 zero-day bugs | ⚠️ Exploratory, not in paper | [docs](https://nyx.foundation/docs/operations/benchmark-rq2b) |
+| **RQ1** | Sherlock Ethereum Fusaka Audit Contest | 10 production Ethereum clients (Go, Rust, Nim, TypeScript, C) | 15 H/M/L issues from 366 expert submissions | ✅ Reported in paper | [docs](https://speca.pages.dev/docs/operations/benchmark-rq1) |
+| **RQ2** | RepoAudit (ICML 2025) | 15 OSS C/C++ projects (avg 251K LoC) | 35 non-disputed + 5 disputed bugs | ✅ Reported in paper | [docs](https://speca.pages.dev/docs/operations/benchmark-rq2a) |
+| RQ2b | ProFuzzBench (ChatAFL, NDSS 2024) | 6 text-based protocol implementations | 9 zero-day bugs | ⚠️ Exploratory, not in paper | [docs](https://speca.pages.dev/docs/operations/benchmark-rq2b) |
 
 Headline results from the paper:
 
@@ -39,10 +39,10 @@ For runtime tasks (publishing / restoring artifacts, refreshing datasets,
 re-running benchmarks), the **operator guide on the documentation site**
 is the canonical reference:
 
-- [Operator overview](https://nyx.foundation/docs/operations/overview)
-- [Refreshing the audit-finding dataset](https://nyx.foundation/docs/operations/dataset-refresh)
-- [Benchmark Release artifacts](https://nyx.foundation/docs/operations/release-artifacts)
-- [Reproducing RQ1](https://nyx.foundation/docs/operations/benchmark-rq1) · [RQ2](https://nyx.foundation/docs/operations/benchmark-rq2a) · [RQ2b](https://nyx.foundation/docs/operations/benchmark-rq2b)
+- [Operator overview](https://speca.pages.dev/docs/operations/overview)
+- [Refreshing the audit-finding dataset](https://speca.pages.dev/docs/operations/dataset-refresh)
+- [Benchmark Release artifacts](https://speca.pages.dev/docs/operations/release-artifacts)
+- [Reproducing RQ1](https://speca.pages.dev/docs/operations/benchmark-rq1) · [RQ2](https://speca.pages.dev/docs/operations/benchmark-rq2a) · [RQ2b](https://speca.pages.dev/docs/operations/benchmark-rq2b)
 
 The Markdown sources live under [`website/docs/operations/`](../website/docs/operations/) — the documentation site is built from those.
 
@@ -58,7 +58,7 @@ gh release list --repo NyxFoundation/speca | grep '^bench-'
 bash benchmarks/scripts/restore-results.sh <tag>
 ```
 
-See [Release artifacts](https://nyx.foundation/docs/operations/release-artifacts) for the full publish/restore flow.
+See [Release artifacts](https://speca.pages.dev/docs/operations/release-artifacts) for the full publish/restore flow.
 
 ## Citation
 

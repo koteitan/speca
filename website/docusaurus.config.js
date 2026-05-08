@@ -11,7 +11,7 @@ const config = {
     v4: true,
   },
 
-  url: 'https://nyx.foundation',
+  url: 'https://speca.pages.dev',
   baseUrl: '/',
 
   organizationName: 'NyxFoundation',
