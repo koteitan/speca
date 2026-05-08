@@ -20,10 +20,10 @@ on:
         type: string
         default: "defi"
       source:
-        description: "CSV path(s), comma-separated. All sources are unioned into the same domain parquet."
+        description: "CSV path(s), comma-separated. All sources are unioned into the same domain parquet. Default points at scraper output; populate it locally via scripts/scrape_*.py before dispatching."
         required: true
         type: string
-        default: "csv/similar_audit_findings.csv,csv/past_defi_patterns.csv,csv/past_defi_patterns_round2.csv,csv/past_defi_patterns_round3.csv,csv/past_defi_patterns_round3_codehawks.csv,csv/past_defi_patterns_round3_sherlock.csv,csv/chainlink_v2_audit_patterns.csv,csv/audit_findings_db.csv"
+        default: "benchmarks/data/defi_audit_reports/code4rena_all_issues.csv,benchmarks/data/defi_audit_reports/sherlock_all_issues.csv,benchmarks/data/defi_audit_reports/codehawks_all_issues.csv"
       filter_platforms:
         description: "Comma-separated platforms to include"
         required: false

@@ -240,6 +240,15 @@ benchmarks/results/**
 # Locally built bench artifacts before they are uploaded to a Release.
 dist/bench-artifacts/
 
+# Audit-finding CSVs — the canonical store is HuggingFace
+# (NyxFoundation/vulnerability-reports). Local CSVs are scratch input for
+# the publish pipeline; if you re-scrape, output lands under
+# benchmarks/data/defi_audit_reports/ (handled by the rules above for
+# heavier files like *.jsonl/*.db). Don't re-add csv/.
+csv/
+# Locally built dataset artifacts before they're pushed to HF.
+dist/datasets/
+
 # Claude Code worktrees
 .claude/worktrees/
 
