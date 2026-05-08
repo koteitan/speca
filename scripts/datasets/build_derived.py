@@ -16,7 +16,16 @@ Unified schema (one row per audit finding):
     title                  str   verbatim
     description            str   verbatim
     source_url             str   row's `source_url` if present, else best-effort synth
-    introduced_in_commit   str   provenance commit (ethereum past-fix replay; '' for defi)
+    introduced_in_commit   str   vulnerable-state commit = parent of the fix commit
+                                 (populated downstream by scripts/datasets/blame_walk.py;
+                                  '' for defi rows and for ethereum rows not yet enriched).
+                                 v1 semantic: NOT the commit that first introduced the bug
+                                 (true git-log -G search is deferred to a follow-up PR);
+                                 instead stores the latest state in which the bug was
+                                 present, i.e. the first parent of the merge/tag/fix
+                                 commit. For Phase B replay this is functionally equivalent:
+                                 auditing the pre-fix state asks "would the prompt catch
+                                 this bug in the broken codebase?"
     domain                 str   passed via --domain
     scraped_at             str   ISO 8601 UTC, --scraped-at or now()
 
