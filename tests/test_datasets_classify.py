@@ -4,20 +4,24 @@ Verify:
   1. parse_classification returns clean enum on valid input.
   2. parse_classification coerces invalid values to "Other" / "N/A".
   3. parse_classification strips markdown fences.
-  4. build_batch_request truncates descriptions > 2000 chars.
-  5. build_batch_request sets custom_id = row['id'].
-  6. classify(..., dry_run=True) round-trips a 3-row parquet with new columns.
-  7. End-to-end: 5-row fixture parquet -> output has original schema + stride + cwe_top25.
+  4. build_prompt_for_row truncates descriptions > 2000 chars.
+  5. classify(..., dry_run=True) round-trips a 3-row parquet with new columns.
+  6. End-to-end: 5-row fixture parquet -> output has original schema + stride + cwe_top25.
+  7. classify(..., dry_run=True) writes a manifest JSON with the correct fields.
+  8. CLI invocation shape: claude -p is called with --model and --output-format stream-json.
 
-These tests gate on the optional `datasets` dep group (pandas / pyarrow / anthropic);
+These tests gate on the optional `datasets` dep group (pandas / pyarrow);
 they skip cleanly when those deps are absent so a base `uv sync` (no extras) still passes.
 """
 
 from __future__ import annotations
 
 import importlib.util
+import json
+import subprocess
 import sys
 from pathlib import Path
+from unittest.mock import MagicMock, patch, AsyncMock
 
 import pytest
 
@@ -25,7 +29,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CLASSIFY_SCRIPT = REPO_ROOT / "scripts" / "datasets" / "classify_stride_cwe.py"
 
 # Skip the whole module when the optional deps aren't installed.
-_required = ("pandas", "pyarrow", "anthropic")
+_required = ("pandas", "pyarrow")
 _missing = [m for m in _required if importlib.util.find_spec(m) is None]
 if _missing:
     pytest.skip(
@@ -104,46 +108,29 @@ def test_parse_missing_keys_defaults(mod):
 
 
 # ---------------------------------------------------------------------------
-# build_batch_request tests
+# build_prompt_for_row tests (replaces build_batch_request)
 # ---------------------------------------------------------------------------
 
 
-def test_build_batch_request_sets_custom_id(mod):
-    rows = [{"id": "geth:go-ethereum:1234", "title": "DoS", "description": "boom"}]
-    reqs = mod.build_batch_request(rows)
-    assert len(reqs) == 1
-    assert reqs[0]["custom_id"] == "geth:go-ethereum:1234"
-
-
-def test_build_batch_request_truncates_description(mod):
+def test_build_prompt_for_row_truncates_description(mod):
     long_desc = "x" * 5000
-    rows = [{"id": "geth:go-ethereum:99", "title": "T", "description": long_desc}]
-    reqs = mod.build_batch_request(rows)
-    # The prompt is formatted with the truncated description; check the content
-    prompt = reqs[0]["params"]["messages"][0]["content"]
+    row = {"id": "geth:go-ethereum:99", "title": "T", "description": long_desc}
+    prompt = mod.build_prompt_for_row(row)
     # The description in the prompt should be at most 2000 chars of 'x'
     assert "x" * 2001 not in prompt
     assert "x" * 2000 in prompt
 
 
-def test_build_batch_request_model_and_tokens(mod):
-    rows = [{"id": "a:b:c", "title": "Test", "description": "desc"}]
-    reqs = mod.build_batch_request(rows)
-    params = reqs[0]["params"]
-    assert params["model"] == mod.MODEL_ID
-    assert params["max_tokens"] == 200
-    assert params["temperature"] == 0
+def test_build_prompt_for_row_includes_title(mod):
+    row = {"id": "geth:go-ethereum:1", "title": "DoS vuln", "description": "boom"}
+    prompt = mod.build_prompt_for_row(row)
+    assert "DoS vuln" in prompt
+    assert "boom" in prompt
 
 
-def test_build_batch_request_multiple_rows(mod):
-    rows = [
-        {"id": f"geth:repo:{i}", "title": f"Title {i}", "description": f"Desc {i}"}
-        for i in range(5)
-    ]
-    reqs = mod.build_batch_request(rows)
-    assert len(reqs) == 5
-    ids = [r["custom_id"] for r in reqs]
-    assert ids == [f"geth:repo:{i}" for i in range(5)]
+def test_build_prompt_for_row_model_id(mod):
+    # MODEL_ID is claude-haiku-4-5-20251001
+    assert mod.MODEL_ID == "claude-haiku-4-5-20251001"
 
 
 # ---------------------------------------------------------------------------
@@ -223,9 +210,37 @@ def test_classify_dry_run_manifest(mod, tmp_path):
     assert manifest["n_rows"] == 3
     assert manifest["n_classified"] == 0
     assert manifest["n_failed"] == 0
-    assert manifest["batch_id"] is None
     assert manifest["dry_run"] is True
     assert manifest["model"] == mod.MODEL_ID
+    assert "prompt_sha" in manifest
+    assert "started_at" in manifest
+    assert "ended_at" in manifest
+
+
+def test_classify_dry_run_writes_manifest_file(mod, tmp_path):
+    parquet_in = _make_fixture_parquet(tmp_path, n=3)
+    parquet_out = tmp_path / "out.parquet"
+    manifest_path = tmp_path / "test_manifest.json"
+
+    mod.classify(parquet_in, parquet_out, dry_run=True, manifest_path=manifest_path)
+
+    assert manifest_path.exists()
+    data = json.loads(manifest_path.read_text())
+    assert data["n_rows"] == 3
+    assert data["dry_run"] is True
+    assert "prompt_sha" in data
+
+
+def test_classify_dry_run_default_manifest_path(mod, tmp_path):
+    """When manifest_path is None, manifest lands next to parquet_out."""
+    parquet_in = _make_fixture_parquet(tmp_path, n=2)
+    parquet_out = tmp_path / "sub" / "out.parquet"
+    parquet_out.parent.mkdir(parents=True, exist_ok=True)
+
+    mod.classify(parquet_in, parquet_out, dry_run=True)
+
+    default_manifest = tmp_path / "sub" / "classify_stride_cwe_manifest.json"
+    assert default_manifest.exists()
 
 
 # ---------------------------------------------------------------------------
@@ -250,3 +265,49 @@ def test_e2e_dry_run_five_rows(mod, tmp_path):
     original_cols = set(df_in.columns)
     new_cols = {"stride", "cwe_top25"}
     assert set(df_out.columns) == original_cols | new_cols
+
+
+# ---------------------------------------------------------------------------
+# CLI invocation shape test: assert claude -p is called with right flags
+# ---------------------------------------------------------------------------
+
+
+def test_classify_row_async_calls_claude_with_stream_json(mod, tmp_path):
+    """Verify _classify_row_async passes --output-format stream-json and --model to claude."""
+    import asyncio
+
+    call_args_captured = []
+
+    async def mock_create_subprocess_exec(*args, **kwargs):
+        call_args_captured.append(list(args))
+        # Return a mock process that exits successfully with valid JSON output
+        mock_proc = AsyncMock()
+        mock_proc.returncode = 0
+        mock_proc.stdin = None
+        result_line = json.dumps({
+            "type": "result",
+            "result": '{"stride": "Tampering", "cwe_top25": "CWE-190"}',
+        })
+        mock_proc.communicate = AsyncMock(return_value=(
+            result_line.encode("utf-8"), b""
+        ))
+        return mock_proc
+
+    row = {"id": "geth:go-ethereum:1", "title": "DoS", "description": "boom"}
+
+    with patch("asyncio.create_subprocess_exec", side_effect=mock_create_subprocess_exec):
+        semaphore = asyncio.Semaphore(1)
+        result_idx, classification = asyncio.run(
+            mod._classify_row_async(row, semaphore, 0)
+        )
+
+    assert result_idx == 0
+    # At least one call was made
+    assert len(call_args_captured) >= 1
+    # The first positional arg is the claude binary, followed by flags
+    cmd = call_args_captured[0]
+    cmd_str = " ".join(str(c) for c in cmd)
+    assert "--output-format" in cmd_str
+    assert "stream-json" in cmd_str
+    assert "--model" in cmd_str
+    assert mod.MODEL_ID in cmd_str

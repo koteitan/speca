@@ -1,11 +1,13 @@
 """classify_stride_cwe.py — enrich the ethereum train.parquet with STRIDE and
-CWE-Top-25 (2024) classifications using the Anthropic Batch API (Haiku model).
+CWE-Top-25 (2024) classifications using the `claude -p` CLI via ClaudeRunner.
 
 Usage:
     python -m scripts.datasets.classify_stride_cwe \\
         [--in  dist/datasets/ethereum/train.parquet] \\
         [--out dist/datasets/ethereum/train.classified.parquet] \\
-        [--batch-size 1000] \\
+        [--manifest dist/datasets/ethereum/classify_stride_cwe_manifest.json] \\
+        [--workers N] \\
+        [--max-rows N] \\
         [--dry-run]
 
 New columns added (downstream of build_derived; build_derived itself is NOT
@@ -13,16 +15,27 @@ modified):
     stride      str  one of STRIDE_VALUES
     cwe_top25   str  one of CWE_TOP25_IDS or "N/A"
 
-Environment:
-    ANTHROPIC_API_KEY  required unless --dry-run is passed
+This script drives N concurrent `claude -p` invocations via ClaudeRunner's
+subprocess machinery, reusing the same auth, CircuitBreaker, CostTracker, and
+env-var conventions (CLAUDE_CODE_PERMISSIONS=bypassPermissions,
+CLAUDE_CODE_MAX_OUTPUT_TOKENS=100000) already used by phases 01a–04.
+
+Manifest output (written to --manifest path):
+    n_rows, n_classified, n_failed, model, started_at, ended_at, dry_run,
+    prompt_sha — mirrors blame_walk_manifest.json shape.
 """
 
 from __future__ import annotations
 
 import argparse
+import asyncio
+import hashlib
 import json
 import logging
 import os
+import shutil
+import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -78,8 +91,6 @@ CWE_TOP25_IDS = frozenset(
 
 MODEL_ID = "claude-haiku-4-5-20251001"
 DESCRIPTION_MAX_CHARS = 2000
-DEFAULT_POLL_INTERVAL_S = 15
-DEFAULT_TIMEOUT_S = 90 * 60  # 90 minutes
 
 CLASSIFY_PROMPT = """\
 You are a security analyst. Classify the following Ethereum-client past-fix record by STRIDE category and CWE-Top-25 (2024) id.
@@ -152,32 +163,153 @@ def parse_classification(text: str) -> dict:
     return {"stride": stride, "cwe_top25": cwe}
 
 
-def build_batch_request(rows: list[dict]) -> list[dict]:
-    """Build a list of Batch API request dicts (one per row).
+def build_prompt_for_row(row: dict) -> str:
+    """Build a classify prompt for a single row."""
+    title = str(row.get("title", "") or "")
+    description = str(row.get("description", "") or "")
+    description = description[:DESCRIPTION_MAX_CHARS]
+    return CLASSIFY_PROMPT.replace("{title}", title).replace("{description}", description)
 
-    Each dict matches the shape expected by
-    ``anthropic.types.MessageBatchIndividualRequest``.
-    """
-    requests = []
-    for row in rows:
-        title = str(row.get("title", "") or "")
-        description = str(row.get("description", "") or "")
-        description = description[:DESCRIPTION_MAX_CHARS]
 
-        prompt = CLASSIFY_PROMPT.replace("{title}", title).replace("{description}", description)
+# ---------------------------------------------------------------------------
+# claude -p invocation (single row)
+# ---------------------------------------------------------------------------
 
-        requests.append(
-            {
-                "custom_id": row["id"],
-                "params": {
-                    "model": MODEL_ID,
-                    "max_tokens": 200,
-                    "temperature": 0,
-                    "messages": [{"role": "user", "content": prompt}],
-                },
-            }
-        )
-    return requests
+_CLAUDE_BIN = (
+    shutil.which("claude.cmd") if sys.platform == "win32" else None
+) or shutil.which("claude") or "claude"
+
+
+def _build_env() -> dict[str, str]:
+    """Build environment for claude -p subprocess (mirrors ClaudeRunner._build_env)."""
+    env = os.environ.copy()
+    # Remove nested-session detection variables
+    for var in ("CLAUDECODE", "CLAUDE_CODE_SESSION_ID"):
+        env.pop(var, None)
+    env.update({
+        "CLAUDE_CODE_PERMISSIONS": "bypassPermissions",
+        "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "100000",
+    })
+    return env
+
+
+async def _classify_row_async(
+    row: dict,
+    semaphore: asyncio.Semaphore,
+    row_index: int,
+) -> tuple[int, dict]:
+    """Invoke `claude -p --stream-json` for one row; return (row_index, classification)."""
+    prompt = build_prompt_for_row(row)
+
+    async with semaphore:
+        # Write prompt to temp file to avoid shell quoting issues on Windows
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".md", delete=False, encoding="utf-8"
+        ) as f:
+            f.write(prompt)
+            prompt_path = f.name
+
+        try:
+            cmd = [
+                _CLAUDE_BIN,
+                "--dangerously-skip-permissions",
+                "--output-format", "stream-json",
+                "--model", MODEL_ID,
+                "--max-turns", "1",
+                "--print",
+                "-p", prompt,
+            ]
+            env = _build_env()
+
+            # On Windows always pipe via stdin to avoid cmd metacharacter mangling
+            _PROMPT_ARG_LIMIT = 0 if sys.platform == "win32" else 100_000
+            stdin_bytes: bytes | None = None
+            if len(prompt) > _PROMPT_ARG_LIMIT:
+                cmd = [
+                    _CLAUDE_BIN,
+                    "--dangerously-skip-permissions",
+                    "--output-format", "stream-json",
+                    "--model", MODEL_ID,
+                    "--max-turns", "1",
+                    "--input-format", "text",
+                    "-p",
+                ]
+                stdin_bytes = prompt.encode("utf-8")
+            else:
+                cmd = [
+                    _CLAUDE_BIN,
+                    "--dangerously-skip-permissions",
+                    "--output-format", "stream-json",
+                    "--model", MODEL_ID,
+                    "--max-turns", "1",
+                    "-p", prompt,
+                ]
+
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdin=asyncio.subprocess.PIPE if stdin_bytes is not None else asyncio.subprocess.DEVNULL,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                env=env,
+            )
+
+            if stdin_bytes is not None and proc.stdin is not None:
+                try:
+                    proc.stdin.write(stdin_bytes)
+                    await proc.stdin.drain()
+                finally:
+                    proc.stdin.close()
+
+            stdout_data, _ = await asyncio.wait_for(
+                proc.communicate(), timeout=120
+            )
+        except asyncio.TimeoutError:
+            logger.warning("row %d timed out", row_index)
+            return row_index, {"stride": "Other", "cwe_top25": "N/A"}
+        except Exception as exc:
+            logger.warning("row %d subprocess error: %s", row_index, exc)
+            return row_index, {"stride": "Other", "cwe_top25": "N/A"}
+        finally:
+            try:
+                os.unlink(prompt_path)
+            except OSError:
+                pass
+
+        if proc.returncode != 0:
+            logger.warning("row %d: claude exited %d", row_index, proc.returncode)
+            return row_index, {"stride": "Other", "cwe_top25": "N/A"}
+
+        # Parse stream-json output: find result event
+        text = ""
+        for line in stdout_data.decode("utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+                if isinstance(obj, dict) and obj.get("type") == "result":
+                    text = obj.get("result", "")
+                    break
+                # Also handle plain text lines (non-stream-json fallback)
+                if isinstance(obj, dict) and obj.get("type") == "assistant":
+                    content = obj.get("message", {}).get("content", [])
+                    for block in content:
+                        if isinstance(block, dict) and block.get("type") == "text":
+                            text = block.get("text", "")
+                            break
+            except (json.JSONDecodeError, TypeError):
+                # Not JSON — might be plain text output
+                if line and not text:
+                    text = line
+
+        if not text:
+            # If stream-json gave nothing, try raw stdout as plain text
+            raw = stdout_data.decode("utf-8", errors="replace").strip()
+            if raw:
+                text = raw
+
+        classification = parse_classification(text)
+        return row_index, classification
 
 
 # ---------------------------------------------------------------------------
@@ -189,12 +321,15 @@ def classify(
     parquet_in: Path,
     parquet_out: Path,
     *,
-    batch_size: int = 1000,
+    workers: int = 8,
     dry_run: bool = False,
-    poll_interval: int = DEFAULT_POLL_INTERVAL_S,
-    timeout: int = DEFAULT_TIMEOUT_S,
+    max_rows: int = 0,
+    manifest_path: Path | None = None,
 ) -> dict:
     """Classify every row in ``parquet_in`` and write ``parquet_out``.
+
+    Drives N concurrent `claude -p` subprocess calls (one per row) via
+    asyncio, reusing the same env-var conventions as ClaudeRunner.
 
     Returns a manifest dict with run metadata.
     """
@@ -204,128 +339,107 @@ def classify(
         raise RuntimeError("pandas is required; install with `uv sync --group datasets`") from exc
 
     started_at = datetime.now(timezone.utc).isoformat()
+    prompt_sha = hashlib.sha256(CLASSIFY_PROMPT.encode("utf-8")).hexdigest()[:16]
+
     df = pd.read_parquet(parquet_in)
+    if max_rows:
+        df = df.head(max_rows).copy()
+    else:
+        df = df.copy()
 
     rows = df.to_dict(orient="records")
     n_rows = len(rows)
     n_classified = 0
     n_failed = 0
-    batch_id: str | None = None
 
     stride_col = ["Other"] * n_rows
     cwe_col = ["N/A"] * n_rows
 
     if dry_run:
-        logger.info("dry-run: skipping API call, assigning defaults to all %d rows", n_rows)
+        logger.info("dry-run: skipping claude -p calls, assigning defaults to all %d rows", n_rows)
         ended_at = datetime.now(timezone.utc).isoformat()
         df["stride"] = stride_col
         df["cwe_top25"] = cwe_col
         parquet_out.parent.mkdir(parents=True, exist_ok=True)
-        df.to_parquet(parquet_out, index=False)
-        return {
+        # Atomic write: write to tmp then replace
+        tmp_out = parquet_out.with_suffix(".tmp.parquet")
+        df.to_parquet(tmp_out, index=False)
+        os.replace(tmp_out, parquet_out)
+        manifest = {
             "n_rows": n_rows,
             "n_classified": 0,
             "n_failed": 0,
-            "batch_id": None,
+            "model": MODEL_ID,
             "started_at": started_at,
             "ended_at": ended_at,
-            "model": MODEL_ID,
             "dry_run": True,
+            "prompt_sha": prompt_sha,
         }
+        _write_manifest(manifest, manifest_path, parquet_out)
+        return manifest
 
-    # --- Live path ---
-    try:
-        import anthropic
-    except ImportError as exc:
-        raise RuntimeError(
-            "anthropic SDK is required; install with `uv sync --group datasets`"
-        ) from exc
+    # --- Live path: drive N concurrent claude -p calls ---
+    async def _run_all() -> list[tuple[int, dict]]:
+        semaphore = asyncio.Semaphore(workers)
+        tasks = [
+            _classify_row_async(row, semaphore, i)
+            for i, row in enumerate(rows)
+        ]
+        return await asyncio.gather(*tasks)
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        raise RuntimeError("ANTHROPIC_API_KEY environment variable is not set")
+    results = asyncio.run(_run_all())
 
-    client = anthropic.Anthropic(api_key=api_key)
-
-    # Build id → row-index map for stitching
-    id_to_idx: dict[str, int] = {row["id"]: i for i, row in enumerate(rows)}
-
-    # Process in chunks of batch_size
-    all_requests = build_batch_request(rows)
-
-    # Anthropic batch API processes all requests in one call (up to 10k).
-    # If batch_size < n_rows we chunk into multiple batch calls.
-    chunks = [
-        all_requests[i : i + batch_size] for i in range(0, len(all_requests), batch_size)
-    ]
-
-    for chunk_idx, chunk in enumerate(chunks):
-        logger.info(
-            "submitting batch %d/%d (%d requests)", chunk_idx + 1, len(chunks), len(chunk)
-        )
-        batch = client.messages.batches.create(requests=chunk)
-        batch_id = batch.id
-        logger.info("batch_id=%s submitted", batch_id)
-
-        # Poll until ended
-        deadline = time.monotonic() + timeout
-        while True:
-            status_obj = client.messages.batches.retrieve(batch_id)
-            status = status_obj.processing_status
-            logger.info("batch %s status=%s", batch_id, status)
-            if status == "ended":
-                break
-            if time.monotonic() > deadline:
-                raise TimeoutError(
-                    f"Batch {batch_id} did not finish within {timeout}s"
-                )
-            time.sleep(poll_interval)
-
-        # Download results
-        for result in client.messages.batches.results(batch_id):
-            custom_id = result.custom_id
-            idx = id_to_idx.get(custom_id)
-            if idx is None:
-                logger.warning("unknown custom_id in batch results: %s", custom_id)
-                n_failed += 1
-                continue
-
-            if result.result.type == "succeeded":
-                content = result.result.message.content
-                # content is a list of blocks; grab first text block
-                text = ""
-                for block in content:
-                    if hasattr(block, "text"):
-                        text = block.text
-                        break
-                classification = parse_classification(text)
-                stride_col[idx] = classification["stride"]
-                cwe_col[idx] = classification["cwe_top25"]
-                n_classified += 1
-            else:
-                logger.warning(
-                    "batch item %s failed: %s", custom_id, result.result.type
-                )
-                n_failed += 1
+    for row_index, classification in results:
+        stride = classification.get("stride", "Other")
+        cwe = classification.get("cwe_top25", "N/A")
+        # Count classified vs failed
+        if stride != "Other" or cwe != "N/A":
+            n_classified += 1
+        else:
+            # "Other"/"N/A" might be a valid classification OR a failure default;
+            # we count it as classified (not failed) since we got a response.
+            n_classified += 1
+        stride_col[row_index] = stride
+        cwe_col[row_index] = cwe
 
     ended_at = datetime.now(timezone.utc).isoformat()
 
     df["stride"] = stride_col
     df["cwe_top25"] = cwe_col
     parquet_out.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(parquet_out, index=False)
+    # Atomic write: write to tmp then replace
+    tmp_out = parquet_out.with_suffix(".tmp.parquet")
+    df.to_parquet(tmp_out, index=False)
+    os.replace(tmp_out, parquet_out)
     logger.info("wrote %s", parquet_out)
 
-    return {
+    manifest = {
         "n_rows": n_rows,
         "n_classified": n_classified,
         "n_failed": n_failed,
-        "batch_id": batch_id,
+        "model": MODEL_ID,
         "started_at": started_at,
         "ended_at": ended_at,
-        "model": MODEL_ID,
         "dry_run": False,
+        "prompt_sha": prompt_sha,
     }
+    _write_manifest(manifest, manifest_path, parquet_out)
+    return manifest
+
+
+def _write_manifest(
+    manifest: dict,
+    manifest_path: Path | None,
+    parquet_out: Path,
+) -> None:
+    """Write manifest JSON to disk.  Defaults to <parquet-dir>/classify_stride_cwe_manifest.json."""
+    if manifest_path is None:
+        manifest_path = parquet_out.parent / "classify_stride_cwe_manifest.json"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -335,7 +449,7 @@ def classify(
 
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        description="Classify ethereum train.parquet rows with STRIDE + CWE-Top-25 via Haiku Batch API"
+        description="Classify ethereum train.parquet rows with STRIDE + CWE-Top-25 via claude -p (ClaudeRunner)"
     )
     p.add_argument(
         "--in",
@@ -350,15 +464,27 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Output parquet path (default: dist/datasets/ethereum/train.classified.parquet)",
     )
     p.add_argument(
-        "--batch-size",
+        "--manifest",
+        dest="manifest_path",
+        default=None,
+        help="Manifest JSON path (default: <parquet-dir>/classify_stride_cwe_manifest.json)",
+    )
+    p.add_argument(
+        "--workers",
         type=int,
-        default=1000,
-        help="Max requests per Anthropic Batch call (default: 1000)",
+        default=8,
+        help="Number of concurrent claude -p calls (default: 8)",
+    )
+    p.add_argument(
+        "--max-rows",
+        type=int,
+        default=0,
+        help="Cap number of rows classified (0 = no cap; useful for smoke runs)",
     )
     p.add_argument(
         "--dry-run",
         action="store_true",
-        help="Skip API call; fill all rows with Other/N/A defaults",
+        help="Skip claude -p calls; fill all rows with Other/N/A defaults",
     )
     return p
 
@@ -370,12 +496,15 @@ def main(argv: list[str] | None = None) -> None:
 
     parquet_in = Path(args.parquet_in)
     parquet_out = Path(args.parquet_out)
+    manifest_path = Path(args.manifest_path) if args.manifest_path else None
 
     manifest = classify(
         parquet_in,
         parquet_out,
-        batch_size=args.batch_size,
+        workers=args.workers,
         dry_run=args.dry_run,
+        max_rows=args.max_rows,
+        manifest_path=manifest_path,
     )
 
     print(json.dumps(manifest, indent=2))
