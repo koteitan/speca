@@ -146,7 +146,15 @@ def fetch_releases(repo: str) -> list[dict]:
     releases = [r for r in data if not r.get("draft", False)]
 
     # Cap to avoid runaway on repos with thousands of releases.
-    return releases[:RELEASES_MAX]
+    if len(releases) >= RELEASES_MAX:
+        print(
+            f"  [warn] [{repo}] release list truncated at {RELEASES_MAX} entries "
+            f"(total before cap: {len(releases)})",
+            file=sys.stderr,
+        )
+        releases = releases[:RELEASES_MAX]
+
+    return releases
 
 
 # ---------------------------------------------------------------------------
@@ -292,6 +300,8 @@ def write_manifest(
     repo: str,
     n_releases_scanned: int,
     n_rows: int,
+    releases_truncated: bool = False,
+    releases_returned: int | None = None,
 ) -> None:
     """Write a JSON provenance snapshot alongside the CSV."""
     gh_version = ""
@@ -310,10 +320,13 @@ def write_manifest(
         "repo": repo,
         "n_releases_scanned": n_releases_scanned,
         "n_rows": n_rows,
+        "releases_truncated": releases_truncated,
         "crawled_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "gh_version": gh_version,
         "source_url": f"https://github.com/{repo}/releases",
     }
+    if releases_returned is not None:
+        manifest["releases_returned"] = releases_returned
     out_path.write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
@@ -336,8 +349,12 @@ def crawl_and_write(
     print(f"[{client_slug}] mining releases on {repo}...", file=sys.stderr)
 
     # Fetch all releases first (to know n_releases_scanned).
+    # fetch_releases already applies the RELEASES_MAX cap internally.
     releases = fetcher(repo)
     n_releases_scanned = len(releases)
+    # Detect whether the cap was hit: cap applies when we got exactly RELEASES_MAX
+    # releases (the fetcher may have silently truncated a larger list).
+    releases_truncated = n_releases_scanned >= RELEASES_MAX
 
     # Build rows using the same fetcher but pass pre-fetched data via lambda.
     rows = crawl_releases(client_slug, fetcher=lambda _repo: releases)
@@ -355,6 +372,8 @@ def crawl_and_write(
         repo=repo,
         n_releases_scanned=n_releases_scanned,
         n_rows=n,
+        releases_truncated=releases_truncated,
+        releases_returned=n_releases_scanned,
     )
     print(f"[{client_slug}] {n_releases_scanned} releases -> {n} rows -> {csv_path}", file=sys.stderr)
     return n

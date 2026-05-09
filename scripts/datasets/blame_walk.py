@@ -32,6 +32,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import re
 import subprocess
 import sys
@@ -413,7 +414,10 @@ def walk(
         rate_limiter.acquire()
         result = fetcher(path)
         call_count += 1
-        _cache[path] = result
+        # Only cache successful (non-None) results.  A transient 5xx must not
+        # become a permanent cache miss for the rest of the run.
+        if result is not None:
+            _cache[path] = result
         return result
 
     by_source: dict[str, int] = defaultdict(int)
@@ -439,10 +443,14 @@ def walk(
 
     df["introduced_in_commit"] = results
 
-    # Write output with the SAME schema
-    table = pa.Table.from_pandas(df, preserve_index=False)
+    # Atomic write: write to <out>.tmp then os.replace to avoid a partial
+    # file on crash (walk() defaults --out to --in, so in-place updates must
+    # be atomic to preserve the original if the process is interrupted).
     parquet_out.parent.mkdir(parents=True, exist_ok=True)
-    pq.write_table(table, parquet_out, compression="zstd")
+    tmp_out = parquet_out.with_suffix(".tmp.parquet")
+    table = pa.Table.from_pandas(df, preserve_index=False)
+    pq.write_table(table, tmp_out, compression="zstd")
+    os.replace(tmp_out, parquet_out)
 
     ended_at = datetime.now(timezone.utc).isoformat()
     n_rows = len(df)

@@ -98,8 +98,39 @@ MAX_COMMITS_PER_TERM = 200
 
 
 # ---------------------------------------------------------------------------
+# Exceptions
+# ---------------------------------------------------------------------------
+
+class AuthError(Exception):
+    """Raised when the GitHub API returns 401/403, indicating an auth
+    misconfiguration that will affect every subsequent client.  The caller
+    should abort the entire --client all run rather than skipping one client."""
+
+
+# ---------------------------------------------------------------------------
 # GitHub search helpers
 # ---------------------------------------------------------------------------
+
+def _extract_http_status(stderr_text: str) -> int | None:
+    """Extract the HTTP status code from gh stderr output.
+
+    gh stderr typically contains lines like:
+        gh: Repository name not found (HTTP 422)
+        gh: Must have push access to repository (HTTP 403)
+    or raw JSON error bodies with a "status" field.
+    Returns the integer status code, or None if not found.
+    """
+    import re as _re
+    # Pattern: "HTTP <status>" or "status: <status>" in gh output
+    m = _re.search(r"HTTP (\d{3})", stderr_text)
+    if m:
+        return int(m.group(1))
+    # gh sometimes writes the status as part of a JSON error body on stderr
+    m = _re.search(r'"status":\s*(\d{3})', stderr_text)
+    if m:
+        return int(m.group(1))
+    return None
+
 
 def search_commits(repo: str, term: str) -> list[dict]:
     """Return up to MAX_COMMITS_PER_TERM commit search-result dicts for the
@@ -111,6 +142,11 @@ def search_commits(repo: str, term: str) -> list[dict]:
     Rate-limit note: search/commits is on the `core` limit (30 req/min for
     authenticated users).  Callers are responsible for sleeping between calls;
     a 2-second sleep is baked into `fetch_security_commits`.
+
+    Raises:
+        AuthError: on HTTP 401/403 (auth misconfiguration — abort all clients).
+    Returns:
+        Empty list on HTTP 422 (repo too large / unsupported) or other errors.
     """
     query = f"repo:{repo} {term}"
     try:
@@ -131,6 +167,23 @@ def search_commits(repo: str, term: str) -> list[dict]:
 
     if result.returncode != 0:
         msg = (result.stderr or "").strip()[:300]
+        status = _extract_http_status(result.stderr or "")
+
+        if status in (401, 403):
+            # Auth failure — raise so the caller can abort all subsequent clients.
+            raise AuthError(
+                f"GitHub API returned HTTP {status} for term {term!r} on {repo}: {msg}"
+            )
+        if status == 422:
+            # Repo too large for search/commits index — legitimate skip.
+            print(
+                f"  [warn] gh exit {result.returncode} (HTTP 422) for term {term!r} on {repo}: "
+                f"repo too large for search/commits index — skipping term",
+                file=sys.stderr,
+            )
+            return []
+
+        # Other non-zero exit: warn and continue.
         print(
             f"  [warn] gh exit {result.returncode} for term {term!r}: {msg}",
             file=sys.stderr,
@@ -439,10 +492,20 @@ def main() -> int:
     for c in clients:
         try:
             n = crawl_and_write(c, out_dir, max_records=cap)
+        except AuthError as exc:
+            # 401/403 is an auth misconfiguration that will affect every
+            # subsequent client — abort the entire run with a loud message.
+            print(
+                f"\n[FATAL] GitHub auth failure while processing [{c}]: {exc}\n"
+                f"This affects all subsequent clients. Aborting --client all run.\n"
+                f"Fix your gh auth (run `gh auth login` or check GITHUB_TOKEN).",
+                file=sys.stderr,
+            )
+            return 1
         except Exception as exc:
-            # Gracefully skip on rate-limit / 403 / 422 — search API can 422
-            # on unusual query strings.  Print a warning and move on so the
-            # rest of the clients still run.
+            # 422 (repo too large for search/commits index) and other transient
+            # errors are already handled inside search_commits; this catches any
+            # remaining unexpected exceptions per client — warn and continue.
             print(
                 f"[{c}] SKIP — unexpected error: {exc}",
                 file=sys.stderr,

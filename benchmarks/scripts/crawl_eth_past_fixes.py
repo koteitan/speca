@@ -52,6 +52,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
@@ -263,7 +264,14 @@ def fetch_security_prs(repo: str) -> list[dict]:
     seen: set[int] = set()
     results: list[dict] = []
 
-    for term in _SEARCH_TERMS:
+    for i, term in enumerate(_SEARCH_TERMS):
+        # Rate-limit guard: search/issues counts against the core limit
+        # (30 req/min authenticated). With up to 10 terms x 10 pages = 100
+        # calls per client, sleeping 2s between terms keeps us well under
+        # the limit (other crawlers follow the same convention).
+        if i > 0:
+            time.sleep(2)
+
         # Use `in:title` to restrict to title matches (same semantics as
         # SECURITY_TITLE_RE on the title field). `is:merged` guarantees only
         # merged PRs are returned, eliminating the merged_at null-check.
@@ -296,6 +304,18 @@ def fetch_security_prs(repo: str) -> list[dict]:
             if page >= 10:
                 break
             page += 1
+
+    # Guard against runaway: cap deduplicated PR count.
+    # geth alone has ~30k closed PRs; without this cap a rogue term could
+    # accumulate many thousands of results across all pages and blow the
+    # rate limit and downstream processing time.
+    if len(results) > PR_PAGE_CAP:
+        print(
+            f"  [warn] fetch_security_prs: deduped PR count {len(results)} exceeds "
+            f"PR_PAGE_CAP={PR_PAGE_CAP}; truncating",
+            file=sys.stderr,
+        )
+        results = results[:PR_PAGE_CAP]
 
     return results
 
