@@ -47,7 +47,10 @@ def _load_build_module():
 def fixture_csv(tmp_path: Path) -> Path:
     """A tiny CSV mirroring `csv/similar_audit_findings.csv`'s schema."""
     p = tmp_path / "fixture.csv"
-    with p.open("w", newline="") as f:
+    # Force utf-8 — the fixture body contains a U+2026 ellipsis; without
+    # this Python falls back to the system locale (cp932 on Japanese
+    # Windows) and writes bytes that build_derived's utf-8 reader rejects.
+    with p.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["source", "contest", "issue_id", "severity", "title", "description"])
         w.writerow([
@@ -145,10 +148,17 @@ def test_build_round_trip(fixture_csv: Path, tmp_path: Path):
     table = pq.read_table(parquet)
     expected_cols = {
         "id", "source_platform", "contest", "issue_id", "severity",
-        "title", "description", "source_url", "domain", "scraped_at",
+        "title", "description", "source_url",
+        # Phase B replay column for ethereum past-fixes; empty string for
+        # defi rows but always present so the parquet schema is stable.
+        "introduced_in_commit",
+        "domain", "scraped_at",
     }
     assert set(table.column_names) == expected_cols
     assert table.num_rows == 3
+    # introduced_in_commit defaults to "" for defi sources (no provenance column).
+    df = table.to_pandas()
+    assert (df["introduced_in_commit"] == "").all()
 
     # Manifest is on disk too.
     on_disk = json.loads((tmp_path / "defi" / "manifest.json").read_text())
