@@ -51,7 +51,7 @@ df = load_findings(domain="defi").to_pandas()
 | `title` | string | Verbatim issue / advisory title from the upstream source. |
 | `description` | string | Verbatim issue / advisory body. |
 | `source_url` | string | Best-effort upstream link (deterministic for code4rena; may be empty for others — check the scraper output if you need a guaranteed URL). |
-| `introduced_in_commit` | string | Commit SHA that introduced the bug. Populated for the `ethereum` past-fix corpus (used to slice the dataset by commit-time for Phase B held-out replay); empty (`""`) for defi. |
+| `introduced_in_commit` | string | Vulnerable-state commit (parent of the fix). v1 semantic — see scripts/datasets/blame_walk.py for the resolver. Populated for the `ethereum` past-fix corpus (used to slice the dataset to the pre-fix state for Phase B held-out replay); empty (`""`) for defi. |
 | `domain` | string | Matches the config name (`defi`, `ethereum`, …). |
 | `scraped_at` | string | ISO 8601 UTC timestamp of the underlying scrape that produced this row. |
 

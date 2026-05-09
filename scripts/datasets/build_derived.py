@@ -21,11 +21,10 @@ Unified schema (one row per audit finding):
                                   '' for defi rows and for ethereum rows not yet enriched).
                                  v1 semantic: NOT the commit that first introduced the bug
                                  (true git-log -G search is deferred to a follow-up PR);
-                                 instead stores the latest state in which the bug was
-                                 present, i.e. the first parent of the merge/tag/fix
-                                 commit. For Phase B replay this is functionally equivalent:
-                                 auditing the pre-fix state asks "would the prompt catch
-                                 this bug in the broken codebase?"
+                                 instead stores the parent of the fix commit, i.e. the last
+                                 state in which the bug was present. For Phase B replay this
+                                 is functionally equivalent: auditing the pre-fix state asks
+                                 "would the prompt catch this bug in the broken codebase?"
     domain                 str   passed via --domain
     scraped_at             str   ISO 8601 UTC, --scraped-at or now()
 
@@ -46,9 +45,10 @@ Sources accepted:
          introduced_in_commit
        `source` is the client slug (geth, nethermind, besu, erigon, reth,
        lighthouse, lodestar, nimbus, prysm, teku, grandine); `contest` is
-       typically the upstream repo slug; `introduced_in_commit` is the SHA
-       that introduced the bug (used by Phase B to slice the corpus by
-       commit-time for held-out replay).
+       typically the upstream repo slug; `introduced_in_commit` is the
+       vulnerable-state commit (parent of the fix commit — see
+       scripts/datasets/blame_walk.py for the resolver). Used by Phase B to
+       slice the corpus to the pre-fix state for held-out replay.
 
 Pass `--platform-hint <p>` if a CSV lacks a `source` column.
 
