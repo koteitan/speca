@@ -23,10 +23,14 @@ import type {
 
 export const authStatusQueryKey = ["auth", "status"] as const;
 
-export function useAuthStatus(): UseQueryResult<AuthStatus> {
+export function useAuthStatus(options?: { polling?: boolean }): UseQueryResult<AuthStatus> {
   return useQuery<AuthStatus>({
     queryKey: authStatusQueryKey,
     queryFn: () => apiFetch<AuthStatus>("/auth/status"),
+    // While the OAuth flow is in progress the SPA stays on /login waiting
+    // for credentials.json to update. Poll every 2s so the user sees the
+    // logged-in state moments after they finish the browser handshake.
+    refetchInterval: options?.polling ? 2000 : false,
   });
 }
 

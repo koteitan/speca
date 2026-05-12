@@ -18,6 +18,9 @@ without spinning up FastAPI.
 from __future__ import annotations
 
 import logging
+import shutil
+import subprocess
+import sys
 
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
@@ -62,18 +65,63 @@ def set_api_key(payload: ApiKeyRequest) -> AuthStatus:
 
 
 @router.post("/login")
-def login_stub() -> JSONResponse:
-    """v0 stub for the claude.ai OAuth flow.
+def start_oauth_login() -> JSONResponse:
+    """Spawn the ``claude auth login`` CLI in a new console for OAuth.
 
-    Returns HTTP 202 ("Accepted") with a payload that the SPA can branch on
-    to render the "not yet — use an API key" hint. The real implementation
-    will live behind the same URL in a future slice/version.
+    The official Claude Code CLI handles the OAuth dance with claude.ai and
+    writes the resulting tokens to ``~/.claude/credentials.json``. We detach
+    the subprocess so the FastAPI request returns immediately; the user
+    completes the OAuth flow in their browser, then the SPA's polling on
+    ``/api/auth/status`` sees ``logged_in=True, method="oauth"``.
     """
+
+    claude_path = shutil.which("claude") or (
+        shutil.which("claude.cmd") if sys.platform == "win32" else None
+    )
+    if claude_path is None:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "claude CLI not found on PATH. Install Claude Code "
+                "(npm install -g @anthropic-ai/claude-code) then retry."
+            ),
+        )
+
+    cmd = [claude_path, "auth", "login"]
+    creation_flags = 0
+    if sys.platform == "win32":
+        # CREATE_NEW_CONSOLE = 0x00000010 — pops a visible window so the user
+        # sees the OAuth URL the CLI prints. CREATE_NO_WINDOW would hide it
+        # but then the user has no way to copy the URL on machines where the
+        # auto-launched browser fails (e.g. headless WSL).
+        creation_flags = 0x00000010
+
+    try:
+        subprocess.Popen(  # noqa: S603 — claude_path resolved via shutil.which
+            cmd,
+            shell=False,
+            stdin=None,
+            stdout=None,
+            stderr=None,
+            creationflags=creation_flags,
+            close_fds=True,
+        )
+    except OSError as exc:
+        logger.exception("auth.login: failed to spawn `claude auth login`")
+        raise HTTPException(
+            status_code=500,
+            detail=f"failed to spawn claude CLI: {exc}",
+        ) from exc
 
     return JSONResponse(
         status_code=status.HTTP_202_ACCEPTED,
         content={
-            "status": "not_implemented_in_v0",
-            "hint": "Use API key for now",
+            "status": "spawned",
+            "hint": (
+                "A console window has opened (or claude is running in your "
+                "terminal). Complete the OAuth flow in the browser that "
+                "opens, then return here — the login state will refresh "
+                "automatically within a few seconds."
+            ),
         },
     )

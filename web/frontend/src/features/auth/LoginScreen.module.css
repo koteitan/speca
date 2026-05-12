@@ -145,3 +145,13 @@
   color: var(--ifm-color-content);
   background: var(--nyx-color-border-muted);
 }
+
+.oauthHint {
+  margin: 0;
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  border-left: 2px solid var(--ifm-color-primary);
+  background: var(--nyx-color-border-muted);
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-content);
+  line-height: 1.5;
+}

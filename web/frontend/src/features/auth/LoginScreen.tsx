@@ -1,9 +1,9 @@
 // Centered login card.
 //
 // Two paths to authenticated state:
-//   1. "Continue with claude.ai" — v0 stub, button is `disabled` with a
-//      tooltip explaining that the OAuth flow lands in v1. We do NOT call
-//      the stub endpoint from this button.
+//   1. "Continue with claude.ai" — spawns the `claude auth login` CLI in a
+//      new console; the user completes OAuth in their browser and the SPA
+//      polls /api/auth/status every 2s to flip to the dashboard.
 //   2. API key — `<input type="password">` + Sign in. The raw key only
 //      lives in component state for the duration of the form; on success
 //      it is cleared and the user is redirected to `/`.
@@ -12,20 +12,32 @@
 // risk leaking into devtools / localStorage hydration in future slices.
 // React local state + an explicit reset is the smallest blast radius.
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ApiError } from "../../lib/api";
-import { useLoginWithApiKey } from "./useAuth";
+import { useAuthStatus, useLoginWithApiKey, useStartOAuth } from "./useAuth";
 
 import styles from "./LoginScreen.module.css";
 
 export default function LoginScreen() {
   const navigate = useNavigate();
   const loginMutation = useLoginWithApiKey();
+  const oauthMutation = useStartOAuth();
 
   const [apiKey, setApiKey] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [oauthHint, setOauthHint] = useState<string | null>(null);
+
+  // Poll status every 2s while OAuth is in progress so the SPA flips to the
+  // dashboard the moment `claude auth login` writes credentials.json.
+  const authStatus = useAuthStatus({ polling: oauthMutation.isSuccess });
+
+  useEffect(() => {
+    if (oauthMutation.isSuccess && authStatus.data?.logged_in) {
+      navigate("/");
+    }
+  }, [oauthMutation.isSuccess, authStatus.data?.logged_in, navigate]);
 
   const trimmedKey = apiKey.trim();
   const canSubmit = trimmedKey.length > 0 && !loginMutation.isPending;
@@ -52,6 +64,23 @@ export default function LoginScreen() {
     }
   }
 
+  async function handleOAuth() {
+    setErrorMessage(null);
+    setOauthHint(null);
+    try {
+      const result = await oauthMutation.mutateAsync();
+      setOauthHint(result.hint ?? "OAuth フローを別ウィンドウで開きました。");
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? `OAuth spawn failed (HTTP ${err.status}): ${err.body || err.message}`
+          : err instanceof Error
+            ? err.message
+            : "OAuth spawn failed for an unknown reason.";
+      setErrorMessage(message);
+    }
+  }
+
   return (
     <div className={styles.screen}>
       <section
@@ -70,12 +99,21 @@ export default function LoginScreen() {
         <button
           type="button"
           className={styles.oauthButton}
-          disabled
-          title="v0 では未対応、v1 で実装"
-          aria-disabled="true"
+          onClick={handleOAuth}
+          disabled={oauthMutation.isPending || oauthMutation.isSuccess}
+          aria-busy={oauthMutation.isPending}
         >
-          Continue with claude.ai (Pro/Max)
+          {oauthMutation.isPending
+            ? "Spawning claude auth login..."
+            : oauthMutation.isSuccess
+              ? "Waiting for OAuth completion..."
+              : "Continue with claude.ai (Pro/Max)"}
         </button>
+        {oauthHint !== null && (
+          <p className={styles.oauthHint} role="status">
+            {oauthHint}
+          </p>
+        )}
 
         <div className={styles.divider} role="separator">
           or use API key

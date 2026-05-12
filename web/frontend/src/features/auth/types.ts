@@ -17,6 +17,6 @@ export interface ApiKeyRequest {
 }
 
 export interface OAuthLoginStubResponse {
-  status: "not_implemented_in_v0";
-  hint: string;
+  status: "spawned" | "not_implemented_in_v0";
+  hint?: string;
 }
