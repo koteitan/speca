@@ -106,14 +106,14 @@ export function FromUrlForm({ reviewPath }: FromUrlFormProps) {
 
       <label className={styles.field}>
         <span className={styles.label}>
-          {t("picker.from_url.label_contract_addresses")}
+          {t("picker.from_url.label_in_scope_assets")}
         </span>
         <textarea
           className={styles.textarea}
           value={contracts}
           onChange={(e) => setContracts(e.target.value)}
           rows={2}
-          placeholder="0x..., 0x..."
+          placeholder={t("picker.from_url.placeholder_in_scope_assets")}
           spellCheck={false}
           autoComplete="off"
           data-testid="from-url-contracts"

@@ -368,8 +368,10 @@
       "ask_claude": "Claude に頼む (chat)"
     },
     "from_url": {
-      "label_bug_bounty_url": "Bug Bounty URL",
+      "label_bug_bounty_url": "Bug Bounty / プログラム URL",
       "label_contract_addresses": "コントラクトアドレス (任意)",
+      "label_in_scope_assets": "対象アセット / アドレス (任意)",
+      "placeholder_in_scope_assets": "0x..., src/, /api/*  (1 行に 1 つ)",
       "submit": "scope を取得",
       "error_anthropic": "Anthropic に接続できませんでした。ANTHROPIC_API_KEY を設定するか、再試行してください。",
       "error_parse": "scope の解析に失敗。手動入力に進んでください。",

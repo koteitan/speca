@@ -6,10 +6,12 @@ The data flow is deliberately simple:
    Runs router uses).
 2. Extract each manifest's ``target_info.target_repo`` and dedupe by that
    key, keeping the most recent ``started_at`` as ``last_run_at``.
-3. Prepend a hard-coded **demo seed** (``litecoin-project/litecoin``) so
-   the empty state is never blank on first launch — see Section 4.10
+3. Prepend a hard-coded **demo seed** (``OpenListTeam/OpenList``) so the
+   empty state is never blank on first launch — see Section 4.10
    (initiator-friendly principles) and Section 4.10.7 (pre-installed
-   demo project) of ``docs/UI_DESIGN.md``.
+   demo project) of ``docs/UI_DESIGN.md``. The demo target is an
+   non-smart-contract OSS project so it doubles as a sanity check for
+   the project-type expansion (web app / library / other).
 
 We intentionally do **not** import :mod:`web.server.services.run_index`
 to avoid binding this picker logic to the (larger) ``RunSummary`` shape;
@@ -35,7 +37,7 @@ logger = logging.getLogger(__name__)
 # constant (not a function arg) so the SPA contract is grep-able.
 DEMO_SEED = SavedTarget(
     bug_bounty_url=None,
-    target_repo="litecoin-project/litecoin",
+    target_repo="OpenListTeam/OpenList",
     target_ref=None,
     last_run_at=None,
     source="demo",

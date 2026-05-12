@@ -1,7 +1,7 @@
 // First-launch demo banner.
 //
 // Section 4.10.7 of `docs/UI_DESIGN.md`: "デモプロジェクトを 1 つ
-// pre-install" — surface a read-only litecoin card so the Saved targets
+// pre-install" — surface a read-only OpenList card so the Saved targets
 // list is never blank on first run. v0 cannot actually launch a run, so
 // clicking the card opens a modal that explains the v1 limitation
 // instead of dispatching anything.

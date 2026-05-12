@@ -176,7 +176,7 @@ def make_run_id(
     """Build a stable run id: ``{ts}-{short_sha}-{spec_slug}``.
 
     Format matches the existing ``.speca/runs/<id>`` layout, e.g.
-    ``2026-05-12T07-30-15Z-994f630-litecoin``.
+    ``2026-05-12T07-30-15Z-994f630-OpenList``.
 
     Re-implements the logic the orchestrator CLI would otherwise own; once
     ``scripts/run_phase.py`` exposes a ``make_run_id`` helper this function

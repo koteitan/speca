@@ -368,8 +368,10 @@
       "ask_claude": "Ask Claude (chat)"
     },
     "from_url": {
-      "label_bug_bounty_url": "Bug bounty URL",
+      "label_bug_bounty_url": "Bug bounty / program URL",
       "label_contract_addresses": "Contract addresses (optional)",
+      "label_in_scope_assets": "In-scope assets / addresses (optional)",
+      "placeholder_in_scope_assets": "0x..., src/, /api/*  (one per line)",
       "submit": "Fetch scope",
       "error_anthropic": "Could not reach Anthropic. Set ANTHROPIC_API_KEY or try again.",
       "error_parse": "Could not parse scope. Continue with manual entry.",

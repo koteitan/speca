@@ -1,0 +1,15 @@
+{
+  "run_id": "2026-05-11T13-11-49Z-994f630-unknown",
+  "started_at": "2026-05-11T13:11:49.569855Z",
+  "ended_at": "2026-05-11T13:11:49.587850Z",
+  "speca_commit": "994f630",
+  "cli_version": "",
+  "model": {},
+  "prompt_shas": {},
+  "spec_sources": [],
+  "target_info": null,
+  "bug_bounty_scope_sha": null,
+  "phases_completed": [],
+  "cost_usd_total": 0.0,
+  "notes": "error: one or more phases failed"
+}

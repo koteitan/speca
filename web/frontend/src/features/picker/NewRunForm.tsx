@@ -404,9 +404,7 @@ export default function NewRunForm() {
           </span>
         </label>
 
-        <span className={styles.label}>
-          {t("picker.new_run_form.label_push_to_remote")}
-        </span>
+        <span className={styles.label} aria-hidden="true" />
         <span className={styles.control}>
           <label className={styles.checkboxRow}>
             <input
