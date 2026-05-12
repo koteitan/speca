@@ -11,6 +11,11 @@
 // to the URL — it's a workspace concern, not a shareable filter.
 
 import { useMemo, useState } from "react";
+
+// Cap the initial DOM render so a 1k-finding run doesn't ship a 46k px
+// scroll viewport to the browser. The "Show all" button reveals the rest
+// without virtualisation — proper windowing is a v2 perf task.
+const INITIAL_PAGE_SIZE = 100;
 import { useParams, useSearchParams } from "react-router-dom";
 
 import { useIntegrationsPaths } from "@/features/integrations/useIntegrationsStatus";
@@ -101,6 +106,16 @@ export function FindingsListPage() {
     return copy;
   }, [data, sort]);
 
+  const [showAll, setShowAll] = useState(false);
+  const visibleFindings = useMemo(
+    () =>
+      showAll || sortedFindings.length <= INITIAL_PAGE_SIZE
+        ? sortedFindings
+        : sortedFindings.slice(0, INITIAL_PAGE_SIZE),
+    [sortedFindings, showAll],
+  );
+  const hiddenCount = sortedFindings.length - visibleFindings.length;
+
   const handleSort = (key: SortKey) => {
     setSort((prev) =>
       prev.key === key
@@ -185,7 +200,7 @@ export function FindingsListPage() {
             ))}
           </div>
           <div className={styles.tbody}>
-            {sortedFindings.map((f) => (
+            {visibleFindings.map((f) => (
               <FindingRow
                 key={f.property_id}
                 finding={f}
@@ -194,6 +209,23 @@ export function FindingsListPage() {
               />
             ))}
           </div>
+          {hiddenCount > 0 && (
+            <div className={styles.loadMore}>
+              <p className={styles.loadMoreHint}>
+                {t("findings.list.showing_n_of_m", {
+                  shown: visibleFindings.length,
+                  total: sortedFindings.length,
+                })}
+              </p>
+              <button
+                type="button"
+                className={styles.loadMoreButton}
+                onClick={() => setShowAll(true)}
+              >
+                {t("findings.list.show_all", { n: hiddenCount })}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

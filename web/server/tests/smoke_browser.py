@@ -215,6 +215,16 @@ def smoke_chat_history_toggle(page: Page, base: str) -> None:
         expect_visible(page, "[data-testid='chat-new-conversation']", timeout=4_000)
 
 
+def smoke_findings_list(page: Page, base: str) -> None:
+    with step("findings_list_renders"):
+        goto(
+            page,
+            f"{base}/runs/2026-05-11T13-11-49Z-994f630-unknown/findings",
+        )
+        page.wait_for_load_state("networkidle", timeout=8_000)
+        expect_visible(page, "header")
+
+
 def smoke_run_detail(page: Page, base: str) -> None:
     with step("run_detail_legacy_renders"):
         # The seed dataset contains run id 2026-05-11T13-11-49Z-994f630-unknown.
@@ -273,6 +283,7 @@ def run(base: str, headless: bool, screenshots: Path | None) -> int:
                 smoke_language_toggle,
                 smoke_chat_opens,
                 smoke_chat_history_toggle,
+                smoke_findings_list,
                 smoke_run_detail,
             ]
             for fn in flows:

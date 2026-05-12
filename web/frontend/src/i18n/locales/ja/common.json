@@ -207,7 +207,9 @@
       "col_verdict": "Verdict",
       "col_file": "File",
       "col_phase": "Phase",
-      "open_in_vscode": "VSCode で開く"
+      "open_in_vscode": "VSCode で開く",
+      "showing_n_of_m": "{{total}} 件中 {{shown}} 件表示中",
+      "show_all": "残り {{n}} 件を表示"
     },
     "detail": {
       "loading": "finding を読み込み中…",

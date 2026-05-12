@@ -207,7 +207,9 @@
       "col_verdict": "Verdict",
       "col_file": "File",
       "col_phase": "Phase",
-      "open_in_vscode": "Open in VSCode"
+      "open_in_vscode": "Open in VSCode",
+      "showing_n_of_m": "Showing {{shown}} of {{total}} findings.",
+      "show_all": "Show all ({{n}} more)"
     },
     "detail": {
       "loading": "Loading finding…",
