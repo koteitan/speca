@@ -1,0 +1,64 @@
+/*
+ * EmptyState — centered card on the parent, never full viewport.
+ *
+ * Parent layouts (RunList, FindingsList) place this in their flow, so we
+ * only center inside the available rectangle. min-height keeps short
+ * messages from collapsing into a thin strip.
+ */
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--nyx-space-7);
+  min-height: 240px;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-5);
+  padding: var(--nyx-space-8);
+  border: 1px solid var(--nyx-color-border-muted);
+  border-radius: var(--nyx-radius-sm);
+  background: var(--nyx-color-surface-muted);
+  color: var(--ifm-color-content);
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-lg);
+  line-height: 1.3;
+}
+
+.description {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.75;
+}
+
+.action {
+  align-self: center;
+  padding: var(--nyx-space-5) var(--nyx-space-7);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-primary);
+  background: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  cursor: pointer;
+  transition: opacity var(--nyx-motion-instant) ease;
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.action:hover {
+  opacity: 0.85;
+}

@@ -1,0 +1,83 @@
+/*
+ * <OpenInVSCode> styles
+ *
+ * Three variants share the same colour + focus token set; the variant
+ * classes only override padding / sizing / icon-only-ness. We intentionally
+ * pin focus-visible to a 2px outline (Nyx accessibility baseline) so the
+ * variant overrides cannot accidentally drop it.
+ */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-xs);
+  line-height: 1;
+  color: var(--ifm-color-content);
+  background: transparent;
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  cursor: pointer;
+  transition:
+    background var(--nyx-motion-instant) ease,
+    border-color var(--nyx-motion-instant) ease,
+    color var(--nyx-motion-instant) ease;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+/* `button` variant uses the base shape above; we expose it as a class so
+   consumers can build a stable class chain when stitching variants. */
+.variantButton {
+  /* intentionally empty — base `.button` carries the look */
+}
+
+/* `icon` variant: square hit target, no label. The label is exposed via
+   `aria-label` in the component so screen readers still get a name. */
+.variantIcon {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  justify-content: center;
+}
+
+/* `menuitem` variant: full-width row used inside a context / overflow menu.
+   Padding is reduced and the border is dropped so the row blends into the
+   menu container's own border. */
+.variantMenuitem {
+  width: 100%;
+  justify-content: flex-start;
+  padding: var(--nyx-space-2) var(--nyx-space-3);
+  border-color: transparent;
+}
+
+.variantMenuitem:hover:not(:disabled) {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.icon {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.label {
+  white-space: nowrap;
+}

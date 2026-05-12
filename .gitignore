@@ -268,7 +268,10 @@ dist/datasets/
 # Web client
 web/node_modules/
 web/dist/
+web/frontend/node_modules/
+web/frontend/dist/
 !web/src/lib/
+!web/frontend/src/lib/
 
 # Friend's submission drafts — NEVER commit
 outputs/submitted/friend/

@@ -1,0 +1,87 @@
+/*
+ * Tooltip — inline help bubble.
+ *
+ * The wrapper is `display: inline-flex` so it composes inside table cells
+ * and headings without breaking line flow. The bubble is positioned with
+ * a `data-position` attribute (top default) to keep the React side static.
+ */
+
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-1);
+  position: relative;
+  cursor: help;
+}
+
+.wrapper:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--nyx-radius-xs);
+}
+
+.label {
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--nyx-color-border-strong);
+  font-size: 10px;
+  line-height: 1;
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+  user-select: none;
+}
+
+.bubble {
+  position: absolute;
+  z-index: 30;
+  max-width: 280px;
+  width: max-content;
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  font-size: var(--nyx-font-size-xs);
+  line-height: 1.4;
+  text-align: left;
+  color: var(--ifm-color-content);
+  background: var(--nyx-color-surface-muted);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+}
+
+.bubble[data-position="top"] {
+  bottom: calc(100% + var(--nyx-space-2));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bubble[data-position="bottom"] {
+  top: calc(100% + var(--nyx-space-2));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bubble[data-position="left"] {
+  right: calc(100% + var(--nyx-space-2));
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.bubble[data-position="right"] {
+  left: calc(100% + var(--nyx-space-2));
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+[data-theme="dark"] .bubble {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}

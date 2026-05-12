@@ -1,0 +1,123 @@
+/* SettingsPage — single-column reading layout, similar to FindingDetailPage.
+ *
+ * We deliberately do NOT use a card / panel container — the page is short
+ * enough that grouping each section with a `<h2>` heading is clearer than
+ * boxing them, and matches the Nyx baseline for read-only diagnostic UI.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-6);
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--nyx-space-7);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-2);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  padding-bottom: var(--nyx-space-5);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-xl);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-4);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: oklch(0.45 0.005 258);
+}
+
+.sectionHint {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--nyx-space-3) var(--nyx-space-6);
+  margin: 0;
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--nyx-radius-sm);
+  background: oklch(0.985 0.003 258);
+}
+
+.kvRow {
+  display: contents;
+}
+
+.kvRow dt {
+  font-weight: 500;
+  color: var(--ifm-color-content);
+  opacity: 0.8;
+}
+
+.kvRow dd {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.kvRow dd code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95em;
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotOk {
+  background: oklch(0.65 0.16 145);
+}
+
+.dotMissing {
+  background: oklch(0.6 0.18 25);
+}
+
+.dotUnknown {
+  background: oklch(0.7 0.02 258);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nyx-space-3);
+}
+
+.muted {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  opacity: 0.7;
+}
