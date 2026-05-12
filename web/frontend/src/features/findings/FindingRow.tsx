@@ -8,6 +8,7 @@
 import { Link } from "react-router-dom";
 
 import { OpenInVSCode } from "@/components/OpenInVSCode";
+import { useT } from "@/i18n/useT";
 
 import { parseLineStart } from "./parseLineRange";
 import { SeverityChip } from "./SeverityChip";
@@ -29,10 +30,11 @@ interface Props {
 }
 
 export function FindingRow({ finding, runId, repoRoot }: Props) {
+  const t = useT();
   const codeLocation =
     finding.file && finding.line_range
       ? `${finding.file}::${finding.line_range}`
-      : finding.file ?? "—";
+      : finding.file ?? t("common.none");
 
   const vscodePath =
     repoRoot && finding.file
@@ -67,7 +69,7 @@ export function FindingRow({ finding, runId, repoRoot }: Props) {
           <OpenInVSCode
             path={vscodePath}
             line={vscodeLine ?? undefined}
-            label="VSCode で開く"
+            label={t("findings.list.open_in_vscode")}
             variant="icon"
           />
         ) : null}

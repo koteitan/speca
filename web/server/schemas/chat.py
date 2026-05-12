@@ -74,3 +74,34 @@ class PostMessageRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     text: str
+
+
+# --- Slice C1 + C2: side-effect tool approval gate --------------------------
+
+
+ApprovalAction = Literal["approve", "edit", "cancel"]
+
+
+class ToolApprovalRequest(BaseModel):
+    """Body for ``POST /api/chat/tool_approve``.
+
+    ``conversation_id`` + ``tool_call_id`` together identify the pending
+    approval registered by the chat runtime. ``edited_input`` is only
+    meaningful when ``action="edit"`` — the runtime falls back to the
+    model's original snapshot otherwise.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    conversation_id: str
+    tool_call_id: str
+    action: ApprovalAction
+    edited_input: dict | None = None
+
+
+class ToolApprovalResponse(BaseModel):
+    """Body returned by ``POST /api/chat/tool_approve``."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ok: bool

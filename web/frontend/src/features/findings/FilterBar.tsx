@@ -7,27 +7,20 @@
 
 import { useSearchParams } from "react-router-dom";
 
+import { useT } from "@/i18n/useT";
+
 import styles from "./FilterBar.module.css";
 
 import {
   KNOWN_VERDICTS,
   PHASES,
   SEVERITY_LEVELS,
-  type KnownVerdict,
   type Phase,
   type Severity,
 } from "./types";
 
-const VERDICT_LABEL: Record<KnownVerdict, string> = {
-  CONFIRMED_VULNERABILITY: "Confirmed vuln",
-  CONFIRMED_POTENTIAL: "Confirmed potential",
-  DISPUTED_FP: "Disputed FP",
-  DOWNGRADED: "Downgraded",
-  NEEDS_MANUAL_REVIEW: "Needs review",
-  PASS_THROUGH: "Pass-through",
-};
-
 export function FilterBar() {
+  const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentSeverity = searchParams.get("severity") as Severity | null;
   const currentVerdict = searchParams.get("verdict");
@@ -44,15 +37,17 @@ export function FilterBar() {
   };
 
   return (
-    <section className={styles.bar} aria-label="Findings filters">
+    <section className={styles.bar} aria-label={t("findings.filter.bar_aria")}>
       <div className={styles.group}>
-        <span className={styles.groupLabel}>Severity</span>
+        <span className={styles.groupLabel}>
+          {t("findings.filter.severity_label")}
+        </span>
         <button
           type="button"
           className={`${styles.chip} ${currentSeverity === null ? styles.chipActive : ""}`}
           onClick={() => setParam("severity", null)}
         >
-          All
+          {t("findings.filter.all")}
         </button>
         {SEVERITY_LEVELS.map((sev) => (
           <button
@@ -61,19 +56,21 @@ export function FilterBar() {
             className={`${styles.chip} ${currentSeverity === sev ? styles.chipActive : ""}`}
             onClick={() => setParam("severity", sev)}
           >
-            {sev}
+            {t(`findings.severity.${sev}`)}
           </button>
         ))}
       </div>
 
       <div className={styles.group}>
-        <span className={styles.groupLabel}>Verdict</span>
+        <span className={styles.groupLabel}>
+          {t("findings.filter.verdict_label")}
+        </span>
         <button
           type="button"
           className={`${styles.chip} ${currentVerdict === null ? styles.chipActive : ""}`}
           onClick={() => setParam("verdict", null)}
         >
-          All
+          {t("findings.filter.all")}
         </button>
         {KNOWN_VERDICTS.map((v) => (
           <button
@@ -83,19 +80,21 @@ export function FilterBar() {
             onClick={() => setParam("verdict", v)}
             title={v}
           >
-            {VERDICT_LABEL[v]}
+            {t(`findings.verdict.${v}`)}
           </button>
         ))}
       </div>
 
       <div className={styles.group}>
-        <span className={styles.groupLabel}>Phase</span>
+        <span className={styles.groupLabel}>
+          {t("findings.filter.phase_label")}
+        </span>
         <button
           type="button"
           className={`${styles.chip} ${currentPhase === null ? styles.chipActive : ""}`}
           onClick={() => setParam("phase", null)}
         >
-          All
+          {t("findings.filter.all")}
         </button>
         {PHASES.map((p) => (
           <button
@@ -104,7 +103,7 @@ export function FilterBar() {
             className={`${styles.chip} ${currentPhase === p ? styles.chipActive : ""}`}
             onClick={() => setParam("phase", p)}
           >
-            Phase {p}
+            {t("findings.filter.phase_value", { phase: p })}
           </button>
         ))}
       </div>

@@ -1,7 +1,9 @@
 import { useState } from "react";
 
 import { OpenInVSCode } from "@/components/OpenInVSCode";
+import { useT } from "@/i18n/useT";
 
+import { LogTail } from "./LogTail";
 import { formatPhaseLabel } from "./phaseDisplayNames";
 import { StatusIcon } from "./StatusIcon";
 import type { PhaseRow as PhaseRowType } from "./types";
@@ -36,6 +38,20 @@ export interface PhaseRowProps {
    * query is still loading; the row simply omits the link in that case.
    */
   logsPath?: string | null;
+  /**
+   * Slice D1 — live log lines accumulated by `useRunStream` for this
+   * phase. Undefined means the run is not currently being streamed (or
+   * no lines have arrived yet); we render the LogTail with an empty
+   * buffer + "no log lines yet" placeholder in that case, but only when
+   * the run is live (`isLive`).
+   */
+  logs?: string[];
+  /**
+   * True while a WebSocket subscription is active for the parent run.
+   * When false we keep the v0 "logs stream in v1" placeholder so the
+   * UI for already-finished runs is unchanged.
+   */
+  isLive?: boolean;
 }
 
 /**
@@ -45,7 +61,8 @@ export interface PhaseRowProps {
  * at the run's log folder; the live log stream itself lands in v1. The
  * `data-testid="phase-row-<id>"` attribute is the integration point.
  */
-export function PhaseRow({ phase, logsPath }: PhaseRowProps) {
+export function PhaseRow({ phase, logsPath, logs, isLive }: PhaseRowProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const label = formatPhaseLabel(phase.phase_id);
 
@@ -70,13 +87,21 @@ export function PhaseRow({ phase, logsPath }: PhaseRowProps) {
         </span>
       </button>
       {open ? (
-        <div className={styles.detail} role="region" aria-label={`${label} details`}>
-          <em>No log preview yet. Logs stream in v1.</em>
+        <div
+          className={styles.detail}
+          role="region"
+          aria-label={t("runs.phase_row.details_aria", { label })}
+        >
+          {isLive ? (
+            <LogTail phaseId={phase.phase_id} lines={logs ?? []} />
+          ) : (
+            <em>{t("runs.phase_row.no_log_preview")}</em>
+          )}
           {logsPath ? (
             <div className={styles.detailActions}>
               <OpenInVSCode
                 path={logsPath}
-                label="log フォルダを VSCode で開く"
+                label={t("runs.phase_row.open_log_folder")}
                 variant="menuitem"
               />
             </div>

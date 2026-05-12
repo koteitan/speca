@@ -9,5 +9,7 @@
 // authoritative login state comes from `useAuthStatus()` in
 // `features/auth/useAuth.ts` — do not duplicate server state here.
 export { useAuthUiStore } from "./store/authSlice";
+export { useNewRunDraft } from "./store/newRunDraftSlice";
+export { useChatApprovals } from "./store/chatApprovalsSlice";
 
 export {};

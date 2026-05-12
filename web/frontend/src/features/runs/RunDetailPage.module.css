@@ -106,3 +106,35 @@
   border-radius: var(--nyx-radius-sm);
   color: oklch(0.55 0.2 30);
 }
+
+/* Slice D1 — connection status badge in the header meta row. The three
+ * variants (ok / reconnecting / given-up) share the same shape so the
+ * row height does not jump as state cycles. */
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+  padding: var(--nyx-space-1) var(--nyx-space-3);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  font-size: var(--nyx-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.liveBadgeOk {
+  color: oklch(0.6 0.15 145);
+  border-color: oklch(0.6 0.15 145 / 0.4);
+  background: oklch(0.6 0.15 145 / 0.08);
+}
+
+.liveBadgeWarn {
+  color: oklch(0.65 0.16 70);
+  border-color: oklch(0.65 0.16 70 / 0.4);
+  background: oklch(0.65 0.16 70 / 0.08);
+}
+
+.liveBadgeError {
+  color: oklch(0.55 0.2 30);
+  border-color: oklch(0.55 0.2 30 / 0.4);
+  background: oklch(0.55 0.2 30 / 0.08);
+}

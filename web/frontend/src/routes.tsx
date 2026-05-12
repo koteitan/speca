@@ -3,6 +3,8 @@ import { Navigate, type RouteObject } from "react-router-dom";
 import LoginScreen from "./features/auth/LoginScreen";
 import FindingDetailPage from "./features/findings/FindingDetailPage";
 import FindingsListPage from "./features/findings/FindingsListPage";
+import NewRunForm from "./features/picker/NewRunForm";
+import PickerPage from "./features/picker/PickerPage";
 import RunDetailPage from "./features/runs/RunDetailPage";
 import RunListPage from "./features/runs/RunListPage";
 import SettingsPage from "./features/settings/SettingsPage";
@@ -16,6 +18,8 @@ export const routes: RouteObject[] = [
   { path: "/login", element: <LoginScreen /> },
   // === route: runs ===
   { path: "/runs", element: <RunListPage /> },
+  { path: "/runs/new", element: <PickerPage /> },
+  { path: "/runs/new/review", element: <NewRunForm /> },
   { path: "/runs/:runId", element: <RunDetailPage /> },
   // === route: findings ===
   { path: "/runs/:runId/findings", element: <FindingsListPage /> },

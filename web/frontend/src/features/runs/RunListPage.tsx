@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import type { TFunction } from "i18next";
 
 import { OpenInVSCode } from "@/components/OpenInVSCode";
 import { useIntegrationsPaths } from "@/features/integrations/useIntegrationsStatus";
+import { useT } from "@/i18n/useT";
 
 import type { RunStatus, RunSummary } from "./types";
 import { StatusIcon } from "./StatusIcon";
@@ -27,18 +29,18 @@ interface SortState {
 const DEFAULT_SORT: SortState = { key: "started_at", direction: "desc" };
 
 /** Format the relative time as a short "5m ago" style string. */
-function formatRelative(iso: string, now: number = Date.now()): string {
-  const t = Date.parse(iso);
-  if (Number.isNaN(t)) return iso;
-  const delta = Math.max(0, now - t);
+function formatRelative(iso: string, t: TFunction, now: number = Date.now()): string {
+  const parsed = Date.parse(iso);
+  if (Number.isNaN(parsed)) return iso;
+  const delta = Math.max(0, now - parsed);
   const seconds = Math.floor(delta / 1000);
-  if (seconds < 60) return `${seconds}s ago`;
+  if (seconds < 60) return t("runs.list.rel_seconds_ago", { n: seconds });
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return t("runs.list.rel_minutes_ago", { n: minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return t("runs.list.rel_hours_ago", { n: hours });
   const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return t("runs.list.rel_days_ago", { n: days });
 }
 
 /**
@@ -83,6 +85,7 @@ function compareRuns(a: RunSummary, b: RunSummary, sort: SortState): number {
 }
 
 export default function RunListPage() {
+  const t = useT();
   const { data, isLoading, isError, error } = useRunList();
   // Slice G — repo root drives the per-row "Open in VSCode" icon.
   const { data: paths } = useIntegrationsPaths();
@@ -120,19 +123,17 @@ export default function RunListPage() {
   return (
     <section className={styles.page} data-testid="run-list-page">
       <header className={styles.header}>
-        <h1 className={styles.title}>Runs</h1>
-        <button
-          type="button"
-          className={styles.newRunButton}
-          disabled
-          title="v1 で実装"
-          aria-disabled="true"
-        >
-          + New run
-        </button>
+        <h1 className={styles.title}>{t("runs.list.title")}</h1>
+        <Link to="/runs/new" className={styles.newRunButton}>
+          {t("runs.list.new_run")}
+        </Link>
       </header>
 
-      <div className={styles.filters} role="toolbar" aria-label="Filters">
+      <div
+        className={styles.filters}
+        role="toolbar"
+        aria-label={t("runs.list.filters_aria")}
+      >
         {STATUS_CHIPS.map((status) => {
           const active = statusFilter === status;
           return (
@@ -152,25 +153,33 @@ export default function RunListPage() {
         <input
           type="search"
           className={styles.searchInput}
-          placeholder="Filter by target / run id"
+          placeholder={t("runs.list.search_placeholder")}
           value={targetQuery}
           onChange={(e) => setTargetQuery(e.target.value)}
-          aria-label="Filter by target"
+          aria-label={t("runs.list.search_aria")}
         />
       </div>
 
       {isLoading ? (
-        <p className={styles.muted}>Loading…</p>
+        <p className={styles.muted}>{t("runs.list.loading")}</p>
       ) : isError ? (
         <div className={styles.error} role="alert">
-          Failed to load runs: {String((error as Error)?.message ?? "unknown error")}
+          {t("runs.list.load_failed", {
+            error: String(
+              (error as Error)?.message ?? t("common.unknown_error"),
+            ),
+          })}
         </div>
       ) : rows.length === 0 ? (
         <div className={styles.empty}>
           <p>
-            新規 audit はまだありません。
+            {t("runs.list.empty_line1")}
             <br />
-            <code>uv run python3 scripts/run_phase.py ...</code> で 1 件作るか、v1 で UI から起動可能。
+            <span
+              dangerouslySetInnerHTML={{
+                __html: t("runs.list.empty_line2"),
+              }}
+            />
           </p>
         </div>
       ) : (
@@ -178,22 +187,26 @@ export default function RunListPage() {
           <thead>
             <tr>
               <th scope="col" onClick={() => toggleSort("status")}>
-                Status{indicator("status")}
+                {t("runs.list.col_status")}
+                {indicator("status")}
               </th>
-              <th scope="col">Run</th>
+              <th scope="col">{t("runs.list.col_run")}</th>
               <th scope="col" onClick={() => toggleSort("target_slug")}>
-                Target{indicator("target_slug")}
+                {t("runs.list.col_target")}
+                {indicator("target_slug")}
               </th>
               <th scope="col" onClick={() => toggleSort("started_at")}>
-                Started{indicator("started_at")}
+                {t("runs.list.col_started")}
+                {indicator("started_at")}
               </th>
-              <th scope="col">Duration</th>
+              <th scope="col">{t("runs.list.col_duration")}</th>
               <th scope="col" onClick={() => toggleSort("cost_usd_total")}>
-                Cost{indicator("cost_usd_total")}
+                {t("runs.list.col_cost")}
+                {indicator("cost_usd_total")}
               </th>
               {/* Slice G: per-row "Open in VSCode" icon. Header left blank
                   on purpose so the column reads as an action affordance. */}
-              <th scope="col" aria-label="Actions" />
+              <th scope="col" aria-label={t("runs.list.col_actions_aria")} />
             </tr>
           </thead>
           <tbody>
@@ -209,9 +222,9 @@ export default function RunListPage() {
                       {run.run_id}
                     </Link>
                   </td>
-                  <td>{run.target_slug ?? "—"}</td>
+                  <td>{run.target_slug ?? t("common.none")}</td>
                   <td className={styles.muted}>
-                    {formatRelative(run.started_at)}
+                    {formatRelative(run.started_at, t)}
                   </td>
                   <td className={styles.muted}>{formatDuration(dur)}</td>
                   <td className={styles.muted}>{formatCost(run.cost_usd_total)}</td>
@@ -219,7 +232,7 @@ export default function RunListPage() {
                     {paths ? (
                       <OpenInVSCode
                         path={paths.repo_root}
-                        label="VSCode でリポジトリを開く"
+                        label={t("runs.list.open_repo_vscode")}
                         variant="icon"
                       />
                     ) : null}

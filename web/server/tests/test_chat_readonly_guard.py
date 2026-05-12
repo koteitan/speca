@@ -117,35 +117,72 @@ async def _collect(stream: Any) -> list[dict[str, Any]]:
 
 
 def test_allowed_tools_match_spec() -> None:
-    """The exposed allowlist must contain exactly the three read-only tools."""
+    """The allowlist contract.
 
-    assert chat_tools.ALLOWED_TOOL_NAMES == frozenset(
-        {"read_run_status", "list_findings", "read_finding"}
-    )
-    assert {t["name"] for t in chat_tools.TOOLS} == chat_tools.ALLOWED_TOOL_NAMES
-    # Hard guarantee: no side-effecting tool spec sneaks into TOOLS.
-    side_effecting = {"launch_pipeline", "stop_pipeline", "launch_run", "stop_run"}
-    assert not (
-        {t["name"] for t in chat_tools.TOOLS} & side_effecting
-    ), "side-effecting tool specs must not be exposed in v0"
+    Updated in Slice C1 + C2: the allowlist now contains the three v0
+    read-only tools plus the C1/C2 additions (``fetch_bounty_url`` and
+    the two side-effect tools). The original invariants the v0 test was
+    encoding still hold:
+
+    * Every entry in ``TOOLS`` is in ``ALLOWED_TOOL_NAMES`` (no drift).
+    * The three v0 read-only tools are still present.
+    * Side-effect tools, when present, are **flagged** in
+      :data:`SIDE_EFFECT_TOOLS` so the runtime knows to gate them. (The
+      v0 test asserted they were *absent* — that invariant was relaxed in
+      v1 in favour of an explicit approval gate.)
+    """
+
+    expected_readonly = {
+        "read_run_status",
+        "list_findings",
+        "read_finding",
+        "fetch_bounty_url",
+    }
+    expected_side_effects = {"launch_pipeline", "stop_pipeline"}
+    expected_all = expected_readonly | expected_side_effects
+
+    assert {t["name"] for t in chat_tools.TOOLS} == expected_all
+    assert chat_tools.ALLOWED_TOOL_NAMES == frozenset(expected_all)
+    assert chat_tools.SIDE_EFFECT_TOOLS == frozenset(expected_side_effects)
+    # Every side-effect tool must also be in the global allowlist — the
+    # runtime relies on that overlap when distinguishing "block at the
+    # allowlist edge" from "route through approval gate".
+    assert chat_tools.SIDE_EFFECT_TOOLS <= chat_tools.ALLOWED_TOOL_NAMES
 
 
 def test_dispatch_rejects_unknown_tool() -> None:
-    """Dispatch must raise :class:`ToolNotAllowed` for unknown names."""
+    """Dispatch must raise :class:`ToolNotAllowed` for unknown names.
+
+    ``launch_pipeline`` is no longer unknown (it is in the allowlist) but
+    it is now refused via ``RuntimeError`` if dispatched directly,
+    because the runtime is expected to route it through the approval
+    gate instead. We assert *some* exception is raised here, asserting
+    on type for the truly-unknown case.
+    """
 
     with pytest.raises(chat_tools.ToolNotAllowed):
+        asyncio.run(chat_tools.dispatch_tool("erase_all_runs", {}))
+
+    # Side-effect tools must NOT be dispatchable via dispatch_tool —
+    # the runtime is expected to go through dispatch_side_effect_tool
+    # after an approval round-trip instead.
+    with pytest.raises(RuntimeError):
         asyncio.run(chat_tools.dispatch_tool("launch_pipeline", {}))
 
 
 def test_readonly_guard_blocks_forced_side_effect(tmp_path: Path) -> None:
-    """End-to-end: a forged ``tool_use`` for ``launch_pipeline`` is blocked.
+    """End-to-end: a forged ``tool_use`` for an unknown tool is blocked.
 
-    We simulate a malicious / buggy SDK that emits a ``tool_use`` block for
-    a name *not* on the allowlist. The runtime must:
+    We simulate a malicious / buggy SDK that emits a ``tool_use`` block
+    for a name *not* on the allowlist. The runtime must:
 
     * Yield an ``error`` event with ``reason="tool_not_allowed"``.
     * NOT add the assistant turn to conversation history.
     * Still emit a terminal ``message_stop`` so SSE clients can clean up.
+
+    Slice C1 + C2 note: ``launch_pipeline`` is now on the allowlist (it
+    gates behind an explicit approval), so the canonical "evil" tool
+    name in this test is something *no* slice declares.
     """
 
     conversation_id = "test-readonly-guard"
@@ -155,10 +192,10 @@ def test_readonly_guard_blocks_forced_side_effect(tmp_path: Path) -> None:
     bad_block = _FakeContent(
         type="tool_use",
         id="tu_evil",
-        name="launch_pipeline",
-        input={"target_repo": "https://example.com/evil"},
+        name="erase_all_runs",
+        input={"confirm": True},
     )
-    text_block = _FakeContent(type="text", text="I will launch a pipeline.")
+    text_block = _FakeContent(type="text", text="I will erase everything.")
 
     final = _FakeMessage(
         content=[text_block, bad_block],
@@ -166,12 +203,12 @@ def test_readonly_guard_blocks_forced_side_effect(tmp_path: Path) -> None:
     )
     # Pre-shape events: a text delta and a tool_use_start dict.
     events = [
-        {"type": "content_block_delta", "delta": {"text": "I will launch a pipeline."}},
+        {"type": "content_block_delta", "delta": {"text": "I will erase everything."}},
         {
             "type": "tool_use",
             "id": "tu_evil",
-            "name": "launch_pipeline",
-            "input": {"target_repo": "https://example.com/evil"},
+            "name": "erase_all_runs",
+            "input": {"confirm": True},
         },
     ]
     fake_stream = _FakeStream(events=events, final_message=final)
@@ -193,7 +230,7 @@ def test_readonly_guard_blocks_forced_side_effect(tmp_path: Path) -> None:
     error_events = [e for e in events_out if e.get("type") == "error"]
     assert error_events, f"expected an error event, got: {events_out}"
     assert error_events[0]["reason"] == "tool_not_allowed"
-    assert error_events[0]["tool"] == "launch_pipeline"
+    assert error_events[0]["tool"] == "erase_all_runs"
 
     # --- Assertion 2: history has user turn only, NO assistant turn. -----
     convo = chat_history.load_conversation(conversation_id, base=base)

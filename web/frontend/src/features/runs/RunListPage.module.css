@@ -33,11 +33,18 @@
   color: var(--ifm-color-content);
   cursor: pointer;
   font: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
 }
 
 .newRunButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.newRunButton:hover {
+  background: var(--ifm-color-emphasis-200);
 }
 
 .filters {

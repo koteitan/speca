@@ -15,12 +15,15 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useT } from "@/i18n/useT";
+
 import { ApiError } from "../../lib/api";
 import { useAuthStatus, useLoginWithApiKey, useStartOAuth } from "./useAuth";
 
 import styles from "./LoginScreen.module.css";
 
 export default function LoginScreen() {
+  const t = useT();
   const navigate = useNavigate();
   const loginMutation = useLoginWithApiKey();
   const oauthMutation = useStartOAuth();
@@ -56,10 +59,13 @@ export default function LoginScreen() {
     } catch (err) {
       const message =
         err instanceof ApiError
-          ? `Sign in failed (HTTP ${err.status}): ${err.body || err.message}`
+          ? t("login.error_signin_http", {
+              status: err.status,
+              body: err.body || err.message,
+            })
           : err instanceof Error
             ? err.message
-            : "Sign in failed for an unknown reason.";
+            : t("login.error_signin_unknown");
       setErrorMessage(message);
     }
   }
@@ -69,14 +75,17 @@ export default function LoginScreen() {
     setOauthHint(null);
     try {
       const result = await oauthMutation.mutateAsync();
-      setOauthHint(result.hint ?? "OAuth フローを別ウィンドウで開きました。");
+      setOauthHint(result.hint ?? t("login.oauth_hint_default"));
     } catch (err) {
       const message =
         err instanceof ApiError
-          ? `OAuth spawn failed (HTTP ${err.status}): ${err.body || err.message}`
+          ? t("login.error_oauth_http", {
+              status: err.status,
+              body: err.body || err.message,
+            })
           : err instanceof Error
             ? err.message
-            : "OAuth spawn failed for an unknown reason.";
+            : t("login.error_oauth_unknown");
       setErrorMessage(message);
     }
   }
@@ -89,11 +98,9 @@ export default function LoginScreen() {
       >
         <header>
           <h1 id="login-title" className={styles.title}>
-            Sign in to SPECA
+            {t("login.title")}
           </h1>
-          <p className={styles.subtitle}>
-            Local web UI — credentials never leave your machine.
-          </p>
+          <p className={styles.subtitle}>{t("login.subtitle")}</p>
         </header>
 
         <button
@@ -104,10 +111,10 @@ export default function LoginScreen() {
           aria-busy={oauthMutation.isPending}
         >
           {oauthMutation.isPending
-            ? "Spawning claude auth login..."
+            ? t("login.oauth_button_pending")
             : oauthMutation.isSuccess
-              ? "Waiting for OAuth completion..."
-              : "Continue with claude.ai (Pro/Max)"}
+              ? t("login.oauth_button_success")
+              : t("login.oauth_button_idle")}
         </button>
         {oauthHint !== null && (
           <p className={styles.oauthHint} role="status">
@@ -116,13 +123,13 @@ export default function LoginScreen() {
         )}
 
         <div className={styles.divider} role="separator">
-          or use API key
+          {t("login.divider")}
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className={styles.field}>
             <label className={styles.label} htmlFor="speca-api-key">
-              Anthropic API key
+              {t("login.api_key_label")}
             </label>
             <input
               id="speca-api-key"
@@ -131,7 +138,7 @@ export default function LoginScreen() {
               autoComplete="off"
               autoCorrect="off"
               spellCheck={false}
-              placeholder="sk-ant-..."
+              placeholder={t("login.api_key_placeholder")}
               value={apiKey}
               onChange={(event) => setApiKey(event.target.value)}
               disabled={loginMutation.isPending}
@@ -159,7 +166,9 @@ export default function LoginScreen() {
             disabled={!canSubmit}
             style={{ marginTop: "var(--nyx-space-6)" }}
           >
-            {loginMutation.isPending ? "Signing in..." : "Sign in"}
+            {loginMutation.isPending
+              ? t("login.submit_pending")
+              : t("login.submit_idle")}
           </button>
         </form>
       </section>

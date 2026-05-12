@@ -6,6 +6,14 @@
 //
 // Used by AppShell as the Suspense fallback for the lazy ChatPanel and
 // exported for any feature slice that needs a placeholder.
+//
+// The `label` prop is the SR-only accessible name. Callers that have
+// access to a `useT()` `t` function should pass a translated string;
+// when omitted, the spinner falls back to the localized "Loading…"
+// string via the global i18next instance so the SR experience is never
+// untranslated.
+
+import i18next from "@/i18n";
 
 import styles from "./Spinner.module.css";
 
@@ -13,11 +21,15 @@ export type SpinnerSize = "sm" | "md" | "lg";
 
 export interface SpinnerProps {
   size?: SpinnerSize;
-  /** Accessible label read by screen readers. Defaults to "Loading". */
+  /**
+   * Accessible label read by screen readers. Defaults to a localized
+   * "Loading…" string.
+   */
   label?: string;
 }
 
-export function Spinner({ size = "md", label = "Loading" }: SpinnerProps) {
+export function Spinner({ size = "md", label }: SpinnerProps) {
+  const resolvedLabel = label ?? i18next.t("common.loading_short");
   return (
     <span
       className={styles.spinner}
@@ -26,7 +38,7 @@ export function Spinner({ size = "md", label = "Loading" }: SpinnerProps) {
       aria-live="polite"
     >
       <span className={styles.ring} aria-hidden="true" />
-      <span className={styles.srOnly}>{label}</span>
+      <span className={styles.srOnly}>{resolvedLabel}</span>
     </span>
   );
 }

@@ -14,6 +14,7 @@ import { useMemo, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
 import { useIntegrationsPaths } from "@/features/integrations/useIntegrationsStatus";
+import { useT } from "@/i18n/useT";
 
 import { FilterBar } from "./FilterBar";
 import { FindingRow } from "./FindingRow";
@@ -36,12 +37,12 @@ interface SortState {
   dir: SortDir;
 }
 
-const HEADERS: { key: SortKey; label: string; className: string }[] = [
-  { key: "severity", label: "Severity", className: "severityCol" },
-  { key: "property_id", label: "Property ID", className: "idCol" },
-  { key: "verdict", label: "Verdict", className: "verdictCol" },
-  { key: "file", label: "File", className: "fileCol" },
-  { key: "phase", label: "Phase", className: "phaseCol" },
+const HEADERS: { key: SortKey; i18nKey: string; className: string }[] = [
+  { key: "severity", i18nKey: "findings.list.col_severity", className: "severityCol" },
+  { key: "property_id", i18nKey: "findings.list.col_property_id", className: "idCol" },
+  { key: "verdict", i18nKey: "findings.list.col_verdict", className: "verdictCol" },
+  { key: "file", i18nKey: "findings.list.col_file", className: "fileCol" },
+  { key: "phase", i18nKey: "findings.list.col_phase", className: "phaseCol" },
 ];
 
 function compare(a: Finding, b: Finding, key: SortKey, dir: SortDir): number {
@@ -72,6 +73,7 @@ function compare(a: Finding, b: Finding, key: SortKey, dir: SortDir): number {
 }
 
 export function FindingsListPage() {
+  const t = useT();
   const { runId } = useParams<{ runId: string }>();
   const [searchParams] = useSearchParams();
   const [sort, setSort] = useState<SortState>({ key: "severity", dir: "asc" });
@@ -110,39 +112,53 @@ export function FindingsListPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h2 className={styles.title}>Findings</h2>
+        <h2 className={styles.title}>{t("findings.list.title")}</h2>
         <p className={styles.runLabel}>
-          Run <code>{runId ?? "—"}</code>
+          {t("findings.list.run_label")}{" "}
+          <code>{runId ?? t("common.none")}</code>
         </p>
       </header>
 
       {data && (
         <div className={styles.banner} role="status">
-          <strong>Data source: current <code>outputs/</code> (v0).</strong>{" "}
-          per-run 表示は v1 で対応。表示中の finding は {data.meta.count} 件。
+          <strong
+            dangerouslySetInnerHTML={{
+              __html: t("findings.list.banner_strong"),
+            }}
+          />{" "}
+          {t("findings.list.banner_text", { count: data.meta.count })}
         </div>
       )}
 
       <FilterBar />
 
-      {isLoading && <div className={styles.state}>Loading findings…</div>}
+      {isLoading && (
+        <div className={styles.state}>{t("findings.list.loading")}</div>
+      )}
 
       {error && (
         <div className={styles.error}>
-          findings の取得に失敗しました: {error.message}
+          {t("findings.list.load_failed", { error: error.message })}
         </div>
       )}
 
       {!isLoading && !error && sortedFindings.length === 0 && (
         <div className={styles.empty}>
-          この run に表示できる finding はありません。
-          <code>outputs/</code> に <code>03_PARTIAL_*.json</code> /{" "}
-          <code>04_PARTIAL_*.json</code> があるか確認してください。
+          {t("findings.list.empty_line1")}{" "}
+          <span
+            dangerouslySetInnerHTML={{
+              __html: t("findings.list.empty_line2"),
+            }}
+          />
         </div>
       )}
 
       {sortedFindings.length > 0 && (
-        <div className={styles.table} role="table" aria-label="Findings">
+        <div
+          className={styles.table}
+          role="table"
+          aria-label={t("findings.list.table_aria")}
+        >
           <div className={styles.thead} role="row">
             {HEADERS.map((h) => (
               <button
@@ -159,7 +175,7 @@ export function FindingsListPage() {
                 onClick={() => handleSort(h.key)}
                 className={`${styles.th} ${styles[h.className]}`}
               >
-                {h.label}
+                {t(h.i18nKey)}
                 {sort.key === h.key && (
                   <span className={styles.sortArrow}>
                     {sort.dir === "asc" ? "▲" : "▼"}

@@ -4,6 +4,8 @@
 // light and dark mode (we still need a dark-mode pass in v1, but oklch
 // at L=0.55–0.65 reads well on either background).
 
+import { useT } from "@/i18n/useT";
+
 import styles from "./SeverityChip.module.css";
 
 import type { Severity } from "./types";
@@ -23,6 +25,8 @@ const SEVERITY_CLASS: Record<Severity, string> = {
 };
 
 export function SeverityChip({ severity, compact = false }: Props) {
+  const t = useT();
+  const label = t(`findings.severity.${severity}`);
   const cls = [
     styles.chip,
     SEVERITY_CLASS[severity],
@@ -31,8 +35,12 @@ export function SeverityChip({ severity, compact = false }: Props) {
     .filter(Boolean)
     .join(" ");
   return (
-    <span className={cls} title={severity} aria-label={`severity: ${severity}`}>
-      {severity}
+    <span
+      className={cls}
+      title={label}
+      aria-label={t("findings.severity.aria_label", { severity: label })}
+    >
+      {label}
     </span>
   );
 }

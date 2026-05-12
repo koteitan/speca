@@ -1,5 +1,7 @@
 import { useCallback, useRef } from "react";
 
+import { useT } from "@/i18n/useT";
+
 import styles from "./ChatInput.module.css";
 
 /**
@@ -22,6 +24,7 @@ export interface ChatInputProps {
 }
 
 export function ChatInput({ disabled, onSubmit, placeholder }: ChatInputProps) {
+  const t = useT();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const submit = useCallback(() => {
@@ -48,8 +51,8 @@ export function ChatInput({ disabled, onSubmit, placeholder }: ChatInputProps) {
         className={styles.textarea}
         rows={1}
         disabled={disabled}
-        placeholder={placeholder ?? "Message Claude (read-only mode)"}
-        aria-label="Chat input"
+        placeholder={placeholder ?? t("chat.input.placeholder_default")}
+        aria-label={t("chat.input.input_aria")}
         onInput={(e) => {
           const el = e.currentTarget;
           el.style.height = "auto";
@@ -66,9 +69,9 @@ export function ChatInput({ disabled, onSubmit, placeholder }: ChatInputProps) {
         type="submit"
         className={styles.sendButton}
         disabled={disabled}
-        aria-label="Send message"
+        aria-label={t("chat.input.send_aria")}
       >
-        {disabled ? "…" : "Send"}
+        {disabled ? "…" : t("chat.input.send_label")}
       </button>
     </form>
   );

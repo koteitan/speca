@@ -22,6 +22,8 @@
 import { Suspense, lazy, useState, type ComponentType } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
+import { useT } from "@/i18n/useT";
+
 import { useAuthStatusSafe } from "../../features/auth/useAuthStatusSafe";
 import Spinner from "../Spinner/Spinner";
 import Header from "../Header/Header";
@@ -50,6 +52,7 @@ async function loadChatPanel(): Promise<{ default: ChatPanelComponent }> {
 const ChatPanel = lazy<ChatPanelComponent>(loadChatPanel);
 
 export function AppShell() {
+  const t = useT();
   const auth = useAuthStatusSafe();
   const location = useLocation();
   const [chatOpen, setChatOpen] = useState(false);
@@ -60,7 +63,7 @@ export function AppShell() {
   if (auth.isPending) {
     return (
       <div className={styles.bootstrap}>
-        <Spinner size="lg" label="Checking session" />
+        <Spinner size="lg" label={t("common.checking_session")} />
       </div>
     );
   }
@@ -85,11 +88,11 @@ export function AppShell() {
           <button
             type="button"
             className={styles.chatBackdrop}
-            aria-label="Close chat panel"
+            aria-label={t("header.close_chat")}
             onClick={() => setChatOpen(false)}
           />
-          <aside className={styles.chat} aria-label="Chat panel">
-            <Suspense fallback={<Spinner size="md" label="Loading chat" />}>
+          <aside className={styles.chat} aria-label={t("chat.panel.panel_aria")}>
+            <Suspense fallback={<Spinner size="md" label={t("common.loading_chat")} />}>
               <ChatPanel />
             </Suspense>
           </aside>

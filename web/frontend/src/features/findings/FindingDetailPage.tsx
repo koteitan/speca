@@ -12,6 +12,7 @@ import { useParams, Link } from "react-router-dom";
 
 import { OpenInVSCode } from "@/components/OpenInVSCode";
 import { useIntegrationsPaths } from "@/features/integrations/useIntegrationsStatus";
+import { useT } from "@/i18n/useT";
 
 import { parseLineStart } from "./parseLineRange";
 import { SeverityChip } from "./SeverityChip";
@@ -20,6 +21,7 @@ import { useFinding } from "./useFindings";
 import styles from "./FindingDetailPage.module.css";
 
 export function FindingDetailPage() {
+  const t = useT();
   const { runId, propertyId } = useParams<{
     runId: string;
     propertyId: string;
@@ -30,22 +32,22 @@ export function FindingDetailPage() {
   const { data: paths } = useIntegrationsPaths();
 
   if (isLoading) {
-    return <div className={styles.state}>Loading finding…</div>;
+    return <div className={styles.state}>{t("findings.detail.loading")}</div>;
   }
   if (error) {
     return (
       <div className={styles.error}>
-        finding の取得に失敗しました: {error.message}
+        {t("findings.detail.load_failed", { error: error.message })}
         <div className={styles.backLink}>
           <Link to={`/runs/${encodeURIComponent(runId ?? "")}/findings`}>
-            ← findings 一覧へ戻る
+            {t("findings.detail.back_link")}
           </Link>
         </div>
       </div>
     );
   }
   if (!data) {
-    return <div className={styles.state}>finding が見つかりませんでした。</div>;
+    return <div className={styles.state}>{t("findings.detail.not_found")}</div>;
   }
 
   const codeLocation =
@@ -67,7 +69,7 @@ export function FindingDetailPage() {
     <article className={styles.page}>
       <div className={styles.backLink}>
         <Link to={`/runs/${encodeURIComponent(runId ?? "")}/findings`}>
-          ← findings 一覧へ戻る
+          {t("findings.detail.back_link")}
         </Link>
       </div>
 
@@ -78,12 +80,16 @@ export function FindingDetailPage() {
         <div className={styles.chipRow}>
           <SeverityChip severity={data.severity} />
           <VerdictChip verdict={data.verdict} />
-          <span className={styles.phaseTag}>Phase {data.phase}</span>
+          <span className={styles.phaseTag}>
+            {t("findings.detail.phase_label", { phase: data.phase })}
+          </span>
         </div>
       </header>
 
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Code location</h3>
+        <h3 className={styles.sectionTitle}>
+          {t("findings.detail.code_location_title")}
+        </h3>
         {codeLocation ? (
           <div className={styles.codePathRow}>
             <div
@@ -98,35 +104,41 @@ export function FindingDetailPage() {
               <OpenInVSCode
                 path={vscodeTargetPath}
                 line={vscodeLine ?? undefined}
-                label="VSCode で開く"
+                label={t("findings.detail.open_in_vscode")}
                 variant="icon"
               />
             ) : null}
           </div>
         ) : (
           <div className={styles.empty}>
-            (location not resolved for this finding)
+            {t("findings.detail.code_location_unresolved")}
           </div>
         )}
       </section>
 
       {data.evidence_snippet && (
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Evidence snippet</h3>
+          <h3 className={styles.sectionTitle}>
+            {t("findings.detail.evidence_snippet_title")}
+          </h3>
           <pre className={styles.snippet}>{data.evidence_snippet}</pre>
         </section>
       )}
 
       {data.proof_trace && (
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Proof trace</h3>
+          <h3 className={styles.sectionTitle}>
+            {t("findings.detail.proof_trace_title")}
+          </h3>
           <pre className={styles.preserve}>{data.proof_trace}</pre>
         </section>
       )}
 
       {data.phase === "04" && data.gates_passed.length > 0 && (
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Gates passed</h3>
+          <h3 className={styles.sectionTitle}>
+            {t("findings.detail.gates_passed_title")}
+          </h3>
           <ul className={styles.gates}>
             {data.gates_passed.map((g) => (
               <li key={g}>{g}</li>
@@ -137,7 +149,9 @@ export function FindingDetailPage() {
 
       {data.reviewer_notes && (
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Reviewer notes</h3>
+          <h3 className={styles.sectionTitle}>
+            {t("findings.detail.reviewer_notes_title")}
+          </h3>
           <pre className={styles.preserve}>{data.reviewer_notes}</pre>
         </section>
       )}

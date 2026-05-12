@@ -32,9 +32,16 @@ packages = ["web"]
 [tool.hatch.metadata]
 allow-direct-references = true
 
+[tool.pytest.ini_options]
+# ``asyncio_mode=auto`` lets us decorate async tests with the plain
+# ``@pytest.mark.asyncio`` marker without also wiring a fixture; required
+# by web/server/tests/test_run_supervisor.py (Slice H1).
+asyncio_mode = "auto"
+
 [dependency-groups]
 dev = [
   "pytest>=7.0",
+  "pytest-asyncio>=0.23",
 ]
 benchmark = [
   "matplotlib>=3.7",

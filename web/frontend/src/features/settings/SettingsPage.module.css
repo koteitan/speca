@@ -121,3 +121,97 @@
   font-size: var(--nyx-font-size-sm);
   opacity: 0.7;
 }
+
+/* ---- Fork section (Slice S1) --------------------------------------------- */
+
+.forkForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+  max-width: 440px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.input {
+  width: 100%;
+  padding: var(--nyx-space-2) var(--nyx-space-3);
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-sm);
+  line-height: 1.4;
+  color: var(--ifm-color-content);
+  background: var(--ifm-background-color, #fff);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  transition: border-color var(--nyx-motion-instant) ease;
+}
+
+.input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.input[aria-invalid="true"] {
+  border-color: oklch(0.6 0.18 25);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+  border-color: var(--ifm-color-primary);
+}
+
+.submit {
+  align-self: flex-start;
+  padding: var(--nyx-space-2) var(--nyx-space-5);
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-sm);
+  line-height: 1.2;
+  color: oklch(0.99 0 0);
+  background: var(--ifm-color-primary);
+  border: 1px solid transparent;
+  border-radius: var(--nyx-radius-xs);
+  cursor: pointer;
+  transition: background var(--nyx-motion-instant) ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--ifm-color-primary-darker, oklch(0.55 0.18 258));
+}
+
+.submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.submit:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.success {
+  font-size: var(--nyx-font-size-sm);
+  color: oklch(0.45 0.12 145);
+  background: oklch(0.96 0.04 145);
+  border: 1px solid oklch(0.75 0.10 145);
+  border-radius: var(--nyx-radius-xs);
+  padding: var(--nyx-space-2) var(--nyx-space-3);
+}
+
+.success a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.error {
+  font-size: var(--nyx-font-size-sm);
+  color: oklch(0.4 0.16 25);
+  background: oklch(0.97 0.03 25);
+  border: 1px solid oklch(0.75 0.12 25);
+  border-radius: var(--nyx-radius-xs);
+  padding: var(--nyx-space-2) var(--nyx-space-3);
+}

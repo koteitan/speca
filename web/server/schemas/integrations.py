@@ -11,7 +11,9 @@ only reflects ``gh auth status``' exit code, not the token itself.
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+import re
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class CliDetected(BaseModel):
@@ -81,3 +83,61 @@ class IntegrationPaths(BaseModel):
     repo_root: str
     speca_dir: str
     claude_dir: str
+
+
+# ---- POST /api/integrations/fork (Slice B4) ---------------------------------
+#
+# A single regex enforces the ``owner/repo`` shape — GitHub allows letters,
+# digits, hyphens, underscores, and dots in both components (no spaces, no
+# slashes inside a component). The check is intentionally narrow: we'd rather
+# reject ``foo`` / ``a/b/c`` / ``owner repo`` outright than let an invalid
+# string travel into the ``gh repo fork`` subprocess.
+
+_TARGET_REPO_RE = re.compile(r"^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$")
+
+
+class ForkRequest(BaseModel):
+    """Body of ``POST /api/integrations/fork``.
+
+    The ``confirmed`` flag is the server-side checkpoint matching the
+    frontend ``ConfirmDialog`` — there is no implicit "yes". A frontend bug
+    that omits the flag must produce a 400 so we never spawn ``gh repo
+    fork`` against a half-typed repo from a Settings page hot reload.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_repo: str = Field(min_length=1, description="owner/repo")
+    into_owner: str | None = Field(
+        default=None, description="Optional org/user to fork into"
+    )
+    confirmed: bool = Field(
+        default=False,
+        description="Must be true; frontend ConfirmDialog gate",
+    )
+
+    @field_validator("target_repo")
+    @classmethod
+    def _validate_target_repo(cls, value: str) -> str:
+        if not _TARGET_REPO_RE.match(value):
+            raise ValueError(
+                "target_repo must be in 'owner/repo' form "
+                "(letters, digits, '.', '_', '-')"
+            )
+        return value
+
+
+class ForkResponse(BaseModel):
+    """Body of a successful ``POST /api/integrations/fork``.
+
+    ``forked_repo`` is in the ``"<new_owner>/<repo_name>"`` form so the
+    frontend can render it without re-parsing the URL, and ``fork_url`` is
+    the canonical ``https://github.com/<owner>/<repo>`` we synthesize from
+    the parsed owner+name pair (we never trust the raw ``gh`` stdout URL
+    because its exact format has churned across releases).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    fork_url: str
+    forked_repo: str

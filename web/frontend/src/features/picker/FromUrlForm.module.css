@@ -1,0 +1,91 @@
+/* From URL form — vertical stack of fields inside the picker B-card. */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-5);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-2);
+}
+
+.label {
+  font-size: var(--nyx-font-size-sm);
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: var(--nyx-space-3) var(--nyx-space-5);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 60px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95em;
+}
+
+.input:focus-visible,
+.textarea:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  padding: var(--nyx-space-3) var(--nyx-space-6);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-primary);
+  background: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  cursor: pointer;
+  transition: opacity var(--nyx-motion-instant) ease;
+}
+
+.submit:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submit:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.submitLabel {
+  white-space: nowrap;
+}
+
+.errorMessage {
+  margin: 0;
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  border: 1px solid oklch(0.55 0.2 30);
+  border-radius: var(--nyx-radius-xs);
+  color: oklch(0.55 0.2 30);
+  font-size: var(--nyx-font-size-sm);
+}

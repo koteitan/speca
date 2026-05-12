@@ -1,0 +1,200 @@
+/* RerunDialog — Slice D2.
+ *
+ * Visually inherits the ConfirmDialog look (translucent backdrop, centred
+ * card) but the card is a touch wider so the phase checkbox list does
+ * not wrap awkwardly. We re-implement the chrome here rather than
+ * extending ConfirmDialog so a future redesign of either dialog stays a
+ * local edit.
+ */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: oklch(0 0 0 / 0.5);
+  padding: var(--nyx-space-4);
+  animation: rerun-backdrop-fade-in var(--nyx-motion-instant) ease;
+}
+
+.card {
+  background: var(--ifm-background-color, #fff);
+  color: var(--ifm-color-content);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-md);
+  box-shadow: 0 12px 32px oklch(0 0 0 / 0.18);
+  padding: var(--nyx-space-6);
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-4);
+  outline: none;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-lg);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.description {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.toolbarButton {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  color: var(--ifm-color-content);
+  padding: var(--nyx-space-1) var(--nyx-space-3);
+  border-radius: var(--nyx-radius-xs);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  cursor: pointer;
+}
+
+.toolbarButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toolbarButton:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--nyx-radius-xs);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  padding: var(--nyx-space-3) var(--nyx-space-4);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  font-size: var(--nyx-font-size-sm);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.itemLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  cursor: pointer;
+  flex: 1;
+}
+
+.itemLabel input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.itemLabel input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.itemStatus {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  opacity: 0.65;
+  margin-left: auto;
+}
+
+.empty {
+  padding: var(--nyx-space-5);
+  text-align: center;
+  opacity: 0.7;
+  font-size: var(--nyx-font-size-sm);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--nyx-space-3);
+  margin-top: var(--nyx-space-2);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-sm);
+  line-height: 1.2;
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background var(--nyx-motion-instant) ease,
+    color var(--nyx-motion-instant) ease,
+    border-color var(--nyx-motion-instant) ease;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonGhost {
+  background: transparent;
+  color: var(--ifm-color-content);
+  border-color: var(--nyx-color-border-strong);
+}
+
+.buttonGhost:hover:not(:disabled) {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.buttonPrimary {
+  background: var(--ifm-color-primary);
+  color: oklch(0.99 0 0);
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background: var(--ifm-color-primary-darker, oklch(0.55 0.18 258));
+}
+
+@keyframes rerun-backdrop-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop {
+    animation: none;
+  }
+  .button,
+  .toolbarButton {
+    transition: none;
+  }
+}

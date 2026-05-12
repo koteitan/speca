@@ -9,10 +9,10 @@ Endpoints:
 * ``POST /api/integrations/open-in-vscode`` — fire-and-forget ``code``
   spawn. Returns ``{"ok": true}`` on success, ``503`` with a structured
   ``vscode_cli_not_found`` body if ``code`` is missing.
-
-The ``POST /api/integrations/fork`` endpoint (gh fork) is reserved for v1
-and intentionally not registered here — the v0 status payload is enough
-for the UI to render a "Fork to GitHub" button as disabled / coming soon.
+* ``POST /api/integrations/fork`` — wrap ``gh repo fork`` to fork
+  ``target_repo`` into the user's GH account (or a chosen org). The
+  endpoint requires ``confirmed: true`` so the frontend ConfirmDialog is
+  the only way to trigger a write — there is no implicit yes.
 """
 
 from __future__ import annotations
@@ -23,11 +23,14 @@ from fastapi import APIRouter, HTTPException
 
 from ..config import SPECA_REPO_ROOT, SPECA_RUNS_DIR, USER_CLAUDE_DIR
 from ..schemas.integrations import (
+    ForkRequest,
+    ForkResponse,
     IntegrationPaths,
     IntegrationsStatus,
     OpenInVSCodeRequest,
 )
 from ..services import cli_detect, launchers
+from ..services.launchers import GhForkFailed, GhNotAuthenticated
 
 logger = logging.getLogger(__name__)
 
@@ -99,3 +102,85 @@ def get_paths() -> IntegrationPaths:
         speca_dir=str(speca_dir),
         claude_dir=str(USER_CLAUDE_DIR),
     )
+
+
+@router.post("/fork", response_model=ForkResponse)
+def fork_target_repo(req: ForkRequest) -> ForkResponse:
+    """Fork ``req.target_repo`` to the user's GH account via ``gh repo fork``.
+
+    Failure modes are surfaced as structured HTTP errors:
+
+    * ``400 confirmation_required``  — ``confirmed`` was not set; the
+      frontend ConfirmDialog gate has not been passed.
+    * ``503 gh_cli_not_found``       — ``gh`` is not installed on PATH
+      (mirrors the ``vscode_cli_not_found`` shape used by the
+      open-in-vscode endpoint).
+    * ``403 gh_not_authed``          — ``gh auth status`` reports no
+      logged-in account. The hint instructs the user to run
+      ``gh auth login``.
+    * ``502 gh_fork_failed``         — ``gh repo fork`` exited non-zero
+      for any other reason (target not found, rate limit, missing scope,
+      ...). The stderr text is forwarded in ``detail`` so the user can
+      diagnose it without checking server logs.
+
+    On success returns ``ForkResponse`` with both the canonical
+    ``https://github.com/...`` URL and the parsed ``owner/repo`` token.
+    """
+
+    if not req.confirmed:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "confirmation_required",
+                "hint": (
+                    "frontend must set confirmed: true after "
+                    "ConfirmDialog approval"
+                ),
+            },
+        )
+
+    cli = cli_detect.get_status()
+    # ``cli`` is a pydantic model; use attribute access (``.gh.installed``)
+    # rather than dict subscripts so we keep the contract single-source.
+    if not cli.gh.installed:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "gh_cli_not_found",
+                "hint": "Install gh CLI: https://cli.github.com/",
+            },
+        )
+
+    try:
+        result = launchers.gh_repo_fork(req.target_repo, req.into_owner)
+    except FileNotFoundError as exc:
+        # Race window: ``cli_detect`` reported gh installed but the binary
+        # has since been removed. Treat the same as the pre-flight miss.
+        logger.warning("integrations.fork: gh disappeared mid-request: %s", exc)
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "gh_cli_not_found",
+                "hint": "Install gh CLI: https://cli.github.com/",
+            },
+        ) from exc
+    except GhNotAuthenticated as exc:
+        logger.warning("integrations.fork: not authed (%s)", exc)
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "gh_not_authed",
+                "hint": "Run `gh auth login` first",
+            },
+        ) from exc
+    except GhForkFailed as exc:
+        logger.warning("integrations.fork: gh repo fork failed (%s)", exc)
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "error": "gh_fork_failed",
+                "detail": str(exc),
+            },
+        ) from exc
+
+    return ForkResponse(**result)

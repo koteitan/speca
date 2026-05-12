@@ -17,6 +17,7 @@
 import { useId, type ReactElement } from "react";
 
 import { useIntegrationsStatus } from "@/features/integrations/useIntegrationsStatus";
+import { useT } from "@/i18n/useT";
 
 import styles from "./OpenInVSCode.module.css";
 import { useOpenInVSCode } from "./useOpenInVSCode";
@@ -30,7 +31,7 @@ export interface OpenInVSCodeProps {
   line?: number;
   /**
    * Visible label and (for the icon variant) the screen-reader name. Defaults
-   * to "VSCode で開く".
+   * to the localized "Open in VSCode" string.
    */
   label?: string;
   /** Pick a visual treatment. Defaults to `button`. */
@@ -38,10 +39,6 @@ export interface OpenInVSCodeProps {
   /** Extra class for the wrapping button (rare; mostly Slice G escape hatch). */
   className?: string;
 }
-
-const DEFAULT_LABEL = "VSCode で開く";
-const MISSING_HINT =
-  "VSCode CLI (`code`) が見つかりません。PATH 設定を確認してください";
 
 // Tiny inline SVG so we don't need an icon font. Stroke uses currentColor
 // so the icon picks up the same colour as adjacent text via the CSS module.
@@ -71,7 +68,9 @@ function VSCodeGlyph(): ReactElement {
 }
 
 export function OpenInVSCode(props: OpenInVSCodeProps): ReactElement {
-  const { path, line, label = DEFAULT_LABEL, variant = "button", className } = props;
+  const t = useT();
+  const defaultLabel = t("integrations.open_in_vscode.default_label");
+  const { path, line, label = defaultLabel, variant = "button", className } = props;
   const status = useIntegrationsStatus();
   const mutation = useOpenInVSCode();
   const titleId = useId();
@@ -83,9 +82,9 @@ export function OpenInVSCode(props: OpenInVSCodeProps): ReactElement {
   const codeInstalled = status.data?.code.installed ?? true;
   const disabled = !codeInstalled || mutation.isPending;
   const tooltip = !codeInstalled
-    ? MISSING_HINT
+    ? t("integrations.open_in_vscode.missing_hint")
     : mutation.isPending
-      ? "起動中…"
+      ? t("integrations.open_in_vscode.launching")
       : `${label} (${path}${line ? `:${line}` : ""})`;
 
   const variantClass =

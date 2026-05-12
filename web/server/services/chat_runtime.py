@@ -33,7 +33,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, AsyncIterator, Callable, Iterable, Protocol
 
-from web.server.services import chat_history, chat_tools
+from web.server.services import chat_approvals, chat_history, chat_tools
 from web.server.services.chat_tools import ToolNotAllowed
 from web.server.services.credentials import _load_raw as _load_credentials
 
@@ -47,6 +47,11 @@ DEFAULT_MAX_TOKENS = 4096
 # runaway turn could blow through the user's budget, so we stop after a
 # generous number of rounds and surface a soft error event.
 MAX_TOOL_ROUNDS = 8
+# How long we suspend a stream waiting for an approval before giving up
+# and surfacing ``approval_timeout``. Ten minutes is generous enough that
+# a user can step away for a coffee but bounded so an abandoned UI tab
+# cannot pin the supervisor / chat loop forever.
+APPROVAL_TIMEOUT_SECONDS = 600.0
 
 
 class _StreamLike(Protocol):
@@ -416,11 +421,70 @@ async def stream_response(
         # ---- Execute tool calls ------------------------------------------
         tool_result_blocks: list[dict[str, Any]] = []
         guard_violation = False
+        approval_aborted = False
         for block in tool_use_blocks:
             tool_name = block.get("name", "")
             tool_call_id = block.get("id") or block.get("tool_call_id") or ""
             tool_input = block.get("input") or {}
 
+            # --- Side-effect path: gate behind explicit approval --------
+            if tool_name in chat_tools.SIDE_EFFECT_TOOLS:
+                # ``_handle_side_effect_call`` is an async generator —
+                # iterate, don't ``await`` the call itself.
+                outcome = _handle_side_effect_call(
+                    conversation_id=conversation_id,
+                    tool_call_id=tool_call_id,
+                    tool_name=tool_name,
+                    tool_input=tool_input,
+                )
+                # ``_handle_side_effect_call`` is an async generator that
+                # yields a series of dicts. The last one is the canonical
+                # "tool result for the model" payload; everything before
+                # (e.g. ``tool_approval_required``) is purely for the SPA.
+                final_outcome: dict[str, Any] | None = None
+                async for event in outcome:
+                    if event.get("__terminal__"):
+                        # Strip the marker before yielding to subscribers.
+                        final_outcome = {k: v for k, v in event.items() if k != "__terminal__"}
+                        continue
+                    yield event
+                if final_outcome is None:  # pragma: no cover - defensive
+                    final_outcome = {
+                        "type": "tool_use_result",
+                        "tool_call_id": tool_call_id,
+                        "result": {"error": "internal_error", "tool": tool_name},
+                    }
+                # ``timeout`` aborts the entire turn — no further tools
+                # in this batch run and we do not reschedule.
+                if final_outcome.get("__timeout__"):
+                    yield {
+                        "type": "error",
+                        "reason": "approval_timeout",
+                        "tool_call_id": tool_call_id,
+                    }
+                    approval_aborted = True
+                    break
+
+                tool_result = final_outcome["result"]
+                is_error = bool(final_outcome.get("is_error", False))
+                yield {
+                    "type": "tool_use_result",
+                    "tool_call_id": tool_call_id,
+                    "result": tool_result,
+                }
+                tool_result_blocks.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": tool_call_id,
+                        "content": json.dumps(
+                            tool_result, ensure_ascii=False, default=str
+                        ),
+                        "is_error": is_error,
+                    }
+                )
+                continue
+
+            # --- Read-only path: dispatch directly ----------------------
             try:
                 result = await chat_tools.dispatch_tool(tool_name, tool_input)
                 is_error = False
@@ -461,6 +525,11 @@ async def stream_response(
             aborted = True
             break
 
+        if approval_aborted:
+            yield _final_message_stop_event(final_message)
+            aborted = True
+            break
+
         # Persist the user-side tool_result message before the next round.
         if tool_result_blocks:
             conversation = chat_history.append_message(
@@ -479,6 +548,136 @@ async def stream_response(
     if not aborted:
         conversation.last_message_at = datetime.now(timezone.utc)
         chat_history.save_conversation(conversation, base=base)
+
+
+# --- Side-effect tool approval flow ----------------------------------------
+
+
+async def _handle_side_effect_call(
+    *,
+    conversation_id: str,
+    tool_call_id: str,
+    tool_name: str,
+    tool_input: dict[str, Any],
+) -> AsyncIterator[dict[str, Any]]:
+    """Run the approval round-trip for one side-effecting ``tool_use``.
+
+    Yields a sequence of dicts. The *final* dict carries a private
+    ``"__terminal__": True`` marker and a ``"result"`` / ``"is_error"``
+    pair the caller uses to build the model-facing ``tool_result``. All
+    earlier dicts are passed through to the SSE stream as-is (the
+    ``tool_approval_required`` notification, plus optional
+    ``tool_use_result`` mid-flight events).
+
+    The terminal payload may also carry ``"__timeout__": True`` — the
+    caller treats that as a hard abort of the current turn.
+    """
+
+    approval = chat_approvals.register_pending(
+        conversation_id=conversation_id,
+        tool_call_id=tool_call_id,
+        tool_name=tool_name,
+        input_snapshot=tool_input,
+    )
+
+    yield {
+        "type": "tool_approval_required",
+        "tool_call_id": tool_call_id,
+        "name": tool_name,
+        "input": dict(tool_input),
+        "preview": _render_preview(tool_name, tool_input),
+    }
+
+    try:
+        await asyncio.wait_for(
+            approval.event.wait(), timeout=APPROVAL_TIMEOUT_SECONDS
+        )
+    except asyncio.TimeoutError:
+        chat_approvals.drop(conversation_id, tool_call_id)
+        yield {
+            "__terminal__": True,
+            "__timeout__": True,
+            "result": {
+                "error": "approval_timeout",
+                "tool": tool_name,
+                "tool_call_id": tool_call_id,
+            },
+            "is_error": True,
+        }
+        return
+
+    action = approval.action
+
+    if action == "cancel":
+        # Send Anthropic a "user declined" tool_result so it can wrap up
+        # the turn gracefully rather than hanging on a missing result.
+        yield {
+            "__terminal__": True,
+            "result": {
+                "declined": True,
+                "tool": tool_name,
+                "tool_call_id": tool_call_id,
+            },
+            "is_error": True,
+        }
+        return
+
+    # Approve / edit: use ``edited_input`` if the user customised the
+    # payload, otherwise the snapshot the model emitted.
+    final_input = approval.edited_input or approval.input_snapshot
+
+    try:
+        result = await chat_tools.dispatch_side_effect_tool(tool_name, final_input)
+        is_error = bool(isinstance(result, dict) and result.get("error"))
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.exception(
+            "chat_runtime: side-effect %s raised (%s)", tool_name, exc
+        )
+        result = {"error": "internal_error", "tool": tool_name, "message": str(exc)}
+        is_error = True
+
+    yield {
+        "__terminal__": True,
+        "result": result,
+        "is_error": is_error,
+    }
+
+
+def _render_preview(tool_name: str, tool_input: dict[str, Any]) -> dict[str, Any]:
+    """Build a small UI-friendly preview for the approval card.
+
+    The preview is purely cosmetic — the frontend can render either it or
+    the raw ``input``. We keep the structure stable per tool so the UI
+    can pattern-match on ``preview.kind``.
+
+    No HTML / Markdown injection happens here: the values come straight
+    from the model. The frontend is expected to escape on render (Slice
+    C3) — see ``docs/UI_DESIGN.md`` § 7.5.
+    """
+
+    if tool_name == "launch_pipeline":
+        return {
+            "kind": "launch_pipeline",
+            "summary": (
+                f"Start audit run for {tool_input.get('target_repo', '?')} "
+                f"({tool_input.get('target_ref') or 'HEAD'})"
+            ),
+            "fields": {
+                "bug_bounty_url": tool_input.get("bug_bounty_url"),
+                "target_repo": tool_input.get("target_repo"),
+                "target_ref": tool_input.get("target_ref"),
+                "workers": tool_input.get("workers", 4),
+                "max_concurrent": tool_input.get("max_concurrent", 64),
+                "push_to_remote": tool_input.get("push_to_remote", False),
+            },
+        }
+    if tool_name == "stop_pipeline":
+        return {
+            "kind": "stop_pipeline",
+            "summary": f"Cancel run {tool_input.get('run_id', '?')}",
+            "fields": {"run_id": tool_input.get("run_id")},
+        }
+    return {"kind": tool_name, "summary": tool_name, "fields": dict(tool_input)}
 
 
 # --- Event translation ------------------------------------------------------

@@ -22,6 +22,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { useT } from "@/i18n/useT";
+
 import { lookupGlossary } from "./glossary";
 import styles from "./Tooltip.module.css";
 
@@ -34,6 +36,11 @@ export interface TooltipProps {
 }
 
 export function Tooltip({ term, children, position = "top" }: TooltipProps) {
+  // Subscribe to language changes so the glossary text re-renders when
+  // the user toggles between EN/JA. We discard the returned `t` here —
+  // `lookupGlossary` reads via the global i18next instance — but the
+  // hook call itself wires the subscription.
+  useT();
   const [open, setOpen] = useState(false);
   const id = useId();
   const description = lookupGlossary(term);

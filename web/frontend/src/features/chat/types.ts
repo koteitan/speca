@@ -4,7 +4,15 @@
 // in web/server/services/chat_runtime.py. Keep these in sync by hand — v0
 // does not generate types from the OpenAPI schema.
 
-export type ChatRole = "user" | "assistant";
+/**
+ * ``"system"`` is **client-only** in v1: the backend persists only
+ * ``user`` and ``assistant`` messages, but the SPA inserts a transient
+ * ``system`` row carrying a ``tool_approval_required`` block when the
+ * runtime suspends on a side-effect tool call (Slice C3). On reload the
+ * row is gone because chat_history filters non-user/assistant roles —
+ * intentionally, since the approval state lives only in memory.
+ */
+export type ChatRole = "user" | "assistant" | "system";
 
 /** A single Anthropic-style content block (text / tool_use / tool_result / ...). */
 export type ContentBlock =
@@ -68,7 +76,23 @@ export type ErrorEvent = {
   reason: string;
   /** Present when ``reason === "tool_not_allowed"``. */
   tool?: string;
+  /** Present when ``reason === "approval_timeout"`` — see Slice C3. */
+  tool_call_id?: string;
   message?: string;
+};
+
+/**
+ * Backend signals that a side-effecting tool needs explicit user approval
+ * before it will run. Emitted by ``_handle_side_effect_call`` in
+ * ``web/server/services/chat_runtime.py``. The SSE stream stays open but
+ * idle until the SPA POSTs to ``/chat/tool_approve``. See Slice C1+C2.
+ */
+export type ToolApprovalRequiredEvent = {
+  type: "tool_approval_required";
+  tool_call_id: string;
+  name: string;
+  input: Record<string, unknown>;
+  preview?: Record<string, unknown>;
 };
 
 export type MessageStopEvent = {
@@ -82,6 +106,7 @@ export type ChatStreamEvent =
   | ToolInputPartialEvent
   | ToolUseStartEvent
   | ToolUseResultEvent
+  | ToolApprovalRequiredEvent
   | ErrorEvent
   | MessageStopEvent;
 

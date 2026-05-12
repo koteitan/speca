@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { apiFetch } from "@/lib/api";
+import { useChatApprovals } from "@/store/chatApprovalsSlice";
+import type { ApprovalToolName } from "@/store/chatApprovalsSlice";
 import type {
   ChatMessage,
   ChatStreamEvent,
@@ -160,7 +163,7 @@ export function useChatStream(conversationId: string) {
             const payload = dataLines.join("\n");
             try {
               const event = JSON.parse(payload) as ChatStreamEvent;
-              applyEvent(setState, event);
+              applyEvent(setState, event, conversationId);
             } catch {
               // Heartbeats and unknown framing lines fall through. We
               // deliberately swallow parse errors so a stray keepalive
@@ -193,6 +196,46 @@ export function useChatStream(conversationId: string) {
     setState((prev) => ({ ...promoteDraft(prev), streaming: false }));
   }, []);
 
+  /**
+   * Approve a pending side-effect tool call. Returns once the backend
+   * confirms — the SSE stream itself will continue yielding events
+   * (notably ``tool_use_result``) on the original connection.
+   *
+   * ``editedInput`` is reserved for a future "edit then approve" UI;
+   * v1 callers always omit it.
+   */
+  const approve = useCallback(
+    async (toolCallId: string, editedInput?: Record<string, unknown>) => {
+      await apiFetch<{ ok: boolean }>("/chat/tool_approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversation_id: conversationId,
+          tool_call_id: toolCallId,
+          action: "approve",
+          edited_input: editedInput ?? null,
+        }),
+      });
+    },
+    [conversationId],
+  );
+
+  const cancelApproval = useCallback(
+    async (toolCallId: string) => {
+      await apiFetch<{ ok: boolean }>("/chat/tool_approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversation_id: conversationId,
+          tool_call_id: toolCallId,
+          action: "cancel",
+          edited_input: null,
+        }),
+      });
+    },
+    [conversationId],
+  );
+
   return {
     messages: state.messages,
     streamingDraft: state.streamingDraft,
@@ -201,6 +244,8 @@ export function useChatStream(conversationId: string) {
     error: state.error,
     send,
     cancel,
+    approve,
+    cancelApproval,
   };
 }
 
@@ -209,12 +254,45 @@ export function useChatStream(conversationId: string) {
 function applyEvent(
   setState: React.Dispatch<React.SetStateAction<ChatStreamState>>,
   event: ChatStreamEvent,
+  conversationId: string,
 ) {
   setState((prev) => {
     switch (event.type) {
       case "content_block_delta": {
         const draft = appendDraftText(prev.streamingDraft, event.delta.text);
         return { ...prev, streamingDraft: draft };
+      }
+      case "tool_approval_required": {
+        // Track in the in-memory approvals store so the Header badge
+        // and any standalone ApprovalCard render can see it. The store
+        // sits *outside* React reducer state on purpose: the Header and
+        // chat panel live in separate subtrees of the AppShell.
+        useChatApprovals.getState().add({
+          conversationId,
+          toolCallId: event.tool_call_id,
+          name: event.name as ApprovalToolName,
+          input: event.input,
+          preview: event.preview,
+          receivedAt: Date.now(),
+        });
+        // Push a transient ``system`` row carrying the approval block so
+        // MessageBubble can render an ApprovalCard inline. The row is
+        // *not* persisted — chat_history drops non-user/assistant roles
+        // on save, which is exactly the behaviour we want.
+        const metaMessage: ChatMessage = {
+          role: "system",
+          content: [
+            {
+              type: "tool_approval_required",
+              tool_call_id: event.tool_call_id,
+              name: event.name,
+              input: event.input,
+              preview: event.preview,
+            },
+          ],
+          timestamp: new Date().toISOString(),
+        };
+        return { ...prev, messages: [...prev.messages, metaMessage] };
       }
       case "tool_use_start": {
         const draft = appendDraftToolUse(prev.streamingDraft, {
@@ -240,8 +318,16 @@ function applyEvent(
         const existing = prev.toolCalls[event.tool_call_id];
         const isError =
           event.result != null && typeof event.result === "object" && "error" in event.result;
+        // If this was an approved side-effect call, clear it from the
+        // approvals store and drop the transient system meta row so the
+        // ApprovalCard is replaced by the regular ToolCard result.
+        useChatApprovals.getState().remove(event.tool_call_id);
+        const filteredMessages = prev.messages.filter(
+          (m) => !isApprovalMetaFor(m, event.tool_call_id),
+        );
         return {
           ...prev,
+          messages: filteredMessages,
           toolCalls: {
             ...prev.toolCalls,
             [event.tool_call_id]: {
@@ -255,6 +341,18 @@ function applyEvent(
         };
       }
       case "error": {
+        if (event.reason === "approval_timeout" && event.tool_call_id) {
+          // Backend reaped the pending approval after 10 minutes. Drop
+          // the store entry; the meta row mutates to ``expired`` via a
+          // best-effort rewrite so the user sees *why* the card died.
+          useChatApprovals.getState().remove(event.tool_call_id);
+          const mutated = markApprovalExpired(prev.messages, event.tool_call_id);
+          return {
+            ...prev,
+            messages: mutated,
+            error: "Approval expired (10 min timeout).",
+          };
+        }
         const detail =
           event.reason === "tool_not_allowed"
             ? `Read-only mode: tool "${event.tool ?? "unknown"}" was blocked.`
@@ -321,6 +419,33 @@ function appendDraftToolUse(
     input: toolUse.input,
   });
   return { ...base, content: blocks };
+}
+
+/** Is ``m`` the transient system row for ``toolCallId``'s approval? */
+function isApprovalMetaFor(m: ChatMessage, toolCallId: string): boolean {
+  if (m.role !== "system") return false;
+  if (!Array.isArray(m.content)) return false;
+  const first = m.content[0] as { type?: string; tool_call_id?: string } | undefined;
+  return (
+    first?.type === "tool_approval_required" &&
+    first?.tool_call_id === toolCallId
+  );
+}
+
+/** Mark the matching system row as ``expired`` so its ApprovalCard
+ * shows the timeout message instead of disappearing silently. */
+function markApprovalExpired(
+  messages: ChatMessage[],
+  toolCallId: string,
+): ChatMessage[] {
+  return messages.map((m) => {
+    if (!isApprovalMetaFor(m, toolCallId)) return m;
+    const blocks = m.content as ContentBlock[];
+    const head = blocks[0] as Record<string, unknown>;
+    const updatedHead = { ...head, expired: true } as unknown as ContentBlock;
+    const newBlocks: ContentBlock[] = [updatedHead, ...blocks.slice(1)];
+    return { ...m, content: newBlocks };
+  });
 }
 
 function promoteDraft(state: ChatStreamState): ChatStreamState {

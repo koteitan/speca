@@ -12,6 +12,9 @@
 import { NavLink } from "react-router-dom";
 
 import { useAuthStatusSafe } from "../../features/auth/useAuthStatusSafe";
+import { useT } from "@/i18n/useT";
+import { useChatApprovals } from "@/store/chatApprovalsSlice";
+import LanguageToggle from "../LanguageToggle/LanguageToggle";
 import styles from "./Header.module.css";
 
 export interface HeaderProps {
@@ -23,61 +26,90 @@ export interface HeaderProps {
 
 export function Header({ onToggleChat, chatOpen }: HeaderProps) {
   const auth = useAuthStatusSafe();
+  const t = useT();
+  // Subscribe to the *array length* (not a function) so React re-renders
+  // when approvals come and go. Calling ``count()`` would only read the
+  // value at render time without subscribing.
+  const pendingCount = useChatApprovals((s) => s.pending.length);
+  // Only nudge the user when the chat panel is closed; while it is open
+  // the inline ApprovalCard is already visible and a redundant badge
+  // would just add noise.
+  const showBadge = pendingCount > 0 && !chatOpen;
 
   return (
     <header className={styles.header}>
       <div className={styles.brand}>
-        <span className={styles.logo}>SPECA</span>
-        <span className={styles.badge} aria-label="version v0">
+        <span className={styles.logo}>{t("app.name")}</span>
+        <span className={styles.badge} aria-label={t("header.version_badge_aria")}>
           v0
         </span>
       </div>
 
-      <nav className={styles.nav} aria-label="Primary">
+      <nav className={styles.nav} aria-label={t("header.nav_runs")}>
         <NavLink
           to="/runs"
           className={({ isActive }) =>
             isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
           }
         >
-          Runs
+          {t("header.nav_runs")}
         </NavLink>
       </nav>
 
       <div className={styles.tools}>
         <button
           type="button"
-          className={styles.iconButton}
+          className={`${styles.iconButton} ${
+            showBadge ? styles.iconButtonAlert : ""
+          }`}
           onClick={onToggleChat}
           aria-pressed={chatOpen}
-          aria-label={chatOpen ? "Close chat panel" : "Open chat panel"}
-          title={chatOpen ? "Close chat" : "Open chat"}
+          aria-label={chatOpen ? t("header.close_chat") : t("header.open_chat")}
+          title={chatOpen ? t("header.close_chat_title") : t("header.open_chat_title")}
+          data-testid="chat-toggle"
         >
-          <span aria-hidden="true">Chat</span>
+          <span aria-hidden="true">{t("header.chat_label")}</span>
+          {showBadge && (
+            <span
+              className={styles.badgePending}
+              aria-label={t(
+                pendingCount === 1
+                  ? "chat.approvals_pending"
+                  : "chat.approvals_pending_other",
+                { n: pendingCount },
+              )}
+              data-testid="approvals-pending-badge"
+            >
+              {pendingCount}
+            </span>
+          )}
         </button>
 
         <span className={styles.identity}>
           {auth.identity ? (
             <>
-              <span className={styles.identityLabel}>signed in as</span>{" "}
+              <span className={styles.identityLabel}>{t("header.signed_in_as")}</span>{" "}
               <span className={styles.identityValue}>{auth.identity}</span>
             </>
           ) : auth.loggedIn ? (
-            <span className={styles.identityLabel}>signed in</span>
+            <span className={styles.identityLabel}>{t("header.signed_in")}</span>
           ) : (
-            <span className={styles.identityLabel}>guest</span>
+            <span className={styles.identityLabel}>{t("header.guest")}</span>
           )}
         </span>
+
+        {/* === language toggle === */}
+        <LanguageToggle compact />
 
         <NavLink
           to="/settings"
           className={({ isActive }) =>
             isActive ? `${styles.iconButton} ${styles.iconButtonActive}` : styles.iconButton
           }
-          aria-label="Settings"
-          title="Settings"
+          aria-label={t("header.settings_label")}
+          title={t("header.settings_label")}
         >
-          <span aria-hidden="true">Settings</span>
+          <span aria-hidden="true">{t("header.settings_label")}</span>
         </NavLink>
       </div>
     </header>

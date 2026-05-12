@@ -6,6 +6,7 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 
 import App from "./App";
 import { queryClient } from "./queryClient";
+import "./i18n";
 import "./styles/global.css";
 
 const rootElement = document.getElementById("root");

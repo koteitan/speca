@@ -109,6 +109,36 @@
   outline-offset: 2px;
 }
 
+/* Approval-pending alert state for the chat toggle. The button itself
+ * shifts to a soft alert background while a tiny counter pill sits on
+ * the top-right corner. */
+.iconButtonAlert {
+  border-color: var(--ifm-color-primary);
+  background: color-mix(in oklch, var(--ifm-color-primary) 12%, transparent);
+  position: relative;
+  padding-right: var(--nyx-space-5);
+}
+
+.iconButtonAlert:hover {
+  background: color-mix(in oklch, var(--ifm-color-primary) 20%, transparent);
+}
+
+.badgePending {
+  margin-left: var(--nyx-space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .identity {
   font-size: var(--nyx-font-size-xs);
   color: var(--ifm-color-content);

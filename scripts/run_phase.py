@@ -34,6 +34,7 @@ from orchestrator.base import PhaseAbortError
 from orchestrator.config import get_phase_config, get_phase_chain, PHASE_CONFIGS, resolve_pattern
 from orchestrator.json_events import JsonEventEmitter
 from orchestrator.paths import get_output_root
+from orchestrator.phase0_runner import get_phase0_runner, is_phase0
 from orchestrator.resume import ResumeManager
 
 
@@ -117,6 +118,12 @@ def check_dependencies(phase_id: str) -> bool:
 
 def run_cleanup(phase_id: str, dry_run: bool = True) -> bool:
     """Run cleanup for incomplete batches and their logs."""
+    # Phase 0 outputs are singleton files (no PARTIAL/_QUEUE_ pattern), so the
+    # ResumeManager's batch-level cleanup logic does not apply. Simply skip.
+    if is_phase0(phase_id):
+        if dry_run:
+            print(f"Snapshot cleanup check for {phase_id}: phase 0 has no batches.")
+        return False
     config = get_phase_config(phase_id)
     resume_manager = ResumeManager(config)
     summary = resume_manager.get_cleanup_summary()
@@ -201,6 +208,40 @@ async def run_phase(
     print(f"\n{'#'*60}")
     print(f"# Starting Phase {phase_id}")
     print(f"{'#'*60}")
+
+    # Phase 0 (setup) runs synchronously and outside the async batch
+    # pipeline. We dispatch to phase0_runner here so that the rest of this
+    # function (cleanup, orchestrator, circuit breaker, ...) stays unchanged
+    # for 01a..04. See scripts/orchestrator/phase0_runner.py.
+    if is_phase0(phase_id):
+        try:
+            runner = get_phase0_runner(phase_id, output_dir=get_output_root())
+            rc = runner.run()
+        except Exception as exc:  # noqa: BLE001 — surface any subprocess error
+            import traceback
+            traceback.print_exc()
+            duration = round(time.time() - start_time, 2)
+            emitter.emit(
+                "phase-failed",
+                phase=phase_id,
+                reason=f"{type(exc).__name__}: {exc}",
+                duration_s=duration,
+            )
+            return False
+
+        duration = round(time.time() - start_time, 2)
+        if rc == 0:
+            emitter.emit(
+                "phase-completed", phase=phase_id, duration_s=duration, total_results=0
+            )
+            return True
+        emitter.emit(
+            "phase-failed",
+            phase=phase_id,
+            reason=f"phase0 runner exit code {rc}",
+            duration_s=duration,
+        )
+        return False
 
     # Set default environment variables for 01a if not set
     if phase_id == "01a":

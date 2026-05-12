@@ -13,10 +13,13 @@
 
 import { useState } from "react";
 
+import { useT } from "@/i18n/useT";
+
 import { useSavedTargets } from "../picker/useSavedTargets";
 import styles from "./DemoSeed.module.css";
 
 export function DemoSeed() {
+  const t = useT();
   const { data, isPending, isError } = useSavedTargets();
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -39,9 +42,9 @@ export function DemoSeed() {
         className={styles.card}
         onClick={() => setModalOpen(true)}
       >
-        <span className={styles.label}>サンプル</span>
+        <span className={styles.label}>{t("onboarding.demo.badge")}</span>
         <span className={styles.title}>{demo.target_repo}</span>
-        <span className={styles.note}>read-only preview</span>
+        <span className={styles.note}>{t("onboarding.demo.preview_note")}</span>
       </button>
 
       {modalOpen ? (
@@ -57,18 +60,17 @@ export function DemoSeed() {
             onClick={(event) => event.stopPropagation()}
           >
             <h2 id="demo-seed-modal-title" className={styles.modalTitle}>
-              v1 で起動可能
+              {t("onboarding.demo.modal_title")}
             </h2>
             <p className={styles.modalBody}>
-              {demo.target_repo} は v0 では read-only preview のみです。
-              v1 で audit run の起動に対応します。
+              {t("onboarding.demo.modal_body", { repo: demo.target_repo })}
             </p>
             <button
               type="button"
               className={styles.modalClose}
               onClick={() => setModalOpen(false)}
             >
-              OK
+              {t("onboarding.demo.modal_close")}
             </button>
           </div>
         </div>

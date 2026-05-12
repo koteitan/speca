@@ -66,3 +66,67 @@ class RunDetail(RunSummary):
     spec_sources: list[str] = Field(default_factory=list)
     prompt_shas: dict[str, str] = Field(default_factory=dict)
     branch_name: str | None = None
+
+
+# ---------------------------------------------------------------------------
+# Slice B1: POST /api/runs + cancel + rerun
+# ---------------------------------------------------------------------------
+#
+# ``RunStartSpec`` (the *input* payload for POST /api/runs) lives in
+# :mod:`web.server.schemas.run_state` because the supervisor also accepts
+# it directly. Routers import that schema for the request body and the
+# response models defined below for the response body.
+
+
+class RunStartResponse(BaseModel):
+    """Body returned by ``POST /api/runs`` on a successful spawn.
+
+    202 Accepted — the subprocess chain is driven in the background, this
+    response only carries the freshly minted ``run_id`` plus the metadata
+    the UI needs to render the "run started" toast (branch name +
+    workspace path) without round-tripping ``GET /api/runs/<id>``.
+    """
+
+    model_config = ConfigDict(extra="allow")
+
+    run_id: str
+    branch_name: str
+    workspace_path: str
+    started_at: datetime
+
+
+class RerunRequest(BaseModel):
+    """Body accepted by ``POST /api/runs/<run_id>/rerun``.
+
+    The supervisor's :meth:`rerun_phases` enforces that the run is
+    terminal; the router performs additional validation (``phases`` must
+    be a non-empty subset of the canonical phase set) so we 422 *before*
+    touching the supervisor.
+    """
+
+    phases: list[str] = Field(
+        min_length=1,
+        description="phase ids to rerun, e.g. ['03','04']",
+    )
+    force: bool = True
+
+
+class RerunResponse(BaseModel):
+    """Body returned by ``POST /api/runs/<run_id>/rerun``."""
+
+    run_id: str
+    rerun_phases: list[str]
+
+
+class CancelResponse(BaseModel):
+    """Body returned by ``POST /api/runs/<run_id>/cancel``.
+
+    ``status`` distinguishes the three observable cancel outcomes:
+
+    * ``cancel_requested`` — SIGTERM dispatched, supervisor is acting on it.
+    * ``cancelled``        — already terminal as cancelled (rare race).
+    * ``already_finished`` — run completed/failed before cancel arrived.
+    """
+
+    run_id: str
+    status: str

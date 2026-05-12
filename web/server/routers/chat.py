@@ -28,8 +28,10 @@ from web.server.schemas.chat import (
     Conversation,
     ConversationSummary,
     PostMessageRequest,
+    ToolApprovalRequest,
+    ToolApprovalResponse,
 )
-from web.server.services import chat_history, chat_runtime
+from web.server.services import chat_approvals, chat_history, chat_runtime
 
 logger = logging.getLogger(__name__)
 
@@ -110,3 +112,36 @@ async def post_message_route(
     # ``Content-Type: text/event-stream`` header, keep-alive pings, and
     # framing for us — we just yield dicts shaped ``{"data": "<json>"}``.
     return EventSourceResponse(event_source())
+
+
+@router.post("/tool_approve", response_model=ToolApprovalResponse)
+def tool_approve_route(body: ToolApprovalRequest) -> ToolApprovalResponse:
+    """Approve, edit, or cancel a pending side-effect tool call.
+
+    The body is delivered to the in-memory approval registry which
+    unblocks the SSE stream that is currently suspended on this
+    ``tool_call_id``. A 404 is returned if no pending approval exists —
+    the most likely cause is that the stream already timed out, but it
+    could also indicate a duplicate POST after the user clicked
+    "approve" twice. Either way the SPA should refresh the chat to
+    re-sync state.
+
+    See ``docs/UI_DESIGN.md`` § 7.6 for the wire shape and Slice C1+C2
+    handoff notes.
+    """
+
+    ok = chat_approvals.resolve(
+        conversation_id=body.conversation_id,
+        tool_call_id=body.tool_call_id,
+        action=body.action,
+        edited_input=body.edited_input,
+    )
+    if not ok:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "no_pending_approval",
+                "tool_call_id": body.tool_call_id,
+            },
+        )
+    return ToolApprovalResponse(ok=True)

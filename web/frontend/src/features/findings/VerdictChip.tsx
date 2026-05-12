@@ -5,6 +5,8 @@
 // NOT silently drop unknown verdicts — forks may emit custom verdicts
 // and the user still wants to see them.
 
+import { useT } from "@/i18n/useT";
+
 import styles from "./VerdictChip.module.css";
 
 import { isKnownVerdict, type KnownVerdict } from "./types";
@@ -22,17 +24,9 @@ const VERDICT_CLASS: Record<KnownVerdict, string> = {
   PASS_THROUGH: styles.passThrough,
 };
 
-const VERDICT_LABEL: Record<KnownVerdict, string> = {
-  CONFIRMED_VULNERABILITY: "Confirmed vuln",
-  CONFIRMED_POTENTIAL: "Confirmed potential",
-  DISPUTED_FP: "Disputed FP",
-  DOWNGRADED: "Downgraded",
-  NEEDS_MANUAL_REVIEW: "Needs review",
-  PASS_THROUGH: "Pass-through",
-};
-
 export function VerdictChip({ verdict }: Props) {
-  if (!verdict) return <span className={styles.none}>—</span>;
+  const t = useT();
+  if (!verdict) return <span className={styles.none}>{t("findings.verdict.none")}</span>;
 
   if (isKnownVerdict(verdict)) {
     return (
@@ -40,7 +34,7 @@ export function VerdictChip({ verdict }: Props) {
         className={`${styles.chip} ${VERDICT_CLASS[verdict]}`}
         title={verdict}
       >
-        {VERDICT_LABEL[verdict]}
+        {t(`findings.verdict.${verdict}`)}
       </span>
     );
   }
