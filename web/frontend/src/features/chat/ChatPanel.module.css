@@ -5,18 +5,15 @@
  */
 
 .panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 360px;
+  /* AppShell hosts us in a grid slot — fill the slot, do not float.
+   * For standalone usage the caller is expected to provide a sized
+   * positioned wrapper (storybook etc.). */
+  position: relative;
+  width: 100%;
+  height: 100%;
   background: var(--ifm-background-color);
-  border-left: 1px solid var(--ifm-color-emphasis-200);
   display: flex;
   flex-direction: column;
-  z-index: 50;
-  /* Slice F (AppShell) is expected to mount this and offset main content
-   * by 360px on desktop. Standalone we still want a clean fixed column. */
 }
 
 .header {
@@ -59,6 +56,32 @@
 
 .collapseButton:hover {
   opacity: 1;
+}
+
+.headerButton {
+  background: transparent;
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  padding: var(--nyx-space-1) var(--nyx-space-3);
+  font: inherit;
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-content);
+  cursor: pointer;
+}
+
+.headerButton:hover {
+  background: var(--nyx-color-border-muted);
+}
+
+.headerButton[aria-pressed="true"] {
+  background: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  border-color: var(--ifm-color-primary);
+}
+
+.headerButton:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
 }
 
 .scroll {

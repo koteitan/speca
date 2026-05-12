@@ -11,7 +11,10 @@
     "label": "テーマ",
     "light": "ライト",
     "dark": "ダーク",
-    "system": "自動"
+    "system": "自動",
+    "light_short": "明",
+    "dark_short": "暗",
+    "system_short": "自"
   },
   "common": {
     "loading": "読み込み中...",
@@ -41,6 +44,14 @@
     "settings_label": "設定"
   },
   "chat": {
+    "history": {
+      "toggle_label": "履歴",
+      "toggle_aria": "会話履歴の表示切替",
+      "aria": "過去の会話",
+      "new": "+ 新規 chat",
+      "empty": "過去の会話はまだありません。",
+      "untitled": "(タイトル無し)"
+    },
     "panel": {
       "open_chat_aria": "chat を開く",
       "fab_label": "Chat",

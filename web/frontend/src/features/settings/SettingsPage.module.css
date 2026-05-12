@@ -46,7 +46,8 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: oklch(0.45 0.005 258);
+  color: var(--ifm-color-content);
+  opacity: 0.65;
 }
 
 .sectionHint {
@@ -64,7 +65,7 @@
   padding: var(--nyx-space-4) var(--nyx-space-5);
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--nyx-radius-sm);
-  background: oklch(0.985 0.003 258);
+  background: var(--nyx-color-surface-muted);
 }
 
 .kvRow {
@@ -143,7 +144,7 @@
   font-size: var(--nyx-font-size-sm);
   line-height: 1.4;
   color: var(--ifm-color-content);
-  background: var(--ifm-background-color, #fff);
+  background: var(--ifm-background-color);
   border: 1px solid var(--nyx-color-border-strong);
   border-radius: var(--nyx-radius-xs);
   transition: border-color var(--nyx-motion-instant) ease;
@@ -170,7 +171,7 @@
   font-family: var(--nyx-font-family);
   font-size: var(--nyx-font-size-sm);
   line-height: 1.2;
-  color: oklch(0.99 0 0);
+  color: var(--ifm-background-color);
   background: var(--ifm-color-primary);
   border: 1px solid transparent;
   border-radius: var(--nyx-radius-xs);
@@ -179,7 +180,7 @@
 }
 
 .submit:hover:not(:disabled) {
-  background: var(--ifm-color-primary-darker, oklch(0.55 0.18 258));
+  background: var(--ifm-color-primary-darker);
 }
 
 .submit:disabled {
@@ -192,13 +193,18 @@
   outline-offset: 2px;
 }
 
+/* Accent surfaces: hue stays constant, lightness flips with the theme. */
 .success {
   font-size: var(--nyx-font-size-sm);
-  color: oklch(0.45 0.12 145);
-  background: oklch(0.96 0.04 145);
-  border: 1px solid oklch(0.75 0.10 145);
+  color: oklch(0.55 0.16 145);
+  background: color-mix(in oklch, oklch(0.65 0.16 145) 15%, var(--nyx-color-surface-muted));
+  border: 1px solid color-mix(in oklch, oklch(0.65 0.16 145) 50%, var(--nyx-color-border-muted));
   border-radius: var(--nyx-radius-xs);
   padding: var(--nyx-space-2) var(--nyx-space-3);
+}
+
+[data-theme="dark"] .success {
+  color: oklch(0.85 0.14 145);
 }
 
 .success a {
@@ -209,9 +215,13 @@
 
 .error {
   font-size: var(--nyx-font-size-sm);
-  color: oklch(0.4 0.16 25);
-  background: oklch(0.97 0.03 25);
-  border: 1px solid oklch(0.75 0.12 25);
+  color: oklch(0.5 0.18 25);
+  background: color-mix(in oklch, oklch(0.6 0.18 25) 15%, var(--nyx-color-surface-muted));
+  border: 1px solid color-mix(in oklch, oklch(0.6 0.18 25) 50%, var(--nyx-color-border-muted));
   border-radius: var(--nyx-radius-xs);
   padding: var(--nyx-space-2) var(--nyx-space-3);
+}
+
+[data-theme="dark"] .error {
+  color: oklch(0.78 0.18 25);
 }

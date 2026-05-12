@@ -59,7 +59,14 @@ export function ChatInput({ disabled, onSubmit, placeholder }: ChatInputProps) {
           el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
         }}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
+          // Skip IME composition confirms — Japanese / Chinese / Korean
+          // users press Enter to commit the candidate, NOT to send the
+          // message. ``isComposing`` (or the legacy ``keyCode === 229``)
+          // catches that case in every modern browser. Without this
+          // guard the message ships mid-conversion.
+          const ime =
+            e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229;
+          if (e.key === "Enter" && !e.shiftKey && !ime) {
             e.preventDefault();
             submit();
           }

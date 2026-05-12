@@ -21,6 +21,12 @@ const LABEL_KEY: Record<ThemeMode, string> = {
   system: "theme.system",
 };
 
+const COMPACT_LABEL_KEY: Record<ThemeMode, string> = {
+  light: "theme.light_short",
+  dark: "theme.dark_short",
+  system: "theme.system_short",
+};
+
 export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
   const mode = useTheme((s) => s.mode);
   const setMode = useTheme((s) => s.setMode);
@@ -42,9 +48,11 @@ export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
           }`}
           onClick={() => setMode(m)}
           aria-pressed={mode === m}
+          aria-label={t(LABEL_KEY[m])}
+          title={t(LABEL_KEY[m])}
           data-testid={`theme-toggle-${m}`}
         >
-          {t(LABEL_KEY[m])}
+          {t(compact ? COMPACT_LABEL_KEY[m] : LABEL_KEY[m])}
         </button>
       ))}
     </div>

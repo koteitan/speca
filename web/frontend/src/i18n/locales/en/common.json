@@ -11,7 +11,10 @@
     "label": "Theme",
     "light": "Light",
     "dark": "Dark",
-    "system": "Auto"
+    "system": "Auto",
+    "light_short": "L",
+    "dark_short": "D",
+    "system_short": "A"
   },
   "common": {
     "loading": "Loading...",
@@ -41,6 +44,14 @@
     "settings_label": "Settings"
   },
   "chat": {
+    "history": {
+      "toggle_label": "History",
+      "toggle_aria": "Toggle conversation history",
+      "aria": "Past conversations",
+      "new": "+ New chat",
+      "empty": "No past conversations yet.",
+      "untitled": "(untitled)"
+    },
     "panel": {
       "open_chat_aria": "Open chat",
       "fab_label": "Chat",

@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useT } from "@/i18n/useT";
 
 import { ApprovalCard } from "./ApprovalCard";
 import type { ApprovalCardToolName } from "./ApprovalCard";
 import { ChatInput } from "./ChatInput";
+import { HistoryDrawer } from "./HistoryDrawer";
 import { MessageBubble } from "./MessageBubble";
 import { newConversationId } from "./conversationId";
 import { useChatStream } from "./useChatStream";
@@ -38,14 +39,16 @@ export interface ChatPanelProps {
 
 export function ChatPanel({ conversationId, defaultOpen = true }: ChatPanelProps) {
   const t = useT();
-  // Memoise so the id is stable across re-renders even if the caller
-  // omits it. ``useState`` would also work but ``useMemo`` makes intent
-  // clear: we want one id per *prop value*, not per render.
-  const effectiveId = useMemo(
+  // When the caller does not supply an id we own it via local state so
+  // a "new chat" action can swap it without remounting the panel. The
+  // initial mint is wrapped in a lazy initializer to avoid generating a
+  // UUID per render.
+  const [ownedId, setOwnedId] = useState<string>(
     () => conversationId ?? newConversationId(),
-    [conversationId],
   );
+  const effectiveId = conversationId ?? ownedId;
   const [open, setOpen] = useState(defaultOpen);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const {
     messages,
@@ -140,6 +143,17 @@ export function ChatPanel({ conversationId, defaultOpen = true }: ChatPanelProps
         </span>
         <button
           type="button"
+          className={styles.headerButton}
+          aria-pressed={historyOpen}
+          aria-label={t("chat.history.toggle_aria")}
+          title={t("chat.history.toggle_aria")}
+          onClick={() => setHistoryOpen((v) => !v)}
+          data-testid="chat-history-toggle"
+        >
+          {t("chat.history.toggle_label")}
+        </button>
+        <button
+          type="button"
           className={styles.collapseButton}
           aria-label={t("chat.panel.collapse_aria")}
           onClick={() => setOpen(false)}
@@ -147,6 +161,26 @@ export function ChatPanel({ conversationId, defaultOpen = true }: ChatPanelProps
           ×
         </button>
       </header>
+
+      <HistoryDrawer
+        activeId={effectiveId}
+        open={historyOpen}
+        onSelect={(id) => {
+          // Switching is permitted only when the panel owns its id.
+          // When a parent passed a fixed `conversationId` prop we can't
+          // override it from here — silently no-op in that case.
+          if (conversationId === undefined) {
+            setOwnedId(id);
+            setHistoryOpen(false);
+          }
+        }}
+        onNew={() => {
+          if (conversationId === undefined) {
+            setOwnedId(newConversationId());
+            setHistoryOpen(false);
+          }
+        }}
+      />
 
       <div className={styles.scroll} ref={scrollRef}>
         {messages.length === 0 && !streamingDraft && (

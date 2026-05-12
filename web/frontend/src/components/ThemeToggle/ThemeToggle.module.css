@@ -61,6 +61,7 @@
 }
 
 .compact .button {
-  min-width: 48px;
+  min-width: 28px;
   padding: var(--nyx-space-1) var(--nyx-space-3);
+  letter-spacing: 0;
 }
