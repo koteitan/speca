@@ -183,6 +183,7 @@ export default function RunListPage() {
           </p>
         </div>
       ) : (
+        <div className={styles.tableWrap}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -242,6 +243,7 @@ export default function RunListPage() {
             })}
           </tbody>
         </table>
+        </div>
       )}
     </section>
   );

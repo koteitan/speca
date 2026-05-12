@@ -85,6 +85,19 @@ def smoke_health(page: Page, base: str) -> None:
         assert res.ok, f"HTTP {res.status}"
 
 
+def smoke_login_screen(page: Page, base: str) -> None:
+    """Visit /login while logged out via cookie wipe in this context."""
+
+    with step("login_screen_renders"):
+        # Wipe any prior persisted query cache so AppShell falls through
+        # to the unauthenticated path. Hitting /login directly works once
+        # the route renders without the auth gate redirect (Slice A path).
+        goto(page, f"{base}/login")
+        page.wait_for_load_state("domcontentloaded", timeout=5_000)
+        # The OAuth button + API key field anchor identity of the screen.
+        expect_visible(page, "input[type='password']", timeout=5_000)
+
+
 def smoke_dashboard_loads(page: Page, base: str) -> None:
     with step("dashboard_loads"):
         goto(page, f"{base}/")
@@ -249,6 +262,7 @@ def run(base: str, headless: bool, screenshots: Path | None) -> int:
 
             flows = [
                 smoke_health,
+                smoke_login_screen,
                 smoke_dashboard_loads,
                 smoke_runs_visible,
                 smoke_picker_3_entries,
@@ -269,6 +283,27 @@ def run(base: str, headless: bool, screenshots: Path | None) -> int:
             # Dark-mode visual sweep at the end so the previous light-mode
             # screenshots are preserved.
             smoke_dark_mode_each_screen(page, base, screenshots)
+
+            # Mobile (360x720) walk of the main surfaces.
+            mobile_context = browser.new_context(
+                viewport={"width": 360, "height": 720},
+                device_scale_factor=2,
+                is_mobile=True,
+            )
+            mpage = mobile_context.new_page()
+            mpage.set_default_timeout(8_000)
+            for name, url in (
+                ("mobile_runs", f"{base}/runs"),
+                ("mobile_new_run", f"{base}/runs/new"),
+                ("mobile_review", f"{base}/runs/new/review"),
+                ("mobile_settings", f"{base}/settings"),
+            ):
+                with step(name):
+                    goto(mpage, url)
+                    mpage.wait_for_load_state("networkidle", timeout=6_000)
+                if screenshots is not None:
+                    screenshot_to(mpage, screenshots, name)
+            mobile_context.close()
 
         finally:
             try:

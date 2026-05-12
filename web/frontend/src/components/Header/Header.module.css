@@ -159,12 +159,37 @@
 
 @media (max-width: 720px) {
   .header {
-    grid-template-columns: auto 1fr auto;
-    gap: var(--nyx-space-4);
-    padding: var(--nyx-space-4) var(--nyx-space-5);
+    /* Stack into two rows on narrow viewports: brand+nav on top, tools
+     * (with their own wrap) on the bottom. Avoids the > 6-control
+     * overflow we hit at 360px. */
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "brand nav"
+      "tools tools";
+    row-gap: var(--nyx-space-3);
+    gap: var(--nyx-space-3);
+    padding: var(--nyx-space-3) var(--nyx-space-4);
+  }
+  .brand {
+    grid-area: brand;
+  }
+  .nav {
+    grid-area: nav;
+  }
+  .tools {
+    grid-area: tools;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--nyx-space-3);
   }
 
   .identity {
     display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .header {
+    padding: var(--nyx-space-2) var(--nyx-space-3);
   }
 }

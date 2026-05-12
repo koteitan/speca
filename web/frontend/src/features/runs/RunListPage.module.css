@@ -82,6 +82,15 @@
   font: inherit;
 }
 
+.tableWrap {
+  width: 100%;
+  /* Let the table scroll horizontally on narrow viewports instead of
+   * forcing column headers to wrap vertically (which made every cell
+   * read like a vertical strip on 360px). */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -93,6 +102,13 @@
   text-align: left;
   padding: var(--nyx-space-4) var(--nyx-space-5);
   border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .table {
+    min-width: 640px;
+  }
 }
 
 .table th {
