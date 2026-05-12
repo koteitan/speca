@@ -1,0 +1,170 @@
+/* ApprovalCard — high-contrast inline gate for side-effecting tool calls.
+ *
+ * Visually heavier than ToolCard so the user notices it amid normal chat
+ * scrollback. Two variants:
+ *   - launch_pipeline → primary-accent border (start of work)
+ *   - stop_pipeline   → destructive border (cancel-of-work)
+ * Both share footer / body styling. ``cardExpired`` overrides to a muted
+ * border so the dead card does not keep shouting for attention. */
+
+.card {
+  border: 2px solid var(--ifm-color-primary);
+  border-radius: var(--nyx-radius-sm, 8px);
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  margin: var(--nyx-space-4) 0;
+  background: var(--ifm-background-color);
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+  box-shadow: 0 1px 3px oklch(0 0 0 / 0.08);
+}
+
+.cardLaunch {
+  border-color: var(--ifm-color-primary);
+}
+
+.cardStop {
+  border-color: oklch(0.55 0.20 30);
+}
+
+.cardExpired {
+  border-color: var(--ifm-color-emphasis-300);
+  opacity: 0.65;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+}
+
+.icon {
+  font-size: var(--nyx-font-size-md);
+  font-weight: 700;
+}
+
+.title {
+  font-weight: 600;
+  font-size: var(--nyx-font-size-sm);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.awaiting {
+  margin-left: auto;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.body {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--nyx-space-2);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: var(--nyx-space-3);
+  font-size: var(--nyx-font-size-xs);
+  align-items: baseline;
+}
+
+.label {
+  margin: 0;
+  opacity: 0.7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.value {
+  margin: 0;
+  word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.expiredMessage,
+.errorMessage {
+  margin: 0;
+  padding: var(--nyx-space-2) var(--nyx-space-3);
+  border-radius: var(--nyx-radius-xs);
+  background: var(--ifm-color-emphasis-200);
+  font-size: var(--nyx-font-size-xs);
+}
+
+.errorMessage {
+  color: oklch(0.55 0.20 30);
+  border: 1px solid oklch(0.55 0.20 30);
+}
+
+.footer {
+  display: flex;
+  gap: var(--nyx-space-3);
+  justify-content: flex-end;
+  margin-top: var(--nyx-space-2);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+  padding: var(--nyx-space-2) var(--nyx-space-5);
+  border-radius: var(--nyx-radius-xs);
+  font: inherit;
+  font-size: var(--nyx-font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--nyx-motion-instant) ease,
+    opacity var(--nyx-motion-instant) ease;
+  border: 1px solid transparent;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.primary {
+  background: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  border-color: var(--ifm-color-primary);
+}
+
+.primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.secondary {
+  background: transparent;
+  color: var(--ifm-color-content);
+  border-color: var(--nyx-color-border-strong, var(--ifm-color-emphasis-300));
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+/* Tiny inline spinner. Matches the global ``Spinner`` component's stroke
+ * but stays self-contained so this card has no cross-component dep. */
+.spinner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: approvalCardSpin 0.8s linear infinite;
+}
+
+@keyframes approvalCardSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

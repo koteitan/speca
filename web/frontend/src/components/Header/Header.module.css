@@ -1,0 +1,170 @@
+/*
+ * Header — three-zone grid: brand / nav / tools.
+ *
+ * We use CSS Grid so each zone keeps its alignment regardless of the
+ * other two collapsing on mobile. The header is sticky to the top of
+ * the viewport so the user can always reach Runs / Settings from any
+ * scroll position.
+ */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--nyx-space-7);
+  padding: var(--nyx-space-5) var(--nyx-space-7);
+  border-bottom: 1px solid var(--nyx-color-border-muted);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--nyx-space-3);
+}
+
+.logo {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--nyx-font-size-lg);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.badge {
+  font-size: var(--nyx-font-size-xs);
+  padding: 1px var(--nyx-space-2);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--nyx-color-border-strong);
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+}
+
+.nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-5);
+}
+
+.navLink {
+  text-decoration: none;
+  color: var(--ifm-color-content);
+  opacity: 0.75;
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  border-radius: var(--nyx-radius-xs);
+  font-size: var(--nyx-font-size-sm);
+  transition: opacity var(--nyx-motion-instant) ease,
+    background var(--nyx-motion-instant) ease;
+}
+
+.navLink:hover {
+  opacity: 1;
+  background: var(--nyx-color-border-muted);
+}
+
+.navLinkActive {
+  opacity: 1;
+  background: var(--nyx-color-border-muted);
+}
+
+.tools {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-4);
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--nyx-color-border-strong);
+  background: transparent;
+  color: var(--ifm-color-content);
+  font: inherit;
+  font-size: var(--nyx-font-size-xs);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--nyx-motion-instant) ease;
+}
+
+.iconButton:hover {
+  background: var(--nyx-color-border-muted);
+}
+
+.iconButton[aria-pressed="true"],
+.iconButtonActive {
+  background: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  border-color: var(--ifm-color-primary);
+}
+
+.iconButton:focus-visible,
+.navLink:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+/* Approval-pending alert state for the chat toggle. The button itself
+ * shifts to a soft alert background while a tiny counter pill sits on
+ * the top-right corner. */
+.iconButtonAlert {
+  border-color: var(--ifm-color-primary);
+  background: color-mix(in oklch, var(--ifm-color-primary) 12%, transparent);
+  position: relative;
+  padding-right: var(--nyx-space-5);
+}
+
+.iconButtonAlert:hover {
+  background: color-mix(in oklch, var(--ifm-color-primary) 20%, transparent);
+}
+
+.badgePending {
+  margin-left: var(--nyx-space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.identity {
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.identityLabel {
+  opacity: 0.85;
+}
+
+.identityValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@media (max-width: 720px) {
+  .header {
+    grid-template-columns: auto 1fr auto;
+    gap: var(--nyx-space-4);
+    padding: var(--nyx-space-4) var(--nyx-space-5);
+  }
+
+  .identity {
+    display: none;
+  }
+}

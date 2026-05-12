@@ -1,0 +1,82 @@
+/*
+ * LanguageToggle — segmented EN / JA control.
+ *
+ * Visual contract:
+ *   - inactive: transparent background, muted border, content color
+ *   - hover:    border-muted background (matches Header iconButton)
+ *   - active:   inverted (primary background, background-colored text)
+ *               same treatment as Header `.iconButton[aria-pressed=true]`
+ *               so the toggle reads as "this language is selected".
+ *   - focus-visible: 2px outline using primary color (matches the rest
+ *                    of the app's focus ring).
+ *
+ * The two buttons share borders by collapsing the right border of the
+ * first child into the left border of the second (negative margin
+ * style would also work; we keep them adjacent and rely on the same
+ * border-strong color throughout).
+ */
+
+.group {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  /* No overflow:hidden — we let the focus-visible outline escape the
+     group's bounding box so keyboard focus is never clipped. */
+}
+
+.group > .button:first-child {
+  border-top-left-radius: var(--nyx-radius-xs);
+  border-bottom-left-radius: var(--nyx-radius-xs);
+}
+
+.group > .button:last-child {
+  border-top-right-radius: var(--nyx-radius-xs);
+  border-bottom-right-radius: var(--nyx-radius-xs);
+}
+
+.button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  background: transparent;
+  color: var(--ifm-color-content);
+  border: 0;
+  border-right: 1px solid var(--nyx-color-border-strong);
+  font: inherit;
+  font-size: var(--nyx-font-size-xs);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background var(--nyx-motion-instant) ease,
+    color var(--nyx-motion-instant) ease;
+}
+
+.button:last-child {
+  border-right: 0;
+}
+
+.button:hover {
+  background: var(--nyx-color-border-muted);
+}
+
+.buttonActive,
+.button[aria-pressed="true"] {
+  background: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+  /* Keep the outline visible outside the group's clipping rectangle. */
+  position: relative;
+  z-index: 1;
+}
+
+.compact .button {
+  min-width: 32px;
+  padding: var(--nyx-space-1) var(--nyx-space-3);
+}

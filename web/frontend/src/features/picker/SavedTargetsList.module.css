@@ -1,0 +1,92 @@
+/* Saved targets list — vertical stack inside the picker A-card. */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+}
+
+.item {
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--nyx-space-2);
+  padding: var(--nyx-space-5);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: background var(--nyx-motion-instant) ease;
+}
+
+.row:hover,
+.row:focus-visible {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.repo {
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  word-break: break-all;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--nyx-space-3);
+  border-radius: 999px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  font-size: var(--nyx-font-size-xs);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nyx-space-4);
+  font-size: var(--nyx-font-size-sm);
+  opacity: 0.7;
+}
+
+.ref {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95em;
+}
+
+.time {
+  font-variant-numeric: tabular-nums;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--nyx-space-6);
+}
+
+.error {
+  padding: var(--nyx-space-5);
+  border: 1px solid oklch(0.55 0.2 30);
+  border-radius: var(--nyx-radius-xs);
+  color: oklch(0.55 0.2 30);
+  font-size: var(--nyx-font-size-sm);
+}

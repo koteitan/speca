@@ -1,0 +1,217 @@
+/* SettingsPage — single-column reading layout, similar to FindingDetailPage.
+ *
+ * We deliberately do NOT use a card / panel container — the page is short
+ * enough that grouping each section with a `<h2>` heading is clearer than
+ * boxing them, and matches the Nyx baseline for read-only diagnostic UI.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-6);
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--nyx-space-7);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-2);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  padding-bottom: var(--nyx-space-5);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-xl);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-4);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: oklch(0.45 0.005 258);
+}
+
+.sectionHint {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--nyx-space-3) var(--nyx-space-6);
+  margin: 0;
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--nyx-radius-sm);
+  background: oklch(0.985 0.003 258);
+}
+
+.kvRow {
+  display: contents;
+}
+
+.kvRow dt {
+  font-weight: 500;
+  color: var(--ifm-color-content);
+  opacity: 0.8;
+}
+
+.kvRow dd {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.kvRow dd code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95em;
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotOk {
+  background: oklch(0.65 0.16 145);
+}
+
+.dotMissing {
+  background: oklch(0.6 0.18 25);
+}
+
+.dotUnknown {
+  background: oklch(0.7 0.02 258);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nyx-space-3);
+}
+
+.muted {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  opacity: 0.7;
+}
+
+/* ---- Fork section (Slice S1) --------------------------------------------- */
+
+.forkForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+  max-width: 440px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.input {
+  width: 100%;
+  padding: var(--nyx-space-2) var(--nyx-space-3);
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-sm);
+  line-height: 1.4;
+  color: var(--ifm-color-content);
+  background: var(--ifm-background-color, #fff);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  transition: border-color var(--nyx-motion-instant) ease;
+}
+
+.input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.input[aria-invalid="true"] {
+  border-color: oklch(0.6 0.18 25);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+  border-color: var(--ifm-color-primary);
+}
+
+.submit {
+  align-self: flex-start;
+  padding: var(--nyx-space-2) var(--nyx-space-5);
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-sm);
+  line-height: 1.2;
+  color: oklch(0.99 0 0);
+  background: var(--ifm-color-primary);
+  border: 1px solid transparent;
+  border-radius: var(--nyx-radius-xs);
+  cursor: pointer;
+  transition: background var(--nyx-motion-instant) ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--ifm-color-primary-darker, oklch(0.55 0.18 258));
+}
+
+.submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.submit:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.success {
+  font-size: var(--nyx-font-size-sm);
+  color: oklch(0.45 0.12 145);
+  background: oklch(0.96 0.04 145);
+  border: 1px solid oklch(0.75 0.10 145);
+  border-radius: var(--nyx-radius-xs);
+  padding: var(--nyx-space-2) var(--nyx-space-3);
+}
+
+.success a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.error {
+  font-size: var(--nyx-font-size-sm);
+  color: oklch(0.4 0.16 25);
+  background: oklch(0.97 0.03 25);
+  border: 1px solid oklch(0.75 0.12 25);
+  border-radius: var(--nyx-radius-xs);
+  padding: var(--nyx-space-2) var(--nyx-space-3);
+}

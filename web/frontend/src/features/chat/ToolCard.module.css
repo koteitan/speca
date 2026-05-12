@@ -1,0 +1,72 @@
+/* Inline "tool_use" card embedded inside an assistant message bubble.
+ *
+ * We use status-based modifier classes (``status_running`` / ``status_done`` /
+ * ``status_error``) instead of inline styles so a future theme can adjust the
+ * accent color without touching component code. */
+
+.card {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--nyx-radius-xs);
+  padding: var(--nyx-space-3) var(--nyx-space-5);
+  margin-top: var(--nyx-space-3);
+  background: var(--ifm-background-color);
+  font-size: var(--nyx-font-size-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-2);
+}
+
+.status_running {
+  border-color: oklch(0.7 0.15 220);
+}
+
+.status_done {
+  border-color: var(--ifm-color-emphasis-300);
+}
+
+.status_error {
+  border-color: oklch(0.55 0.2 30);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+}
+
+.icon {
+  font-size: var(--nyx-font-size-sm);
+  opacity: 0.8;
+}
+
+.name {
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.status {
+  margin-left: auto;
+  opacity: 0.7;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+
+.input {
+  opacity: 0.85;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-all;
+}
+
+.result {
+  margin: 0;
+  padding: var(--nyx-space-3);
+  background: var(--ifm-color-emphasis-200);
+  border-radius: var(--nyx-radius-xs);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  overflow-x: auto;
+  white-space: pre;
+  max-height: 240px;
+}

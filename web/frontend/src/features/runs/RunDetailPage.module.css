@@ -1,0 +1,140 @@
+/* Run detail — GitHub Actions "workflow run" inspired.
+ *
+ * Sticky header with run identity + actions, then a vertical list of
+ * collapsible phase rows. The header info is the only place we surface
+ * cost / duration in this page so users always see it without scrolling.
+ */
+
+.page {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.breadcrumbs {
+  padding: var(--nyx-space-5) var(--nyx-space-7) 0;
+}
+
+.breadcrumbLink {
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+  text-decoration: none;
+}
+
+.breadcrumbLink:hover {
+  text-decoration: underline;
+}
+
+.header {
+  padding: var(--nyx-space-6) var(--nyx-space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ifm-background-color);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  word-break: break-all;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nyx-space-5);
+  font-size: var(--nyx-font-size-sm);
+  opacity: 0.85;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+}
+
+.metaItem code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95em;
+}
+
+.actions {
+  display: flex;
+  gap: var(--nyx-space-3);
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  padding: var(--nyx-space-3) var(--nyx-space-5);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.phases {
+  display: flex;
+  flex-direction: column;
+}
+
+.empty {
+  padding: var(--nyx-space-8);
+  text-align: center;
+  opacity: 0.7;
+}
+
+.error {
+  margin: var(--nyx-space-7);
+  padding: var(--nyx-space-6);
+  border: 1px solid oklch(0.55 0.2 30);
+  border-radius: var(--nyx-radius-sm);
+  color: oklch(0.55 0.2 30);
+}
+
+/* Slice D1 — connection status badge in the header meta row. The three
+ * variants (ok / reconnecting / given-up) share the same shape so the
+ * row height does not jump as state cycles. */
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+  padding: var(--nyx-space-1) var(--nyx-space-3);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  font-size: var(--nyx-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.liveBadgeOk {
+  color: oklch(0.6 0.15 145);
+  border-color: oklch(0.6 0.15 145 / 0.4);
+  background: oklch(0.6 0.15 145 / 0.08);
+}
+
+.liveBadgeWarn {
+  color: oklch(0.65 0.16 70);
+  border-color: oklch(0.65 0.16 70 / 0.4);
+  background: oklch(0.65 0.16 70 / 0.08);
+}
+
+.liveBadgeError {
+  color: oklch(0.55 0.2 30);
+  border-color: oklch(0.55 0.2 30 / 0.4);
+  background: oklch(0.55 0.2 30 / 0.08);
+}

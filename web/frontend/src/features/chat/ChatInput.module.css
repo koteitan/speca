@@ -1,0 +1,48 @@
+/* Composer at the bottom of the chat panel. */
+
+.form {
+  display: flex;
+  gap: var(--nyx-space-3);
+  align-items: flex-end;
+  padding: var(--nyx-space-3);
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-background-color);
+}
+
+.textarea {
+  flex: 1 1 auto;
+  resize: none;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--nyx-radius-xs);
+  padding: var(--nyx-space-3) var(--nyx-space-4);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  line-height: 1.4;
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  max-height: 200px;
+  min-height: 36px;
+  overflow-y: auto;
+}
+
+.textarea:disabled {
+  opacity: 0.6;
+}
+
+.sendButton {
+  padding: var(--nyx-space-3) var(--nyx-space-5);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-color-content);
+  color: var(--ifm-background-color);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  font-weight: 600;
+  min-width: 64px;
+}
+
+.sendButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

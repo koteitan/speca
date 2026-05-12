@@ -1,0 +1,157 @@
+/*
+ * Nyx-token styled login card.
+ *
+ * Layout: centered card on a full-viewport flex container. The card itself
+ * uses CSS variables from `styles/tokens.css` so it auto-tracks light/dark
+ * mode without component-level theme code.
+ */
+
+.screen {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--nyx-space-7);
+  background: var(--ifm-background-color);
+}
+
+.card {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-6);
+  padding: var(--nyx-space-8);
+  border: 1px solid var(--nyx-color-border-muted);
+  border-radius: var(--nyx-radius-sm);
+  background: var(--nyx-color-surface-muted);
+  color: var(--ifm-color-content);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-xl);
+  line-height: 1.25;
+  color: var(--ifm-color-content);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+  font-size: var(--nyx-font-size-sm);
+}
+
+.oauthButton {
+  width: 100%;
+  padding: var(--nyx-space-5) var(--nyx-space-6);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--nyx-color-border-strong);
+  background: transparent;
+  color: var(--ifm-color-content);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  cursor: pointer;
+  transition: opacity var(--nyx-motion-instant) ease,
+    background var(--nyx-motion-instant) ease;
+}
+
+.oauthButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.oauthButton:not(:disabled):hover {
+  background: var(--nyx-color-border-muted);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  color: var(--ifm-color-content);
+  opacity: 0.5;
+  font-size: var(--nyx-font-size-xs);
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--nyx-color-border-muted);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-2);
+}
+
+.label {
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-content);
+  opacity: 0.8;
+}
+
+.input {
+  width: 100%;
+  padding: var(--nyx-space-5) var(--nyx-space-6);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.submit {
+  width: 100%;
+  padding: var(--nyx-space-5) var(--nyx-space-6);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-primary);
+  background: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  cursor: pointer;
+  transition: opacity var(--nyx-motion-instant) ease;
+}
+
+.submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.submit:focus-visible,
+.oauthButton:focus-visible,
+.input:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.error {
+  margin: 0;
+  padding: var(--nyx-space-5) var(--nyx-space-6);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-content);
+  background: var(--nyx-color-border-muted);
+}
+
+.oauthHint {
+  margin: 0;
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  border-left: 2px solid var(--ifm-color-primary);
+  background: var(--nyx-color-border-muted);
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-content);
+  line-height: 1.5;
+}

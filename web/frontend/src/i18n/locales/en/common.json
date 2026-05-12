@@ -1,0 +1,394 @@
+{
+  "app": { "name": "SPECA" },
+  "language": {
+    "name": "Language",
+    "english": "English",
+    "japanese": "日本語",
+    "switch_to_en": "Switch to English",
+    "switch_to_ja": "Switch to Japanese"
+  },
+  "common": {
+    "loading": "Loading...",
+    "loading_short": "Loading…",
+    "error": "Error",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "ok": "OK",
+    "none": "—",
+    "unknown_error": "unknown error",
+    "checking_session": "Checking session",
+    "loading_chat": "Loading chat"
+  },
+  "header": {
+    "version_badge_aria": "version v0",
+    "nav_runs": "Runs",
+    "open_chat": "Open chat panel",
+    "close_chat": "Close chat panel",
+    "open_chat_title": "Open chat",
+    "close_chat_title": "Close chat",
+    "chat_label": "Chat",
+    "signed_in_as": "signed in as",
+    "signed_in": "signed in",
+    "guest": "guest",
+    "settings_label": "Settings"
+  },
+  "chat": {
+    "panel": {
+      "open_chat_aria": "Open chat",
+      "fab_label": "Chat",
+      "panel_aria": "Chat with Claude",
+      "title": "Chat",
+      "readonly_badge": "Read-only mode (v0)",
+      "readonly_badge_title": "v0 — read-only tools only",
+      "collapse_aria": "Collapse chat panel",
+      "empty": "Ask Claude about a run, a finding, or a property id."
+    },
+    "input": {
+      "placeholder_default": "Message Claude (read-only mode)",
+      "input_aria": "Chat input",
+      "send_aria": "Send message",
+      "send_label": "Send"
+    },
+    "bubble": {
+      "tool_awaiting_approval": "awaiting approval",
+      "tool_status_running": "running",
+      "tool_status_done": "done",
+      "tool_status_error": "error",
+      "tool_no_input": "(no input)",
+      "tool_approval_required_aria": "Approval required for {{name}}",
+      "tool_call_aria": "Tool call {{name}}"
+    },
+    "approval": {
+      "title_launch": "Approve audit launch?",
+      "title_stop": "Approve audit cancel?",
+      "awaiting": "Awaiting your approval",
+      "approve": "Approve",
+      "cancel": "Cancel",
+      "approving": "Approving...",
+      "cancelling": "Cancelling...",
+      "expired": "Approval expired (10 min timeout).",
+      "preview": {
+        "bug_bounty_url": "Bug bounty URL",
+        "target_repo": "Target repository",
+        "target_ref": "Target ref",
+        "contract_addresses": "Contract addresses",
+        "spec_urls": "Spec URLs",
+        "keywords": "Keywords",
+        "workers": "Workers",
+        "max_concurrent": "Max concurrent",
+        "push_to_remote": "Push to remote",
+        "run_id": "Run ID"
+      }
+    },
+    "approvals_pending": "{{n}} approval pending",
+    "approvals_pending_other": "{{n}} approvals pending"
+  },
+  "runs": {
+    "list": {
+      "title": "Runs",
+      "new_run": "+ New run",
+      "filters_aria": "Filters",
+      "search_placeholder": "Filter by target / run id",
+      "search_aria": "Filter by target",
+      "loading": "Loading…",
+      "load_failed": "Failed to load runs: {{error}}",
+      "empty_line1": "No audit runs yet.",
+      "empty_line2": "Create one with <code>uv run python3 scripts/run_phase.py ...</code>, or launch from the UI in v1.",
+      "col_status": "Status",
+      "col_run": "Run",
+      "col_target": "Target",
+      "col_started": "Started",
+      "col_duration": "Duration",
+      "col_cost": "Cost",
+      "col_actions_aria": "Actions",
+      "open_repo_vscode": "Open repository in VSCode",
+      "rel_seconds_ago": "{{n}}s ago",
+      "rel_minutes_ago": "{{n}}m ago",
+      "rel_hours_ago": "{{n}}h ago",
+      "rel_days_ago": "{{n}}d ago"
+    },
+    "detail": {
+      "loading": "Loading…",
+      "load_failed": "Failed to load run {{runId}}: {{error}}",
+      "not_found": "not found",
+      "breadcrumb_aria": "Breadcrumb",
+      "breadcrumb_back": "← All runs",
+      "meta_target": "target:",
+      "meta_branch": "branch:",
+      "meta_started": "started:",
+      "meta_duration": "duration:",
+      "meta_cost": "cost:",
+      "live_badge_aria": "Live status",
+      "logs_dropped_title": "Backend dropped log lines under high throughput.",
+      "actions_aria": "Run actions",
+      "open_vscode_label": "Open in VSCode",
+      "open_github_label": "Open in GitHub",
+      "open_github_title": "Available in v1",
+      "phases_empty": "No phases recorded for this run.",
+      "live": {
+        "connected": "Connected",
+        "reconnecting": "Reconnecting... (attempt {{n}}/10)",
+        "disconnected": "Disconnected. Refresh the page to retry.",
+        "logs_dropped": "{{n}} log lines dropped (high throughput)"
+      },
+      "log_tail": {
+        "auto_scroll": "Auto-scroll",
+        "auto_scroll_paused": "Auto-scroll paused",
+        "copy": "Copy log",
+        "download": "Download log",
+        "empty": "No log lines yet."
+      },
+      "actions": {
+        "stop": "Stop",
+        "rerun_failed": "Re-run failed phases"
+      },
+      "cancel": {
+        "confirm": {
+          "title": "Cancel this audit run?",
+          "description": "The current phase will be terminated (SIGTERM). Partial outputs are preserved."
+        },
+        "in_progress": "Cancelling..."
+      },
+      "rerun": {
+        "dialog_title": "Re-run phases",
+        "dialog_description": "Selected phases will be re-executed with --force. Existing partial outputs for those phases will be re-generated.",
+        "select_all_failed": "Select all failed",
+        "no_failed_phases": "No failed phases. Choose specific phases to re-run.",
+        "confirm": "Re-run",
+        "in_progress": "Starting re-run..."
+      }
+    },
+    "phase_row": {
+      "details_aria": "{{label}} details",
+      "no_log_preview": "No log preview yet. Logs stream in v1.",
+      "open_log_folder": "Open log folder in VSCode"
+    },
+    "phase_names": {
+      "01a": "Spec Discovery",
+      "01b": "Subgraph Extraction",
+      "01e": "Property Generation",
+      "02c": "Code Pre-resolution",
+      "03": "Audit Map",
+      "04": "Review"
+    }
+  },
+  "findings": {
+    "list": {
+      "title": "Findings",
+      "run_label": "Run",
+      "banner_strong": "Data source: current <code>outputs/</code> (v0).",
+      "banner_text": "Per-run display arrives in v1. Currently showing {{count}} finding(s).",
+      "loading": "Loading findings…",
+      "load_failed": "Failed to load findings: {{error}}",
+      "empty_line1": "No findings to display for this run.",
+      "empty_line2": "Check that <code>outputs/</code> contains <code>03_PARTIAL_*.json</code> / <code>04_PARTIAL_*.json</code>.",
+      "table_aria": "Findings",
+      "col_severity": "Severity",
+      "col_property_id": "Property ID",
+      "col_verdict": "Verdict",
+      "col_file": "File",
+      "col_phase": "Phase",
+      "open_in_vscode": "Open in VSCode"
+    },
+    "detail": {
+      "loading": "Loading finding…",
+      "load_failed": "Failed to load finding: {{error}}",
+      "not_found": "Finding not found.",
+      "back_link": "← Back to findings list",
+      "code_location_title": "Code location",
+      "code_location_unresolved": "(location not resolved for this finding)",
+      "evidence_snippet_title": "Evidence snippet",
+      "proof_trace_title": "Proof trace",
+      "gates_passed_title": "Gates passed",
+      "reviewer_notes_title": "Reviewer notes",
+      "phase_label": "Phase {{phase}}",
+      "open_in_vscode": "Open in VSCode"
+    },
+    "filter": {
+      "bar_aria": "Findings filters",
+      "severity_label": "Severity",
+      "verdict_label": "Verdict",
+      "phase_label": "Phase",
+      "all": "All",
+      "phase_value": "Phase {{phase}}"
+    },
+    "severity": {
+      "Critical": "Critical",
+      "High": "High",
+      "Medium": "Medium",
+      "Low": "Low",
+      "Informational": "Informational",
+      "aria_label": "severity: {{severity}}"
+    },
+    "verdict": {
+      "none": "—",
+      "CONFIRMED_VULNERABILITY": "Confirmed vuln",
+      "CONFIRMED_POTENTIAL": "Confirmed potential",
+      "DISPUTED_FP": "Disputed FP",
+      "DOWNGRADED": "Downgraded",
+      "NEEDS_MANUAL_REVIEW": "Needs review",
+      "PASS_THROUGH": "Pass-through"
+    }
+  },
+  "settings": {
+    "page": {
+      "title": "Settings",
+      "subtitle": "v0 is read-only. Write actions (logout, API key rotation, target repo picker) ship in v1.",
+      "section_auth": "Auth",
+      "section_integrations": "Integrations",
+      "section_maintenance": "Maintenance",
+      "maintenance_hint": "Open config files or run state in VSCode. Requires the VSCode CLI (`code`) on PATH."
+    },
+    "auth": {
+      "loading": "Loading auth status…",
+      "load_failed": "Failed to load auth status.",
+      "login_state": "Login state",
+      "logged_in": "Logged in",
+      "not_logged_in": "Not logged in",
+      "method": "Method",
+      "method_oauth": "Claude.ai OAuth",
+      "method_api_key": "Anthropic API key",
+      "method_none": "None",
+      "identity": "identity"
+    },
+    "integrations": {
+      "loading": "Loading integrations…",
+      "load_failed": "Failed to load integrations status.",
+      "vscode_cli": "VSCode CLI (`code`)",
+      "github_cli": "GitHub CLI (`gh`)",
+      "gh_auth": "`gh auth`",
+      "installed": "installed",
+      "not_found": "not found",
+      "unknown": "unknown"
+    },
+    "maintenance": {
+      "loading": "Loading paths…",
+      "load_failed": "Failed to load paths.",
+      "open_speca_dir": "Open .speca/ in VSCode",
+      "open_repo": "Open repository in VSCode",
+      "open_claude_dir": "Open ~/.claude/ in VSCode"
+    },
+    "fork": {
+      "title": "Fork target repository to GitHub",
+      "description": "Fork the target repo to your GitHub account via the `gh` CLI. Useful to prepare a fix PR after a finding.",
+      "submit": "Fork",
+      "target_repo_placeholder": "octocat/Hello-World",
+      "into_owner_placeholder": "Org / user to fork into (optional)",
+      "gh_required_tooltip": "Install gh CLI and run `gh auth login` first.",
+      "success": "Forked to",
+      "confirm": {
+        "title": "Fork {{repo}} to your GitHub?",
+        "description": "This will create a fork under your authenticated GitHub account."
+      },
+      "error": {
+        "gh_missing": "gh CLI is not installed.",
+        "gh_unauthed": "gh CLI is not authenticated. Run `gh auth login`.",
+        "fork_failed": "Fork failed",
+        "confirmation_required": "Confirmation required."
+      }
+    }
+  },
+  "login": {
+    "title": "Sign in to SPECA",
+    "subtitle": "Local web UI — credentials never leave your machine.",
+    "oauth_button_idle": "Continue with claude.ai (Pro/Max)",
+    "oauth_button_pending": "Spawning claude auth login...",
+    "oauth_button_success": "Waiting for OAuth completion...",
+    "oauth_hint_default": "Opened OAuth flow in a separate window.",
+    "divider": "or use API key",
+    "api_key_label": "Anthropic API key",
+    "api_key_placeholder": "sk-ant-...",
+    "submit_idle": "Sign in",
+    "submit_pending": "Signing in...",
+    "error_signin_http": "Sign in failed (HTTP {{status}}): {{body}}",
+    "error_signin_unknown": "Sign in failed for an unknown reason.",
+    "error_oauth_http": "OAuth spawn failed (HTTP {{status}}): {{body}}",
+    "error_oauth_unknown": "OAuth spawn failed for an unknown reason."
+  },
+  "integrations": {
+    "open_in_vscode": {
+      "default_label": "Open in VSCode",
+      "missing_hint": "VSCode CLI (`code`) not found. Check your PATH.",
+      "launching": "Launching…"
+    }
+  },
+  "tooltip": {
+    "marker_aria": "Tooltip"
+  },
+  "glossary": {
+    "CWE": "Common Weakness Enumeration — a standard taxonomy of software weaknesses (e.g. CWE-22 Path Traversal).",
+    "STRIDE": "Threat modeling framework: Spoofing / Tampering / Repudiation / Information disclosure / Denial of service / Elevation of privilege.",
+    "property": "A formal security property — an invariant of the form 'X always holds', generated by Phase 01e.",
+    "subgraph": "State transition graph extracted from the spec. Mermaid format with invariants attached to each node. Output of Phase 01b.",
+    "verdict": "The final Phase 04 verdict — one of six: CONFIRMED_VULNERABILITY / CONFIRMED_POTENTIAL / DISPUTED_FP / DOWNGRADED / NEEDS_MANUAL_REVIEW / PASS_THROUGH.",
+    "severity": "Vulnerability severity — Critical / High / Medium / Low / Informational.",
+    "phase 03": "Audit Map — proof-based verification that each property holds against target code.",
+    "phase 04": "Review — a recall-safe 3-gate (Dead Code / Trust Boundary / Scope Check) false-positive filter pipeline.",
+    "bug bounty scope": "The in-scope / out-of-scope definition of the target bug bounty program. Persisted in `BUG_BOUNTY_SCOPE.json`.",
+    "trust boundary": "A line where external input reaches internal processing. Findings that cross this boundary are less likely to be false positives.",
+    "dead code": "Phase 04 Gate 1 — rejects findings reported on code paths that cannot be reached at runtime.",
+    "DISPUTED_FP": "A verdict marking a finding as a false positive, set by one of the three Phase 04 gates. Recall-safe design: only these three gates may emit FP verdicts.",
+    "CONFIRMED_VULNERABILITY": "A finding confirmed by Phase 04 as a true vulnerability. The primary candidate for reporting."
+  },
+  "empty_state": {},
+  "onboarding": {
+    "demo": {
+      "badge": "Sample",
+      "preview_note": "read-only preview",
+      "modal_title": "Launchable in v1",
+      "modal_body": "{{repo}} is read-only preview in v0. Launching audit runs ships in v1.",
+      "modal_close": "OK"
+    }
+  },
+  "picker": {
+    "page": {
+      "title": "New audit",
+      "subtitle": "Pick a target. Three entries, one confirmation form.",
+      "saved": "Saved targets",
+      "from_url": "From URL",
+      "ask_claude": "Ask Claude (chat)"
+    },
+    "from_url": {
+      "label_bug_bounty_url": "Bug bounty URL",
+      "label_contract_addresses": "Contract addresses (optional)",
+      "submit": "Fetch scope",
+      "error_anthropic": "Could not reach Anthropic. Set ANTHROPIC_API_KEY or try again.",
+      "error_parse": "Could not parse scope. Continue with manual entry.",
+      "placeholder_bug_bounty": "https://immunefi.com/bounty/..."
+    },
+    "saved": {
+      "empty": "No saved targets yet.",
+      "demo_badge": "demo",
+      "last_run_never": "never"
+    },
+    "ask_claude": {
+      "description": "Open chat and ask Claude to set up a run for you. Once Claude's launch proposal is ready, an approval card will appear here in chat.",
+      "open_chat": "Open chat"
+    },
+    "new_run_form": {
+      "title": "Review and launch",
+      "back": "← Pick another target",
+      "label_bug_bounty_url": "Bug bounty URL",
+      "label_target_repo": "Target repository (owner/repo)",
+      "label_target_ref": "Target ref (branch / tag / commit)",
+      "label_target_ref_placeholder": "main",
+      "label_contract_addresses": "Contract addresses",
+      "label_spec_urls": "Spec URLs (comma-separated)",
+      "label_keywords": "Keywords (comma-separated)",
+      "label_workers": "Workers",
+      "label_max_concurrent": "Max concurrent Claude calls",
+      "label_push_to_remote": "Push audit branch to remote",
+      "submit": "Launch audit",
+      "submit_pending": "Launching...",
+      "error_invalid_url": "Provide a valid http(s) URL.",
+      "error_invalid_target_repo": "Repository must be in `owner/repo` format.",
+      "error_clone_failed": "Failed to clone the target repository:",
+      "error_ref_not_found": "Target ref not found in remote:",
+      "error_anthropic": "Could not reach Anthropic. Set ANTHROPIC_API_KEY or try again.",
+      "estimated_cost": "Estimated cost: measured in a future version.",
+      "launch_failed": "Launch failed:"
+    }
+  }
+}

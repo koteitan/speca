@@ -1,0 +1,111 @@
+/* Right-side chat panel.
+ *
+ * Desktop: fixed to the right edge, 360px wide.
+ * Mobile (≤ 720px): full-screen overlay, falls back to a FAB when closed.
+ */
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 360px;
+  background: var(--ifm-background-color);
+  border-left: 1px solid var(--ifm-color-emphasis-200);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  /* Slice F (AppShell) is expected to mount this and offset main content
+   * by 360px on desktop. Standalone we still want a clean fixed column. */
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.title {
+  font-weight: 600;
+  font-size: var(--nyx-font-size-md);
+}
+
+.badge {
+  margin-left: auto;
+  padding: 2px var(--nyx-space-3);
+  border-radius: 999px;
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-content);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.collapseButton {
+  background: transparent;
+  border: none;
+  font: inherit;
+  font-size: var(--nyx-font-size-lg);
+  line-height: 1;
+  cursor: pointer;
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+  padding: 0 var(--nyx-space-2);
+}
+
+.collapseButton:hover {
+  opacity: 1;
+}
+
+.scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--nyx-space-5);
+  display: flex;
+  flex-direction: column;
+}
+
+.empty {
+  margin: var(--nyx-space-7) 0;
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+  text-align: center;
+  font-size: var(--nyx-font-size-sm);
+}
+
+.error {
+  margin-top: var(--nyx-space-4);
+  padding: var(--nyx-space-3) var(--nyx-space-4);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid oklch(0.55 0.2 30);
+  color: oklch(0.55 0.2 30);
+  font-size: var(--nyx-font-size-xs);
+}
+
+/* Floating action button shown when the panel is collapsed. */
+.fab {
+  position: fixed;
+  bottom: var(--nyx-space-6);
+  right: var(--nyx-space-6);
+  padding: var(--nyx-space-4) var(--nyx-space-6);
+  border-radius: 999px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-color-content);
+  color: var(--ifm-background-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 50;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 720px) {
+  .panel {
+    width: 100vw;
+    border-left: none;
+  }
+}

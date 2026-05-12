@@ -1,0 +1,95 @@
+/* FindingRow layout — five-column grid on wide screens, stacked card on narrow.
+ *
+ * The grid columns mirror the header in `FindingsListPage` so resizing the
+ * window keeps the columns aligned. Mobile breakpoint is 720px; below that
+ * we drop to a single column and rely on label-less stacking (the column
+ * order is significant enough that re-reading severity / id / file in
+ * sequence still parses).
+ */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  border-bottom: 1px solid var(--nyx-color-border-muted);
+  transition: background-color var(--nyx-motion-instant) ease;
+}
+
+.row:hover,
+.row:focus-within {
+  background: oklch(0.97 0.005 258);
+}
+
+.rowLink {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 90px 1fr 150px 2fr 50px;
+  align-items: center;
+  gap: var(--nyx-space-5);
+  padding: var(--nyx-space-4) var(--nyx-space-6);
+  text-decoration: none;
+  color: inherit;
+}
+
+.rowLink:focus-visible {
+  outline: none;
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  padding-right: var(--nyx-space-5);
+  flex-shrink: 0;
+}
+
+.severityCell {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.idCell {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.verdictCell {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.fileCell {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  color: oklch(0.4 0.005 258);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.phaseCell {
+  font-size: 13px;
+  color: oklch(0.45 0.005 258);
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+  .rowLink {
+    grid-template-columns: 1fr;
+    gap: var(--nyx-space-2);
+    padding: var(--nyx-space-5) var(--nyx-space-6);
+  }
+  .rowActions {
+    padding: 0 var(--nyx-space-6) var(--nyx-space-3);
+  }
+  .phaseCell {
+    text-align: left;
+  }
+}
