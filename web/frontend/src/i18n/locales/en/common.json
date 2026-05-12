@@ -7,6 +7,12 @@
     "switch_to_en": "Switch to English",
     "switch_to_ja": "Switch to Japanese"
   },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "Auto"
+  },
   "common": {
     "loading": "Loading...",
     "loading_short": "Loading…",

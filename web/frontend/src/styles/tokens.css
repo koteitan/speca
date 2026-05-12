@@ -97,4 +97,17 @@
   --ifm-color-emphasis-200: oklch(0.32 0.005 258);
   --ifm-color-emphasis-300: oklch(0.42 0.004 258);
   --ifm-toc-border-color: oklch(0.32 0.005 258);
+
+  /* Nyx tokens — dark counterparts. Surface lifts slightly off the pure
+   * black background so panels / cards remain distinguishable. */
+  --nyx-color-text-primary: #ffffff;
+  --nyx-color-surface-muted: oklch(0.18 0.006 258);
+  --nyx-color-border-muted: oklch(0.32 0.005 258);
+  --nyx-color-border-strong: oklch(0.42 0.004 258);
+
+  color-scheme: dark;
+}
+
+:root {
+  color-scheme: light;
 }

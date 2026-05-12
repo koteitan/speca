@@ -15,6 +15,7 @@ import { useAuthStatusSafe } from "../../features/auth/useAuthStatusSafe";
 import { useT } from "@/i18n/useT";
 import { useChatApprovals } from "@/store/chatApprovalsSlice";
 import LanguageToggle from "../LanguageToggle/LanguageToggle";
+import ThemeToggle from "../ThemeToggle/ThemeToggle";
 import styles from "./Header.module.css";
 
 export interface HeaderProps {
@@ -97,6 +98,9 @@ export function Header({ onToggleChat, chatOpen }: HeaderProps) {
             <span className={styles.identityLabel}>{t("header.guest")}</span>
           )}
         </span>
+
+        {/* === theme toggle === */}
+        <ThemeToggle compact />
 
         {/* === language toggle === */}
         <LanguageToggle compact />
