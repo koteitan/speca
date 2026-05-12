@@ -19,10 +19,11 @@
 // production build because the runtime URL `/src/features/chat/...` does
 // not exist after `vite build`.
 
-import { Suspense, lazy, useState } from "react";
+import { Suspense, lazy } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 import { useT } from "@/i18n/useT";
+import { useChatUi } from "@/store/chatUiSlice";
 
 import { useAuthStatusSafe } from "../../features/auth/useAuthStatusSafe";
 import Spinner from "../Spinner/Spinner";
@@ -35,7 +36,9 @@ export function AppShell() {
   const t = useT();
   const auth = useAuthStatusSafe();
   const location = useLocation();
-  const [chatOpen, setChatOpen] = useState(false);
+  const chatOpen = useChatUi((s) => s.open);
+  const setChatOpen = useChatUi((s) => s.setOpen);
+  const toggleChat = useChatUi((s) => s.toggle);
 
   // Don't bounce to /login while the first probe is in flight — that
   // would briefly flash the login form for users who are actually
@@ -56,10 +59,7 @@ export function AppShell() {
 
   return (
     <div className={styles.shell} data-chat-open={chatOpen}>
-      <Header
-        onToggleChat={() => setChatOpen((prev) => !prev)}
-        chatOpen={chatOpen}
-      />
+      <Header onToggleChat={toggleChat} chatOpen={chatOpen} />
       <main className={styles.main}>
         <Outlet />
       </main>

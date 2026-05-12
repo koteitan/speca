@@ -5,13 +5,11 @@
 // other slices (B chat handoff, R2 review form) can plug in without
 // rewriting this file.
 //
-// The "Ask Claude" panel is intentionally inert in this slice: the
-// chat-open state still lives in `AppShell` `useState`, so a global
-// trigger would require a new Zustand slice + AppShell modification.
-// We surface the affordance as disabled with a hover-hint instead, per
-// the slice spec.
+// The "Ask Claude" panel opens the right-side chat panel via the global
+// chatUiSlice, mirroring what the header chat toggle does.
 
 import { useT } from "@/i18n/useT";
+import { useChatUi } from "@/store/chatUiSlice";
 
 import { FromUrlForm } from "./FromUrlForm";
 import { SavedTargetsList } from "./SavedTargetsList";
@@ -24,6 +22,7 @@ const REVIEW_PATH = "/runs/new/review";
 
 export default function PickerPage() {
   const t = useT();
+  const openChat = useChatUi((s) => s.setOpen);
 
   return (
     <section className={styles.page} data-testid="picker-page">
@@ -63,14 +62,7 @@ export default function PickerPage() {
           <button
             type="button"
             className={styles.askClaudeButton}
-            disabled
-            title={
-              // v0 chat panel lives in AppShell useState; this slice
-              // does not own a global toggle. The right-side chat
-              // button in the header is the supported affordance.
-              "右上の chat ボタンから開いてください"
-            }
-            aria-disabled="true"
+            onClick={() => openChat(true)}
             data-testid="ask-claude-open"
           >
             {t("picker.ask_claude.open_chat")}

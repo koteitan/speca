@@ -11,5 +11,6 @@
 export { useAuthUiStore } from "./store/authSlice";
 export { useNewRunDraft } from "./store/newRunDraftSlice";
 export { useChatApprovals } from "./store/chatApprovalsSlice";
+export { useChatUi } from "./store/chatUiSlice";
 
 export {};
