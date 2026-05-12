@@ -230,7 +230,12 @@ async def cancel_run(run_id: str) -> CancelResponse:
     supervisor = run_supervisor_svc.get_run_supervisor()
     live = supervisor.get_live_status(run_id)
     if live is None:
-        # Supervisor doesn't know the run AND state.json is absent.
+        # No supervisor entry and no state.json. Fall back to the
+        # manifest-derived index — if a legacy run exists on disk we
+        # treat cancel as a no-op success ("already finished") rather
+        # than 404, so the UI does not block on idempotent retries.
+        if get_run_detail(run_id) is not None:
+            return CancelResponse(run_id=run_id, status="already_finished")
         raise HTTPException(
             status_code=404,
             detail={"error": "run_not_found", "run_id": run_id},
@@ -265,10 +270,24 @@ async def rerun_run(run_id: str, req: RerunRequest) -> RerunResponse:
 
     state = run_state_svc.load_state(run_id)
     if state is None:
-        raise HTTPException(
-            status_code=404,
-            detail={"error": "run_not_found", "run_id": run_id},
+        # Legacy runs created before the H1 RunSupervisor only have a
+        # ``manifest.json``. Promote them on first rerun so the supervisor
+        # has the state.json it needs to drive a fresh phase chain.
+        legacy_detail = get_run_detail(run_id)
+        if legacy_detail is None:
+            raise HTTPException(
+                status_code=404,
+                detail={"error": "run_not_found", "run_id": run_id},
+            )
+
+        from ..schemas.run_state import RunStateDoc
+
+        state = RunStateDoc(
+            run_id=run_id,
+            status="completed",
+            last_heartbeat_at=datetime.now(timezone.utc),
         )
+        run_state_svc.write_state(run_id, state)
 
     if state.status == "running":
         raise HTTPException(
