@@ -12,14 +12,14 @@
 //   - resolved + not logged in → <Navigate to="/login" />
 //   - resolved + logged in → render Outlet
 //
-// Chat-panel lazy import:
-//   The dynamic import is wrapped in a `.catch` that resolves to an empty
-//   component. If Slice E hasn't merged yet (or the chunk fails to load
-//   in dev), the panel is empty rather than crashing the whole shell —
-//   the catch fallback satisfies the `{ default: ComponentType }`
-//   contract React.lazy expects.
+// Chat-panel lazy import: Slice E's ChatPanel ships with the app, so a
+// plain static dynamic import is enough — Vite emits it as its own chunk
+// and the Suspense fallback handles the load. The earlier @vite-ignore
+// workaround was needed only while Slice E was in flight; it broke the
+// production build because the runtime URL `/src/features/chat/...` does
+// not exist after `vite build`.
 
-import { Suspense, lazy, useState, type ComponentType } from "react";
+import { Suspense, lazy, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 import { useT } from "@/i18n/useT";
@@ -29,27 +29,7 @@ import Spinner from "../Spinner/Spinner";
 import Header from "../Header/Header";
 import styles from "./AppShell.module.css";
 
-type ChatPanelComponent = ComponentType<Record<string, never>>;
-
-// Slice E ships `features/chat/ChatPanel.tsx` later. To keep this slice
-// independently buildable we wrap the dynamic import in `loadChatPanel`
-// and use a `@vite-ignore` annotation so Vite does not try to resolve
-// the literal path at build time. The `.catch` resolves to an empty
-// component if the chunk fails to load at runtime (Slice E not yet
-// merged), satisfying React.lazy's `{ default: ComponentType }` contract.
-async function loadChatPanel(): Promise<{ default: ChatPanelComponent }> {
-  try {
-    const path = "/src/features/chat/ChatPanel.tsx";
-    const mod = (await import(/* @vite-ignore */ path)) as {
-      default: ChatPanelComponent;
-    };
-    return { default: mod.default };
-  } catch {
-    return { default: (() => null) as ChatPanelComponent };
-  }
-}
-
-const ChatPanel = lazy<ChatPanelComponent>(loadChatPanel);
+const ChatPanel = lazy(() => import("../../features/chat/ChatPanel"));
 
 export function AppShell() {
   const t = useT();
