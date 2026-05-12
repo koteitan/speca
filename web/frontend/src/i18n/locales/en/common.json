@@ -183,6 +183,9 @@
       "open_log_folder": "Open log folder in VSCode"
     },
     "phase_names": {
+      "0a": "Scope Extraction",
+      "0b": "Workspace Verify",
+      "0c": "Target Info",
       "01a": "Spec Discovery",
       "01b": "Subgraph Extraction",
       "01e": "Property Generation",

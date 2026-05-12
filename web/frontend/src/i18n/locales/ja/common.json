@@ -183,10 +183,13 @@
       "open_log_folder": "log フォルダを VSCode で開く"
     },
     "phase_names": {
-      "01a": "Spec Discovery",
-      "01b": "Subgraph Extraction",
-      "01e": "Property Generation",
-      "02c": "Code Pre-resolution",
+      "0a": "Scope 抽出",
+      "0b": "Workspace 検証",
+      "0c": "Target Info 生成",
+      "01a": "Spec 探索",
+      "01b": "Subgraph 抽出",
+      "01e": "Property 生成",
+      "02c": "Code 事前解決",
       "03": "Audit Map",
       "04": "Review"
     }

@@ -17,6 +17,9 @@
 import i18next from "@/i18n";
 
 export const PHASE_IDS: readonly string[] = [
+  "0a",
+  "0b",
+  "0c",
   "01a",
   "01b",
   "01e",
