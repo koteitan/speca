@@ -1,3 +1,10 @@
+# Workspace caches for the web UI run supervisor (bare repos + worktrees)
+# and per-run / per-conversation state — caches, never commit.
+.speca/workspaces/
+.speca/runs/
+.speca/web/
+.smoke/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
