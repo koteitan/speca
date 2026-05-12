@@ -21,7 +21,7 @@ from typing import Any, Iterable
 from pydantic import ValidationError
 
 from web.server.config import SPECA_RUNS_DIR
-from web.server.schemas.runs import RunDetail, RunSummary
+from web.server.schemas.runs import PhaseRow, RunDetail, RunSummary
 from web.server.services.run_status import (
     derive_branch_name,
     derive_phase_rows,
@@ -180,7 +180,14 @@ def list_runs(runs_dir: Path | None = None) -> list[RunSummary]:
 
 
 def get_run_detail(run_id: str, runs_dir: Path | None = None) -> RunDetail | None:
-    """Return the full detail payload for a single run, or ``None`` if absent."""
+    """Return the full detail payload for a single run, or ``None`` if absent.
+
+    Runs that were launched via the H1 RunSupervisor but never completed
+    (cancelled mid-flight, crashed before finalize, or still running) only
+    have ``state.json`` — the orchestrator writes ``manifest.json`` at
+    finalize time. Fall back to a state.json-derived summary so the SPA
+    doesn't 404 on perfectly valid mid-run rows.
+    """
 
     target_dir = runs_dir or SPECA_RUNS_DIR
     run_dir = target_dir / run_id
@@ -188,7 +195,84 @@ def get_run_detail(run_id: str, runs_dir: Path | None = None) -> RunDetail | Non
         return None
     manifest = _load_manifest(run_dir)
     if manifest is None:
-        return None
+        # Try state.json (supervisor-owned). Lazy import to keep the
+        # legacy manifest path zero-cost when state.json is absent too.
+        try:
+            from .run_state import load_state
+        except Exception:  # pragma: no cover - import shield
+            return None
+
+        state = load_state(run_id, runs_dir=target_dir)
+        if state is None:
+            return None
+
+        # state.run_status → RunSummary.status. Map ``orphaned_running`` /
+        # ``crashed`` onto ``failed`` for the SPA which only knows the four
+        # ``RunStatus`` values; the underlying state.json field still carries
+        # the precise label.
+        spec_status = state.status
+        mapped: str
+        if spec_status == "completed":
+            mapped = "ok"
+        elif spec_status in ("queued", "running"):
+            mapped = "running"
+        elif spec_status == "cancelled":
+            mapped = "cancelled"
+        else:
+            mapped = "failed"
+
+        phase_rows: list[PhaseRow] = []
+        for entry in state.phases:
+            phase_status: str
+            if entry.status == "ok":
+                phase_status = "ok"
+            elif entry.status == "running":
+                phase_status = "running"
+            elif entry.status == "failed":
+                phase_status = "failed"
+            elif entry.status == "cancelled":
+                phase_status = "cancelled"
+            elif entry.status == "skipped":
+                phase_status = "skipped"
+            else:
+                phase_status = "pending"
+            duration: float | None = None
+            if entry.started_at and entry.ended_at:
+                duration = max(
+                    0.0,
+                    (entry.ended_at - entry.started_at).total_seconds(),
+                )
+            phase_rows.append(
+                PhaseRow(
+                    phase_id=entry.phase_id,
+                    status=phase_status,  # type: ignore[arg-type]
+                    duration_seconds=duration,
+                    started_at=entry.started_at,
+                    ended_at=entry.ended_at,
+                )
+            )
+
+        phases_completed = [p.phase_id for p in state.phases if p.status == "ok"]
+        target_slug = run_id.split("-")[-1] or None
+
+        return RunDetail(
+            run_id=state.run_id,
+            started_at=phase_rows[0].started_at if phase_rows else datetime.now(timezone.utc),
+            ended_at=None if mapped == "running" else (
+                phase_rows[-1].ended_at if phase_rows else None
+            ),
+            target_slug=target_slug,
+            status=mapped,  # type: ignore[arg-type]
+            cost_usd_total=state.cost_usd_total,
+            phases_completed=phases_completed,
+            phases=phase_rows,
+            target_info=None,
+            spec_sources=[],
+            prompt_shas={},
+            branch_name=derive_branch_name(
+                target_slug=target_slug, run_id=state.run_id
+            ),
+        )
 
     now = datetime.now(timezone.utc)
     summary = _summary_from_manifest(run_dir=run_dir, manifest=manifest, now=now)
