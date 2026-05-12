@@ -84,7 +84,8 @@ function buildLaunchSpec(draft: ReturnType<typeof useNewRunDraft.getState>): Lau
     return trimmed === "" ? undefined : trimmed;
   };
   return {
-    bug_bounty_url: draft.bug_bounty_url.trim(),
+    project_type: draft.project_type,
+    bug_bounty_url: opt(draft.bug_bounty_url),
     target_repo: draft.target_repo.trim(),
     target_ref: opt(draft.target_ref),
     contract_addresses: opt(draft.contract_addresses),
@@ -104,6 +105,7 @@ export default function NewRunForm() {
   // Subscribe to every field individually so a `patch({...})` from any
   // input re-renders the form. Reading the whole state via `useNewRunDraft()`
   // would also work but couples re-renders to every action method ref.
+  const project_type = useNewRunDraft((s) => s.project_type);
   const bug_bounty_url = useNewRunDraft((s) => s.bug_bounty_url);
   const target_repo = useNewRunDraft((s) => s.target_repo);
   const target_ref = useNewRunDraft((s) => s.target_ref);
@@ -121,10 +123,14 @@ export default function NewRunForm() {
   // Launch on validity regardless of touch.
   const [touched, setTouched] = useState<{ url?: boolean; repo?: boolean }>({});
 
-  const urlValid = isValidUrl(bug_bounty_url);
+  // bug_bounty_url is OPTIONAL — non-bounty projects (internal audits,
+  // OSS libraries with no formal program) can leave it blank. Validate
+  // only when the user has typed something.
+  const urlValid = bug_bounty_url.trim() === "" || isValidUrl(bug_bounty_url);
   const repoValid = isValidTargetRepo(target_repo);
 
   const launchDisabled = !urlValid || !repoValid || launch.isPending;
+  const isContract = project_type === "smart_contract";
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -206,7 +212,39 @@ export default function NewRunForm() {
       <div className={styles.form}>
         <label className={styles.field}>
           <span className={styles.label}>
+            {t("picker.new_run_form.label_project_type")}
+          </span>
+          <span className={styles.control}>
+            <select
+              className={styles.input}
+              value={project_type}
+              onChange={(e) =>
+                patch({ project_type: e.target.value as typeof project_type })
+              }
+              data-testid="new-run-project-type"
+            >
+              <option value="smart_contract">
+                {t("picker.new_run_form.project_type_smart_contract")}
+              </option>
+              <option value="web_app">
+                {t("picker.new_run_form.project_type_web_app")}
+              </option>
+              <option value="library">
+                {t("picker.new_run_form.project_type_library")}
+              </option>
+              <option value="other">
+                {t("picker.new_run_form.project_type_other")}
+              </option>
+            </select>
+          </span>
+        </label>
+
+        <label className={styles.field}>
+          <span className={styles.label}>
             {t("picker.new_run_form.label_bug_bounty_url")}
+            <span className={styles.optional}>
+              {" "}({t("picker.new_run_form.optional_suffix")})
+            </span>
           </span>
           <span className={styles.control}>
             <input
@@ -270,7 +308,9 @@ export default function NewRunForm() {
 
         <label className={styles.field}>
           <span className={styles.label}>
-            {t("picker.new_run_form.label_contract_addresses")}
+            {isContract
+              ? t("picker.new_run_form.label_contract_addresses")
+              : t("picker.new_run_form.label_in_scope_assets")}
           </span>
           <span className={styles.control}>
             <textarea
@@ -280,6 +320,11 @@ export default function NewRunForm() {
               rows={3}
               spellCheck={false}
               autoComplete="off"
+              placeholder={
+                isContract
+                  ? t("picker.new_run_form.placeholder_contract_addresses")
+                  : t("picker.new_run_form.placeholder_in_scope_assets")
+              }
               data-testid="new-run-contracts"
             />
           </span>

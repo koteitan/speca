@@ -108,17 +108,30 @@ class RunStateDoc(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+ProjectType = Literal["smart_contract", "web_app", "library", "other"]
+
+
 class RunStartSpec(BaseModel):
     """Form payload that kicks off a new audit run.
 
     Mirrors the ``workflow_dispatch`` inputs of ``.github/workflows/full-
     audit.yml`` (see ``docs/UI_DESIGN.md`` §4.3) — keep the field names /
     defaults in sync so the form is portable between UI and CI.
+
+    ``project_type`` widens SPECA beyond smart-contract audits. The default
+    keeps backward compatibility; ``contract_addresses`` is repurposed as
+    generic "in-scope assets" text for non-contract projects so the field
+    survives the broader vocabulary without a schema rename.
+
+    ``bug_bounty_url`` is optional because non-bounty audits (internal
+    reviews, OSS libraries with no formal program) still need a way to
+    start.
     """
 
     model_config = ConfigDict(extra="ignore")
 
-    bug_bounty_url: HttpUrl
+    project_type: ProjectType = "smart_contract"
+    bug_bounty_url: HttpUrl | None = None
     target_repo: str
     target_ref: str | None = None
     contract_addresses: str | None = None

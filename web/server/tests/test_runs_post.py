@@ -251,11 +251,41 @@ def test_start_run_invalid_target_repo_returns_422(
     assert supervisor.start_run_calls == []
 
 
-def test_start_run_missing_bug_bounty_url_returns_422(client: TestClient) -> None:
-    """Pydantic rejects a missing required field with a 422."""
+def test_start_run_missing_bug_bounty_url_is_accepted(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """``bug_bounty_url`` is optional — non-bounty audits can still launch.
+
+    Project-type expansion (issue #54 follow-up) relaxes the field so that
+    web-app / library / OSS projects without a formal bug bounty can be
+    audited from the same UI.
+    """
+
+    workspace = _FakeWorkspaceManager(worktree_path=tmp_path / "wt" / "fake-run-id")
+    supervisor = _FakeSupervisor()
+    _install_fakes(
+        monkeypatch,
+        workspace=workspace,
+        supervisor=supervisor,
+        run_id="fake-run-id",
+        state_doc=None,
+    )
 
     body = _valid_spec_body()
     del body["bug_bounty_url"]
+    response = client.post("/api/runs", json=body)
+    assert response.status_code == 202
+    assert workspace.calls and workspace.calls[0][0] == "ensure_bare_cache"
+    assert supervisor.start_run_calls, "supervisor.start_run should still be invoked"
+    spec_received = supervisor.start_run_calls[0][0]
+    assert spec_received.bug_bounty_url is None
+
+
+def test_start_run_invalid_bug_bounty_url_returns_422(client: TestClient) -> None:
+    """When provided, ``bug_bounty_url`` must still be a valid http(s) URL."""
+
+    body = _valid_spec_body()
+    body["bug_bounty_url"] = "not-a-url"
     response = client.post("/api/runs", json=body)
     assert response.status_code == 422
 

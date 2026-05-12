@@ -45,6 +45,13 @@
   font-size: var(--nyx-font-size-xl);
 }
 
+.optional {
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-emphasis-700, var(--ifm-color-content));
+  opacity: 0.65;
+  font-weight: normal;
+}
+
 .form {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);

@@ -410,7 +410,6 @@ class RunSupervisor:
             active = _ActiveRun(
                 run_id=run_id,
                 spec=RunStartSpec(  # type: ignore[call-arg]
-                    bug_bounty_url="https://example.invalid/",
                     target_repo="rerun/placeholder",
                 ),
                 workspace_path=self._repo_root,
@@ -855,7 +854,9 @@ class RunSupervisor:
         out_dir = (self._repo_root / "outputs" / active.run_id).resolve()
         env["SPECA_OUTPUT_DIR"] = str(out_dir)
         env["SPECA_TARGET_WORKSPACE"] = str(active.workspace_path)
-        env["BUG_BOUNTY_URL"] = str(active.spec.bug_bounty_url)
+        if active.spec.bug_bounty_url is not None:
+            env["BUG_BOUNTY_URL"] = str(active.spec.bug_bounty_url)
+        env["SPECA_PROJECT_TYPE"] = active.spec.project_type
         if active.spec.keywords:
             env["KEYWORDS"] = active.spec.keywords
         if active.spec.spec_urls:

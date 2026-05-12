@@ -21,11 +21,12 @@ import { create } from "zustand";
 import { persist, type PersistStorage, type StorageValue } from "zustand/middleware";
 
 import type { FetchUrlResponse } from "../features/picker/useFetchUrl";
-import type { SavedTarget } from "../features/picker/types";
+import type { ProjectType, SavedTarget } from "../features/picker/types";
 
 export type NewRunDraftOrigin = "saved" | "url" | "chat" | "empty";
 
 export interface NewRunDraft {
+  project_type: ProjectType;
   bug_bounty_url: string;
   target_repo: string;
   target_ref: string;
@@ -55,6 +56,7 @@ const TTL_MS = 24 * 60 * 60 * 1000;
 // --max-concurrent 64`, no push. Everything else is an empty string so
 // the R2 form can render placeholders without "undefined" leaks.
 export const DEFAULT_DRAFT: NewRunDraft = {
+  project_type: "smart_contract",
   bug_bounty_url: "",
   target_repo: "",
   target_ref: "",

@@ -21,8 +21,11 @@ export interface SavedTarget {
 // surfaces as a TS error at the call site in `useLaunchRun.ts`.
 // ---------------------------------------------------------------------------
 
+export type ProjectType = "smart_contract" | "web_app" | "library" | "other";
+
 export interface LaunchSpec {
-  bug_bounty_url: string;
+  project_type: ProjectType;
+  bug_bounty_url?: string;
   target_repo: string;
   target_ref?: string;
   contract_addresses?: string;
