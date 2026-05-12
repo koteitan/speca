@@ -99,14 +99,24 @@ export function SavedTargetsList({ reviewPath }: SavedTargetsListProps) {
                 {target.target_ref ? (
                   <span className={styles.ref}>{target.target_ref}</span>
                 ) : null}
-                <span className={styles.time}>
-                  {formatRelative(
-                    target.last_run_at
-                      ? new Date(target.last_run_at).toISOString()
-                      : null,
-                    neverLabel,
-                  )}
-                </span>
+                {/* For demo seeds without history hide the timestamp
+                 *  entirely — "never" would imply the user neglected to
+                 *  run it, but the demo badge already explains the
+                 *  state. Real history rows always carry a timestamp. */}
+                {target.source === "demo" && !target.last_run_at ? (
+                  <span className={styles.time}>
+                    {t("picker.saved.demo_hint")}
+                  </span>
+                ) : (
+                  <span className={styles.time}>
+                    {formatRelative(
+                      target.last_run_at
+                        ? new Date(target.last_run_at).toISOString()
+                        : null,
+                      neverLabel,
+                    )}
+                  </span>
+                )}
               </span>
             </button>
           </li>

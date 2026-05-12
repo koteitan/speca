@@ -380,6 +380,7 @@
     "saved": {
       "empty": "保存されたターゲットはまだありません。",
       "demo_badge": "デモ",
+      "demo_hint": "サンプル — クリックでフォームに pre-fill",
       "last_run_never": "未実行"
     },
     "ask_claude": {

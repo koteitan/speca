@@ -380,6 +380,7 @@
     "saved": {
       "empty": "No saved targets yet.",
       "demo_badge": "demo",
+      "demo_hint": "Sample project — click to pre-fill the form.",
       "last_run_never": "never"
     },
     "ask_claude": {
