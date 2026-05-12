@@ -57,13 +57,13 @@
       "fab_label": "Chat",
       "panel_aria": "Claude と chat",
       "title": "Chat",
-      "readonly_badge": "Read-only mode (v0)",
-      "readonly_badge_title": "v0 — read-only ツールのみ",
+      "readonly_badge": "承認制",
+      "readonly_badge_title": "副作用 tool (launch_pipeline / stop_pipeline) は承認カード経由で実行されます。",
       "collapse_aria": "chat パネルを折りたたむ",
       "empty": "run、finding、property id について Claude に質問してください。"
     },
     "input": {
-      "placeholder_default": "Claude にメッセージ (read-only モード)",
+      "placeholder_default": "Claude にメッセージ (起動は承認制)",
       "input_aria": "chat 入力",
       "send_aria": "メッセージを送信",
       "send_label": "送信"

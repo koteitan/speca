@@ -57,13 +57,13 @@
       "fab_label": "Chat",
       "panel_aria": "Chat with Claude",
       "title": "Chat",
-      "readonly_badge": "Read-only mode (v0)",
-      "readonly_badge_title": "v0 — read-only tools only",
+      "readonly_badge": "Approval-gated",
+      "readonly_badge_title": "Side-effect tools (launch_pipeline / stop_pipeline) wait for an approval card before running.",
       "collapse_aria": "Collapse chat panel",
       "empty": "Ask Claude about a run, a finding, or a property id."
     },
     "input": {
-      "placeholder_default": "Message Claude (read-only mode)",
+      "placeholder_default": "Message Claude (approval required for runs)",
       "input_aria": "Chat input",
       "send_aria": "Send message",
       "send_label": "Send"
