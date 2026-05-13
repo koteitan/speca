@@ -195,15 +195,27 @@ class Phase0aRunner(Phase0RunnerBase):
         print(f"  URL: {bug_bounty_url}")
         print(f"  Output dir: {self.output_dir}")
 
-        # shell=False; arguments are passed as a list so quoting is the
-        # subprocess module's problem, not ours. Works on Windows / WSL / Linux.
+        # On Windows the npm-installed ``claude`` is a ``.cmd`` shim and
+        # the subprocess module cannot exec batch files directly (it
+        # returns exit code 9009 — "command not found"). Wrapping with
+        # ``cmd.exe /c`` preserves the argv list and works on Windows;
+        # POSIX exec'd files take the list form as-is.
+        if sys.platform == "win32" and claude_bin.lower().endswith((".cmd", ".bat")):
+            argv = ["cmd.exe", "/c", claude_bin, "--print", prompt]
+        else:
+            argv = [claude_bin, "--print", prompt]
         try:
             result = self._runner(
-                [claude_bin, "--print", prompt],
+                argv,
                 capture_output=True,
                 text=True,
                 check=False,
                 shell=False,
+                # claude CLI emits UTF-8; on Japanese Windows the default
+                # is cp932 and decode errors surface as
+                # ``UnicodeDecodeError: 'cp932' codec can't decode``.
+                encoding="utf-8",
+                errors="replace",
             )
         except OSError as exc:
             print(f"Phase 0a: failed to launch claude CLI: {exc}", file=sys.stderr)
