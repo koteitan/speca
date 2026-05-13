@@ -195,18 +195,35 @@ class Phase0aRunner(Phase0RunnerBase):
         print(f"  URL: {bug_bounty_url}")
         print(f"  Output dir: {self.output_dir}")
 
+        # ``--dangerously-skip-permissions`` lets the model use Write /
+        # WebFetch tools without an interactive permission prompt — that's
+        # what the Action's Phase 0a does via the second leg of the
+        # ``claude --print | claude --dangerously-skip-permissions`` pipe.
+        # We collapse it into one invocation; without this flag the model
+        # only emits text and never creates BUG_BOUNTY_SCOPE.json.
+        #
+        # The prompt itself goes through **stdin**, not argv. Passing it
+        # as an argument worked on POSIX but on Windows the ``cmd.exe``
+        # wrapper required for .cmd files interpreted angle brackets
+        # ``<asset>`` in the JSON template as I/O redirection and silently
+        # truncated the prompt at the first bracket, so claude only
+        # received "Read the bug bounty program page at … with:". Routing
+        # through stdin avoids cmd.exe parsing entirely.
+        claude_args = ["--print", "--dangerously-skip-permissions"]
+
         # On Windows the npm-installed ``claude`` is a ``.cmd`` shim and
         # the subprocess module cannot exec batch files directly (it
         # returns exit code 9009 — "command not found"). Wrapping with
         # ``cmd.exe /c`` preserves the argv list and works on Windows;
         # POSIX exec'd files take the list form as-is.
         if sys.platform == "win32" and claude_bin.lower().endswith((".cmd", ".bat")):
-            argv = ["cmd.exe", "/c", claude_bin, "--print", prompt]
+            argv = ["cmd.exe", "/c", claude_bin, *claude_args]
         else:
-            argv = [claude_bin, "--print", prompt]
+            argv = [claude_bin, *claude_args]
         try:
             result = self._runner(
                 argv,
+                input=prompt,
                 capture_output=True,
                 text=True,
                 check=False,

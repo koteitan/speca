@@ -216,12 +216,22 @@ def test_phase_0a_runs_claude_and_verifies_outputs(
 
     rc = runner.run()
     assert rc == 0
-    # Args order is [bin, --print, prompt]
+    # Args order is [bin, --print, --dangerously-skip-permissions].
+    # The prompt itself flows through stdin (``input=``) so Windows
+    # ``cmd.exe`` cannot interpret JSON angle brackets ``<asset>`` as
+    # redirection. ``--dangerously-skip-permissions`` is required so the
+    # model can write BUG_BOUNTY_SCOPE.json / EXTRACTED_INPUTS.json
+    # without an interactive tool-permission prompt that the non-TTY
+    # ``--print`` path cannot answer.
     args = captured_args["args"]
     assert args[0] == "/fake/claude"
     assert args[1] == "--print"
-    assert "https://example.com/bounty" in args[2]
-    assert "0xdeadbeef" in args[2]
+    assert args[2] == "--dangerously-skip-permissions"
+    # Prompt is no longer in argv — should be on stdin.
+    assert len(args) == 3, f"unexpected extra argv: {args!r}"
+    stdin_prompt = captured_args["kwargs"].get("input", "")
+    assert "https://example.com/bounty" in stdin_prompt
+    assert "0xdeadbeef" in stdin_prompt
     # subprocess must be invoked with shell=False for cross-platform safety.
     assert captured_args["kwargs"].get("shell") is False
     # Files exist.
