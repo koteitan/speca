@@ -8,9 +8,11 @@ Notes:
 
 * :func:`client` builds the app via :func:`web.server.main.create_app` so
   the wiring under test matches production (all routers included).
-* The credentials probe in ``get_status`` reads ``~/.claude/credentials.json``
-  — that read tolerates a missing file, so tests do *not* have to mock it
-  unless they specifically assert on the ``logged_in`` value.
+* The credentials probe in ``get_status`` reads ``~/.claude/.credentials.json``
+  (with leading dot, where the claude CLI persists its OAuth blob) and falls
+  back to the legacy dot-less path — that read tolerates a missing file, so
+  tests do *not* have to mock it unless they specifically assert on the
+  ``logged_in`` value.
 """
 
 from __future__ import annotations

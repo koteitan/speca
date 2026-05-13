@@ -144,10 +144,15 @@ export function useChatStream(conversationId: string) {
         // SSE frame parser: events end with a blank line; each event may
         // include multiple ``data:`` lines (joined by ``\n``) and one
         // optional ``event:`` line. We only emit ``data:`` payloads.
+        //
+        // sse-starlette on Windows emits ``\r\n\r\n`` frame terminators
+        // (per the W3C EventSource spec), so normalise CRLF → LF before
+        // splitting; otherwise ``indexOf("\n\n")`` never finds a frame
+        // boundary and the entire stream sits unparsed in the buffer.
         while (true) {
           const { value, done } = await reader.read();
           if (done) break;
-          buffer += decoder.decode(value, { stream: true });
+          buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n");
 
           let sep: number;
           while ((sep = buffer.indexOf("\n\n")) !== -1) {

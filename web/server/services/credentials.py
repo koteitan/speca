@@ -32,7 +32,13 @@ from ..schemas.auth import AuthStatus
 logger = logging.getLogger(__name__)
 
 
-CREDENTIALS_PATH: Path = Path.home() / ".claude" / "credentials.json"
+# The claude CLI persists OAuth credentials at ``~/.claude/.credentials.json``
+# (note the leading dot — that file is the source of truth on every platform
+# we've seen, including Windows where the older docs claim DPAPI is used).
+# We probe that first and fall back to the legacy dot-less ``credentials.json``
+# which earlier SPECA builds wrote API keys into via :func:`set_api_key`.
+CREDENTIALS_PATH: Path = Path.home() / ".claude" / ".credentials.json"
+LEGACY_CREDENTIALS_PATH: Path = Path.home() / ".claude" / "credentials.json"
 
 # Cache `claude auth status` for a short window. Spawning a Node CLI per
 # request is ~300ms on Windows; polling at 2s from the SPA would dominate
@@ -41,20 +47,15 @@ _STATUS_CACHE_TTL_SECONDS: float = 1.5
 _status_cache: tuple[float, AuthStatus] | None = None
 
 
-def _load_raw(path: Path = CREDENTIALS_PATH) -> dict[str, Any]:
-    """Return the parsed credentials dict, or ``{}`` if the file is absent.
-
-    Corrupt JSON is logged and treated as empty so that the user can recover
-    by simply re-entering their API key through the UI instead of having to
-    hand-edit the file.
-    """
+def _read_one(path: Path) -> dict[str, Any]:
+    """Read a single credentials file. Returns ``{}`` if absent / unreadable."""
 
     try:
         text = path.read_text(encoding="utf-8")
     except FileNotFoundError:
         return {}
     except OSError as exc:  # permissions, etc.
-        logger.warning("credentials: read failed (%s) — treating as empty", exc)
+        logger.warning("credentials: read of %s failed (%s) — skipping", path, exc)
         return {}
 
     if not text.strip():
@@ -64,22 +65,41 @@ def _load_raw(path: Path = CREDENTIALS_PATH) -> dict[str, Any]:
         data = json.loads(text)
     except json.JSONDecodeError as exc:
         logger.warning(
-            "credentials: %s is not valid JSON (%s) — treating as empty",
-            path,
-            exc,
+            "credentials: %s is not valid JSON (%s) — skipping", path, exc
         )
         return {}
 
     if not isinstance(data, dict):
         logger.warning(
-            "credentials: %s did not contain an object at the top level "
-            "(got %s) — treating as empty",
+            "credentials: %s did not contain a top-level object (got %s) — skipping",
             path,
             type(data).__name__,
         )
         return {}
 
     return data
+
+
+def _load_raw(path: Path = CREDENTIALS_PATH) -> dict[str, Any]:
+    """Return the parsed credentials dict, merging primary + legacy paths.
+
+    The CLI writes ``~/.claude/.credentials.json`` (with a leading dot);
+    earlier SPECA builds wrote ``~/.claude/credentials.json``. We merge both
+    so an OAuth login set up via the CLI co-exists with an API key the user
+    pasted into the UI before the dot-file convention was adopted. On key
+    collisions the primary (dotted) file wins because that is what the CLI
+    rewrites on re-login.
+    """
+
+    legacy = _read_one(LEGACY_CREDENTIALS_PATH) if path == CREDENTIALS_PATH else {}
+    primary = _read_one(path)
+    if not legacy:
+        return primary
+    if not primary:
+        return legacy
+    merged: dict[str, Any] = dict(legacy)
+    merged.update(primary)
+    return merged
 
 
 def _atomic_write(path: Path, payload: dict[str, Any]) -> None:
