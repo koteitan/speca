@@ -18,6 +18,59 @@
     "system_short": "A",
     "solarized_short": "S"
   },
+  "errors": {
+    "show_raw": "Show technical details",
+    "clone_failed": {
+      "title": "Couldn't clone target repository",
+      "message": "git could not fetch the target repo. The most common causes are a typo in the owner/name slug, a private repo without auth, or a transient network failure.",
+      "action": "Double-check the target_repo field, then retry. For private repos make sure GH_TOKEN is exported in the supervisor's environment."
+    },
+    "invalid_target_repo": {
+      "title": "Target repository slug is invalid",
+      "message": "The target_repo field must look like ``owner/name`` — no spaces, no URL prefix, no shell expansion. The backend rejected the input before any clone was attempted.",
+      "action": "Edit the slug to match ``owner/name`` and submit again."
+    },
+    "invalid_workspace_input": {
+      "title": "Target repository slug is invalid",
+      "message": "The supervisor refused the workspace input — usually a missing owner/, a stray protocol, or a forbidden character in the slug.",
+      "action": "Edit the slug to match ``owner/name`` and submit again."
+    },
+    "ref_not_found": {
+      "title": "Target ref not found",
+      "message": "The branch, tag, or commit you asked for does not exist on the target's origin. The clone succeeded but the checkout step bailed.",
+      "action": "Leave target_ref blank for the default branch, or pass a ref that exists on origin (``git ls-remote`` is the easiest way to confirm)."
+    },
+    "worktree_failed": {
+      "title": "Workspace setup failed",
+      "message": "git could not create the per-run worktree. This is usually a filesystem permission problem or a stale cache directory under ``.speca/workspaces``.",
+      "action": "Try running again; if the error persists, delete ``.speca/workspaces/<target>`` and let the supervisor re-bootstrap it."
+    },
+    "anthropic_unreachable": {
+      "title": "Couldn't reach Anthropic API",
+      "message": "The picker tried to fetch the bug bounty scope through Claude but the request failed. Either the API is degraded, OAuth credentials are missing, or the local network blocked the egress.",
+      "action": "Check status.anthropic.com, confirm ``claude auth status`` reports logged_in=true, and retry."
+    },
+    "run_not_found": {
+      "title": "Run not found",
+      "message": "No run with this id is on disk. It may have been pruned, or the supervisor never finished writing its state.json (e.g. cancelled mid-launch).",
+      "action": "Go back to the runs list and pick an existing run."
+    },
+    "still_running": {
+      "title": "Run is still running",
+      "message": "The action you took (rerun / cap-bump / delete) requires the run to be in a terminal state. The supervisor is still driving the phase chain.",
+      "action": "Cancel the run first, then try again."
+    },
+    "invalid_phases": {
+      "title": "Unknown phase ids",
+      "message": "Rerun was asked for at least one phase id the orchestrator does not recognise. Phase ids are the canonical 0a/0b/0c/01a/01b/01e/02c/03/04 strings.",
+      "action": "Pick from the phase list shown in the rerun dialog."
+    },
+    "unknown": {
+      "title": "Unexpected error",
+      "message": "The server returned an error code the UI does not have a friendly translation for yet. The raw envelope is below — copy it into a bug report so an operator can dig further.",
+      "action": ""
+    }
+  },
   "common": {
     "loading": "Loading...",
     "loading_short": "Loading…",
@@ -402,10 +455,22 @@
   "login": {
     "title": "Sign in to SPECA",
     "subtitle": "Local web UI — credentials never leave your machine.",
-    "oauth_button_idle": "Continue with claude.ai (Pro/Max)",
+    "oauth_button_idle": "Open the CLI's login console",
     "oauth_button_pending": "Spawning claude auth login...",
     "oauth_button_success": "Waiting for OAuth completion...",
     "oauth_hint_default": "Opened OAuth flow in a separate window.",
+    "paste_oauth": {
+      "button_idle": "Continue with claude.ai (paste-code)",
+      "button_pending": "Starting OAuth...",
+      "url_prefix": "Authorise on:",
+      "open_in_browser": "Open the authorisation URL",
+      "no_url_yet": "The CLI is starting — give it a moment, then paste the code below.",
+      "code_label": "Verification code from claude.ai",
+      "code_placeholder": "Paste the code shown after authorisation",
+      "submit_idle": "Submit code",
+      "submit_pending": "Exchanging…",
+      "fallback_summary": "Fallback: open the login in a separate console window"
+    },
     "divider": "or use API key",
     "api_key_label": "Anthropic API key",
     "api_key_placeholder": "sk-ant-...",

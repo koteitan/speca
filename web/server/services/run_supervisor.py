@@ -298,8 +298,25 @@ class RunSupervisor:
             current_phase=None,
             phases=[PhaseStateEntry(phase_id=p) for p in PHASE_CHAIN],
             cost_usd_total=0.0,
+            max_budget_usd=spec.max_budget_usd,
         )
         run_state.write_state(run_id, doc, runs_dir=self._runs_dir)
+
+        # CLI spec §3.1 `speca init` — write the two canonical config
+        # files into the per-run outputs dir as soon as the run id is
+        # minted, so users can inspect them before any phase fires (and
+        # external tooling can drive the same files speca-cli would).
+        # Phase 0a / 0c will re-write these files with enriched content,
+        # but the stubs below match the JSON Schema the schemas/ exports
+        # publish.
+        try:
+            self._write_init_config_files(spec, run_id)
+        except Exception as exc:  # pragma: no cover - best-effort init
+            logger.warning(
+                "speca: init config write failed for run %s (%s) — phases will recreate them",
+                run_id,
+                exc,
+            )
 
         active = _ActiveRun(
             run_id=run_id,
@@ -317,6 +334,63 @@ class RunSupervisor:
             self._watchdog(active), name=f"speca-watchdog-{run_id}"
         )
         return run_id
+
+    def _write_init_config_files(self, spec: RunStartSpec, run_id: str) -> None:
+        """Write the `speca init`-equivalent stubs into ``outputs/<run_id>/``.
+
+        Mirrors the CLI's M2 `speca init` step (SPECA_CLI_SPEC §11) — the
+        SPA wizard collects the same inputs and persists the same two
+        files. Phase 0a / 0c will overwrite them with enriched content
+        once they run; this is the visibility seed for users who want to
+        inspect / share the config without firing the pipeline first.
+
+        Best-effort: missing dirs are created, write errors are caught
+        by the caller. We deliberately do NOT raise on existing files —
+        a rerun against the same run_id should refresh the stubs.
+        """
+
+        from datetime import datetime, timezone
+
+        out_dir = (self._repo_root / "outputs" / run_id).resolve()
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+
+        target_info: dict[str, Any] = {
+            "repository": spec.target_repo,
+            "ref": spec.target_ref or None,
+            "project_type": spec.project_type,
+            "written_by": "speca-web",
+            "written_at": now_iso,
+        }
+        if spec.contract_addresses:
+            target_info["contract_addresses"] = spec.contract_addresses
+
+        bug_bounty_scope: dict[str, Any] = {
+            "url": str(spec.bug_bounty_url) if spec.bug_bounty_url else None,
+            "scope_summary": None,
+            "in_scope_assets": (
+                [s.strip() for s in spec.contract_addresses.split(",") if s.strip()]
+                if spec.contract_addresses
+                else []
+            ),
+            "spec_urls": (
+                [s.strip() for s in spec.spec_urls.split(",") if s.strip()]
+                if spec.spec_urls
+                else []
+            ),
+            "written_by": "speca-web",
+            "written_at": now_iso,
+        }
+
+        (out_dir / "TARGET_INFO.json").write_text(
+            json.dumps(target_info, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        (out_dir / "BUG_BOUNTY_SCOPE.json").write_text(
+            json.dumps(bug_bounty_scope, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
 
     def update_budget_cap(
         self, run_id: str, max_budget_usd: float | None

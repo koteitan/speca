@@ -18,6 +18,59 @@
     "system_short": "自",
     "solarized_short": "S"
   },
+  "errors": {
+    "show_raw": "技術的な詳細を表示",
+    "clone_failed": {
+      "title": "ターゲットリポジトリの clone に失敗",
+      "message": "git がターゲットリポジトリを取得できませんでした。よくある原因は owner/name のタイポ、認証なしの private リポジトリ、または一時的なネットワーク障害です。",
+      "action": "target_repo 欄を確認してから再試行してください。private リポジトリの場合は supervisor の環境で GH_TOKEN が export されている必要があります。"
+    },
+    "invalid_target_repo": {
+      "title": "ターゲットリポジトリのスラグが不正",
+      "message": "target_repo は ``owner/name`` の形式である必要があります — スペースや URL プレフィックス、シェル展開は不可。バックエンドが clone 前に拒否しました。",
+      "action": "``owner/name`` 形式に修正してから再送信してください。"
+    },
+    "invalid_workspace_input": {
+      "title": "ターゲットリポジトリのスラグが不正",
+      "message": "supervisor が workspace 入力を拒否しました — owner/ 抜け、不要なプロトコル、または禁止文字を含むスラグが原因のことが多いです。",
+      "action": "``owner/name`` 形式に修正してから再送信してください。"
+    },
+    "ref_not_found": {
+      "title": "ターゲット ref が見つからない",
+      "message": "指定したブランチ / タグ / コミットが origin に存在しません。clone は成功しましたが checkout 段階で失敗しました。",
+      "action": "target_ref を空にすればデフォルトブランチが使われます。明示的に指定する場合は ``git ls-remote`` 等で存在を確認してください。"
+    },
+    "worktree_failed": {
+      "title": "workspace の作成に失敗",
+      "message": "git が per-run worktree を作成できませんでした。ファイルシステムの権限エラーか、``.speca/workspaces`` のキャッシュ汚染が一般的な原因です。",
+      "action": "再試行してください。それでもダメな場合は ``.speca/workspaces/<target>`` を削除して supervisor に再生成させてください。"
+    },
+    "anthropic_unreachable": {
+      "title": "Anthropic API に到達できない",
+      "message": "Picker が Claude 経由で bug bounty scope を取得しようとして失敗しました。API 障害、OAuth 認証切れ、またはネットワークの egress 制限が原因の可能性があります。",
+      "action": "status.anthropic.com を確認し、``claude auth status`` が logged_in=true を返すか確認してから再試行してください。"
+    },
+    "run_not_found": {
+      "title": "run が見つかりません",
+      "message": "指定された run id がディスク上にありません。プルーニングされたか、supervisor が state.json を書き終わる前に終了したか (cancel 等) のどちらかです。",
+      "action": "runs 一覧に戻って既存の run を選択してください。"
+    },
+    "still_running": {
+      "title": "run は実行中です",
+      "message": "実行した操作 (rerun / 予算 cap-bump / 削除) は run が終了状態である必要があります。supervisor は phase chain を駆動中です。",
+      "action": "まず run を cancel してから再試行してください。"
+    },
+    "invalid_phases": {
+      "title": "未知の phase id",
+      "message": "rerun に orchestrator が認識しない phase id が含まれていました。phase id は 0a/0b/0c/01a/01b/01e/02c/03/04 のいずれかです。",
+      "action": "rerun ダイアログに表示される phase 一覧から選択してください。"
+    },
+    "unknown": {
+      "title": "想定外のエラー",
+      "message": "サーバが UI 側に翻訳ルールがないエラーコードを返しました。下の生 envelope をバグ報告にコピーしてください。",
+      "action": ""
+    }
+  },
   "common": {
     "loading": "読み込み中...",
     "loading_short": "読み込み中…",
@@ -402,10 +455,22 @@
   "login": {
     "title": "SPECA にサインイン",
     "subtitle": "ローカル Web UI — 認証情報はこのマシン外に出ません。",
-    "oauth_button_idle": "claude.ai (Pro/Max) で続行",
+    "oauth_button_idle": "CLI ログインコンソールを開く",
     "oauth_button_pending": "claude auth login を起動中...",
     "oauth_button_success": "OAuth 完了を待機中...",
     "oauth_hint_default": "OAuth フローを別ウィンドウで開きました。",
+    "paste_oauth": {
+      "button_idle": "claude.ai で続行 (paste-code)",
+      "button_pending": "OAuth を開始中...",
+      "url_prefix": "認証先:",
+      "open_in_browser": "認証 URL を開く",
+      "no_url_yet": "CLI を起動中です。少し待ってから、表示されたコードを下に貼り付けてください。",
+      "code_label": "claude.ai からのコード",
+      "code_placeholder": "認証完了後に表示されるコードを貼り付け",
+      "submit_idle": "コードを送信",
+      "submit_pending": "交換中…",
+      "fallback_summary": "フォールバック: 別コンソールで開く"
+    },
     "divider": "または API key を使う",
     "api_key_label": "Anthropic API key",
     "api_key_placeholder": "sk-ant-...",

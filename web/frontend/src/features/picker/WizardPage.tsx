@@ -15,8 +15,10 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import ErrorModal from "@/components/ErrorModal/ErrorModal";
 import { Spinner } from "@/components/Spinner/Spinner";
 import { useT } from "@/i18n/useT";
+import { parseErrorEnvelope } from "@/lib/errorEnvelope";
 import { useNewRunDraft } from "@/store/newRunDraftSlice";
 
 import type { LaunchSpec, ProjectType } from "./types";
@@ -75,6 +77,11 @@ export default function WizardPage() {
   const clearDraft = useNewRunDraft((s) => s.clear);
 
   const [stepIdx, setStepIdx] = useState(0);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const errorEnvelope = useMemo(
+    () => (launch.error ? parseErrorEnvelope(launch.error) : null),
+    [launch.error],
+  );
   const stepId: StepId = STEPS[stepIdx];
 
   const isContract = project_type === "smart_contract";
@@ -113,6 +120,7 @@ export default function WizardPage() {
         navigate(`/runs/${data.run_id}`);
         queueMicrotask(() => clearDraft());
       },
+      onError: () => setErrorModalOpen(true),
     });
   };
 
@@ -392,6 +400,15 @@ export default function WizardPage() {
           </button>
         )}
       </nav>
+      <ErrorModal
+        open={errorModalOpen}
+        envelope={errorEnvelope}
+        onRetry={() => {
+          setErrorModalOpen(false);
+          launch.reset();
+        }}
+        onClose={() => setErrorModalOpen(false)}
+      />
     </section>
   );
 }

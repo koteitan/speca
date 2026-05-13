@@ -22,12 +22,14 @@
 //   - anything else is shown raw inside a <pre> so the user has a
 //     copy/paste-able report for the operator.
 
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import ErrorModal from "@/components/ErrorModal/ErrorModal";
 import { Spinner } from "@/components/Spinner/Spinner";
 import { useT } from "@/i18n/useT";
 import { ApiError } from "@/lib/api";
+import { parseErrorEnvelope } from "@/lib/errorEnvelope";
 import { useNewRunDraft } from "@/store/newRunDraftSlice";
 
 import type { LaunchSpec } from "./types";
@@ -122,6 +124,15 @@ export default function NewRunForm() {
   // shout at the user about empty inputs on first paint. We still gate
   // Launch on validity regardless of touch.
   const [touched, setTouched] = useState<{ url?: boolean; repo?: boolean }>({});
+  // CLI spec §10.4 — the seven failure cases land in a modal. We keep
+  // the inline launchErrorBlock below as a secondary surface for
+  // accessibility (screen-reader users who dismissed the modal still
+  // see the error) and copy/paste convenience.
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const errorEnvelope = useMemo(
+    () => (launch.error ? parseErrorEnvelope(launch.error) : null),
+    [launch.error],
+  );
 
   // bug_bounty_url is OPTIONAL — non-bounty projects (internal audits,
   // OSS libraries with no formal program) can leave it blank. Validate
@@ -149,6 +160,7 @@ export default function NewRunForm() {
           clearDraft();
         });
       },
+      onError: () => setErrorModalOpen(true),
     });
   };
 
@@ -445,6 +457,15 @@ export default function NewRunForm() {
         </div>
       </div>
       </form>
+      <ErrorModal
+        open={errorModalOpen}
+        envelope={errorEnvelope}
+        onRetry={() => {
+          setErrorModalOpen(false);
+          launch.reset();
+        }}
+        onClose={() => setErrorModalOpen(false)}
+      />
     </section>
   );
 }

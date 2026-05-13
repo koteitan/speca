@@ -69,3 +69,62 @@ export function useStartOAuth(): UseMutationResult<
       apiFetch<OAuthLoginStubResponse>("/auth/login", { method: "POST" }),
   });
 }
+
+// ---------------------------------------------------------------------------
+// CLI spec §4.5.1 paste-code OAuth
+//
+// Two-step flow:
+//   1. ``useStartPasteOAuth`` spawns ``claude auth login`` server-side with
+//      piped stdio and returns the auth URL the user should open in their
+//      browser, plus a session id.
+//   2. ``usePastePasteOAuthCode`` forwards the verification code the user
+//      pastes back into the SPA. On success we invalidate the auth status
+//      cache so the dashboard appears.
+
+export interface OAuthStartResponse {
+  session_id: string;
+  auth_url: string | null;
+  stdout_tail: string;
+}
+
+export interface OAuthPasteResponse {
+  session_id: string;
+  completed: boolean;
+  error: string | null;
+}
+
+export function useStartPasteOAuth(): UseMutationResult<
+  OAuthStartResponse,
+  Error,
+  void
+> {
+  return useMutation<OAuthStartResponse, Error, void>({
+    mutationFn: () =>
+      apiFetch<OAuthStartResponse>("/auth/oauth/start", { method: "POST" }),
+  });
+}
+
+export function usePasteOAuthCode(): UseMutationResult<
+  OAuthPasteResponse,
+  Error,
+  { session_id: string; code: string }
+> {
+  const queryClient = useQueryClient();
+  return useMutation<
+    OAuthPasteResponse,
+    Error,
+    { session_id: string; code: string }
+  >({
+    mutationFn: (body) =>
+      apiFetch<OAuthPasteResponse>("/auth/oauth/paste", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }),
+    onSuccess: (result) => {
+      if (result.completed && !result.error) {
+        queryClient.invalidateQueries({ queryKey: authStatusQueryKey });
+      }
+    },
+  });
+}

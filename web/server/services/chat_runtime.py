@@ -77,14 +77,19 @@ class _ClientLike(Protocol):
 
 
 def get_api_key() -> str | None:
-    """Resolve the API key for the Anthropic client.
+    """Resolve a credential string for the Anthropic client.
 
     Order of precedence:
 
     1. ``ANTHROPIC_API_KEY`` env var (explicit override, matches CLI / CI)
-    2. ``apiKey`` in ``~/.claude/credentials.json``
-    3. ``claudeAiOauth.accessToken`` (OAuth fallback — works as a bearer
-       token against the Claude API for Pro/Max subscribers)
+    2. ``apiKey`` in the credentials file (``~/.claude/.credentials.json``;
+       legacy dot-less fallback also honoured — see credentials.py)
+    3. ``claudeAiOauth.accessToken`` — claude.ai OAuth access token. We
+       return it here in raw form; ``build_client`` distinguishes OAuth
+       from API keys by the ``sk-ant-oat`` prefix and passes it to the
+       SDK as ``auth_token`` instead of ``api_key`` so the request is
+       Bearer-authed (the only flavour Anthropic accepts for the Pro /
+       Max subscription tier).
 
     Returns ``None`` if no credentials are present; callers decide whether
     to surface "logged out" or hard-fail.
@@ -108,8 +113,26 @@ def get_api_key() -> str | None:
     return None
 
 
+# claude.ai OAuth access tokens always start with this prefix; API keys
+# minted in the Console use ``sk-ant-api``. The discrimination is the
+# only piece of context the SDK needs to call the right auth code path.
+_OAUTH_TOKEN_PREFIX = "sk-ant-oat"
+
+# Beta header the official ``claude`` CLI sends when authenticating with
+# a subscription OAuth token. Without it api.anthropic.com routes the
+# request as raw API and rate-limits aggressively (the 429 storm we saw
+# during the first chat verification).
+_OAUTH_BETA_HEADER = "oauth-2025-04-20"
+
+
 def build_client(api_key: str | None = None) -> _ClientLike:
     """Construct the Anthropic SDK client.
+
+    OAuth tokens (``sk-ant-oat…``) are passed as ``auth_token`` so the SDK
+    sends an ``Authorization: Bearer …`` header; API keys (``sk-ant-api…``)
+    keep the ``X-Api-Key`` header path. The ``anthropic-beta`` header is
+    added for OAuth so Anthropic routes the request through the
+    subscription pool (Max / Pro) instead of the raw-API quota.
 
     Imported lazily so the module is still importable in tests without a
     network-capable SDK present.
@@ -117,7 +140,16 @@ def build_client(api_key: str | None = None) -> _ClientLike:
 
     from anthropic import Anthropic  # local import — heavy
 
-    return Anthropic(api_key=api_key) if api_key else Anthropic()  # type: ignore[return-value]
+    if api_key is None:
+        return Anthropic()  # type: ignore[return-value]
+
+    if api_key.startswith(_OAUTH_TOKEN_PREFIX):
+        return Anthropic(  # type: ignore[return-value]
+            auth_token=api_key,
+            default_headers={"anthropic-beta": _OAUTH_BETA_HEADER},
+        )
+
+    return Anthropic(api_key=api_key)  # type: ignore[return-value]
 
 
 # Type alias for the client factory the runtime accepts. Default is
