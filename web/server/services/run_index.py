@@ -14,9 +14,30 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
+
+# Optional 4-hex nonce suffix introduced by the orchestrator's
+# ``make_run_id`` to disambiguate same-second runs (issue #32). We strip it
+# before splitting off the trailing slug so the SPA still shows e.g.
+# "openlist" rather than "0a1b" for a non-bounty audit.
+_NONCE_SUFFIX = re.compile(r"-([0-9a-f]{4})$")
+
+
+def _extract_target_slug(run_id: str) -> str | None:
+    """Return the slug portion of a run id, tolerant of either format.
+
+    ``<ts>-<7hex>-<slug>``         (legacy)
+    ``<ts>-<7hex>-<slug>-<4hex>``  (current — nonce suffix)
+    """
+
+    if not run_id:
+        return None
+    base = _NONCE_SUFFIX.sub("", run_id)
+    last = base.rsplit("-", 1)[-1]
+    return last or None
 
 from pydantic import ValidationError
 
@@ -253,7 +274,7 @@ def get_run_detail(run_id: str, runs_dir: Path | None = None) -> RunDetail | Non
             )
 
         phases_completed = [p.phase_id for p in state.phases if p.status == "ok"]
-        target_slug = run_id.split("-")[-1] or None
+        target_slug = _extract_target_slug(run_id)
 
         return RunDetail(
             run_id=state.run_id,

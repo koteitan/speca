@@ -249,12 +249,18 @@ class RunSupervisor:
         self._runs_dir: Path = runs_dir or SPECA_RUNS_DIR
         self._repo_root: Path = repo_root or SPECA_REPO_ROOT
         # ``run_phase_argv`` lets tests inject a fake script in place of
-        # ``uv run python3 scripts/run_phase.py``. Default keeps the
+        # ``uv run python scripts/run_phase.py``. Default keeps the
         # production CLI invocation as-is.
+        #
+        # NOTE: ``python`` (not ``python3``) — the Windows uv venv ships
+        # ``python.exe`` only; spawning ``python3`` from within the venv
+        # exits 9009 (cmd.exe "command not recognised"). ``python`` works
+        # on every supported platform (Linux/macOS/Windows) inside ``uv
+        # run``.
         self._run_phase_argv: list[str] = run_phase_argv or [
             "uv",
             "run",
-            "python3",
+            "python",
             str(self._repo_root / "scripts" / "run_phase.py"),
         ]
         self._active: dict[str, _ActiveRun] = {}
@@ -527,6 +533,21 @@ class RunSupervisor:
             for phase_id in phases:
                 if active.cancel_event.is_set():
                     break
+
+                # Phase 0a (scope extraction) reads BUG_BOUNTY_URL — for
+                # non-bounty projects (library / web_app / other with no
+                # URL supplied) the runner would fail instantly. Mark the
+                # phase ``skipped`` and continue with 0b → 04.
+                if (
+                    phase_id == "0a"
+                    and active.spec.bug_bounty_url is None
+                ):
+                    self._mark_phase_skipped(
+                        active,
+                        phase_id,
+                        reason="no bug_bounty_url provided",
+                    )
+                    continue
 
                 ok = await self._run_one_phase(active, phase_id, force=force)
                 if not ok:
@@ -863,6 +884,11 @@ class RunSupervisor:
             env["SPEC_URLS"] = active.spec.spec_urls
         if active.spec.contract_addresses:
             env["CONTRACT_ADDRESSES"] = active.spec.contract_addresses
+        # Phase 0c expects TARGET_REPO / TARGET_REF to write TARGET_INFO.json
+        # (mirrors .github/workflows/full-audit.yml Step 0c).
+        env["TARGET_REPO"] = active.spec.target_repo
+        if active.spec.target_ref:
+            env["TARGET_REF"] = active.spec.target_ref
         env["SPECA_RUN_ID"] = active.run_id
         env["SPECA_CURRENT_PHASE"] = phase_id
         return env
@@ -926,6 +952,28 @@ class RunSupervisor:
                 entry = entry.model_copy(update=fields)
             updated.append(entry)
         active.doc = active.doc.model_copy(update={"phases": updated})
+
+    def _mark_phase_skipped(
+        self, active: _ActiveRun, phase_id: str, *, reason: str
+    ) -> None:
+        """Stamp a phase as ``skipped`` with a reason and emit the usual events.
+
+        Mirrors what ``_run_one_phase`` does on success/failure so the SPA
+        receives ``phase_started`` + ``phase_completed`` for skip transitions
+        too; the WebSocket reducer can treat skip the same way and the run
+        appears continuous from the user's perspective.
+        """
+
+        now = datetime.now(timezone.utc)
+        self._update_phase(
+            active,
+            phase_id,
+            status="skipped",
+            started_at=now,
+            ended_at=now,
+            reason=reason,
+        )
+        self._persist(active)
 
     def _update_phase_cost(self, active: _ActiveRun, phase_id: str, total: float) -> None:
         """Refresh per-phase cost from cumulative total (Slice H1 stub)."""
