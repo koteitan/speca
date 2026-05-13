@@ -13,12 +13,56 @@ import { useParams, Link } from "react-router-dom";
 import { OpenInVSCode } from "@/components/OpenInVSCode";
 import { useIntegrationsPaths } from "@/features/integrations/useIntegrationsStatus";
 import { useT } from "@/i18n/useT";
+import { useChatPrefill } from "@/store/chatPrefillSlice";
+import { useChatUi } from "@/store/chatUiSlice";
 
 import { parseLineStart } from "./parseLineRange";
 import { SeverityChip } from "./SeverityChip";
 import { VerdictChip } from "./VerdictChip";
 import { useFinding } from "./useFindings";
 import styles from "./FindingDetailPage.module.css";
+
+import type { Finding } from "./types";
+
+/**
+ * Build a compact context block for the chat prefill. We deliberately
+ * cap each free-text field to keep the leading message under the 50 KB
+ * informal budget called out in SPECA_CLI_SPEC §5.5 (the WebUI does not
+ * enforce a hard cap, but the same budget guidance applies).
+ */
+function buildFindingContextBlock(finding: Finding): string {
+  const trim = (value: string | null, max = 1200): string => {
+    if (!value) return "";
+    if (value.length <= max) return value;
+    return `${value.slice(0, max)}\n… (truncated, ${value.length - max} chars)`;
+  };
+  const lines: string[] = [
+    "# Finding context",
+    `- Property ID: ${finding.property_id}`,
+    `- Severity: ${finding.severity}`,
+    `- Verdict: ${finding.verdict ?? "(none)"}`,
+    `- Phase: ${finding.phase}`,
+    `- Run ID: ${finding.run_id}`,
+  ];
+  if (finding.file) {
+    lines.push(
+      `- File: ${finding.file}${finding.line_range ? `::${finding.line_range}` : ""}`,
+    );
+  }
+  if (finding.gates_passed.length > 0) {
+    lines.push(`- Gates passed: ${finding.gates_passed.join(", ")}`);
+  }
+  if (finding.evidence_snippet) {
+    lines.push("", "## Evidence snippet", trim(finding.evidence_snippet));
+  }
+  if (finding.proof_trace) {
+    lines.push("", "## Proof trace", trim(finding.proof_trace, 3000));
+  }
+  if (finding.reviewer_notes) {
+    lines.push("", "## Reviewer notes", trim(finding.reviewer_notes));
+  }
+  return lines.join("\n");
+}
 
 export function FindingDetailPage() {
   const t = useT();
@@ -30,6 +74,11 @@ export function FindingDetailPage() {
   // Slice G — repo root is required to build the absolute path for the
   // "open in VSCode" icon next to the code location row.
   const { data: paths } = useIntegrationsPaths();
+  // CLI spec §3.1.6 / §5.5 — let the user open the chat panel pre-loaded
+  // with the current finding as system context, so Claude sees what
+  // they are asking about.
+  const setChatOpen = useChatUi((s) => s.setOpen);
+  const setChatPrefill = useChatPrefill((s) => s.setPrefill);
 
   if (isLoading) {
     return <div className={styles.state}>{t("findings.detail.loading")}</div>;
@@ -82,6 +131,33 @@ export function FindingDetailPage() {
           <VerdictChip verdict={data.verdict} />
           <span className={styles.phaseTag}>
             {t("findings.detail.phase_label", { phase: data.phase })}
+          </span>
+        </div>
+        <div className={styles.askClaudeRow}>
+          <button
+            type="button"
+            className={styles.askClaudeButton}
+            data-testid="ask-claude-about-finding"
+            onClick={() => {
+              setChatPrefill({
+                contextId: data.property_id,
+                label: t("findings.detail.ask_claude_context_label", {
+                  property_id: data.property_id,
+                  severity: data.severity,
+                }),
+                contextBlock: buildFindingContextBlock(data),
+                draftMessage: t("findings.detail.ask_claude_draft_message", {
+                  property_id: data.property_id,
+                }),
+              });
+              setChatOpen(true);
+            }}
+          >
+            <span aria-hidden="true">?</span>
+            <span>{t("findings.detail.ask_claude_button")}</span>
+          </button>
+          <span className={styles.askClaudeHint}>
+            {t("findings.detail.ask_claude_hint")}
           </span>
         </div>
       </header>

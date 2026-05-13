@@ -13,6 +13,32 @@
   gap: var(--nyx-space-2);
 }
 
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nyx-space-4);
+  flex-wrap: wrap;
+}
+
+.wizardLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+  padding: var(--nyx-space-2) var(--nyx-space-5);
+  border-radius: var(--nyx-radius-xs);
+  background: oklch(0.97 0.05 220);
+  border: 1px solid oklch(0.7 0.1 220);
+  color: oklch(0.3 0.15 220);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.wizardLink:hover {
+  background: oklch(0.92 0.08 220);
+}
+
 .title {
   margin: 0;
   font-size: var(--nyx-font-size-xl);

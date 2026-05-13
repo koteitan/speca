@@ -8,6 +8,8 @@
 // The "Ask Claude" panel opens the right-side chat panel via the global
 // chatUiSlice, mirroring what the header chat toggle does.
 
+import { Link } from "react-router-dom";
+
 import { useT } from "@/i18n/useT";
 import { useChatUi } from "@/store/chatUiSlice";
 
@@ -27,7 +29,16 @@ export default function PickerPage() {
   return (
     <section className={styles.page} data-testid="picker-page">
       <header className={styles.header}>
-        <h1 className={styles.title}>{t("picker.page.title")}</h1>
+        <div className={styles.headerRow}>
+          <h1 className={styles.title}>{t("picker.page.title")}</h1>
+          <Link
+            to="/runs/new/wizard"
+            className={styles.wizardLink}
+            data-testid="picker-open-wizard"
+          >
+            {t("picker.page.guided_wizard")}
+          </Link>
+        </div>
         <p className={styles.subtitle}>{t("picker.page.subtitle")}</p>
       </header>
 

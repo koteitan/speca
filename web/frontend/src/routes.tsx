@@ -6,6 +6,7 @@ import FindingDetailPage from "./features/findings/FindingDetailPage";
 import FindingsListPage from "./features/findings/FindingsListPage";
 import NewRunForm from "./features/picker/NewRunForm";
 import PickerPage from "./features/picker/PickerPage";
+import WizardPage from "./features/picker/WizardPage";
 import RunDetailPage from "./features/runs/RunDetailPage";
 import RunListPage from "./features/runs/RunListPage";
 import SettingsPage from "./features/settings/SettingsPage";
@@ -20,6 +21,7 @@ export const routes: RouteObject[] = [
   // === route: runs ===
   { path: "/runs", element: <RunListPage /> },
   { path: "/runs/new", element: <PickerPage /> },
+  { path: "/runs/new/wizard", element: <WizardPage /> },
   { path: "/runs/new/review", element: <NewRunForm /> },
   { path: "/runs/:runId", element: <RunDetailPage /> },
   // === route: findings ===

@@ -61,7 +61,9 @@
       "readonly_badge": "承認制",
       "readonly_badge_title": "副作用 tool (launch_pipeline / stop_pipeline) は承認カード経由で実行されます。",
       "collapse_aria": "chat パネルを折りたたむ",
-      "empty": "run、finding、property id について Claude に質問してください。"
+      "empty": "run、finding、property id について Claude に質問してください。",
+      "context_attached": "コンテキスト添付",
+      "context_remove_aria": "添付コンテキストを外す"
     },
     "input": {
       "placeholder_default": "Claude にメッセージ (起動は承認制)",
@@ -227,7 +229,11 @@
       "gates_passed_title": "通過した Gates",
       "reviewer_notes_title": "レビュアーノート",
       "phase_label": "Phase {{phase}}",
-      "open_in_vscode": "VSCode で開く"
+      "open_in_vscode": "VSCode で開く",
+      "ask_claude_button": "この finding について Claude に聞く",
+      "ask_claude_hint": "この finding をコンテキストに添付した状態で chat パネルを開きます。",
+      "ask_claude_context_label": "{{property_id}} ({{severity}})",
+      "ask_claude_draft_message": "この finding ({{property_id}}) について教えてください。攻撃可能性と影響は?"
     },
     "filter": {
       "bar_aria": "Findings フィルター",
@@ -235,7 +241,12 @@
       "verdict_label": "Verdict",
       "phase_label": "Phase",
       "all": "すべて",
-      "phase_value": "Phase {{phase}}"
+      "phase_value": "Phase {{phase}}",
+      "dsl_label": "検索フィルター",
+      "dsl_placeholder": "severity:high verdict:CONFIRMED_VULNERABILITY prop:PROP-* フリーテキスト",
+      "dsl_help": "キー: severity: / verdict: / prop: / repo: (`|` で OR、スペースで AND)",
+      "dsl_clear_aria": "フィルターをクリア",
+      "dsl_unknown_keys": "未知のキーはフリーテキスト扱い: {{keys}}"
     },
     "severity": {
       "Critical": "Critical",
@@ -424,7 +435,38 @@
       "subtitle": "監査対象を選ぶ。3 入口、1 つの確認フォーム。",
       "saved": "保存済みターゲット",
       "from_url": "URL から",
-      "ask_claude": "Claude に頼む (chat)"
+      "ask_claude": "Claude に頼む (chat)",
+      "guided_wizard": "簡易ガイドで作成 →"
+    },
+    "wizard": {
+      "title": "ガイド付きセットアップ",
+      "subtitle": "1 問ずつ回答する形式。`speca init` (CLI) と同じ流れ。",
+      "cancel_link": "← キャンセルして別の入口から作成",
+      "steps_aria": "ウィザードのステップ",
+      "step_project_type_short": "種別",
+      "step_target_repo_short": "リポジトリ",
+      "step_target_ref_short": "Ref",
+      "step_scope_short": "スコープ",
+      "step_spec_urls_short": "仕様",
+      "step_review_short": "確認",
+      "q_project_type": "何を監査しますか?",
+      "hint_project_type": "ここでの選択により、trust model と tool パレットの初期値が決まります。",
+      "q_target_repo": "対象の GitHub `owner/repo` を貼ってください。",
+      "hint_target_repo": "例: `sigp/lighthouse`。SPECA は起動時にこれを clone します。",
+      "q_target_ref": "ブランチ・タグ・コミットを固定しますか?",
+      "hint_target_ref": "空欄ならデフォルトブランチの HEAD を使います。",
+      "q_scope": "Bug Bounty プログラム / in-scope 資産は?",
+      "hint_scope": "Bounty URL は任意。アドレスやパスを書くと解析範囲を絞れます。",
+      "q_spec_urls": "Phase 01a でクロールする仕様 URL (任意)。",
+      "hint_spec_urls": "カンマ or 改行区切り。空欄なら仕様取り込みをスキップ。",
+      "placeholder_spec_urls": "https://eips.ethereum.org/EIPS/eip-...",
+      "q_review": "起動準備 OK?",
+      "hint_review": "入力内容を確認。詳細オプション (workers / push) は次の画面で。",
+      "advanced_hint": "Worker / push-to-remote を細かく設定したい場合は",
+      "advanced_link": "詳細フォーム",
+      "nav_aria": "ウィザードのナビゲーション",
+      "back": "← 戻る",
+      "next": "次へ →"
     },
     "from_url": {
       "label_bug_bounty_url": "Bug Bounty / プログラム URL",

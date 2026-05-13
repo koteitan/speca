@@ -61,7 +61,9 @@
       "readonly_badge": "Approval-gated",
       "readonly_badge_title": "Side-effect tools (launch_pipeline / stop_pipeline) wait for an approval card before running.",
       "collapse_aria": "Collapse chat panel",
-      "empty": "Ask Claude about a run, a finding, or a property id."
+      "empty": "Ask Claude about a run, a finding, or a property id.",
+      "context_attached": "Context attached",
+      "context_remove_aria": "Remove attached context"
     },
     "input": {
       "placeholder_default": "Message Claude (approval required for runs)",
@@ -227,7 +229,11 @@
       "gates_passed_title": "Gates passed",
       "reviewer_notes_title": "Reviewer notes",
       "phase_label": "Phase {{phase}}",
-      "open_in_vscode": "Open in VSCode"
+      "open_in_vscode": "Open in VSCode",
+      "ask_claude_button": "Ask Claude about this finding",
+      "ask_claude_hint": "Opens the chat panel with this finding attached as context.",
+      "ask_claude_context_label": "{{property_id}} ({{severity}})",
+      "ask_claude_draft_message": "Tell me about this finding ({{property_id}}). Is it exploitable, and what is the impact?"
     },
     "filter": {
       "bar_aria": "Findings filters",
@@ -235,7 +241,12 @@
       "verdict_label": "Verdict",
       "phase_label": "Phase",
       "all": "All",
-      "phase_value": "Phase {{phase}}"
+      "phase_value": "Phase {{phase}}",
+      "dsl_label": "Search filter",
+      "dsl_placeholder": "severity:high verdict:CONFIRMED_VULNERABILITY prop:PROP-* free text",
+      "dsl_help": "Keys: severity: / verdict: / prop: / repo: (pipe-separate alternatives, AND with spaces).",
+      "dsl_clear_aria": "Clear filter",
+      "dsl_unknown_keys": "Unknown filter key(s) treated as free text: {{keys}}"
     },
     "severity": {
       "Critical": "Critical",
@@ -426,6 +437,36 @@
       "from_url": "From URL",
       "ask_claude": "Ask Claude (chat)",
       "guided_wizard": "Guided setup →"
+    },
+    "wizard": {
+      "title": "Guided new-audit setup",
+      "subtitle": "One question at a time. Mirrors `speca init` (CLI).",
+      "cancel_link": "← Cancel and pick another entry",
+      "steps_aria": "Wizard steps",
+      "step_project_type_short": "Type",
+      "step_target_repo_short": "Repo",
+      "step_target_ref_short": "Ref",
+      "step_scope_short": "Scope",
+      "step_spec_urls_short": "Specs",
+      "step_review_short": "Review",
+      "q_project_type": "What are you auditing?",
+      "hint_project_type": "Picks the right default trust model and tool palette downstream.",
+      "q_target_repo": "Paste the GitHub `owner/repo` of the target.",
+      "hint_target_repo": "Example: `sigp/lighthouse`. SPECA clones this on launch.",
+      "q_target_ref": "Pin a specific branch, tag, or commit?",
+      "hint_target_ref": "Leave blank to use the default branch HEAD.",
+      "q_scope": "Bug bounty program or in-scope assets?",
+      "hint_scope": "Bounty URL is optional. Addresses / paths help SPECA narrow the analysis.",
+      "q_spec_urls": "Specification URLs to crawl in Phase 01a (optional).",
+      "hint_spec_urls": "Comma- or newline-separated. Leave blank to skip spec ingestion.",
+      "placeholder_spec_urls": "https://eips.ethereum.org/EIPS/eip-...",
+      "q_review": "Ready to launch?",
+      "hint_review": "Review your answers below. Advanced options (workers, push) are on the next page.",
+      "advanced_hint": "Need to tweak workers / push-to-remote? Continue to the",
+      "advanced_link": "advanced form",
+      "nav_aria": "Wizard navigation",
+      "back": "← Back",
+      "next": "Next →"
     },
     "wizard": {
       "title": "Guided new-audit setup",

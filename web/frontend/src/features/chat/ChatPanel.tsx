@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useT } from "@/i18n/useT";
+import { useChatPrefill, type ChatPrefillContext } from "@/store/chatPrefillSlice";
 
 import { ApprovalCard } from "./ApprovalCard";
 import type { ApprovalCardToolName } from "./ApprovalCard";
@@ -60,6 +61,53 @@ export function ChatPanel({ conversationId, defaultOpen = true }: ChatPanelProps
     approve,
     cancelApproval,
   } = useChatStream(effectiveId);
+
+  // Pull a one-shot prefill (e.g. "Ask Claude about this finding") off
+  // the chat-prefill bus and turn it into:
+  //   - an `attachedContext` pill so the user knows their next message
+  //     is grounded in a finding
+  //   - a starter `inputDraft` so they can hit Enter immediately
+  // The context block itself is prepended to the *first* outgoing
+  // message only — afterwards the conversation is unencumbered.
+  const consumePrefill = useChatPrefill((s) => s.consume);
+  const [attachedContext, setAttachedContext] =
+    useState<ChatPrefillContext | null>(null);
+  const [inputDraft, setInputDraft] = useState<string>("");
+  useEffect(() => {
+    const next = consumePrefill();
+    if (next) {
+      setAttachedContext(next);
+      setInputDraft(next.draftMessage);
+    }
+    // Re-run when the panel switches conversation — a different chat
+    // should not inherit the previous panel's context.
+  }, [consumePrefill, effectiveId]);
+  // Cleared once we have used the context as a leading-message prefix.
+  const pendingContextRef = useRef<ChatPrefillContext | null>(null);
+  useEffect(() => {
+    pendingContextRef.current = attachedContext;
+  }, [attachedContext]);
+
+  const handleSend = useMemo(
+    () => (text: string) => {
+      const pending = pendingContextRef.current;
+      if (pending) {
+        // Inject the context once. We use a fenced markdown block so
+        // Claude can recognise it as background data rather than user
+        // intent. The trailing user text is appended after a blank line.
+        const enriched = `${pending.contextBlock}\n\n---\n\n${text}`;
+        pendingContextRef.current = null;
+        send(enriched);
+      } else {
+        send(text);
+      }
+      // After the first send, the input is empty until the next prefill
+      // bus push lands. We clear the draft so a re-mount does not
+      // re-seed it from stale state.
+      setInputDraft("");
+    },
+    [send],
+  );
 
   // Track per-card status so the buttons can flip to "Approving..." /
   // "Cancelling..." without waiting for the SSE round-trip. ``resolved``
@@ -182,6 +230,32 @@ export function ChatPanel({ conversationId, defaultOpen = true }: ChatPanelProps
         }}
       />
 
+      {attachedContext ? (
+        <div
+          className={styles.contextPill}
+          role="status"
+          data-testid="chat-context-pill"
+        >
+          <span className={styles.contextLabel}>
+            {t("chat.panel.context_attached")}
+          </span>
+          <code className={styles.contextValue}>{attachedContext.label}</code>
+          <button
+            type="button"
+            className={styles.contextClear}
+            onClick={() => {
+              setAttachedContext(null);
+              pendingContextRef.current = null;
+              setInputDraft("");
+            }}
+            aria-label={t("chat.panel.context_remove_aria")}
+            title={t("chat.panel.context_remove_aria")}
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
+
       <div className={styles.scroll} ref={scrollRef}>
         {messages.length === 0 && !streamingDraft && (
           <p className={styles.empty}>{t("chat.panel.empty")}</p>
@@ -233,7 +307,11 @@ export function ChatPanel({ conversationId, defaultOpen = true }: ChatPanelProps
         )}
       </div>
 
-      <ChatInput disabled={streaming} onSubmit={(text) => send(text)} />
+      <ChatInput
+        disabled={streaming}
+        onSubmit={handleSend}
+        initialDraft={inputDraft}
+      />
     </aside>
   );
 }

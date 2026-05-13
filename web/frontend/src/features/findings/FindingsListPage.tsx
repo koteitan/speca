@@ -22,7 +22,9 @@ import { useIntegrationsPaths } from "@/features/integrations/useIntegrationsSta
 import { useT } from "@/i18n/useT";
 
 import { FilterBar } from "./FilterBar";
+import { FilterInput } from "./FilterInput";
 import { FindingRow } from "./FindingRow";
+import { isEmptyFilter, matchFilter, parseFilterDsl } from "./filterDsl";
 import { useFindings } from "./useFindings";
 import styles from "./FindingsListPage.module.css";
 
@@ -99,12 +101,22 @@ export function FindingsListPage() {
   // "Open in VSCode" icon pointing at <repo>/target_workspace/<file>.
   const { data: paths } = useIntegrationsPaths();
 
+  // CLI spec §5.4.1 filter DSL — parsed once per `q=` change. The chip
+  // bar above still filters server-side; the DSL is layered client-side
+  // and AND-combined with whatever the server returned.
+  const dslQuery = searchParams.get("q") ?? "";
+  const parsedDsl = useMemo(() => parseFilterDsl(dslQuery), [dslQuery]);
+
   const sortedFindings = useMemo(() => {
     if (!data) return [];
-    const copy = [...data.data];
+    let rows = data.data;
+    if (!isEmptyFilter(parsedDsl)) {
+      rows = rows.filter((f) => matchFilter(f, parsedDsl));
+    }
+    const copy = [...rows];
     copy.sort((a, b) => compare(a, b, sort.key, sort.dir));
     return copy;
-  }, [data, sort]);
+  }, [data, sort, parsedDsl]);
 
   const [showAll, setShowAll] = useState(false);
   const visibleFindings = useMemo(
@@ -145,6 +157,7 @@ export function FindingsListPage() {
         </div>
       )}
 
+      <FilterInput parsed={parsedDsl} />
       <FilterBar />
 
       {isLoading && (

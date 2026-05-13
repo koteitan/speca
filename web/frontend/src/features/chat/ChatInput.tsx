@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { useT } from "@/i18n/useT";
 
@@ -15,17 +15,44 @@ import styles from "./ChatInput.module.css";
  * cover the entire panel. While ``disabled`` (i.e. a turn is streaming)
  * we keep the value visible but greyed out so the user can review what
  * they sent without it being editable.
+ *
+ * `initialDraft` lets the parent seed the textarea (e.g. "Ask Claude
+ * about this finding" prefill). We push it via an effect rather than a
+ * `defaultValue` so a *new* prefill while the panel is already mounted
+ * also wins — `defaultValue` is sampled only on first render.
  */
 
 export interface ChatInputProps {
   disabled: boolean;
   onSubmit: (text: string) => void;
   placeholder?: string;
+  /** One-shot textarea seed. Re-applying the same value is a no-op; the
+   * parent should change the value to push a new draft. */
+  initialDraft?: string;
 }
 
-export function ChatInput({ disabled, onSubmit, placeholder }: ChatInputProps) {
+export function ChatInput({
+  disabled,
+  onSubmit,
+  placeholder,
+  initialDraft,
+}: ChatInputProps) {
   const t = useT();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Push a fresh draft into the uncontrolled textarea. Skips empty
+  // strings so we never blow away a user-typed draft on first paint.
+  useEffect(() => {
+    if (!initialDraft) return;
+    const ta = textareaRef.current;
+    if (!ta) return;
+    ta.value = initialDraft;
+    ta.style.height = "auto";
+    ta.style.height = `${Math.min(ta.scrollHeight, 200)}px`;
+    // Park the caret at the end so the user can keep typing.
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
+  }, [initialDraft]);
 
   const submit = useCallback(() => {
     const ta = textareaRef.current;
