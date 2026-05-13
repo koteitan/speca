@@ -13,18 +13,20 @@ interface ThemeToggleProps {
   compact?: boolean;
 }
 
-const MODES: ThemeMode[] = ["light", "dark", "system"];
+const MODES: ThemeMode[] = ["light", "dark", "system", "solarized"];
 
 const LABEL_KEY: Record<ThemeMode, string> = {
   light: "theme.light",
   dark: "theme.dark",
   system: "theme.system",
+  solarized: "theme.solarized",
 };
 
 const COMPACT_LABEL_KEY: Record<ThemeMode, string> = {
   light: "theme.light_short",
   dark: "theme.dark_short",
   system: "theme.system_short",
+  solarized: "theme.solarized_short",
 };
 
 export default function ThemeToggle({ compact = false }: ThemeToggleProps) {

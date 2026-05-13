@@ -11,8 +11,8 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-export type ThemeMode = "light" | "dark" | "system";
-export type EffectiveTheme = "light" | "dark";
+export type ThemeMode = "light" | "dark" | "system" | "solarized";
+export type EffectiveTheme = "light" | "dark" | "solarized";
 
 export interface ThemeState {
   /** What the user explicitly selected. */
@@ -36,7 +36,7 @@ export const useTheme = create<ThemeState>()(
 
 /** Resolve the *effective* theme given a stored mode + system preference. */
 export function resolveTheme(mode: ThemeMode): EffectiveTheme {
-  if (mode === "light" || mode === "dark") return mode;
+  if (mode === "light" || mode === "dark" || mode === "solarized") return mode;
   if (typeof window === "undefined") return "light";
   const dark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
   return dark ? "dark" : "light";

@@ -25,6 +25,8 @@ from fastapi import APIRouter, HTTPException
 
 from web.server.schemas.run_state import RunStartSpec
 from web.server.schemas.runs import (
+    BudgetCapRequest,
+    BudgetCapResponse,
     CancelResponse,
     RerunRequest,
     RerunResponse,
@@ -301,3 +303,35 @@ async def rerun_run(run_id: str, req: RerunRequest) -> RerunResponse:
     supervisor = run_supervisor_svc.get_run_supervisor()
     await supervisor.rerun_phases(run_id, req.phases)
     return RerunResponse(run_id=run_id, rerun_phases=req.phases)
+
+
+@router.post(
+    "/runs/{run_id}/budget_cap",
+    response_model=BudgetCapResponse,
+    summary="Set / clear the budget cap for a run (CLI spec §5.3.3)",
+)
+async def post_run_budget_cap(
+    run_id: str, body: BudgetCapRequest
+) -> BudgetCapResponse:
+    """Write ``max_budget_usd`` into the run's state.json.
+
+    The supervisor in-memory snapshot is also updated so the next
+    ``GET /api/runs/<id>`` immediately reflects the new cap without
+    waiting for the watchdog tick. Cap enforcement (halt-on-exceed) is
+    not yet wired — see the marker in run_supervisor.py.
+    """
+
+    state = run_state_svc.load_state(run_id)
+    if state is None:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "run_not_found", "run_id": run_id},
+        )
+
+    updated = state.model_copy(update={"max_budget_usd": body.max_budget_usd})
+    run_state_svc.write_state(run_id, updated)
+
+    supervisor = run_supervisor_svc.get_run_supervisor()
+    supervisor.update_budget_cap(run_id, body.max_budget_usd)
+
+    return BudgetCapResponse(run_id=run_id, max_budget_usd=body.max_budget_usd)

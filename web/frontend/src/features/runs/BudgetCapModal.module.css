@@ -1,0 +1,164 @@
+/* BudgetCapModal — mirrors ConfirmDialog's surface treatment. We keep the
+ * styles colocated rather than reusing ConfirmDialog so the cap form's
+ * input row + warn helper don't have to fight an alien CSS module's
+ * selector specificity.
+ */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: oklch(0 0 0 / 0.5);
+  padding: var(--nyx-space-4);
+  animation: bcm-fade-in var(--nyx-motion-instant) ease;
+}
+
+.card {
+  background: var(--ifm-background-color, #fff);
+  color: var(--ifm-color-content);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-sm);
+  box-shadow: 0 12px 32px oklch(0 0 0 / 0.18);
+  padding: var(--nyx-space-6);
+  width: min(440px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-4);
+  outline: none;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-lg);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.description {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+.label {
+  display: block;
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  font-weight: 600;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  padding: var(--nyx-space-2) var(--nyx-space-3);
+  background: var(--nyx-color-surface-muted);
+  margin-top: var(--nyx-space-2);
+}
+
+.inputRow:focus-within {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+
+.inputPrefix {
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  opacity: 0.7;
+}
+
+.input {
+  flex: 1 1 auto;
+  border: none;
+  background: transparent;
+  color: var(--ifm-color-content);
+  font: inherit;
+  font-size: var(--nyx-font-size-md);
+  padding: 0;
+  outline: none;
+  min-width: 0;
+}
+
+.warn {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: oklch(0.45 0.18 60);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  margin-top: var(--nyx-space-3);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-sm);
+  line-height: 1.2;
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background var(--nyx-motion-instant) ease,
+    color var(--nyx-motion-instant) ease,
+    border-color var(--nyx-motion-instant) ease;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonGhost {
+  background: transparent;
+  color: var(--ifm-color-content);
+  border-color: var(--nyx-color-border-strong);
+}
+
+.buttonGhost:hover:not(:disabled) {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.buttonPrimary {
+  background: var(--ifm-color-primary);
+  color: oklch(0.99 0 0);
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background: var(--ifm-color-primary-darker, oklch(0.55 0.18 258));
+}
+
+@keyframes bcm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop {
+    animation: none;
+  }
+  .button {
+    transition: none;
+  }
+}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { OpenInVSCode } from "@/components/OpenInVSCode";
 import { useT } from "@/i18n/useT";
@@ -52,6 +52,17 @@ export interface PhaseRowProps {
    * UI for already-finished runs is unchanged.
    */
   isLive?: boolean;
+  /**
+   * CLI spec §10.3 phase keybindings (`f`, `s`). Fired only when this
+   * row's toggle button currently holds keyboard focus. Both are
+   * optional — the row simply ignores keys whose handler is not wired.
+   *
+   * - `onForceRerun` — `f` — re-run *just* this phase
+   * - `onSkip` — `s` — skip this phase (not yet supported by the web
+   *   supervisor; the parent surfaces a toast / disables the binding)
+   */
+  onForceRerun?: (phaseId: string) => void;
+  onSkip?: (phaseId: string) => void;
 }
 
 /**
@@ -61,18 +72,74 @@ export interface PhaseRowProps {
  * at the run's log folder; the live log stream itself lands in v1. The
  * `data-testid="phase-row-<id>"` attribute is the integration point.
  */
-export function PhaseRow({ phase, logsPath, logs, isLive }: PhaseRowProps) {
+export function PhaseRow({
+  phase,
+  logsPath,
+  logs,
+  isLive,
+  onForceRerun,
+  onSkip,
+}: PhaseRowProps) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const label = formatPhaseLabel(phase.phase_id);
+  const logTailRef = useRef<HTMLDivElement | null>(null);
+
+  // After `l` opens the row, scroll the log pane into view. Skipped when
+  // logs were already visible to avoid stealing focus on every render.
+  const justOpenedForLogRef = useRef(false);
+  useEffect(() => {
+    if (open && justOpenedForLogRef.current) {
+      justOpenedForLogRef.current = false;
+      logTailRef.current?.scrollIntoView({ block: "nearest" });
+    }
+  }, [open]);
+
+  /**
+   * CLI spec §10.3 — keys consumed while the row toggle has focus:
+   *
+   *   Enter / Space → toggle (native <button> behaviour, no handler needed)
+   *   l            → expand and bring the log pane into view
+   *   f            → force re-run this phase (caller wires the mutation)
+   *   s            → skip this phase (caller decides whether to honour it)
+   *
+   * We early-return for any key with a modifier so platform shortcuts
+   * (Ctrl+L "address bar", Ctrl+F "find") are not stolen.
+   */
+  const onRowKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const key = event.key.toLowerCase();
+    if (key === "l") {
+      event.preventDefault();
+      if (!open) {
+        justOpenedForLogRef.current = true;
+        setOpen(true);
+      } else {
+        logTailRef.current?.scrollIntoView({ block: "nearest" });
+      }
+      return;
+    }
+    if (key === "f" && onForceRerun) {
+      event.preventDefault();
+      onForceRerun(phase.phase_id);
+      return;
+    }
+    if (key === "s" && onSkip) {
+      event.preventDefault();
+      onSkip(phase.phase_id);
+      return;
+    }
+  };
 
   return (
-    <div data-testid={`phase-row-${phase.phase_id}`}>
+    <div data-testid={`phase-row-${phase.phase_id}`} data-phase-id={phase.phase_id}>
       <button
         type="button"
         className={styles.row}
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
+        onKeyDown={onRowKeyDown}
+        title={t("runs.phase_row.keyhelp")}
       >
         <StatusIcon status={phase.status} />
         <span className={styles.label}>{label}</span>
@@ -88,6 +155,7 @@ export function PhaseRow({ phase, logsPath, logs, isLive }: PhaseRowProps) {
       </button>
       {open ? (
         <div
+          ref={logTailRef}
           className={styles.detail}
           role="region"
           aria-label={t("runs.phase_row.details_aria", { label })}

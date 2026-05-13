@@ -19,6 +19,10 @@
 //                                   thing the v0 wire model has to a
 //                                   "repo" key — CLI multi-target is
 //                                   v1 territory)
+//   path:contracts/**/*.sol       → glob on the finding's `file` field.
+//                                   `**` matches any number of path
+//                                   segments. Mirrors CLI spec §3.5
+//                                   `speca browse [glob]`.
 //   any unquoted free token       → AND-combined substring search across
 //                                   property_id / file / proof_trace /
 //                                   evidence_snippet / reviewer_notes
@@ -28,7 +32,7 @@
 
 import { SEVERITY_LEVELS, KNOWN_VERDICTS, type Finding, type Severity } from "./types";
 
-export type DslKey = "severity" | "verdict" | "prop" | "repo";
+export type DslKey = "severity" | "verdict" | "prop" | "repo" | "path";
 
 export interface ParsedFilter {
   /** Raw input the user typed, kept for echo / re-render. */
@@ -41,6 +45,8 @@ export interface ParsedFilter {
   propPatterns: RegExp[];
   /** `repo:` globs (matched against run_id). */
   repoPatterns: RegExp[];
+  /** `path:` globs (matched against the finding's `file` field). */
+  pathPatterns: RegExp[];
   /** Free-text tokens. AND-combined, case-insensitive substring. */
   freeTokens: string[];
   /** Tokens the parser could not interpret as a key:value — kept so the
@@ -54,6 +60,7 @@ const KNOWN_KEYS: ReadonlySet<DslKey> = new Set([
   "verdict",
   "prop",
   "repo",
+  "path",
 ]);
 
 const SEVERITY_LOOKUP: Record<string, Severity> = (() => {
@@ -91,6 +98,24 @@ function globToRegExp(glob: string): RegExp {
   return new RegExp(`^${pattern}$`, "i");
 }
 
+/** Convert a path-style glob into an anchored regex.
+ *
+ * Same as :func:`globToRegExp` except ``**`` matches any number of path
+ * segments (including zero) and a single ``*`` is restricted to one
+ * segment. This mirrors the behaviour of `git ls-files`, fnmatch, and
+ * the SPECA CLI's `speca browse <glob>` shell pattern. */
+function pathGlobToRegExp(glob: string): RegExp {
+  // Escape regex metacharacters, then substitute glob constructs. Order
+  // matters: `**` must be translated before `*` so the longer match wins.
+  const escaped = glob.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+  const pattern = escaped
+    .replace(/\*\*/g, "::DOUBLESTAR::")
+    .replace(/\*/g, "[^/]*")
+    .replace(/\?/g, "[^/]")
+    .replace(/::DOUBLESTAR::/g, ".*");
+  return new RegExp(`^${pattern}$`, "i");
+}
+
 export function parseFilterDsl(input: string): ParsedFilter {
   const result: ParsedFilter = {
     raw: input,
@@ -98,6 +123,7 @@ export function parseFilterDsl(input: string): ParsedFilter {
     verdict: [],
     propPatterns: [],
     repoPatterns: [],
+    pathPatterns: [],
     freeTokens: [],
     unknownKeys: [],
   };
@@ -148,6 +174,11 @@ export function parseFilterDsl(input: string): ParsedFilter {
           result.repoPatterns.push(globToRegExp(v));
         }
         break;
+      case "path":
+        for (const v of values) {
+          result.pathPatterns.push(pathGlobToRegExp(v));
+        }
+        break;
     }
   }
   return result;
@@ -169,6 +200,13 @@ export function matchFilter(f: Finding, parsed: ParsedFilter): boolean {
   }
   if (parsed.repoPatterns.length > 0) {
     if (!parsed.repoPatterns.some((re) => re.test(f.run_id))) {
+      return false;
+    }
+  }
+  if (parsed.pathPatterns.length > 0) {
+    // No file path → definitely not a match for a `path:` constraint.
+    if (!f.file) return false;
+    if (!parsed.pathPatterns.some((re) => re.test(f.file as string))) {
       return false;
     }
   }
@@ -195,6 +233,7 @@ export function isEmptyFilter(parsed: ParsedFilter): boolean {
     parsed.verdict.length === 0 &&
     parsed.propPatterns.length === 0 &&
     parsed.repoPatterns.length === 0 &&
+    parsed.pathPatterns.length === 0 &&
     parsed.freeTokens.length === 0
   );
 }

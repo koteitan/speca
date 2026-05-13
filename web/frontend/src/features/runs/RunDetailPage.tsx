@@ -7,12 +7,13 @@ import { useIntegrationsPaths } from "@/features/integrations/useIntegrationsSta
 import { ApiError } from "@/lib/api";
 import { useT } from "@/i18n/useT";
 
+import { BudgetCapModal } from "./BudgetCapModal";
 import { BudgetGauge } from "./BudgetGauge";
 import { PhaseRow } from "./PhaseRow";
 import { RerunDialog } from "./RerunDialog";
 import { StatusIcon } from "./StatusIcon";
 import type { RunDetail } from "./types";
-import { useCancelRun, useRerunPhases } from "./useRunActions";
+import { useCancelRun, useRerunPhases, useSetBudgetCap } from "./useRunActions";
 import { useRunDetail } from "./useRuns";
 import { useRunStream } from "./useRunStream";
 import styles from "./RunDetailPage.module.css";
@@ -87,8 +88,10 @@ export default function RunDetailPage() {
   // the supervisor is still acknowledging the first POST).
   const cancelMutation = useCancelRun(runId);
   const rerunMutation = useRerunPhases(runId);
+  const setBudgetCapMutation = useSetBudgetCap(runId);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [rerunDialogOpen, setRerunDialogOpen] = useState(false);
+  const [budgetCapModalOpen, setBudgetCapModalOpen] = useState(false);
 
   // Whether any phase is in a state Re-run actually targets. The button
   // text reads "Re-run failed phases", so we keep it disabled when
@@ -163,13 +166,25 @@ export default function RunDetailPage() {
           <span className={styles.metaItem}>
             {t("runs.detail.meta_cost")} ${data.cost_usd_total.toFixed(2)}
           </span>
-          {/* Slice D3 — Budget gauge mirroring CLI spec §5.3.3. The
-           * RunDetail payload does not yet carry `max_budget_usd` (it
-           * lives on the spec side, not the run snapshot), so we pass
-           * `cap={null}` for now. A follow-up PR will surface the cap
-           * once it is threaded into RunDetail. */}
+          {/* CLI spec §5.3.3 — budget gauge + cap-bump modal trigger.
+           * Clicking the gauge opens the modal so a user can set / raise
+           * the cap mid-run. The Set/Bump action is also auto-suggested
+           * via the title attribute so the affordance is discoverable
+           * without an extra button. */}
           <span className={styles.metaItem}>
-            <BudgetGauge spent={data.cost_usd_total} cap={null} />
+            <button
+              type="button"
+              className={styles.budgetGaugeButton}
+              onClick={() => setBudgetCapModalOpen(true)}
+              aria-label={t("runs.detail.budget_cap.open_button_aria")}
+              title={t("runs.detail.budget_cap.open_button_title")}
+              data-testid="budget-gauge-button"
+            >
+              <BudgetGauge
+                spent={data.cost_usd_total}
+                cap={data.max_budget_usd ?? null}
+              />
+            </button>
           </span>
           {isLive ? (
             <span
@@ -286,6 +301,15 @@ export default function RunDetailPage() {
               logsPath={paths ? `${paths.repo_root}/outputs/logs` : null}
               logs={isLive ? stream.logsByPhase[phase.phase_id] : undefined}
               isLive={Boolean(isLive)}
+              onForceRerun={(phaseId) => {
+                // CLI spec §10.3 `f` — re-run this single phase with
+                // force=true so its resume markers are cleared. Disabled
+                // while the run is live; we surface a no-op instead of
+                // popping the dialog because the action is unsafe on a
+                // running supervisor.
+                if (data.status === "running" || rerunMutation.isPending) return;
+                rerunMutation.mutate({ phases: [phaseId], force: true });
+              }}
             />
           ))
         )}
@@ -310,6 +334,19 @@ export default function RunDetailPage() {
           rerunMutation.mutate({ phases: selected, force: true });
         }}
         onCancel={() => setRerunDialogOpen(false)}
+      />
+      <BudgetCapModal
+        open={budgetCapModalOpen}
+        spent={data.cost_usd_total}
+        currentCap={data.max_budget_usd ?? null}
+        busy={setBudgetCapMutation.isPending}
+        onConfirm={(newCap) => {
+          setBudgetCapMutation.mutate(
+            { maxBudgetUsd: newCap },
+            { onSuccess: () => setBudgetCapModalOpen(false) },
+          );
+        }}
+        onCancel={() => setBudgetCapModalOpen(false)}
       />
     </section>
   );

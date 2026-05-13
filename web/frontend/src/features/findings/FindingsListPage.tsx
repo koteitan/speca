@@ -106,7 +106,18 @@ export function FindingsListPage() {
   // CLI spec §5.4.1 filter DSL — parsed once per `q=` change. The chip
   // bar above still filters server-side; the DSL is layered client-side
   // and AND-combined with whatever the server returned.
-  const dslQuery = searchParams.get("q") ?? "";
+  //
+  // CLI spec §3.5 `speca browse [glob]` — accept ``?glob=<pattern>`` as
+  // a convenience that maps to ``?q=path:<glob>`` so deep-links from a
+  // CLI session land in the right place without the user knowing the
+  // DSL grammar.
+  const dslQuery = useMemo(() => {
+    const q = searchParams.get("q") ?? "";
+    const glob = searchParams.get("glob");
+    if (!glob) return q;
+    const fragment = `path:${glob}`;
+    return q.includes(fragment) ? q : (q ? `${q} ${fragment}` : fragment);
+  }, [searchParams]);
   const parsedDsl = useMemo(() => parseFilterDsl(dslQuery), [dslQuery]);
 
   const sortedFindings = useMemo(() => {

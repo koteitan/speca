@@ -293,6 +293,7 @@ def get_run_detail(run_id: str, runs_dir: Path | None = None) -> RunDetail | Non
             branch_name=derive_branch_name(
                 target_slug=target_slug, run_id=state.run_id
             ),
+            max_budget_usd=state.max_budget_usd,
         )
 
     now = datetime.now(timezone.utc)

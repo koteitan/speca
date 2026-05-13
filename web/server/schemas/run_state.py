@@ -88,6 +88,10 @@ class RunStateDoc(BaseModel):
     ``owner_pid`` lets a freshly started supervisor reconcile orphan runs:
     if a state.json says ``status="running"`` but ``owner_pid`` is dead,
     the run is re-tagged as ``"crashed"``.
+
+    ``max_budget_usd`` mirrors CLI spec §5.3.3 — a cap the supervisor
+    will eventually enforce (today it is only surfaced for the budget
+    gauge + cap-bump modal in the SPA).
     """
 
     model_config = ConfigDict(extra="allow")
@@ -97,6 +101,7 @@ class RunStateDoc(BaseModel):
     current_phase: str | None = None
     phases: list[PhaseStateEntry] = Field(default_factory=list)
     cost_usd_total: float = 0.0
+    max_budget_usd: float | None = None
     cancel_requested: bool = False
     owner_pid: int = Field(default_factory=os.getpid)
     last_heartbeat_at: datetime | None = None
@@ -140,6 +145,11 @@ class RunStartSpec(BaseModel):
     workers: int = Field(default=4, ge=1, le=32)
     max_concurrent: int = Field(default=64, ge=1, le=256)
     push_to_remote: bool = False
+    # CLI spec §5.3.3 — optional cap surfaced via the budget gauge. The
+    # supervisor does not enforce it yet (see the TODO marker in
+    # run_supervisor.py); the SPA still gets a meaningful gauge + cap-bump
+    # modal as long as the value is round-tripped through state.json.
+    max_budget_usd: float | None = None
 
 
 # ---------------------------------------------------------------------------

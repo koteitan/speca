@@ -10,6 +10,7 @@
 
 import { useParams, Link } from "react-router-dom";
 
+import CodeBlock from "@/components/CodeBlock/CodeBlock";
 import { OpenInVSCode } from "@/components/OpenInVSCode";
 import { useIntegrationsPaths } from "@/features/integrations/useIntegrationsStatus";
 import { useT } from "@/i18n/useT";
@@ -197,7 +198,11 @@ export function FindingDetailPage() {
           <h3 className={styles.sectionTitle}>
             {t("findings.detail.evidence_snippet_title")}
           </h3>
-          <pre className={styles.snippet}>{data.evidence_snippet}</pre>
+          <CodeBlock
+            code={data.evidence_snippet}
+            filePath={data.file ?? undefined}
+            startLine={vscodeLine ?? null}
+          />
         </section>
       )}
 

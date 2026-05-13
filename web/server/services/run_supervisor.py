@@ -318,6 +318,25 @@ class RunSupervisor:
         )
         return run_id
 
+    def update_budget_cap(
+        self, run_id: str, max_budget_usd: float | None
+    ) -> None:
+        """Reflect a cap change into the in-memory active doc.
+
+        The router has already written state.json before calling this,
+        so we only have to mutate the supervisor's cached snapshot — that
+        keeps the next ``GET /api/runs/<id>`` consistent without waiting
+        for a watchdog tick. No-op for runs the supervisor has already
+        evicted (the on-disk cap is already authoritative).
+        """
+
+        active = self._active.get(run_id)
+        if active is None:
+            return
+        active.doc = active.doc.model_copy(
+            update={"max_budget_usd": max_budget_usd}
+        )
+
     async def cancel_run(self, run_id: str) -> None:
         """Request cooperative cancellation; escalate to SIGKILL after 10s.
 

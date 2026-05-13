@@ -12,9 +12,11 @@
     "light": "ライト",
     "dark": "ダーク",
     "system": "自動",
+    "solarized": "Solarized",
     "light_short": "明",
     "dark_short": "暗",
-    "system_short": "自"
+    "system_short": "自",
+    "solarized_short": "S"
   },
   "common": {
     "loading": "読み込み中...",
@@ -184,12 +186,24 @@
         "spent_no_cap": "使用額 {{spent}} — 予算上限なし",
         "tooltip_warn": "予算の 80% を使用中。--budget を増やすか中止してください。",
         "tooltip_over": "予算上限到達。runner は停止します。"
+      },
+      "budget_cap": {
+        "open_button_aria": "予算上限を設定 / 引き上げ",
+        "open_button_title": "予算上限を設定 / 引き上げ (CLI spec §5.3.3)",
+        "title": "予算上限の設定",
+        "description": "現在の使用額: ${{spent}} · 上限: ${{cap}}。新しい USD 上限を入力するか、クリアして無効化してください。",
+        "input_label": "新しい上限 (USD)",
+        "warn_below_spent": "上限が現在の使用額より低いため、即時に超過扱いになります。",
+        "clear": "上限をクリア",
+        "confirm": "上限を保存",
+        "saving": "保存中…"
       }
     },
     "phase_row": {
       "details_aria": "{{label}} の詳細",
       "no_log_preview": "ログプレビューはまだありません。v1 でストリーミング対応。",
-      "open_log_folder": "log フォルダを VSCode で開く"
+      "open_log_folder": "log フォルダを VSCode で開く",
+      "keyhelp": "Enter: 展開 · l: ログ · f: 強制再実行"
     },
     "phase_names": {
       "0a": "Scope 抽出",

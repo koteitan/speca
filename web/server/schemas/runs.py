@@ -59,6 +59,9 @@ class RunDetail(RunSummary):
     """Run detail payload — superset of :class:`RunSummary`.
 
     Adds the per-phase rows + spec/prompt provenance for the detail page.
+    ``max_budget_usd`` mirrors CLI spec §5.3.3 — surfaces the supervisor's
+    cap so the budget gauge can colour the bar correctly. ``None`` means
+    no cap is configured for the run.
     """
 
     phases: list[PhaseRow] = Field(default_factory=list)
@@ -66,6 +69,33 @@ class RunDetail(RunSummary):
     spec_sources: list[str] = Field(default_factory=list)
     prompt_shas: dict[str, str] = Field(default_factory=dict)
     branch_name: str | None = None
+    max_budget_usd: float | None = None
+
+
+class BudgetCapRequest(BaseModel):
+    """Body accepted by ``POST /api/runs/<run_id>/budget_cap``.
+
+    ``max_budget_usd`` may be ``None`` to clear an existing cap, or any
+    positive finite value to set / raise it. The supervisor performs the
+    actual write to ``state.json``; cap enforcement (halting the pipeline
+    when ``cost_usd_total >= max_budget_usd``) is a separate slice — see
+    the TODO marker in :mod:`web.server.services.run_supervisor`.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    max_budget_usd: float | None = Field(
+        default=None,
+        ge=0.0,
+        description="USD cap; null clears the existing cap.",
+    )
+
+
+class BudgetCapResponse(BaseModel):
+    """Body returned by ``POST /api/runs/<run_id>/budget_cap``."""
+
+    run_id: str
+    max_budget_usd: float | None
 
 
 # ---------------------------------------------------------------------------

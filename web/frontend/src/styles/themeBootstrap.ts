@@ -9,7 +9,11 @@ import { resolveTheme, useTheme, type EffectiveTheme } from "@/store/themeSlice"
 function apply(effective: EffectiveTheme): void {
   if (typeof document === "undefined") return;
   document.documentElement.dataset.theme = effective;
-  document.documentElement.style.colorScheme = effective;
+  // Solarized is a dark palette but ``color-scheme`` only accepts the two
+  // CSS-native modes — pin it to ``dark`` so the browser's native UI
+  // (scrollbars, form controls) matches.
+  document.documentElement.style.colorScheme =
+    effective === "solarized" ? "dark" : effective;
 }
 
 export function initTheme(): void {

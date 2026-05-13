@@ -43,6 +43,35 @@ export function useCancelRun(runId: string | undefined) {
 }
 
 /**
+ * Mutation for ``POST /api/runs/{run_id}/budget_cap``.
+ *
+ * Body is ``{max_budget_usd: number | null}``. ``null`` clears the cap.
+ * Invalidates the detail query so the budget gauge picks up the new
+ * cap immediately.
+ */
+export function useSetBudgetCap(runId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation<
+    { run_id: string; max_budget_usd: number | null },
+    ApiError,
+    { maxBudgetUsd: number | null }
+  >({
+    mutationFn: (body) =>
+      apiFetch<{ run_id: string; max_budget_usd: number | null }>(
+        `/runs/${runId}/budget_cap`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ max_budget_usd: body.maxBudgetUsd }),
+        },
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["runs", "detail", runId] });
+    },
+  });
+}
+
+/**
  * Mutation for ``POST /api/runs/{run_id}/rerun``.
  *
  * Body is ``{phases: string[], force?: boolean}``. `force` defaults to

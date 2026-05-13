@@ -39,6 +39,8 @@ export interface RunDetail extends RunSummary {
   spec_sources: string[];
   prompt_shas: Record<string, string>;
   branch_name: string | null;
+  /** CLI spec §5.3.3 — null means no cap configured. */
+  max_budget_usd: number | null;
 }
 
 // ---------------------------------------------------------------------------

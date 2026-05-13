@@ -111,3 +111,39 @@
 :root {
   color-scheme: light;
 }
+
+/* Solarized Dark — Ethan Schoonover's canonical palette. Mapped onto the
+ * Nyx token surface so panels / cards keep the same structural hierarchy
+ * as the default themes; the accent colours and surface tints are the
+ * only things that change.
+ *
+ * Palette reference (https://ethanschoonover.com/solarized/):
+ *   base03 #002b36  background
+ *   base02 #073642  background highlights / lifted surface
+ *   base01 #586e75  comments / secondary content
+ *   base00 #657b83  body text (light variant — unused here)
+ *   base0  #839496  body text (dark variant — primary content)
+ *   base1  #93a1a1  emphasised content
+ *   blue   #268bd2  accent (links / focus)
+ */
+[data-theme="solarized"] {
+  --ifm-color-primary: #268bd2;
+  --ifm-color-primary-dark: #1d7fbf;
+  --ifm-color-primary-darker: #1b78b4;
+  --ifm-color-primary-darkest: #166396;
+  --ifm-color-primary-light: #4a9fda;
+  --ifm-color-primary-lighter: #62acdf;
+  --ifm-color-primary-lightest: #93c8eb;
+
+  --ifm-background-color: #002b36;
+  --ifm-color-content: #93a1a1;
+  --ifm-color-emphasis-200: #073642;
+  --ifm-color-emphasis-300: #586e75;
+  --ifm-toc-border-color: #073642;
+  --ifm-hr-border-color: #073642;
+
+  --nyx-color-text-primary: #93a1a1;
+  --nyx-color-surface-muted: #073642;
+  --nyx-color-border-muted: #073642;
+  --nyx-color-border-strong: #586e75;
+}

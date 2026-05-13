@@ -12,9 +12,11 @@
     "light": "Light",
     "dark": "Dark",
     "system": "Auto",
+    "solarized": "Solarized",
     "light_short": "L",
     "dark_short": "D",
-    "system_short": "A"
+    "system_short": "A",
+    "solarized_short": "S"
   },
   "common": {
     "loading": "Loading...",
@@ -184,12 +186,24 @@
         "spent_no_cap": "Spent {{spent}} — no cap configured",
         "tooltip_warn": "Budget 80% used — bump --budget or abort.",
         "tooltip_over": "Budget cap exceeded — runner will halt."
+      },
+      "budget_cap": {
+        "open_button_aria": "Set or bump budget cap",
+        "open_button_title": "Set or bump budget cap (CLI spec §5.3.3)",
+        "title": "Set budget cap",
+        "description": "Currently spent: ${{spent}} · cap: ${{cap}}. Enter a new USD cap or clear it to remove enforcement.",
+        "input_label": "New cap (USD)",
+        "warn_below_spent": "Cap is below the current spend — the run would be over the new cap immediately.",
+        "clear": "Clear cap",
+        "confirm": "Save cap",
+        "saving": "Saving…"
       }
     },
     "phase_row": {
       "details_aria": "{{label}} details",
       "no_log_preview": "No log preview yet. Logs stream in v1.",
-      "open_log_folder": "Open log folder in VSCode"
+      "open_log_folder": "Open log folder in VSCode",
+      "keyhelp": "Enter: expand · l: open log · f: force re-run"
     },
     "phase_names": {
       "0a": "Scope Extraction",
