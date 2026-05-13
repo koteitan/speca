@@ -41,7 +41,8 @@
     "signed_in_as": "ログイン中:",
     "signed_in": "ログイン済み",
     "guest": "ゲスト",
-    "settings_label": "設定"
+    "settings_label": "設定",
+    "diagnostics_label": "診断"
   },
   "chat": {
     "history": {
@@ -310,6 +311,59 @@
         "fork_failed": "Fork に失敗しました",
         "confirmation_required": "確認が必要です。"
       }
+    }
+  },
+  "diagnostics": {
+    "page": {
+      "title": "診断",
+      "subtitle": "`speca doctor` 相当のローカル環境チェック。read-only。"
+    },
+    "loading": "診断を実行中…",
+    "load_failed": "診断の取得に失敗しました: {{error}}",
+    "refresh": "再診断",
+    "refresh_in_progress": "再診断中…",
+    "status": {
+      "ok": "OK",
+      "missing": "未検出",
+      "outdated": "要更新",
+      "unknown": "不明"
+    },
+    "tool": {
+      "node": "Node.js",
+      "uv": "uv (Python ランチャー)",
+      "git": "git",
+      "claude": "Claude Code CLI (`claude`)",
+      "gh": "GitHub CLI (`gh`)",
+      "code": "VSCode CLI (`code`)",
+      "auth": "Claude auth / API key"
+    },
+    "meta": {
+      "not_installed": "未インストール",
+      "min_required": "min {{version}}",
+      "version_unknown": "インストール済み (バージョン不明)",
+      "gh_authed": "ログイン済み",
+      "gh_unauthed": "未ログイン (`gh auth login` を実行)"
+    },
+    "auth": {
+      "method_oauth": "Claude.ai OAuth でログイン中",
+      "method_api_key": "Anthropic API key でログイン中",
+      "env_api_key": "環境変数 ANTHROPIC_API_KEY 設定済み",
+      "none": "Claude セッションも API key もなし"
+    },
+    "section": {
+      "environment": "環境"
+    },
+    "summary": {
+      "all_ok_title": "全項目 OK",
+      "all_ok_hint": "パイプラインの要件はすべて満たされています。新規 audit を起動できます。",
+      "attention_title": "対応が必要な項目があります",
+      "attention_hint": "下のインストール手順を参考に、不足項目をインストールしてから audit を起動してください。",
+      "cta_new_run": "新規 audit を起動"
+    },
+    "install": {
+      "section_title": "インストール手順",
+      "hint": "プラットフォームに合わせて以下のコマンドを実行してください。PATH 上の binary を入れた後は SPECA server の再起動が必要です。",
+      "docs_link": "ドキュメント"
     }
   },
   "login": {

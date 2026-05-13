@@ -41,7 +41,8 @@
     "signed_in_as": "signed in as",
     "signed_in": "signed in",
     "guest": "guest",
-    "settings_label": "Settings"
+    "settings_label": "Settings",
+    "diagnostics_label": "Diagnostics"
   },
   "chat": {
     "history": {
@@ -312,6 +313,59 @@
       }
     }
   },
+  "diagnostics": {
+    "page": {
+      "title": "Diagnostics",
+      "subtitle": "Probe the local environment the way `speca doctor` does. Read-only."
+    },
+    "loading": "Running diagnostics…",
+    "load_failed": "Failed to load diagnostics: {{error}}",
+    "refresh": "Re-run probes",
+    "refresh_in_progress": "Re-running…",
+    "status": {
+      "ok": "OK",
+      "missing": "MISSING",
+      "outdated": "OUTDATED",
+      "unknown": "UNKNOWN"
+    },
+    "tool": {
+      "node": "Node.js",
+      "uv": "uv (Python launcher)",
+      "git": "git",
+      "claude": "Claude Code CLI (`claude`)",
+      "gh": "GitHub CLI (`gh`)",
+      "code": "VSCode CLI (`code`)",
+      "auth": "Claude auth / API key"
+    },
+    "meta": {
+      "not_installed": "not installed",
+      "min_required": "min {{version}}",
+      "version_unknown": "installed (version unknown)",
+      "gh_authed": "logged in",
+      "gh_unauthed": "not logged in (run `gh auth login`)"
+    },
+    "auth": {
+      "method_oauth": "logged in via Claude.ai OAuth",
+      "method_api_key": "logged in via Anthropic API key",
+      "env_api_key": "ANTHROPIC_API_KEY set in environment",
+      "none": "no Claude session and no API key"
+    },
+    "section": {
+      "environment": "Environment"
+    },
+    "summary": {
+      "all_ok_title": "All checks pass.",
+      "all_ok_hint": "Every tool the pipeline needs is present and healthy. You can launch a new audit.",
+      "attention_title": "Some checks need attention.",
+      "attention_hint": "Install or update the items flagged below before launching an audit. See the install hints section.",
+      "cta_new_run": "Start a new audit"
+    },
+    "install": {
+      "section_title": "Install hints",
+      "hint": "Run the matching command for your platform. Restart the SPECA server after installing PATH-resolved binaries.",
+      "docs_link": "Docs"
+    }
+  },
   "login": {
     "title": "Sign in to SPECA",
     "subtitle": "Local web UI — credentials never leave your machine.",
@@ -370,7 +424,38 @@
       "subtitle": "Pick a target. Three entries, one confirmation form.",
       "saved": "Saved targets",
       "from_url": "From URL",
-      "ask_claude": "Ask Claude (chat)"
+      "ask_claude": "Ask Claude (chat)",
+      "guided_wizard": "Guided setup →"
+    },
+    "wizard": {
+      "title": "Guided new-audit setup",
+      "subtitle": "One question at a time. Mirrors `speca init` (CLI).",
+      "cancel_link": "← Cancel and pick another entry",
+      "steps_aria": "Wizard steps",
+      "step_project_type_short": "Type",
+      "step_target_repo_short": "Repo",
+      "step_target_ref_short": "Ref",
+      "step_scope_short": "Scope",
+      "step_spec_urls_short": "Specs",
+      "step_review_short": "Review",
+      "q_project_type": "What are you auditing?",
+      "hint_project_type": "Picks the right default trust model and tool palette downstream.",
+      "q_target_repo": "Paste the GitHub `owner/repo` of the target.",
+      "hint_target_repo": "Example: `sigp/lighthouse`. SPECA clones this on launch.",
+      "q_target_ref": "Pin a specific branch, tag, or commit?",
+      "hint_target_ref": "Leave blank to use the default branch HEAD.",
+      "q_scope": "Bug bounty program or in-scope assets?",
+      "hint_scope": "Bounty URL is optional. Addresses / paths help SPECA narrow the analysis.",
+      "q_spec_urls": "Specification URLs to crawl in Phase 01a (optional).",
+      "hint_spec_urls": "Comma- or newline-separated. Leave blank to skip spec ingestion.",
+      "placeholder_spec_urls": "https://eips.ethereum.org/EIPS/eip-...",
+      "q_review": "Ready to launch?",
+      "hint_review": "Review your answers below. Advanced options (workers, push) are on the next page.",
+      "advanced_hint": "Need to tweak workers / push-to-remote? Continue to the",
+      "advanced_link": "advanced form",
+      "nav_aria": "Wizard navigation",
+      "back": "← Back",
+      "next": "Next →"
     },
     "from_url": {
       "label_bug_bounty_url": "Bug bounty / program URL",

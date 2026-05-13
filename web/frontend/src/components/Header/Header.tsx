@@ -106,6 +106,17 @@ export function Header({ onToggleChat, chatOpen }: HeaderProps) {
         <LanguageToggle compact />
 
         <NavLink
+          to="/diagnostics"
+          className={({ isActive }) =>
+            isActive ? `${styles.iconButton} ${styles.iconButtonActive}` : styles.iconButton
+          }
+          aria-label={t("header.diagnostics_label")}
+          title={t("header.diagnostics_label")}
+        >
+          <span aria-hidden="true">{t("header.diagnostics_label")}</span>
+        </NavLink>
+
+        <NavLink
           to="/settings"
           className={({ isActive }) =>
             isActive ? `${styles.iconButton} ${styles.iconButtonActive}` : styles.iconButton

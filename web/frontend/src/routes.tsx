@@ -1,6 +1,7 @@
 import { Navigate, type RouteObject } from "react-router-dom";
 
 import LoginScreen from "./features/auth/LoginScreen";
+import DiagnosticsPage from "./features/diagnostics/DiagnosticsPage";
 import FindingDetailPage from "./features/findings/FindingDetailPage";
 import FindingsListPage from "./features/findings/FindingsListPage";
 import NewRunForm from "./features/picker/NewRunForm";
@@ -26,5 +27,7 @@ export const routes: RouteObject[] = [
   { path: "/runs/:runId/findings/:propertyId", element: <FindingDetailPage /> },
   // === route: settings ===
   { path: "/settings", element: <SettingsPage /> },
+  // === route: diagnostics ===
+  { path: "/diagnostics", element: <DiagnosticsPage /> },
   { path: "/", element: <Navigate to="/runs" replace /> },
 ];
