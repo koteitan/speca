@@ -14,8 +14,18 @@
 
 .header {
   display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--nyx-space-4);
+  flex-wrap: wrap;
+}
+
+.headerText {
+  display: flex;
   flex-direction: column;
   gap: var(--nyx-space-2);
+  min-width: 0;
 }
 
 .title {
@@ -28,6 +38,37 @@
   margin: 0;
   font-size: var(--nyx-font-size-sm);
   color: oklch(0.45 0.005 258);
+}
+
+.exportButton {
+  align-self: center;
+  padding: var(--nyx-space-2) var(--nyx-space-5);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--nyx-color-border-strong);
+  background: transparent;
+  color: var(--ifm-color-content);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  cursor: pointer;
+  transition:
+    background var(--nyx-motion-instant) ease,
+    color var(--nyx-motion-instant) ease,
+    opacity var(--nyx-motion-instant) ease;
+  white-space: nowrap;
+}
+
+.exportButton:hover:not(:disabled) {
+  background: var(--nyx-color-border-muted);
+}
+
+.exportButton:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.exportButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .banner {

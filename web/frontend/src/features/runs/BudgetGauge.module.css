@@ -1,0 +1,108 @@
+/* Slice D3 — Budget gauge styles.
+ *
+ * Visual shape:
+ *   [ ████░░░░░░░░░░ ]  $1.23 / $5.00 (24%)
+ *   |   thin 8px bar  |  inline label
+ *
+ * Colour thresholds match the CLI spec (§5.3.3):
+ *   normal  — Nyx primary (currently #000 light / #fff dark, see
+ *             tokens.css). We pipe it through a subtle alpha so the
+ *             bar visibly sits on the surface even in dark mode.
+ *   warning — oklch(0.75 0.18 80) — amber/yellow accent.
+ *   over    — oklch(0.55 0.20 30) — same red used by .error in
+ *             RunDetailPage.module.css for visual consistency.
+ *
+ * Dark mode: bumps the lightness on warning/over thresholds by +0.10
+ * so the swatches don't sink into a pure-black background. The neutral
+ * fill switches to the inverted primary token automatically because
+ * tokens.css already remaps `--ifm-color-primary` in `[data-theme="dark"]`.
+ */
+
+.gauge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  font-variant-numeric: tabular-nums;
+  /* Reserve a sensible default width so the bar is visible even when
+   * the parent flex container is generous. The bar itself uses
+   * `flex: 1 1 auto` so it grows when the slot is wider. */
+  min-width: 200px;
+}
+
+.compact {
+  font-size: var(--nyx-font-size-sm);
+}
+
+.regular {
+  font-size: var(--nyx-font-size-md);
+}
+
+.noCap {
+  /* Without a bar to render, drop the min-width so the text-only
+   * variant collapses to its content. */
+  min-width: 0;
+}
+
+.barTrack {
+  flex: 1 1 auto;
+  position: relative;
+  display: inline-block;
+  height: 8px;
+  min-width: 80px;
+  border-radius: 999px;
+  background: var(--ifm-color-emphasis-200);
+  overflow: hidden;
+}
+
+.barFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 100%;
+  border-radius: 999px;
+  /* Width is set inline; we animate it so cost updates "fill in"
+   * smoothly rather than jumping. 300ms matches Nyx motion-fast. */
+  transition: width var(--nyx-motion-fast, 300ms) ease,
+    background-color var(--nyx-motion-fast, 300ms) ease;
+}
+
+.normal {
+  background: var(--ifm-color-primary);
+  opacity: 0.85;
+}
+
+.warning {
+  background: oklch(0.75 0.18 80);
+}
+
+.over {
+  background: oklch(0.55 0.2 30);
+}
+
+.label {
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+/* Dark-mode adjustments: lift the warning/over hues so they stay above
+ * the AA contrast threshold against a near-black surface. */
+[data-theme="dark"] .warning {
+  background: oklch(0.85 0.18 80);
+}
+
+[data-theme="dark"] .over {
+  background: oklch(0.65 0.2 30);
+}
+
+[data-theme="dark"] .normal {
+  /* Inverted primary on dark is white; nudge alpha down further so the
+   * neutral fill doesn't blow out next to the meta row text. */
+  opacity: 0.75;
+}
+
+/* Honour user motion preferences. The fill width is informational, not
+ * decorative, so it's fine to snap rather than animate. */
+@media (prefers-reduced-motion: reduce) {
+  .barFill {
+    transition: none;
+  }
+}

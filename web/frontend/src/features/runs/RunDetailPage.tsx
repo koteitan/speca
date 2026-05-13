@@ -7,6 +7,7 @@ import { useIntegrationsPaths } from "@/features/integrations/useIntegrationsSta
 import { ApiError } from "@/lib/api";
 import { useT } from "@/i18n/useT";
 
+import { BudgetGauge } from "./BudgetGauge";
 import { PhaseRow } from "./PhaseRow";
 import { RerunDialog } from "./RerunDialog";
 import { StatusIcon } from "./StatusIcon";
@@ -161,6 +162,14 @@ export default function RunDetailPage() {
           </span>
           <span className={styles.metaItem}>
             {t("runs.detail.meta_cost")} ${data.cost_usd_total.toFixed(2)}
+          </span>
+          {/* Slice D3 — Budget gauge mirroring CLI spec §5.3.3. The
+           * RunDetail payload does not yet carry `max_budget_usd` (it
+           * lives on the spec side, not the run snapshot), so we pass
+           * `cap={null}` for now. A follow-up PR will surface the cap
+           * once it is threaded into RunDetail. */}
+          <span className={styles.metaItem}>
+            <BudgetGauge spent={data.cost_usd_total} cap={null} />
           </span>
           {isLive ? (
             <span

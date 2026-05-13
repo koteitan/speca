@@ -21,10 +21,12 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { useIntegrationsPaths } from "@/features/integrations/useIntegrationsStatus";
 import { useT } from "@/i18n/useT";
 
+import { findingsToMarkdown } from "./exportMarkdown";
 import { FilterBar } from "./FilterBar";
 import { FilterInput } from "./FilterInput";
 import { FindingRow } from "./FindingRow";
 import { isEmptyFilter, matchFilter, parseFilterDsl } from "./filterDsl";
+import { useDownloadMarkdown } from "./useDownloadMarkdown";
 import { useFindings } from "./useFindings";
 import styles from "./FindingsListPage.module.css";
 
@@ -136,14 +138,43 @@ export function FindingsListPage() {
     );
   };
 
+  // CLI spec §3.1 step 7 — Markdown export of the currently visible
+  // (filter+sort applied) findings. We deliberately pass `sortedFindings`
+  // and NOT `visibleFindings`: the "Show all" pagination cap is a DOM
+  // perf concern, not a user-facing filter, so the export should always
+  // reflect the full filtered set.
+  const downloadMarkdown = useDownloadMarkdown();
+  const handleExport = () => {
+    if (!data || sortedFindings.length === 0) return;
+    const text = findingsToMarkdown({
+      runId: runId ?? "unknown",
+      findings: sortedFindings,
+      meta: { count: data.meta.count },
+    });
+    const filename = `${runId ?? "speca"}-findings.md`;
+    downloadMarkdown(text, filename);
+  };
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h2 className={styles.title}>{t("findings.list.title")}</h2>
-        <p className={styles.runLabel}>
-          {t("findings.list.run_label")}{" "}
-          <code>{runId ?? t("common.none")}</code>
-        </p>
+        <div className={styles.headerText}>
+          <h2 className={styles.title}>{t("findings.list.title")}</h2>
+          <p className={styles.runLabel}>
+            {t("findings.list.run_label")}{" "}
+            <code>{runId ?? t("common.none")}</code>
+          </p>
+        </div>
+        <button
+          type="button"
+          className={styles.exportButton}
+          onClick={handleExport}
+          disabled={!data || sortedFindings.length === 0}
+          data-testid="findings-export"
+          title={t("findings.list.export_filename_hint")}
+        >
+          {t("findings.list.export_markdown")}
+        </button>
       </header>
 
       {data && (

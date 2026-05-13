@@ -178,6 +178,12 @@
         "no_failed_phases": "失敗した phase はありません。再実行したい phase を選んでください。",
         "confirm": "再実行",
         "in_progress": "再実行を開始しています..."
+      },
+      "budget_gauge": {
+        "spent_of_cap": "使用額 {{spent}} / {{cap}} ({{pct}}%)",
+        "spent_no_cap": "使用額 {{spent}} — 予算上限なし",
+        "tooltip_warn": "予算の 80% を使用中。--budget を増やすか中止してください。",
+        "tooltip_over": "予算上限到達。runner は停止します。"
       }
     },
     "phase_row": {
@@ -215,7 +221,9 @@
       "col_phase": "Phase",
       "open_in_vscode": "VSCode で開く",
       "showing_n_of_m": "{{total}} 件中 {{shown}} 件表示中",
-      "show_all": "残り {{n}} 件を表示"
+      "show_all": "残り {{n}} 件を表示",
+      "export_markdown": "Markdown でエクスポート",
+      "export_filename_hint": "<run-id>-findings.md"
     },
     "detail": {
       "loading": "finding を読み込み中…",
@@ -418,6 +426,21 @@
     "dead code": "Phase 04 の Gate 1。実際には到達不可能なコードパスで報告された finding を除外する。",
     "DISPUTED_FP": "Phase 04 の 3 ゲートいずれかが「実は誤検知 (False Positive)」と判定した verdict。Recall-safe 設計のため、この 3 ゲートのみが FP 判定を出せる。",
     "CONFIRMED_VULNERABILITY": "Phase 04 の最終判定で「真の脆弱性」と確認された finding。Report 化の主対象。"
+  },
+  "shortcuts": {
+    "help_title": "キーボードショートカット",
+    "help_close": "閉じる",
+    "global_section": "グローバル",
+    "findings_section": "Findings",
+    "k_question": "このヘルプを開く",
+    "k_esc": "モーダル / chat を閉じる",
+    "k_c": "chat パネルの開閉",
+    "k_g_r": "Runs へ移動",
+    "k_g_s": "Settings へ移動",
+    "k_g_d": "Diagnostics へ移動",
+    "k_slash": "findings フィルターにフォーカス",
+    "k_j": "次の finding へ",
+    "k_k": "前の finding へ"
   },
   "empty_state": {},
   "onboarding": {

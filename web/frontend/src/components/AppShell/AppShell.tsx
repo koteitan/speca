@@ -19,15 +19,17 @@
 // production build because the runtime URL `/src/features/chat/...` does
 // not exist after `vite build`.
 
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useCallback, useMemo, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 import { useT } from "@/i18n/useT";
 import { useChatUi } from "@/store/chatUiSlice";
+import { useKeyboardShortcuts } from "@/lib/useKeyboardShortcuts";
 
 import { useAuthStatusSafe } from "../../features/auth/useAuthStatusSafe";
 import Spinner from "../Spinner/Spinner";
 import Header from "../Header/Header";
+import ShortcutsHelp from "../ShortcutsHelp/ShortcutsHelp";
 import styles from "./AppShell.module.css";
 
 const ChatPanel = lazy(() => import("../../features/chat/ChatPanel"));
@@ -39,6 +41,30 @@ export function AppShell() {
   const chatOpen = useChatUi((s) => s.open);
   const setChatOpen = useChatUi((s) => s.setOpen);
   const toggleChat = useChatUi((s) => s.toggle);
+
+  // Help-modal visibility lives in the shell so global shortcuts (`?` /
+  // `Esc`) can open and close it without threading state through every
+  // page. Closing the modal also clears the chat panel — Esc should be
+  // the universal "get me out of whatever overlay is open" key.
+  const [showHelp, setShowHelp] = useState(false);
+
+  const handleOpenHelp = useCallback(() => setShowHelp(true), []);
+  const handleCloseHelp = useCallback(() => setShowHelp(false), []);
+  const handleCloseAll = useCallback(() => {
+    setShowHelp(false);
+    setChatOpen(false);
+  }, [setChatOpen]);
+
+  const shortcutHandlers = useMemo(
+    () => ({
+      onOpenHelp: handleOpenHelp,
+      onCloseAll: handleCloseAll,
+      onToggleChat: toggleChat,
+    }),
+    [handleOpenHelp, handleCloseAll, toggleChat],
+  );
+
+  useKeyboardShortcuts(shortcutHandlers);
 
   // Don't bounce to /login while the first probe is in flight — that
   // would briefly flash the login form for users who are actually
@@ -78,6 +104,7 @@ export function AppShell() {
           </aside>
         </>
       ) : null}
+      <ShortcutsHelp open={showHelp} onClose={handleCloseHelp} />
     </div>
   );
 }

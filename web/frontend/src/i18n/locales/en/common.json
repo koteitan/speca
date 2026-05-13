@@ -178,6 +178,12 @@
         "no_failed_phases": "No failed phases. Choose specific phases to re-run.",
         "confirm": "Re-run",
         "in_progress": "Starting re-run..."
+      },
+      "budget_gauge": {
+        "spent_of_cap": "Spent {{spent}} of {{cap}} ({{pct}}%)",
+        "spent_no_cap": "Spent {{spent}} — no cap configured",
+        "tooltip_warn": "Budget 80% used — bump --budget or abort.",
+        "tooltip_over": "Budget cap exceeded — runner will halt."
       }
     },
     "phase_row": {
@@ -215,7 +221,9 @@
       "col_phase": "Phase",
       "open_in_vscode": "Open in VSCode",
       "showing_n_of_m": "Showing {{shown}} of {{total}} findings.",
-      "show_all": "Show all ({{n}} more)"
+      "show_all": "Show all ({{n}} more)",
+      "export_markdown": "Export Markdown",
+      "export_filename_hint": "<run-id>-findings.md"
     },
     "detail": {
       "loading": "Loading finding…",
@@ -418,6 +426,21 @@
     "dead code": "Phase 04 Gate 1 — rejects findings reported on code paths that cannot be reached at runtime.",
     "DISPUTED_FP": "A verdict marking a finding as a false positive, set by one of the three Phase 04 gates. Recall-safe design: only these three gates may emit FP verdicts.",
     "CONFIRMED_VULNERABILITY": "A finding confirmed by Phase 04 as a true vulnerability. The primary candidate for reporting."
+  },
+  "shortcuts": {
+    "help_title": "Keyboard shortcuts",
+    "help_close": "Close",
+    "global_section": "Global",
+    "findings_section": "Findings",
+    "k_question": "Open this help",
+    "k_esc": "Close modal / chat",
+    "k_c": "Toggle chat panel",
+    "k_g_r": "Go to Runs",
+    "k_g_s": "Go to Settings",
+    "k_g_d": "Go to Diagnostics",
+    "k_slash": "Focus findings filter",
+    "k_j": "Next finding",
+    "k_k": "Previous finding"
   },
   "empty_state": {},
   "onboarding": {

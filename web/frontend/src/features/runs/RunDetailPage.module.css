@@ -50,6 +50,7 @@
 .meta {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--nyx-space-5);
   font-size: var(--nyx-font-size-sm);
   opacity: 0.85;
@@ -59,6 +60,10 @@
   display: inline-flex;
   align-items: center;
   gap: var(--nyx-space-2);
+  /* Slice D3 — Budget gauge is the widest meta item (bar + label),
+   * so allow flex items to grow up to a comfortable width while still
+   * letting narrower items pack tightly. */
+  min-width: 0;
 }
 
 .metaItem code {

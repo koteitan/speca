@@ -1,0 +1,146 @@
+/* ShortcutsHelp — same backdrop/card shell as ConfirmDialog, plus
+ * a two-section <kbd>/description table body. Tokens follow the
+ * Nyx baseline used everywhere else.
+ */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: oklch(0 0 0 / 0.5);
+  padding: var(--nyx-space-4);
+  animation: backdrop-fade-in var(--nyx-motion-instant) ease;
+}
+
+.card {
+  background: var(--ifm-background-color, #fff);
+  color: var(--ifm-color-content);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-md);
+  box-shadow: 0 12px 32px oklch(0 0 0 / 0.18);
+  padding: var(--nyx-space-6);
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-4);
+  outline: none;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-lg);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-2);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--nyx-font-size-sm);
+}
+
+.table td {
+  padding: var(--nyx-space-2) 0;
+  border-bottom: 1px solid var(--nyx-color-border-muted);
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.keyCell {
+  width: 96px;
+  white-space: nowrap;
+}
+
+.descCell {
+  line-height: 1.5;
+}
+
+.kbd {
+  display: inline-block;
+  min-width: 24px;
+  padding: 2px 8px;
+  font-family: var(--nyx-font-family-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: var(--nyx-font-size-sm);
+  text-align: center;
+  background: var(--ifm-color-emphasis-200, oklch(0.94 0.005 250));
+  color: var(--ifm-color-content);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  box-shadow: 0 1px 0 oklch(0 0 0 / 0.08);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--nyx-space-3);
+  margin-top: var(--nyx-space-2);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-sm);
+  line-height: 1.2;
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background var(--nyx-motion-instant) ease,
+    color var(--nyx-motion-instant) ease,
+    border-color var(--nyx-motion-instant) ease;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.buttonPrimary {
+  background: var(--ifm-color-primary);
+  color: oklch(0.99 0 0);
+}
+
+.buttonPrimary:hover {
+  background: var(--ifm-color-primary-darker, oklch(0.55 0.18 258));
+}
+
+@keyframes backdrop-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop {
+    animation: none;
+  }
+  .button {
+    transition: none;
+  }
+}
