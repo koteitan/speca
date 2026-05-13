@@ -1,0 +1,27 @@
+{
+  "program_url": "https://github.com/OpenListTeam/OpenList",
+  "program_name": "OpenList",
+  "in_scope_assets": [
+    "https://github.com/OpenListTeam/OpenList",
+    "https://github.com/OpenListTeam/OpenList (branch: main, latest stable v4.x)",
+    "server/ — HTTP/WebDAV server, handlers, middleware, auth",
+    "internal/ — core business logic (auth, fs, op, model, conf, db, sign, search, task, offline_download)",
+    "drivers/ — 40+ storage backend drivers (Aliyundrive, OneDrive, Google Drive, S3, WebDAV, FTP/SFTP, local, etc.)",
+    "cmd/ — CLI entry points and admin commands",
+    "pkg/ — shared utilities (http, utils, cron, generic_sync)"
+  ],
+  "in_scope_contracts": [],
+  "out_of_scope": [
+    "Third-party storage providers themselves (Aliyundrive, OneDrive, Google Drive, etc.) — only the driver/integration code is in scope",
+    "Frontend/Web UI (separate repository: OpenListTeam/OpenList-Frontend)",
+    "Documentation sites (doc.oplist.org, doc.openlist.team, doc.oplist.org.cn) — content only, not the OpenList server",
+    "Older unsupported versions (anything before v4.x latest stable)",
+    "Self-hosting misconfiguration issues (weak admin password, exposed admin port, running as root, no HTTPS) — these are user-operation issues per SECURITY.md",
+    "Denial of Service against public demo instances",
+    "Social engineering, physical attacks, and attacks requiring physical access",
+    "Issues in upstream AList that were not introduced or modified by OpenList"
+  ],
+  "severity_ratings": "Not formally defined. Default to CVSS v3.1 / standard Critical/High/Medium/Low. Prioritize: auth bypass, remote code execution, SSRF via storage drivers, path traversal in file ops, sensitive token/credential leakage, broken access control on WebDAV/API endpoints.",
+  "reward_range": "Not offered. OpenList is a community-driven open-source fork with no commercial deployment or paid plans (per project disclaimer). No monetary rewards.",
+  "notes": "OpenList has no formal bug bounty program. SECURITY.md mandates private disclosure via (1) GitHub Private Security Advisory (preferred) at https://github.com/OpenListTeam/OpenList/security/advisories/new, or (2) Telegram contact @OpenListTeam. Public GitHub Issues for security reports are forbidden. Only the latest stable v4.x release receives security patches. Reports must include: vulnerability description and impact, affected versions, reproduction steps, PoC code or screenshots, and suggested mitigation. OpenList is a governance-driven fork of AList (https://github.com/AlistGo/alist) — focus on code unique to or modified in the OpenList fork relative to upstream AList. Primary language: Go (99.1%). License: AGPL-3.0."
+}
