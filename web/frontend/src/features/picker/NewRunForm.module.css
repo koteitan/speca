@@ -1,0 +1,219 @@
+/* New Run form (Slice R2) — review & launch. Two-column grid on desktop
+ * (label / input rows), single column on narrow viewports. */
+
+.page {
+  padding: var(--nyx-space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-6);
+  max-width: 880px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+}
+
+.back {
+  align-self: flex-start;
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.back:hover,
+.back:focus-visible {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.back:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-xl);
+}
+
+.optional {
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-emphasis-700, var(--ifm-color-content));
+  opacity: 0.65;
+  font-weight: normal;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: var(--nyx-space-5) var(--nyx-space-6);
+  padding: var(--nyx-space-6);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--nyx-radius-sm);
+  background: var(--ifm-background-color);
+}
+
+@media (max-width: 640px) {
+  .form {
+    grid-template-columns: 1fr;
+    gap: var(--nyx-space-4);
+  }
+}
+
+.field {
+  display: contents;
+}
+
+@media (max-width: 640px) {
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nyx-space-2);
+  }
+}
+
+.label {
+  font-size: var(--nyx-font-size-sm);
+  font-weight: 500;
+  opacity: 0.85;
+  padding-top: var(--nyx-space-3);
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-2);
+  min-width: 0;
+}
+
+.input,
+.textarea,
+.number {
+  width: 100%;
+  padding: var(--nyx-space-3) var(--nyx-space-5);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 60px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95em;
+}
+
+.input:focus-visible,
+.textarea:focus-visible,
+.number:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+
+.checkboxRow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  font-size: var(--nyx-font-size-sm);
+}
+
+.checkbox {
+  width: 1.1em;
+  height: 1.1em;
+  cursor: pointer;
+}
+
+.checkbox:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.error {
+  margin: 0;
+  font-size: var(--nyx-font-size-xs);
+  color: oklch(0.55 0.2 30);
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-4);
+  align-items: stretch;
+}
+
+.estimate {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  opacity: 0.7;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--nyx-space-4);
+}
+
+.submit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  padding: var(--nyx-space-3) var(--nyx-space-6);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-primary);
+  background: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  cursor: pointer;
+  transition: opacity var(--nyx-motion-instant) ease;
+}
+
+.submit:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submit:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.launchError {
+  margin: 0;
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  border: 1px solid oklch(0.55 0.2 30);
+  border-radius: var(--nyx-radius-xs);
+  color: oklch(0.55 0.2 30);
+  font-size: var(--nyx-font-size-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+}
+
+.launchErrorRaw {
+  margin: 0;
+  padding: var(--nyx-space-3);
+  background: var(--ifm-color-emphasis-100);
+  border-radius: var(--nyx-radius-xs);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--nyx-font-size-xs);
+  white-space: pre-wrap;
+  overflow-x: auto;
+  color: var(--ifm-color-content);
+}

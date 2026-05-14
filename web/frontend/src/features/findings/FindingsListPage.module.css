@@ -1,0 +1,218 @@
+/* FindingsListPage — page-level layout. The table grid must mirror the
+ * row layout in `FindingRow.module.css` exactly; if you change one, change
+ * the other.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-6);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--nyx-space-6) var(--nyx-space-7);
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--nyx-space-4);
+  flex-wrap: wrap;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-2);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-xl);
+  font-weight: 600;
+}
+
+.runLabel {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: oklch(0.45 0.005 258);
+}
+
+.exportButton {
+  align-self: center;
+  padding: var(--nyx-space-2) var(--nyx-space-5);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--nyx-color-border-strong);
+  background: transparent;
+  color: var(--ifm-color-content);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  cursor: pointer;
+  transition:
+    background var(--nyx-motion-instant) ease,
+    color var(--nyx-motion-instant) ease,
+    opacity var(--nyx-motion-instant) ease;
+  white-space: nowrap;
+}
+
+.exportButton:hover:not(:disabled) {
+  background: var(--nyx-color-border-muted);
+}
+
+.exportButton:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.exportButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.banner {
+  padding: var(--nyx-space-4) var(--nyx-space-6);
+  background: oklch(0.97 0.02 220);
+  border: 1px solid oklch(0.85 0.04 220);
+  border-radius: var(--nyx-radius-sm);
+  font-size: 13.5px;
+  color: oklch(0.35 0.05 240);
+}
+
+.banner code {
+  background: oklch(1 0 0 / 0.6);
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 12.5px;
+}
+
+.state,
+.empty,
+.error {
+  padding: var(--nyx-space-7) var(--nyx-space-7);
+  text-align: center;
+  border: 1px dashed var(--nyx-color-border-muted);
+  border-radius: var(--nyx-radius-sm);
+  color: oklch(0.45 0.005 258);
+}
+
+.empty code {
+  background: oklch(0.96 0.005 258);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.error {
+  border-color: oklch(0.7 0.15 25);
+  color: oklch(0.4 0.15 25);
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--nyx-color-border-muted);
+  border-radius: var(--nyx-radius-sm);
+  overflow: hidden;
+  background: var(--nyx-color-surface-muted);
+}
+
+.thead {
+  display: grid;
+  grid-template-columns: 90px 1fr 150px 2fr 50px;
+  gap: var(--nyx-space-5);
+  padding: var(--nyx-space-3) var(--nyx-space-6);
+  background: oklch(0.97 0.005 258);
+  border-bottom: 1px solid var(--nyx-color-border-strong);
+}
+
+.th {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-1);
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: oklch(0.4 0.005 258);
+  cursor: pointer;
+  text-align: left;
+}
+
+.th:hover {
+  color: var(--ifm-color-content);
+}
+
+.sortArrow {
+  font-size: 10px;
+}
+
+.tbody {
+  display: flex;
+  flex-direction: column;
+}
+
+.loadMore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  padding: var(--nyx-space-6) var(--nyx-space-5);
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.loadMoreHint {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+}
+
+.loadMoreButton {
+  padding: var(--nyx-space-2) var(--nyx-space-6);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--nyx-color-border-strong);
+  background: transparent;
+  color: var(--ifm-color-content);
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+  cursor: pointer;
+  transition: background var(--nyx-motion-instant) ease;
+}
+
+.loadMoreButton:hover {
+  background: var(--nyx-color-border-muted);
+}
+
+.loadMoreButton:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.severityCol {
+  text-align: left;
+}
+.idCol {
+  text-align: left;
+}
+.verdictCol {
+  text-align: left;
+}
+.fileCol {
+  text-align: left;
+}
+.phaseCol {
+  text-align: right;
+  justify-content: flex-end;
+}
+
+@media (max-width: 720px) {
+  .thead {
+    display: none;
+  }
+}

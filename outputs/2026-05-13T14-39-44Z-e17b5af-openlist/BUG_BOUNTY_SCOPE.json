@@ -1,0 +1,29 @@
+{
+  "program_url": "https://github.com/OpenListTeam/OpenList",
+  "program_name": "OpenList",
+  "in_scope_assets": [
+    "https://github.com/OpenListTeam/OpenList@0726d166321b06e363ce9e9892b978b2ce3cdcbb",
+    "Latest stable release v4.x (Go file-listing server, AGPL-3.0)",
+    "cmd/",
+    "server/",
+    "internal/",
+    "drivers/",
+    "pkg/",
+    "main.go",
+    "Dockerfile",
+    "Dockerfile.ci"
+  ],
+  "in_scope_contracts": [],
+  "out_of_scope": [
+    "OpenListApp/OpenListApp and any other third-party derivative or fork projects",
+    "Paid proprietary software using the OpenList name",
+    "Older (non-latest-stable) versions — only latest stable v4.x receives security patches",
+    "Underlying third-party storage providers and their SDKs/APIs (Aliyundrive, OneDrive, GoogleDrive, S3, Dropbox, WebDAV remotes, Mega, BaiduNetdisk, etc.) — OpenList only performs HTTP 302 redirects / traffic forwarding without modification",
+    "Cloudflare-hosted documentation and demo sites (doc.oplist.org, doc.openlist.team, doc.oplist.org.cn, demo.oplist.org, demo.oplist.org.cn) unless the vulnerability is in OpenList source itself",
+    "Misconfiguration in user-operated deployments (weak admin password, plain HTTP exposure, container running as root) — covered by user-side best-practices",
+    "Logo / branding assets under OpenListTeam/Logo"
+  ],
+  "severity_ratings": "Not formally published. Standard CVSS-style triage by maintainers expected via GitHub Private Security Advisory.",
+  "reward_range": "No monetary rewards — community/open-source project. Acknowledgment in SECURITY.md credits only.",
+  "notes": "OpenList is a community-driven AGPL-3.0 fork of AList (originally by Xhofe / AlistGo/alist). There is no formal bug bounty program. Vulnerability reports must be submitted privately via GitHub Security Advisory (https://github.com/OpenListTeam/OpenList/security/advisories/new) or Telegram @OpenListTeam — public Issues for security disclosures are explicitly forbidden by SECURITY.md. The project is a Go-based file-listing/proxy server supporting many cloud storage backends, WebDAV, web upload, offline download, and Cloudflare Workers proxy. No smart contracts or on-chain components — strictly a server-side application."
+}

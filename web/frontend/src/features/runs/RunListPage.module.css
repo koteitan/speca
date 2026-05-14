@@ -1,0 +1,168 @@
+/* Run list — GitHub Actions "workflow runs" inspired.
+ *
+ * The page is a single column: header bar with title and disabled
+ * "New run" button, filter chips, then the table itself. We use a
+ * proper <table> so column headers can be sort triggers and the layout
+ * stays predictable when target slugs/run ids vary in length.
+ */
+
+.page {
+  padding: var(--nyx-space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-6);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nyx-space-5);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-xl);
+}
+
+.newRunButton {
+  padding: var(--nyx-space-3) var(--nyx-space-5);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.newRunButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.newRunButton:hover {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nyx-space-3);
+  align-items: center;
+}
+
+.chip {
+  padding: var(--nyx-space-2) var(--nyx-space-5);
+  border-radius: 999px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: transparent;
+  color: var(--ifm-color-content);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+}
+
+.chipActive {
+  background: var(--ifm-color-content);
+  color: var(--ifm-background-color);
+  border-color: var(--ifm-color-content);
+}
+
+.searchInput {
+  flex: 1 1 200px;
+  min-width: 160px;
+  padding: var(--nyx-space-3) var(--nyx-space-5);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  font: inherit;
+}
+
+.tableWrap {
+  width: 100%;
+  /* Let the table scroll horizontally on narrow viewports instead of
+   * forcing column headers to wrap vertically (which made every cell
+   * read like a vertical strip on 360px). */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--nyx-font-size-sm);
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .table {
+    min-width: 640px;
+  }
+}
+
+.table th {
+  font-weight: 600;
+  color: var(--ifm-color-content);
+  opacity: 0.8;
+  background: transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+.table tbody tr:hover {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.runLink {
+  color: var(--ifm-color-content);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.runLink:hover {
+  text-decoration: underline;
+}
+
+.muted {
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+
+.actionCell {
+  width: 36px;
+  text-align: right;
+  padding-right: var(--nyx-space-5);
+}
+
+.empty {
+  padding: var(--nyx-space-8);
+  text-align: center;
+  border: 1px dashed var(--ifm-color-emphasis-300);
+  border-radius: var(--nyx-radius-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.8;
+}
+
+.empty code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95em;
+  padding: 0 var(--nyx-space-2);
+}
+
+.error {
+  padding: var(--nyx-space-6);
+  border: 1px solid oklch(0.55 0.2 30);
+  border-radius: var(--nyx-radius-sm);
+  color: oklch(0.55 0.2 30);
+}

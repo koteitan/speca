@@ -1,0 +1,660 @@
+{
+  "app": { "name": "SPECA" },
+  "language": {
+    "name": "言語",
+    "english": "English",
+    "japanese": "日本語",
+    "switch_to_en": "英語に切り替え",
+    "switch_to_ja": "日本語に切り替え"
+  },
+  "theme": {
+    "label": "テーマ",
+    "light": "ライト",
+    "dark": "ダーク",
+    "system": "自動",
+    "solarized": "Solarized",
+    "light_short": "明",
+    "dark_short": "暗",
+    "system_short": "自",
+    "solarized_short": "S"
+  },
+  "errors": {
+    "show_raw": "技術的な詳細を表示",
+    "clone_failed": {
+      "title": "ターゲットリポジトリの clone に失敗",
+      "message": "git がターゲットリポジトリを取得できませんでした。よくある原因は owner/name のタイポ、認証なしの private リポジトリ、または一時的なネットワーク障害です。",
+      "action": "target_repo 欄を確認してから再試行してください。private リポジトリの場合は supervisor の環境で GH_TOKEN が export されている必要があります。"
+    },
+    "invalid_target_repo": {
+      "title": "ターゲットリポジトリのスラグが不正",
+      "message": "target_repo は ``owner/name`` の形式である必要があります — スペースや URL プレフィックス、シェル展開は不可。バックエンドが clone 前に拒否しました。",
+      "action": "``owner/name`` 形式に修正してから再送信してください。"
+    },
+    "invalid_workspace_input": {
+      "title": "ターゲットリポジトリのスラグが不正",
+      "message": "supervisor が workspace 入力を拒否しました — owner/ 抜け、不要なプロトコル、または禁止文字を含むスラグが原因のことが多いです。",
+      "action": "``owner/name`` 形式に修正してから再送信してください。"
+    },
+    "ref_not_found": {
+      "title": "ターゲット ref が見つからない",
+      "message": "指定したブランチ / タグ / コミットが origin に存在しません。clone は成功しましたが checkout 段階で失敗しました。",
+      "action": "target_ref を空にすればデフォルトブランチが使われます。明示的に指定する場合は ``git ls-remote`` 等で存在を確認してください。"
+    },
+    "worktree_failed": {
+      "title": "workspace の作成に失敗",
+      "message": "git が per-run worktree を作成できませんでした。ファイルシステムの権限エラーか、``.speca/workspaces`` のキャッシュ汚染が一般的な原因です。",
+      "action": "再試行してください。それでもダメな場合は ``.speca/workspaces/<target>`` を削除して supervisor に再生成させてください。"
+    },
+    "anthropic_unreachable": {
+      "title": "Anthropic API に到達できない",
+      "message": "Picker が Claude 経由で bug bounty scope を取得しようとして失敗しました。API 障害、OAuth 認証切れ、またはネットワークの egress 制限が原因の可能性があります。",
+      "action": "status.anthropic.com を確認し、``claude auth status`` が logged_in=true を返すか確認してから再試行してください。"
+    },
+    "run_not_found": {
+      "title": "run が見つかりません",
+      "message": "指定された run id がディスク上にありません。プルーニングされたか、supervisor が state.json を書き終わる前に終了したか (cancel 等) のどちらかです。",
+      "action": "runs 一覧に戻って既存の run を選択してください。"
+    },
+    "still_running": {
+      "title": "run は実行中です",
+      "message": "実行した操作 (rerun / 予算 cap-bump / 削除) は run が終了状態である必要があります。supervisor は phase chain を駆動中です。",
+      "action": "まず run を cancel してから再試行してください。"
+    },
+    "invalid_phases": {
+      "title": "未知の phase id",
+      "message": "rerun に orchestrator が認識しない phase id が含まれていました。phase id は 0a/0b/0c/01a/01b/01e/02c/03/04 のいずれかです。",
+      "action": "rerun ダイアログに表示される phase 一覧から選択してください。"
+    },
+    "unknown": {
+      "title": "想定外のエラー",
+      "message": "サーバが UI 側に翻訳ルールがないエラーコードを返しました。下の生 envelope をバグ報告にコピーしてください。",
+      "action": ""
+    }
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "loading_short": "読み込み中…",
+    "error": "エラー",
+    "retry": "再試行",
+    "cancel": "キャンセル",
+    "confirm": "確定",
+    "close": "閉じる",
+    "ok": "OK",
+    "none": "—",
+    "unknown_error": "不明なエラー",
+    "checking_session": "セッション確認中",
+    "loading_chat": "chat を読み込み中"
+  },
+  "header": {
+    "version_badge_aria": "バージョン v0",
+    "nav_runs": "Runs",
+    "open_chat": "chat パネルを開く",
+    "close_chat": "chat パネルを閉じる",
+    "open_chat_title": "chat を開く",
+    "close_chat_title": "chat を閉じる",
+    "chat_label": "Chat",
+    "signed_in_as": "ログイン中:",
+    "signed_in": "ログイン済み",
+    "guest": "ゲスト",
+    "settings_label": "設定",
+    "diagnostics_label": "診断"
+  },
+  "chat": {
+    "history": {
+      "toggle_label": "履歴",
+      "toggle_aria": "会話履歴の表示切替",
+      "aria": "過去の会話",
+      "new": "+ 新規 chat",
+      "empty": "過去の会話はまだありません。",
+      "untitled": "(タイトル無し)"
+    },
+    "panel": {
+      "open_chat_aria": "chat を開く",
+      "fab_label": "Chat",
+      "panel_aria": "Claude と chat",
+      "title": "Chat",
+      "readonly_badge": "承認制",
+      "readonly_badge_title": "副作用 tool (launch_pipeline / stop_pipeline) は承認カード経由で実行されます。",
+      "collapse_aria": "chat パネルを折りたたむ",
+      "empty": "run、finding、property id について Claude に質問してください。",
+      "context_attached": "コンテキスト添付",
+      "context_remove_aria": "添付コンテキストを外す"
+    },
+    "input": {
+      "placeholder_default": "Claude にメッセージ (起動は承認制)",
+      "input_aria": "chat 入力",
+      "send_aria": "メッセージを送信",
+      "send_label": "送信"
+    },
+    "bubble": {
+      "tool_awaiting_approval": "承認待ち",
+      "tool_status_running": "実行中",
+      "tool_status_done": "完了",
+      "tool_status_error": "エラー",
+      "tool_no_input": "(入力なし)",
+      "tool_approval_required_aria": "{{name}} の承認が必要です",
+      "tool_call_aria": "ツール呼び出し {{name}}"
+    },
+    "approval": {
+      "title_launch": "audit を起動しますか?",
+      "title_stop": "audit を中止しますか?",
+      "awaiting": "承認待ち",
+      "approve": "承認",
+      "cancel": "キャンセル",
+      "approving": "承認中...",
+      "cancelling": "キャンセル中...",
+      "expired": "承認期限切れ (10分タイムアウト)",
+      "preview": {
+        "bug_bounty_url": "Bug Bounty URL",
+        "target_repo": "対象リポジトリ",
+        "target_ref": "対象 ref",
+        "contract_addresses": "コントラクトアドレス",
+        "spec_urls": "仕様 URL",
+        "keywords": "キーワード",
+        "workers": "Worker 数",
+        "max_concurrent": "同時実行数",
+        "push_to_remote": "remote に push",
+        "run_id": "Run ID"
+      }
+    },
+    "approvals_pending": "承認待ち {{n}} 件",
+    "approvals_pending_other": "承認待ち {{n}} 件"
+  },
+  "runs": {
+    "list": {
+      "title": "Runs",
+      "new_run": "+ 新規 run",
+      "filters_aria": "フィルター",
+      "search_placeholder": "ターゲット / run id でフィルター",
+      "search_aria": "ターゲットでフィルター",
+      "loading": "読み込み中…",
+      "load_failed": "runs の取得に失敗しました: {{error}}",
+      "empty_line1": "audit run はまだありません。",
+      "empty_line2": "<code>uv run python3 scripts/run_phase.py ...</code> で作成するか、v1 で UI から起動できます。",
+      "col_status": "ステータス",
+      "col_run": "Run",
+      "col_target": "ターゲット",
+      "col_started": "開始",
+      "col_duration": "実行時間",
+      "col_cost": "コスト",
+      "col_actions_aria": "アクション",
+      "open_repo_vscode": "VSCode でリポジトリを開く",
+      "rel_seconds_ago": "{{n}}秒前",
+      "rel_minutes_ago": "{{n}}分前",
+      "rel_hours_ago": "{{n}}時間前",
+      "rel_days_ago": "{{n}}日前"
+    },
+    "detail": {
+      "loading": "読み込み中…",
+      "load_failed": "run {{runId}} の取得に失敗しました: {{error}}",
+      "not_found": "見つかりません",
+      "breadcrumb_aria": "パンくず",
+      "breadcrumb_back": "← すべての run",
+      "meta_target": "ターゲット:",
+      "meta_branch": "ブランチ:",
+      "meta_started": "開始:",
+      "meta_duration": "実行時間:",
+      "meta_cost": "コスト:",
+      "live_badge_aria": "ライブ状態",
+      "logs_dropped_title": "高スループットによりバックエンドがログ行をドロップしました。",
+      "actions_aria": "Run アクション",
+      "open_vscode_label": "VSCode で開く",
+      "open_github_label": "GitHub で開く",
+      "open_github_title": "v1 で対応",
+      "phases_empty": "この run には phase が記録されていません。",
+      "live": {
+        "connected": "接続中",
+        "reconnecting": "再接続中... ({{n}}/10 回目)",
+        "disconnected": "切断されました。ページを再読み込みして再試行してください。",
+        "logs_dropped": "{{n}} 行のログがドロップされました (高負荷)"
+      },
+      "log_tail": {
+        "auto_scroll": "自動スクロール",
+        "auto_scroll_paused": "自動スクロール停止中",
+        "copy": "ログをコピー",
+        "download": "ログをダウンロード",
+        "empty": "ログ行はまだありません。"
+      },
+      "actions": {
+        "stop": "停止",
+        "rerun_failed": "失敗した phase を再実行"
+      },
+      "cancel": {
+        "confirm": {
+          "title": "この audit run を中止しますか?",
+          "description": "現在実行中の phase を SIGTERM で終了します。途中までの出力は保持されます。"
+        },
+        "in_progress": "中止中..."
+      },
+      "rerun": {
+        "dialog_title": "Phase を再実行",
+        "dialog_description": "選択した phase を --force で再実行します。対象 phase の既存の partial 出力は再生成されます。",
+        "select_all_failed": "失敗したものをすべて選択",
+        "no_failed_phases": "失敗した phase はありません。再実行したい phase を選んでください。",
+        "confirm": "再実行",
+        "in_progress": "再実行を開始しています..."
+      },
+      "budget_gauge": {
+        "spent_of_cap": "使用額 {{spent}} / {{cap}} ({{pct}}%)",
+        "spent_no_cap": "使用額 {{spent}} — 予算上限なし",
+        "tooltip_warn": "予算の 80% を使用中。--budget を増やすか中止してください。",
+        "tooltip_over": "予算上限到達。runner は停止します。"
+      },
+      "budget_cap": {
+        "open_button_aria": "予算上限を設定 / 引き上げ",
+        "open_button_title": "予算上限を設定 / 引き上げ (CLI spec §5.3.3)",
+        "title": "予算上限の設定",
+        "description": "現在の使用額: ${{spent}} · 上限: ${{cap}}。新しい USD 上限を入力するか、クリアして無効化してください。",
+        "input_label": "新しい上限 (USD)",
+        "warn_below_spent": "上限が現在の使用額より低いため、即時に超過扱いになります。",
+        "clear": "上限をクリア",
+        "confirm": "上限を保存",
+        "saving": "保存中…"
+      }
+    },
+    "phase_row": {
+      "details_aria": "{{label}} の詳細",
+      "no_log_preview": "ログプレビューはまだありません。v1 でストリーミング対応。",
+      "open_log_folder": "log フォルダを VSCode で開く",
+      "keyhelp": "Enter: 展開 · l: ログ · f: 強制再実行"
+    },
+    "phase_names": {
+      "0a": "Scope 抽出",
+      "0b": "Workspace 検証",
+      "0c": "Target Info 生成",
+      "01a": "Spec 探索",
+      "01b": "Subgraph 抽出",
+      "01e": "Property 生成",
+      "02c": "Code 事前解決",
+      "03": "Audit Map",
+      "04": "Review"
+    }
+  },
+  "findings": {
+    "list": {
+      "title": "Findings",
+      "run_label": "Run",
+      "banner_strong": "データソース: 現在の <code>outputs/</code> (v0)。",
+      "banner_text": "per-run 表示は v1 で対応。表示中の finding は {{count}} 件。",
+      "loading": "findings を読み込み中…",
+      "load_failed": "findings の取得に失敗しました: {{error}}",
+      "empty_line1": "この run に表示できる finding はありません。",
+      "empty_line2": "<code>outputs/</code> に <code>03_PARTIAL_*.json</code> / <code>04_PARTIAL_*.json</code> があるか確認してください。",
+      "table_aria": "Findings",
+      "col_severity": "Severity",
+      "col_property_id": "Property ID",
+      "col_verdict": "Verdict",
+      "col_file": "File",
+      "col_phase": "Phase",
+      "open_in_vscode": "VSCode で開く",
+      "showing_n_of_m": "{{total}} 件中 {{shown}} 件表示中",
+      "show_all": "残り {{n}} 件を表示",
+      "export_markdown": "Markdown でエクスポート",
+      "export_filename_hint": "<run-id>-findings.md"
+    },
+    "detail": {
+      "loading": "finding を読み込み中…",
+      "load_failed": "finding の取得に失敗しました: {{error}}",
+      "not_found": "finding が見つかりませんでした。",
+      "back_link": "← findings 一覧へ戻る",
+      "code_location_title": "コード位置",
+      "code_location_unresolved": "(この finding には位置情報が解決されていません)",
+      "evidence_snippet_title": "Evidence snippet",
+      "proof_trace_title": "Proof trace",
+      "gates_passed_title": "通過した Gates",
+      "reviewer_notes_title": "レビュアーノート",
+      "phase_label": "Phase {{phase}}",
+      "open_in_vscode": "VSCode で開く",
+      "ask_claude_button": "この finding について Claude に聞く",
+      "ask_claude_hint": "この finding をコンテキストに添付した状態で chat パネルを開きます。",
+      "ask_claude_context_label": "{{property_id}} ({{severity}})",
+      "ask_claude_draft_message": "この finding ({{property_id}}) について教えてください。攻撃可能性と影響は?"
+    },
+    "filter": {
+      "bar_aria": "Findings フィルター",
+      "severity_label": "Severity",
+      "verdict_label": "Verdict",
+      "phase_label": "Phase",
+      "all": "すべて",
+      "phase_value": "Phase {{phase}}",
+      "dsl_label": "検索フィルター",
+      "dsl_placeholder": "severity:high verdict:CONFIRMED_VULNERABILITY prop:PROP-* フリーテキスト",
+      "dsl_help": "キー: severity: / verdict: / prop: / repo: (`|` で OR、スペースで AND)",
+      "dsl_clear_aria": "フィルターをクリア",
+      "dsl_unknown_keys": "未知のキーはフリーテキスト扱い: {{keys}}"
+    },
+    "severity": {
+      "Critical": "Critical",
+      "High": "High",
+      "Medium": "Medium",
+      "Low": "Low",
+      "Informational": "Informational",
+      "aria_label": "severity: {{severity}}"
+    },
+    "verdict": {
+      "none": "—",
+      "CONFIRMED_VULNERABILITY": "確定脆弱性",
+      "CONFIRMED_POTENTIAL": "確定 (Potential)",
+      "DISPUTED_FP": "誤検知 (Disputed)",
+      "DOWNGRADED": "ダウングレード",
+      "NEEDS_MANUAL_REVIEW": "要手動レビュー",
+      "PASS_THROUGH": "Pass-through"
+    }
+  },
+  "settings": {
+    "page": {
+      "title": "Settings",
+      "subtitle": "v0 は read-only。書き込み系の設定 (logout、API key 変更、target repo picker) は v1 で対応予定。",
+      "section_auth": "Auth",
+      "section_runtime": "Chat ランタイム",
+      "section_integrations": "Integrations",
+      "section_maintenance": "Maintenance",
+      "runtime_hint": "Chat パネルが叩く CLI / API を選択します。既定は claude、codex / gemini / ollama / copilot に切替可能です。",
+      "maintenance_hint": "設定ファイルや run state を VSCode で開きます。VSCode CLI (`code`) が PATH 上に必要です。"
+    },
+    "runtime": {
+      "loading": "ランタイム設定を読み込み中…",
+      "load_failed": "ランタイム設定の読み込みに失敗。",
+      "save_failed": "ランタイム設定の保存に失敗。",
+      "advanced_summary": "詳細 — ランタイム別 model / host",
+      "runtime_claude": "Claude",
+      "runtime_codex": "Codex",
+      "runtime_gemini": "Gemini",
+      "runtime_ollama": "Ollama",
+      "runtime_copilot": "Copilot",
+      "hint_claude": "Anthropic Claude。API key は SDK、claude.ai OAuth は CLI サブプロセス。",
+      "hint_codex_cli_missing": "`codex` CLI が PATH にありません。`npm install -g @openai/codex` で導入してください。",
+      "hint_codex_logged_out": "`codex` CLI はあるがログインなし。`codex login` (ChatGPT plan) か `printenv OPENAI_API_KEY | codex login --with-api-key` を実行してください。",
+      "hint_codex_ready": "OpenAI Codex CLI 利用可能 (`codex exec --json`)。",
+      "hint_gemini_cli_missing": "`gemini` CLI が PATH にありません。`npm install -g @google/gemini-cli` で導入してください。",
+      "hint_gemini_key_missing": "`gemini` CLI はあるが `GEMINI_API_KEY` がサーバ環境にありません。",
+      "hint_gemini_ready": "Google Gemini CLI 利用可能 (`gemini -p --output-format stream-json`)。",
+      "hint_ollama_key_missing": "Ollama Cloud はサーバ環境に `OLLAMA_API_KEY` が必要です。",
+      "hint_ollama_ready": "Ollama HTTP endpoint 到達可能。",
+      "hint_copilot_cli_missing": "`gh` CLI が PATH にありません。https://cli.github.com/ から導入後 `gh auth login` してください。",
+      "hint_copilot_ready": "GitHub Copilot を `gh copilot suggest` 経由で利用 (read-only / 単発)。",
+      "claude_model_label": "Claude model 上書き",
+      "claude_model_placeholder": "claude-sonnet-4-6",
+      "codex_model_label": "Codex model 上書き",
+      "codex_model_placeholder": "(空欄で codex CLI 既定)",
+      "gemini_model_label": "Gemini model 上書き",
+      "gemini_model_placeholder": "gemini-2.0-flash",
+      "ollama_host_label": "Ollama host",
+      "ollama_host_placeholder": "https://ollama.com または http://localhost:11434",
+      "ollama_model_label": "Ollama model",
+      "ollama_model_placeholder": "llama3.2"
+    },
+    "auth": {
+      "loading": "auth status を読み込み中…",
+      "load_failed": "auth status の取得に失敗しました。",
+      "login_state": "ログイン状態",
+      "logged_in": "ログイン済み",
+      "not_logged_in": "未ログイン",
+      "method": "方式",
+      "method_oauth": "Claude.ai OAuth",
+      "method_api_key": "Anthropic API key",
+      "method_none": "なし",
+      "identity": "identity"
+    },
+    "integrations": {
+      "loading": "integrations を読み込み中…",
+      "load_failed": "integrations status の取得に失敗しました。",
+      "vscode_cli": "VSCode CLI (`code`)",
+      "github_cli": "GitHub CLI (`gh`)",
+      "gh_auth": "`gh auth`",
+      "installed": "インストール済み",
+      "not_found": "見つかりません",
+      "unknown": "不明"
+    },
+    "maintenance": {
+      "loading": "paths を読み込み中…",
+      "load_failed": "paths の取得に失敗しました。",
+      "open_speca_dir": ".speca/ を VSCode で開く",
+      "open_repo": "リポジトリを VSCode で開く",
+      "open_claude_dir": "~/.claude/ を VSCode で開く"
+    },
+    "fork": {
+      "title": "ターゲットリポジトリを GitHub に Fork",
+      "description": "`gh` CLI を使って対象リポジトリを自分の GitHub アカウントに fork します。Finding 後に修正 PR を準備したいときに便利です。",
+      "submit": "Fork",
+      "target_repo_placeholder": "octocat/Hello-World",
+      "into_owner_placeholder": "Fork 先の Org / user (任意)",
+      "gh_required_tooltip": "先に gh CLI をインストールし、`gh auth login` を実行してください。",
+      "success": "Fork 先:",
+      "confirm": {
+        "title": "{{repo}} を自分の GitHub に fork しますか?",
+        "description": "認証済みの GitHub アカウント配下に fork を作成します。"
+      },
+      "error": {
+        "gh_missing": "gh CLI がインストールされていません。",
+        "gh_unauthed": "gh CLI が未認証です。`gh auth login` を実行してください。",
+        "fork_failed": "Fork に失敗しました",
+        "confirmation_required": "確認が必要です。"
+      }
+    }
+  },
+  "diagnostics": {
+    "page": {
+      "title": "診断",
+      "subtitle": "`speca doctor` 相当のローカル環境チェック。read-only。"
+    },
+    "loading": "診断を実行中…",
+    "load_failed": "診断の取得に失敗しました: {{error}}",
+    "refresh": "再診断",
+    "refresh_in_progress": "再診断中…",
+    "status": {
+      "ok": "OK",
+      "missing": "未検出",
+      "outdated": "要更新",
+      "unknown": "不明"
+    },
+    "tool": {
+      "node": "Node.js",
+      "uv": "uv (Python ランチャー)",
+      "git": "git",
+      "claude": "Claude Code CLI (`claude`)",
+      "gh": "GitHub CLI (`gh`)",
+      "code": "VSCode CLI (`code`)",
+      "auth": "Claude auth / API key"
+    },
+    "meta": {
+      "not_installed": "未インストール",
+      "min_required": "min {{version}}",
+      "version_unknown": "インストール済み (バージョン不明)",
+      "gh_authed": "ログイン済み",
+      "gh_unauthed": "未ログイン (`gh auth login` を実行)"
+    },
+    "auth": {
+      "method_oauth": "Claude.ai OAuth でログイン中",
+      "method_api_key": "Anthropic API key でログイン中",
+      "env_api_key": "環境変数 ANTHROPIC_API_KEY 設定済み",
+      "none": "Claude セッションも API key もなし"
+    },
+    "section": {
+      "environment": "環境"
+    },
+    "summary": {
+      "all_ok_title": "全項目 OK",
+      "all_ok_hint": "パイプラインの要件はすべて満たされています。新規 audit を起動できます。",
+      "attention_title": "対応が必要な項目があります",
+      "attention_hint": "下のインストール手順を参考に、不足項目をインストールしてから audit を起動してください。",
+      "cta_new_run": "新規 audit を起動"
+    },
+    "install": {
+      "section_title": "インストール手順",
+      "hint": "プラットフォームに合わせて以下のコマンドを実行してください。PATH 上の binary を入れた後は SPECA server の再起動が必要です。",
+      "docs_link": "ドキュメント"
+    }
+  },
+  "login": {
+    "title": "SPECA にサインイン",
+    "subtitle": "ローカル Web UI — 認証情報はこのマシン外に出ません。",
+    "oauth_button_idle": "CLI ログインコンソールを開く",
+    "oauth_button_pending": "claude auth login を起動中...",
+    "oauth_button_success": "OAuth 完了を待機中...",
+    "oauth_hint_default": "OAuth フローを別ウィンドウで開きました。",
+    "paste_oauth": {
+      "button_idle": "claude.ai で続行 (paste-code)",
+      "button_pending": "OAuth を開始中...",
+      "url_prefix": "認証先:",
+      "open_in_browser": "認証 URL を開く",
+      "no_url_yet": "CLI を起動中です。少し待ってから、表示されたコードを下に貼り付けてください。",
+      "code_label": "claude.ai からのコード",
+      "code_placeholder": "認証完了後に表示されるコードを貼り付け",
+      "submit_idle": "コードを送信",
+      "submit_pending": "交換中…",
+      "fallback_summary": "フォールバック: 別コンソールで開く"
+    },
+    "divider": "または API key を使う",
+    "api_key_label": "Anthropic API key",
+    "api_key_placeholder": "sk-ant-...",
+    "submit_idle": "サインイン",
+    "submit_pending": "サインイン中...",
+    "error_signin_http": "サインインに失敗 (HTTP {{status}}): {{body}}",
+    "error_signin_unknown": "不明な理由でサインインに失敗しました。",
+    "error_oauth_http": "OAuth 起動に失敗 (HTTP {{status}}): {{body}}",
+    "error_oauth_unknown": "不明な理由で OAuth 起動に失敗しました。"
+  },
+  "integrations": {
+    "open_in_vscode": {
+      "default_label": "VSCode で開く",
+      "missing_hint": "VSCode CLI (`code`) が見つかりません。PATH 設定を確認してください",
+      "launching": "起動中…"
+    }
+  },
+  "tooltip": {
+    "marker_aria": "ツールチップ"
+  },
+  "glossary": {
+    "CWE": "Common Weakness Enumeration。ソフトウェア脆弱性の共通分類 (例: CWE-22 Path Traversal)。",
+    "STRIDE": "脅威モデリングのフレームワーク。Spoofing / Tampering / Repudiation / Information disclosure / Denial of service / Elevation of privilege。",
+    "property": "形式的なセキュリティプロパティ。「常に X が成り立つ」という不変条件で、Phase 01e が生成する。",
+    "subgraph": "仕様から抽出した状態遷移グラフ。Mermaid 形式で、各ノードに不変条件を持つ。Phase 01b の出力。",
+    "verdict": "Phase 04 の最終判定。CONFIRMED_VULNERABILITY / CONFIRMED_POTENTIAL / DISPUTED_FP / DOWNGRADED / NEEDS_MANUAL_REVIEW / PASS_THROUGH の 6 値。",
+    "severity": "脆弱性の深刻度。Critical / High / Medium / Low / Informational の 5 段階。",
+    "phase 03": "Audit Map。プロパティが target コードで成立するかを Proof ベースで検証する Phase。",
+    "phase 04": "Review。Dead Code / Trust Boundary / Scope Check の 3 ゲートで誤検知をフィルタする recall-safe pipeline。",
+    "bug bounty scope": "対象 bug bounty プログラムの in-scope / out-of-scope 定義。`BUG_BOUNTY_SCOPE.json` に保存される。",
+    "trust boundary": "信頼境界。外部入力が内部処理に到達する境界線で、ここを越える finding は誤検知になりにくい。",
+    "dead code": "Phase 04 の Gate 1。実際には到達不可能なコードパスで報告された finding を除外する。",
+    "DISPUTED_FP": "Phase 04 の 3 ゲートいずれかが「実は誤検知 (False Positive)」と判定した verdict。Recall-safe 設計のため、この 3 ゲートのみが FP 判定を出せる。",
+    "CONFIRMED_VULNERABILITY": "Phase 04 の最終判定で「真の脆弱性」と確認された finding。Report 化の主対象。"
+  },
+  "shortcuts": {
+    "help_title": "キーボードショートカット",
+    "help_close": "閉じる",
+    "global_section": "グローバル",
+    "findings_section": "Findings",
+    "k_question": "このヘルプを開く",
+    "k_esc": "モーダル / chat を閉じる",
+    "k_c": "chat パネルの開閉",
+    "k_g_r": "Runs へ移動",
+    "k_g_s": "Settings へ移動",
+    "k_g_d": "Diagnostics へ移動",
+    "k_slash": "findings フィルターにフォーカス",
+    "k_j": "次の finding へ",
+    "k_k": "前の finding へ"
+  },
+  "empty_state": {},
+  "onboarding": {
+    "demo": {
+      "badge": "サンプル",
+      "preview_note": "read-only preview",
+      "modal_title": "v1 で起動可能",
+      "modal_body": "{{repo}} は v0 では read-only preview のみです。v1 で audit run の起動に対応します。",
+      "modal_close": "OK"
+    }
+  },
+  "picker": {
+    "page": {
+      "title": "新規 audit",
+      "subtitle": "監査対象を選ぶ。3 入口、1 つの確認フォーム。",
+      "saved": "保存済みターゲット",
+      "from_url": "URL から",
+      "ask_claude": "Claude に頼む (chat)",
+      "guided_wizard": "簡易ガイドで作成 →"
+    },
+    "wizard": {
+      "title": "ガイド付きセットアップ",
+      "subtitle": "1 問ずつ回答する形式。`speca init` (CLI) と同じ流れ。",
+      "cancel_link": "← キャンセルして別の入口から作成",
+      "steps_aria": "ウィザードのステップ",
+      "step_project_type_short": "種別",
+      "step_target_repo_short": "リポジトリ",
+      "step_target_ref_short": "Ref",
+      "step_scope_short": "スコープ",
+      "step_spec_urls_short": "仕様",
+      "step_review_short": "確認",
+      "q_project_type": "何を監査しますか?",
+      "hint_project_type": "ここでの選択により、trust model と tool パレットの初期値が決まります。",
+      "q_target_repo": "対象の GitHub `owner/repo` を貼ってください。",
+      "hint_target_repo": "例: `sigp/lighthouse`。SPECA は起動時にこれを clone します。",
+      "q_target_ref": "ブランチ・タグ・コミットを固定しますか?",
+      "hint_target_ref": "空欄ならデフォルトブランチの HEAD を使います。",
+      "q_scope": "Bug Bounty プログラム / in-scope 資産は?",
+      "hint_scope": "Bounty URL は任意。アドレスやパスを書くと解析範囲を絞れます。",
+      "q_spec_urls": "Phase 01a でクロールする仕様 URL (任意)。",
+      "hint_spec_urls": "カンマ or 改行区切り。空欄なら仕様取り込みをスキップ。",
+      "placeholder_spec_urls": "https://eips.ethereum.org/EIPS/eip-...",
+      "q_review": "起動準備 OK?",
+      "hint_review": "入力内容を確認。詳細オプション (workers / push) は次の画面で。",
+      "advanced_hint": "Worker / push-to-remote を細かく設定したい場合は",
+      "advanced_link": "詳細フォーム",
+      "nav_aria": "ウィザードのナビゲーション",
+      "back": "← 戻る",
+      "next": "次へ →"
+    },
+    "from_url": {
+      "label_bug_bounty_url": "Bug Bounty / プログラム URL",
+      "label_contract_addresses": "コントラクトアドレス (任意)",
+      "label_in_scope_assets": "対象アセット / アドレス (任意)",
+      "placeholder_in_scope_assets": "0x..., src/, /api/*  (1 行に 1 つ)",
+      "submit": "scope を取得",
+      "error_anthropic": "Anthropic に接続できませんでした。ANTHROPIC_API_KEY を設定するか、再試行してください。",
+      "error_parse": "scope の解析に失敗。手動入力に進んでください。",
+      "placeholder_bug_bounty": "https://immunefi.com/bounty/..."
+    },
+    "saved": {
+      "empty": "保存されたターゲットはまだありません。",
+      "demo_badge": "デモ",
+      "demo_hint": "サンプル — クリックでフォームに pre-fill",
+      "last_run_never": "未実行"
+    },
+    "ask_claude": {
+      "description": "chat を開いて Claude に audit セットアップを頼んでください。Claude が起動提案を作ると、ここに承認カードが出ます。",
+      "open_chat": "chat を開く"
+    },
+    "new_run_form": {
+      "title": "確認して起動",
+      "back": "← 別のターゲットを選ぶ",
+      "label_project_type": "プロジェクト種別",
+      "project_type_smart_contract": "スマートコントラクト (Ethereum / Solidity 等)",
+      "project_type_web_app": "Web アプリケーション",
+      "project_type_library": "ライブラリ / SDK",
+      "project_type_other": "その他",
+      "label_bug_bounty_url": "Bug Bounty プログラム URL",
+      "optional_suffix": "任意",
+      "label_target_repo": "対象リポジトリ (owner/repo)",
+      "label_target_ref": "対象 ref (branch / tag / commit)",
+      "label_target_ref_placeholder": "main",
+      "label_contract_addresses": "コントラクトアドレス",
+      "label_in_scope_assets": "対象アセット (パス / URL / エンドポイント)",
+      "placeholder_contract_addresses": "0x..., 1 行に 1 つ",
+      "placeholder_in_scope_assets": "src/, /api/*, https://... (1 行に 1 つ)",
+      "label_spec_urls": "仕様 URL (カンマ区切り)",
+      "label_keywords": "キーワード (カンマ区切り)",
+      "label_workers": "Worker 数",
+      "label_max_concurrent": "Claude 同時実行数の上限",
+      "label_push_to_remote": "audit ブランチを remote に push",
+      "submit": "audit を起動",
+      "submit_pending": "起動中...",
+      "error_invalid_url": "有効な http(s) URL を入力してください。",
+      "error_invalid_target_repo": "リポジトリは `owner/repo` 形式で入力してください。",
+      "error_clone_failed": "対象リポジトリの clone に失敗:",
+      "error_ref_not_found": "対象 ref が remote に見つかりません:",
+      "error_anthropic": "Anthropic に接続できませんでした。ANTHROPIC_API_KEY を設定するか、再試行してください。",
+      "estimated_cost": "推定コスト: 計測中 (v2)",
+      "launch_failed": "起動失敗:"
+    }
+  }
+}

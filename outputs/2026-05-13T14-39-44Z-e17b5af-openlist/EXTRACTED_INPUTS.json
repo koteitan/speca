@@ -1,0 +1,4 @@
+{
+  "spec_urls": "https://github.com/OpenListTeam/OpenList,https://github.com/OpenListTeam/OpenList/blob/main/SECURITY.md,https://github.com/OpenListTeam/OpenList/blob/main/README.md,https://github.com/OpenListTeam/OpenList/blob/main/CONTRIBUTING.md,https://doc.oplist.org,https://doc.openlist.team,https://doc.oplist.org.cn",
+  "keywords": "OpenList,AList fork,file listing server,Go,AGPL-3.0,WebDAV,multi-storage,cloud storage proxy,HTTP 302 redirect,admin authentication,API token,guest access,offline download,web upload,file preview,Cloudflare Workers proxy,reverse proxy,Docker deploy,Aliyundrive,OneDrive,GoogleDrive,S3,BaiduNetdisk,Dropbox,SFTP,SMB,authentication bypass,authorization,path traversal,SSRF,storage driver,permission control,mounted storage"
+}

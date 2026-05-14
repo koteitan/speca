@@ -142,6 +142,70 @@ class PhaseConfig(BaseModel):
 
 # Phase configurations - ALL use token-based batching
 PHASE_CONFIGS: dict[str, PhaseConfig] = {
+    # ------------------------------------------------------------------
+    # Phase 0a / 0b / 0c — Pipeline setup (Slice H3)
+    #
+    # These phases run *before* the async batch pipeline and do not use the
+    # BaseOrchestrator. ``scripts/run_phase.py`` routes them to
+    # :mod:`scripts.orchestrator.phase0_runner` instead. The PhaseConfig
+    # entries exist so that:
+    #   1. ``get_phase_chain(...)`` can resolve dependency order
+    #      (0a -> 0b -> 0c -> 01a -> ...).
+    #   2. ``check_dependencies`` short-circuits cleanly (no input_patterns).
+    #   3. The Web UI / CI can introspect description and budget cap.
+    # Fields that would not apply (skill_path, queue_pattern, ...) use
+    # neutral sentinels: empty Path / empty pattern. Setting mcp_servers=[]
+    # keeps the global "every phase declares mcp_servers" invariant in
+    # tests/test_schemas_and_config.py satisfied.
+    # ------------------------------------------------------------------
+    "0a": PhaseConfig(
+        phase_id="0a",
+        name="Bug Bounty Scope Extraction",
+        description="Extract bug bounty scope from program URL (claude --print)",
+        skill_path=Path(""),
+        prompt_path=Path(""),  # Inline prompt — see phase0_runner.PHASE_0A_PROMPT_TEMPLATE
+        queue_pattern="",
+        output_pattern="outputs/BUG_BOUNTY_SCOPE.json",
+        batch_strategy="count",
+        max_batch_size=1,
+        max_budget_usd=0.50,
+        depends_on=[],
+        mcp_servers=[],
+        tools_filter=["Read", "Write", "WebFetch"],
+    ),
+
+    "0b": PhaseConfig(
+        phase_id="0b",
+        name="Target Workspace Verification",
+        description="Verify SPECA_TARGET_WORKSPACE points at a git workspace",
+        skill_path=Path(""),
+        prompt_path=Path(""),
+        queue_pattern="",
+        output_pattern="outputs/.phase0b.json",
+        batch_strategy="count",
+        max_batch_size=1,
+        max_budget_usd=0.0,  # No Claude call — pure shell/file ops
+        depends_on=["0a"],
+        mcp_servers=[],
+        tools_filter=[],
+    ),
+
+    "0c": PhaseConfig(
+        phase_id="0c",
+        name="TARGET_INFO.json Generation",
+        description="Capture target repo / ref / commit from the workspace",
+        skill_path=Path(""),
+        prompt_path=Path(""),
+        queue_pattern="",
+        output_pattern="outputs/TARGET_INFO.json",
+        batch_strategy="count",
+        max_batch_size=1,
+        max_budget_usd=0.0,  # No Claude call — pure git/subprocess
+        depends_on=["0b"],
+        mcp_servers=[],
+        tools_filter=[],
+    ),
+
     "01a": PhaseConfig(
         phase_id="01a",
         name="Specification Discovery",

@@ -1,0 +1,149 @@
+/*
+ * Design tokens for SPECA Web UI.
+ *
+ * SOURCE OF TRUTH: website/src/css/custom.css (Nyx Foundation brand).
+ * This file is a v0 MIRROR — keep it in sync by hand when the upstream
+ * tokens change. In v1 we will consider replacing this with a build-time
+ * symlink / generated file so drift cannot happen silently.
+ *
+ * Only the :root and [data-theme='dark'] token blocks are mirrored.
+ * Component-level overrides (`.navbar`, `.hero--primary`, ...) intentionally
+ * stay in Docusaurus and are not part of this app.
+ */
+
+:root {
+  --nyx-font-family-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+    "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI",
+    "Yu Gothic", Meiryo, "Noto Sans JP", "Noto Sans", system-ui, sans-serif;
+  --nyx-font-family-serif:
+    "Source Serif Pro", "Hiragino Mincho ProN", "Yu Mincho",
+    Georgia, Cambria, "Times New Roman", Times, serif;
+  --nyx-font-family: var(--nyx-font-family-sans);
+
+  --nyx-font-size-xs: 15px;
+  --nyx-font-size-sm: 16px;
+  --nyx-font-size-md: 17px;
+  --nyx-font-size-lg: 22px;
+  --nyx-font-size-xl: 28px;
+  --nyx-font-size-2xl: 34px;
+  --nyx-font-size-3xl: 64px;
+  --nyx-font-line-height-base: 20px;
+
+  --nyx-space-1: 4px;
+  --nyx-space-2: 6px;
+  --nyx-space-3: 8px;
+  --nyx-space-4: 10px;
+  --nyx-space-5: 12px;
+  --nyx-space-6: 16px;
+  --nyx-space-7: 24px;
+  --nyx-space-8: 32px;
+
+  --nyx-radius-xs: 6px;
+  --nyx-radius-sm: 8px;
+
+  --nyx-motion-instant: 150ms;
+  --nyx-motion-fast: 300ms;
+
+  --nyx-color-text-primary: #000000;
+  --nyx-color-surface-muted: #ffffff;
+  --nyx-color-border-muted: oklch(0.872 0.01 258.338);
+  --nyx-color-border-strong: oklch(0.928 0.006 264.531);
+
+  --ifm-color-primary: #000000;
+  --ifm-color-primary-dark: #000000;
+  --ifm-color-primary-darker: #000000;
+  --ifm-color-primary-darkest: #000000;
+  --ifm-color-primary-light: #1a1a1a;
+  --ifm-color-primary-lighter: #262626;
+  --ifm-color-primary-lightest: #404040;
+
+  --ifm-font-family-base: var(--nyx-font-family);
+  --ifm-font-size-base: var(--nyx-font-size-md);
+  --ifm-line-height-base: 1.7;
+  --ifm-h1-font-size: var(--nyx-font-size-2xl);
+  --ifm-h2-font-size: var(--nyx-font-size-xl);
+  --ifm-h3-font-size: var(--nyx-font-size-lg);
+  --ifm-h4-font-size: var(--nyx-font-size-md);
+
+  --ifm-spacing-horizontal: var(--nyx-space-7);
+  --ifm-global-radius: var(--nyx-radius-xs);
+  --ifm-card-border-radius: var(--nyx-radius-sm);
+  --ifm-toc-border-color: var(--nyx-color-border-muted);
+  --ifm-color-emphasis-200: var(--nyx-color-border-muted);
+  --ifm-color-emphasis-300: var(--nyx-color-border-strong);
+  --ifm-hr-border-color: var(--nyx-color-border-muted);
+
+  --ifm-background-color: var(--nyx-color-surface-muted);
+  --ifm-color-content: var(--nyx-color-text-primary);
+
+  --ifm-code-font-size: 90%;
+
+  --ifm-transition-fast: var(--nyx-motion-instant);
+  --ifm-transition-slow: var(--nyx-motion-fast);
+}
+
+[data-theme="dark"] {
+  --ifm-color-primary: #ffffff;
+  --ifm-color-primary-dark: #f2f2f2;
+  --ifm-color-primary-darker: #e6e6e6;
+  --ifm-color-primary-darkest: #cccccc;
+  --ifm-color-primary-light: #ffffff;
+  --ifm-color-primary-lighter: #ffffff;
+  --ifm-color-primary-lightest: #ffffff;
+
+  --ifm-background-color: #000000;
+  --ifm-color-content: #ffffff;
+  --ifm-color-emphasis-200: oklch(0.32 0.005 258);
+  --ifm-color-emphasis-300: oklch(0.42 0.004 258);
+  --ifm-toc-border-color: oklch(0.32 0.005 258);
+
+  /* Nyx tokens — dark counterparts. Surface lifts slightly off the pure
+   * black background so panels / cards remain distinguishable. */
+  --nyx-color-text-primary: #ffffff;
+  --nyx-color-surface-muted: oklch(0.18 0.006 258);
+  --nyx-color-border-muted: oklch(0.32 0.005 258);
+  --nyx-color-border-strong: oklch(0.42 0.004 258);
+
+  color-scheme: dark;
+}
+
+:root {
+  color-scheme: light;
+}
+
+/* Solarized Dark — Ethan Schoonover's canonical palette. Mapped onto the
+ * Nyx token surface so panels / cards keep the same structural hierarchy
+ * as the default themes; the accent colours and surface tints are the
+ * only things that change.
+ *
+ * Palette reference (https://ethanschoonover.com/solarized/):
+ *   base03 #002b36  background
+ *   base02 #073642  background highlights / lifted surface
+ *   base01 #586e75  comments / secondary content
+ *   base00 #657b83  body text (light variant — unused here)
+ *   base0  #839496  body text (dark variant — primary content)
+ *   base1  #93a1a1  emphasised content
+ *   blue   #268bd2  accent (links / focus)
+ */
+[data-theme="solarized"] {
+  --ifm-color-primary: #268bd2;
+  --ifm-color-primary-dark: #1d7fbf;
+  --ifm-color-primary-darker: #1b78b4;
+  --ifm-color-primary-darkest: #166396;
+  --ifm-color-primary-light: #4a9fda;
+  --ifm-color-primary-lighter: #62acdf;
+  --ifm-color-primary-lightest: #93c8eb;
+
+  --ifm-background-color: #002b36;
+  --ifm-color-content: #93a1a1;
+  --ifm-color-emphasis-200: #073642;
+  --ifm-color-emphasis-300: #586e75;
+  --ifm-toc-border-color: #073642;
+  --ifm-hr-border-color: #073642;
+
+  --nyx-color-text-primary: #93a1a1;
+  --nyx-color-surface-muted: #073642;
+  --nyx-color-border-muted: #073642;
+  --nyx-color-border-strong: #586e75;
+}

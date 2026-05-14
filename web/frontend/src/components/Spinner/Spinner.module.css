@@ -1,0 +1,64 @@
+/*
+ * Spinner — pure CSS rotating ring built from Nyx tokens.
+ *
+ * Size is selected by a `data-size` attribute on the wrapper so React
+ * code stays static — no inline style needed. Border colors track the
+ * theme via the existing token vars so we don't have to ship a dark
+ * variant.
+ */
+
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.spinner[data-size="sm"] {
+  --spinner-size: 14px;
+  --spinner-thickness: 2px;
+}
+
+.spinner[data-size="md"] {
+  --spinner-size: 20px;
+  --spinner-thickness: 2px;
+}
+
+.spinner[data-size="lg"] {
+  --spinner-size: 32px;
+  --spinner-thickness: 3px;
+}
+
+.ring {
+  display: inline-block;
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  border: var(--spinner-thickness) solid var(--nyx-color-border-muted);
+  border-top-color: var(--ifm-color-primary);
+  border-radius: 50%;
+  animation: spinner-rotate 700ms linear infinite;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring {
+    animation-duration: 1800ms;
+  }
+}

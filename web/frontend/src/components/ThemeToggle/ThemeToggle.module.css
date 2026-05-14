@@ -1,0 +1,67 @@
+/*
+ * ThemeToggle — segmented Light / Dark / System control.
+ * Visual contract matches LanguageToggle for consistency.
+ */
+
+.group {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+}
+
+.group > .button:first-child {
+  border-top-left-radius: var(--nyx-radius-xs);
+  border-bottom-left-radius: var(--nyx-radius-xs);
+}
+
+.group > .button:last-child {
+  border-top-right-radius: var(--nyx-radius-xs);
+  border-bottom-right-radius: var(--nyx-radius-xs);
+}
+
+.button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  background: transparent;
+  color: var(--ifm-color-content);
+  border: 0;
+  border-right: 1px solid var(--nyx-color-border-strong);
+  font: inherit;
+  font-size: var(--nyx-font-size-xs);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background var(--nyx-motion-instant) ease,
+    color var(--nyx-motion-instant) ease;
+}
+
+.button:last-child {
+  border-right: 0;
+}
+
+.button:hover {
+  background: var(--nyx-color-border-muted);
+}
+
+.buttonActive,
+.button[aria-pressed="true"] {
+  background: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.compact .button {
+  min-width: 28px;
+  padding: var(--nyx-space-1) var(--nyx-space-3);
+  letter-spacing: 0;
+}

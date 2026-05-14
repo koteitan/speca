@@ -1,0 +1,183 @@
+/* FindingDetailPage — narrow single-column reading layout.
+ *
+ * `<pre>` blocks preserve whitespace and wrap on overflow so long proof
+ * traces don't force a horizontal scroll. The code-path row uses the
+ * same monospace stack as the list so the file::line text is identical
+ * across views.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-6);
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--nyx-space-6) var(--nyx-space-7);
+}
+
+.backLink {
+  font-size: 13px;
+}
+
+.backLink a {
+  color: oklch(0.45 0.1 240);
+  text-decoration: none;
+}
+
+.backLink a:hover {
+  text-decoration: underline;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-lg);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.title code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nyx-space-3);
+}
+
+.askClaudeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nyx-space-3);
+  align-items: center;
+}
+
+.askClaudeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+  padding: var(--nyx-space-2) var(--nyx-space-5);
+  border: 1px solid oklch(0.55 0.12 240);
+  border-radius: var(--nyx-radius-xs);
+  background: oklch(0.98 0.02 240);
+  color: oklch(0.35 0.15 240);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--nyx-motion-instant) ease,
+    border-color var(--nyx-motion-instant) ease;
+}
+
+.askClaudeButton:hover {
+  background: oklch(0.94 0.05 240);
+  border-color: oklch(0.5 0.15 240);
+}
+
+.askClaudeButton:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.askClaudeHint {
+  font-size: 12px;
+  color: oklch(0.5 0.005 258);
+}
+
+.phaseTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--nyx-space-3);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--nyx-radius-xs);
+  background: oklch(0.96 0.005 258);
+  border: 1px solid var(--nyx-color-border-muted);
+  color: oklch(0.45 0.005 258);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: oklch(0.45 0.005 258);
+}
+
+.codePath {
+  flex: 1 1 auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px;
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  background: oklch(0.97 0.005 258);
+  border: 1px solid var(--nyx-color-border-muted);
+  border-radius: var(--nyx-radius-xs);
+  word-break: break-all;
+}
+
+.codePathRow {
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+}
+
+.empty {
+  font-size: 13px;
+  color: oklch(0.55 0.005 258);
+  font-style: italic;
+}
+
+.snippet,
+.preserve {
+  margin: 0;
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+  background: oklch(0.97 0.005 258);
+  border: 1px solid var(--nyx-color-border-muted);
+  border-radius: var(--nyx-radius-xs);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+  line-height: 1.55;
+}
+
+.preserve {
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.gates {
+  margin: 0;
+  padding-left: var(--nyx-space-7);
+}
+
+.gates li {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.state,
+.error {
+  padding: var(--nyx-space-7);
+  text-align: center;
+  color: oklch(0.45 0.005 258);
+}
+
+.error {
+  color: oklch(0.4 0.15 25);
+}

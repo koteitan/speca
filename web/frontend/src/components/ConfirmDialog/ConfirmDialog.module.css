@@ -1,0 +1,122 @@
+/* ConfirmDialog — Nyx baseline tokens, focus-visible enforced, motion respect.
+ *
+ * The backdrop is a fixed full-viewport layer with a translucent black
+ * fill; the card is centred via flexbox. We never use percentage widths
+ * for the card so the layout does not jump on long titles — instead the
+ * card has a sensible `min(420px, calc(100vw - 32px))` width.
+ */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: oklch(0 0 0 / 0.5);
+  padding: var(--nyx-space-4);
+  animation: backdrop-fade-in var(--nyx-motion-instant) ease;
+}
+
+.card {
+  background: var(--ifm-background-color, #fff);
+  color: var(--ifm-color-content);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-md);
+  box-shadow: 0 12px 32px oklch(0 0 0 / 0.18);
+  padding: var(--nyx-space-6);
+  width: min(420px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-4);
+  /* outline:none here is safe because every focusable child enforces its
+     own :focus-visible ring below. */
+  outline: none;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-lg);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.description {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--nyx-space-3);
+  margin-top: var(--nyx-space-2);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-sm);
+  line-height: 1.2;
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background var(--nyx-motion-instant) ease,
+    color var(--nyx-motion-instant) ease,
+    border-color var(--nyx-motion-instant) ease;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.buttonGhost {
+  background: transparent;
+  color: var(--ifm-color-content);
+  border-color: var(--nyx-color-border-strong);
+}
+
+.buttonGhost:hover {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.buttonPrimary {
+  background: var(--ifm-color-primary);
+  color: oklch(0.99 0 0);
+}
+
+.buttonPrimary:hover {
+  background: var(--ifm-color-primary-darker, oklch(0.55 0.18 258));
+}
+
+.buttonDestructive {
+  background: oklch(0.55 0.20 30);
+  color: oklch(0.99 0 0);
+}
+
+.buttonDestructive:hover {
+  background: oklch(0.5 0.20 30);
+}
+
+@keyframes backdrop-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop {
+    animation: none;
+  }
+  .button {
+    transition: none;
+  }
+}

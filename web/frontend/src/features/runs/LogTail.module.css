@@ -1,0 +1,93 @@
+/* LogTail — sticky tail viewport for one phase's stream.
+ *
+ * Sized to a fixed 400px window so the page stays scannable when
+ * multiple phases are expanded; the inner <pre> scrolls vertically.
+ */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--nyx-radius-xs);
+  overflow: hidden;
+  background: var(--ifm-background-color);
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--nyx-space-3);
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-200);
+  font-size: var(--nyx-font-size-sm);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.statusOn {
+  opacity: 0.85;
+}
+
+.statusOff {
+  opacity: 1;
+  /* Subtle warning color while paused, so the user can see at a glance
+   * that new lines may be off-screen. */
+  color: oklch(0.65 0.16 70);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.toolbarBtn {
+  padding: var(--nyx-space-1) var(--nyx-space-3);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-content);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--nyx-font-size-sm);
+}
+
+.toolbarBtn:hover:not(:disabled) {
+  background-color: var(--ifm-color-emphasis-200);
+}
+
+.toolbarBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.scroller {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: var(--nyx-space-3) var(--nyx-space-4);
+  background: var(--ifm-background-color);
+}
+
+.pre {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--ifm-code-font-size, 0.85em);
+  line-height: 1.45;
+  white-space: pre;
+  color: var(--ifm-color-content);
+}
+
+.empty {
+  padding: var(--nyx-space-3) 0;
+  font-style: italic;
+  opacity: 0.6;
+  font-size: var(--nyx-font-size-sm);
+}

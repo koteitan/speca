@@ -8,11 +8,41 @@ dependencies = [
   "sweagent @ git+https://github.com/SWE-agent/SWE-agent.git@v1.0.1",
   "tqdm>=4.60,<5.0",
   "httpx>=0.24",
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.27",
+  "anthropic>=0.40",
+  "sse-starlette>=2.0",
 ]
+
+[project.scripts]
+speca-web = "web.server.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Only the web/ tree is shipped as an importable Python package. The rest of
+# the repository (scripts/, cli/, tests/, ...) stays out of the wheel so the
+# build stays fast and we don't accidentally publish ad-hoc tooling.
+[tool.hatch.build.targets.wheel]
+packages = ["web"]
+
+# `sweagent` is sourced from a git URL; hatchling requires an explicit opt-in
+# to accept direct references in `project.dependencies`.
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.pytest.ini_options]
+# ``asyncio_mode=auto`` lets us decorate async tests with the plain
+# ``@pytest.mark.asyncio`` marker without also wiring a fixture; required
+# by web/server/tests/test_run_supervisor.py (Slice H1).
+asyncio_mode = "auto"
 
 [dependency-groups]
 dev = [
+  "playwright>=1.59.0",
   "pytest>=7.0",
+  "pytest-asyncio>=0.23",
 ]
 benchmark = [
   "matplotlib>=3.7",

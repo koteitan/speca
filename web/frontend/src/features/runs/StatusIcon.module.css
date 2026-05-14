@@ -1,0 +1,79 @@
+/* StatusIcon — minimal accent color, B&W base.
+ *
+ * Per UI_DESIGN.md §4.9 only the status glyph is colored. Background and
+ * surrounding text stay on Nyx B&W tokens so the run list reads as a
+ * dense, calm log.
+ *
+ * Light/dark contrast: oklch chroma is preserved across themes; only the
+ * lightness is nudged so the colored glyph stays WCAG AA against the
+ * page background.
+ *
+ * TODO(v1): move this component to `src/components/StatusIcon/` once a
+ * second slice needs a status glyph (findings list etc.).
+ */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  line-height: 1;
+  font-weight: 600;
+  /* Reserve space so rows don't shift when state changes. */
+  min-width: 1em;
+}
+
+.ok {
+  color: oklch(0.65 0.16 145);
+}
+
+.failed {
+  color: oklch(0.55 0.2 30);
+}
+
+.running {
+  color: oklch(0.65 0.13 240);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.cancelled,
+.pending,
+.skipped {
+  color: oklch(0.55 0.005 258);
+}
+
+[data-theme="dark"] .ok {
+  /* Bump lightness slightly so green stays legible on near-black. */
+  color: oklch(0.72 0.16 145);
+}
+
+[data-theme="dark"] .failed {
+  color: oklch(0.66 0.2 30);
+}
+
+[data-theme="dark"] .running {
+  color: oklch(0.72 0.13 240);
+}
+
+[data-theme="dark"] .cancelled,
+[data-theme="dark"] .pending,
+[data-theme="dark"] .skipped {
+  color: oklch(0.72 0.005 258);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .running {
+    animation: none;
+  }
+}

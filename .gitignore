@@ -1,3 +1,10 @@
+# Workspace caches for the web UI run supervisor (bare repos + worktrees)
+# and per-run / per-conversation state — caches, never commit.
+.speca/workspaces/
+.speca/runs/
+.speca/web/
+.smoke/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -268,7 +275,10 @@ dist/datasets/
 # Web client
 web/node_modules/
 web/dist/
+web/frontend/node_modules/
+web/frontend/dist/
 !web/src/lib/
+!web/frontend/src/lib/
 
 # Friend's submission drafts — NEVER commit
 outputs/submitted/friend/
@@ -278,6 +288,11 @@ outputs/submitted/friend/
 # even when SPECA_OUTPUT_DIR points at a sibling/test directory.)
 outputs/test-*/
 outputs-*/
+# Web supervisor per-run output dirs (SPECA_OUTPUT_DIR=outputs/<run_id>/).
+# Run ids start with an ISO timestamp like 2026-05-13T... so this glob
+# catches them without trapping the canonical outputs/04_PARTIAL_*.json.
+outputs/2[0-9][0-9][0-9]-*/
+outputs/20*Z-*/
 
 # Per-run trace archives (issue #32 — archive substrate)
 .speca/

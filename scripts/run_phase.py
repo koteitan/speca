@@ -29,7 +29,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -40,7 +40,9 @@ from orchestrator.base import PhaseAbortError
 from orchestrator.config import get_phase_config, get_phase_chain, PHASE_CONFIGS, resolve_pattern
 from orchestrator.json_events import JsonEventEmitter
 from orchestrator.paths import get_output_root
+from orchestrator.phase0_runner import get_phase0_runner, is_phase0
 from orchestrator.resume import ResumeManager
+from orchestrator import runtime_registry
 
 
 # ---------------------------------------------------------------------------
@@ -143,12 +145,18 @@ def make_run_id(
 
 
 def _build_env_snapshot(phases: list[str]) -> dict:
-    """Capture a sanitised snapshot of the runtime environment."""
+    """Capture a sanitised snapshot of the runtime environment.
+
+    We deliberately read ``ORCHESTRATOR_RUNNER`` via the registry helper
+    so a typo'd value lands in the manifest as ``claude`` (the actual
+    runtime that was executed) rather than the misspelling.
+    """
     return {
         "KEYWORDS": os.environ.get("KEYWORDS", ""),
         "SPEC_URLS": os.environ.get("SPEC_URLS", ""),
         "SPECA_OUTPUT_DIR": os.environ.get("SPECA_OUTPUT_DIR", ""),
-        "ORCHESTRATOR_RUNNER": os.environ.get("ORCHESTRATOR_RUNNER", "claude"),
+        "SPECA_01A_SCOPE": os.environ.get("SPECA_01A_SCOPE", ""),
+        "ORCHESTRATOR_RUNNER": runtime_registry.resolve_active(),
         "phases": phases,
     }
 
@@ -158,12 +166,152 @@ DEFAULT_KEYWORDS = "geth,ethereum client,execution specs,EIP"
 DEFAULT_SPEC_URLS = "https://ethereum.github.io/execution-specs/src/,https://geth.ethereum.org/docs"
 
 
+_VALID_01A_SCOPES = {"all", "primary", "primary+1hop"}
+
+
+def _parse_01a_scope(raw: str) -> str:
+    """Argparse ``type=`` validator for ``--01a-scope``.
+
+    Accepts the literals ``all`` / ``primary`` / ``primary+1hop`` (case
+    insensitive) plus any positive integer string. Anything else raises
+    ``argparse.ArgumentTypeError`` so typos surface at parse time instead
+    of being silently passed through to a warn-and-fallback path at
+    finalize time.
+    """
+    if raw is None:
+        return "all"
+    s = raw.strip().lower()
+    if not s or s in _VALID_01A_SCOPES:
+        return s or "all"
+    if s.isdigit() and int(s) >= 1:
+        return s
+    import argparse as _ap  # local import to keep top-level lean
+    raise _ap.ArgumentTypeError(
+        f"invalid --01a-scope value {raw!r}; "
+        f"expected one of {sorted(_VALID_01A_SCOPES)!r} or a positive integer."
+    )
+
+
+def _filter_01a_state(payload: dict, scope: str) -> dict:
+    """Apply ``--01a-scope`` filter to a Phase 01a state payload.
+
+    Phase 01a's spec-discovery skill expands a seed URL into many related
+    documents (rendered EIP, raw markdown, PR thread, predecessor RIP, ...).
+    Feeding all of them straight into Phase 01b multiplies the LLM cost
+    linearly with no clear benefit for demo / small-spec runs (see issue #60).
+
+    Supported scopes:
+
+    - ``all`` (default): no filter, downstream sees every discovered URL.
+    - ``primary``: keep only the spec that matches ``start_url`` (or its
+      filename stem) so 01b runs against a single canonical source.
+    - ``primary+1hop``: primary plus one additional fall-back match. Useful
+      when the primary doc has a sibling test-vectors / errata page that
+      adds invariants without doubling subgraph count.
+    - integer string (e.g. ``"3"``): keep the first N entries in
+      ``found_specs`` order.
+
+    Returns a *new* dict with the filtered ``found_specs`` list; the original
+    is not mutated. Unknown scope values fall back to ``all`` with a warning.
+    """
+    found_specs = list(payload.get("found_specs") or [])
+    start_url = (payload.get("start_url") or "").strip()
+    scope = (scope or "all").strip().lower()
+
+    if not found_specs or scope == "all":
+        return payload
+
+    if scope.isdigit():
+        n = max(1, int(scope))
+        new_specs = found_specs[:n]
+    elif scope in ("primary", "primary+1hop"):
+        new_specs = _select_primary_specs(
+            found_specs,
+            start_url,
+            include_one_hop=(scope == "primary+1hop"),
+        )
+    else:
+        print(
+            f"Warning: unknown --01a-scope value {scope!r}; falling back to 'all'.",
+            file=sys.stderr,
+        )
+        return payload
+
+    if not new_specs:
+        # The filter eliminated everything — refuse to silently strip the
+        # whole state, downstream 01b would have no input. Fall back to the
+        # first discovered entry so the pipeline can still progress.
+        print(
+            f"Warning: --01a-scope={scope} matched no specs; keeping first entry.",
+            file=sys.stderr,
+        )
+        new_specs = found_specs[:1]
+
+    out = dict(payload)
+    out["found_specs"] = new_specs
+    return out
+
+
+def _select_primary_specs(
+    found_specs: list[dict],
+    start_url: str,
+    *,
+    include_one_hop: bool,
+) -> list[dict]:
+    """Pick the primary spec from a 01a found_specs list.
+
+    Match strategy (in order):
+        1. Exact URL match with ``start_url``.
+        2. Filename-stem match (e.g. ``eip-7951.md`` substring).
+        3. First entry as a last-resort fallback.
+
+    When ``include_one_hop`` is true and the primary was picked by exact /
+    stem match, also include the first *other* entry from ``found_specs``
+    that survived. This typically catches the rendered/raw companion of a
+    GitHub markdown source.
+    """
+    if not found_specs:
+        return []
+    if not start_url:
+        return found_specs[:1]
+
+    # 1. Exact match
+    exact = [s for s in found_specs if (s.get("url") or "") == start_url]
+    primary = exact[0] if exact else None
+
+    # 2. Stem match
+    if primary is None:
+        stem = PurePosixPath(start_url.rstrip("/")).name.lower()
+        if stem:
+            stem_hits = [
+                s for s in found_specs if stem in (s.get("url") or "").lower()
+            ]
+            if stem_hits:
+                primary = stem_hits[0]
+
+    # 3. Fallback
+    if primary is None:
+        primary = found_specs[0]
+
+    selected = [primary]
+    if include_one_hop:
+        for s in found_specs:
+            if s is primary:
+                continue
+            selected.append(s)
+            break
+    return selected
+
+
 def _finalize_01a_state() -> None:
     """Consolidate the latest 01a PARTIAL into outputs/<root>/01a_STATE.json.
 
     Phase 01a is single-batch (one seed item) and the worker writes the result
     to 01a_PARTIAL_W0B0_<ts>.json wrapped as ``{"items": [<phase01a_state>]}``.
     Downstream phases (01b) expect the unwrapped payload at 01a_STATE.json.
+
+    Applies ``--01a-scope`` (or ``SPECA_01A_SCOPE`` env) to optionally
+    narrow the discovered spec list before downstream phases consume it.
     """
     output_root = get_output_root()
     state_path = output_root / "01a_STATE.json"
@@ -182,6 +330,11 @@ def _finalize_01a_state() -> None:
     if isinstance(data, dict) and isinstance(data.get("items"), list) and data["items"]:
         payload = data["items"][0]
 
+    scope = os.environ.get("SPECA_01A_SCOPE", "all")
+    pre_count = len(payload.get("found_specs", []))
+    payload = _filter_01a_state(payload, scope)
+    post_count = len(payload.get("found_specs", []))
+
     try:
         with open(state_path, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=2, ensure_ascii=False)
@@ -189,7 +342,13 @@ def _finalize_01a_state() -> None:
         print(f"Warning: failed to write {state_path}: {e}", file=sys.stderr)
         return
 
-    print(f"  ✓ Wrote 01a_STATE.json from {latest.name} ({len(payload.get('found_specs', []))} specs)")
+    if scope != "all" and post_count != pre_count:
+        print(
+            f"  ✓ Wrote 01a_STATE.json from {latest.name} "
+            f"({post_count}/{pre_count} specs, scope={scope})"
+        )
+    else:
+        print(f"  ✓ Wrote 01a_STATE.json from {latest.name} ({post_count} specs)")
 
 
 def check_dependencies(phase_id: str) -> bool:
@@ -233,6 +392,12 @@ def check_dependencies(phase_id: str) -> bool:
 
 def run_cleanup(phase_id: str, dry_run: bool = True) -> bool:
     """Run cleanup for incomplete batches and their logs."""
+    # Phase 0 outputs are singleton files (no PARTIAL/_QUEUE_ pattern), so the
+    # ResumeManager's batch-level cleanup logic does not apply. Simply skip.
+    if is_phase0(phase_id):
+        if dry_run:
+            print(f"Snapshot cleanup check for {phase_id}: phase 0 has no batches.")
+        return False
     config = get_phase_config(phase_id)
     resume_manager = ResumeManager(config)
     summary = resume_manager.get_cleanup_summary()
@@ -318,6 +483,40 @@ async def run_phase(
     print(f"\n{'#'*60}")
     print(f"# Starting Phase {phase_id}")
     print(f"{'#'*60}")
+
+    # Phase 0 (setup) runs synchronously and outside the async batch
+    # pipeline. We dispatch to phase0_runner here so that the rest of this
+    # function (cleanup, orchestrator, circuit breaker, ...) stays unchanged
+    # for 01a..04. See scripts/orchestrator/phase0_runner.py.
+    if is_phase0(phase_id):
+        try:
+            runner = get_phase0_runner(phase_id, output_dir=get_output_root())
+            rc = runner.run()
+        except Exception as exc:  # noqa: BLE001 — surface any subprocess error
+            import traceback
+            traceback.print_exc()
+            duration = round(time.time() - start_time, 2)
+            emitter.emit(
+                "phase-failed",
+                phase=phase_id,
+                reason=f"{type(exc).__name__}: {exc}",
+                duration_s=duration,
+            )
+            return False
+
+        duration = round(time.time() - start_time, 2)
+        if rc == 0:
+            emitter.emit(
+                "phase-completed", phase=phase_id, duration_s=duration, total_results=0
+            )
+            return True
+        emitter.emit(
+            "phase-failed",
+            phase=phase_id,
+            reason=f"phase0 runner exit code {rc}",
+            duration_s=duration,
+        )
+        return False
 
     # Set default environment variables for 01a if not set
     if phase_id == "01a":
@@ -500,13 +699,45 @@ async def run_pipeline(
     return results
 
 
+def _configure_io_for_utf8() -> None:
+    """Reconfigure stdout/stderr to UTF-8 (errors='replace').
+
+    On Windows the default console encoding is often cp932/cp1252, which
+    cannot encode the emoji glyphs ('✅', '❌', '⚠️', '🛑') used in
+    decorative print() calls across the orchestrator. Any such print()
+    raises UnicodeEncodeError mid-pipeline and prevents post-run
+    finalization (e.g. `_finalize_01a_state`, archiver.finalize).
+
+    We reconfigure once at the entry point so the rest of the pipeline can
+    keep using readable emoji output without each call site needing to
+    sanitise its strings. ``errors='replace'`` keeps us safe on any exotic
+    terminal that still rejects UTF-8.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, OSError):
+            # AttributeError: stream is a non-TextIOWrapper (already wrapped
+            # by a test capture / IDE shim). OSError: the underlying file
+            # rejects reconfigure. Either way, fall back silently.
+            pass
+
+
 def main():
+    _configure_io_for_utf8()
+
     parser = argparse.ArgumentParser(
         description="Unified phase runner for security audit pipeline (Makefile replacement)",
         formatter_class=argparse.RawTextHelpFormatter,
     )
     
-    phase_group = parser.add_mutually_exclusive_group(required=True)
+    # --list-runtimes is a query that exits before scheduling any phase,
+    # so we relax the otherwise-required --phase / --target group when
+    # the user is just inspecting which backends are installed. We sniff
+    # raw argv (cheaper than a full pre-parse) and treat it as a one-off
+    # override for argparse's required= constraint.
+    listing_runtimes = "--list-runtimes" in sys.argv
+    phase_group = parser.add_mutually_exclusive_group(required=not listing_runtimes)
     phase_group.add_argument("--phase", nargs="+", help="Specific phase(s) to run (e.g. 01a 01b)")
     phase_group.add_argument("--target", help="Target phase (runs all dependencies up to this phase)")
     
@@ -570,6 +801,24 @@ def main():
              "Pass explicit URLs when running against a non-Ethereum target.",
     )
 
+    # Phase 01a: scope filter applied between PARTIAL consolidation and the
+    # 01a_STATE.json write that 01b consumes. See _filter_01a_state for
+    # supported values. Settable via SPECA_01A_SCOPE env var too.
+    parser.add_argument(
+        "--01a-scope",
+        dest="scope_01a",
+        type=_parse_01a_scope,
+        default=None,
+        help="Filter Phase 01a state before 01b consumes it. Values: "
+             "'all' (default, no filter), 'primary' (keep only the spec "
+             "matching start_url / its filename stem), 'primary+1hop' "
+             "(primary plus the next entry in found_specs order — not a "
+             "graph-distance hop), or a positive integer N to keep the "
+             "first N specs. Also settable via SPECA_01A_SCOPE env var; "
+             "the CLI flag takes precedence. Unknown values are rejected "
+             "at parse time.",
+    )
+
     parser.add_argument(
         "--json",
         action="store_true",
@@ -577,6 +826,24 @@ def main():
              "Decorative output is redirected to stderr. Intended for speca-cli, CI scripts, "
              "and other automated consumers. See scripts/orchestrator/json_events.py for the "
              "event schema.",
+    )
+
+    # Runtime selection (issue #3 / multi-agent CLI groundwork)
+    parser.add_argument(
+        "--runtime",
+        default=None,
+        choices=list(runtime_registry.all_runtime_ids()),
+        help="Which agentic backend drives the audit pipeline. Sets the "
+             "ORCHESTRATOR_RUNNER env var so subprocesses see the same "
+             "choice. Default: 'claude'. Use --list-runtimes to inspect "
+             "what is installed and what each runtime needs to be usable.",
+    )
+    parser.add_argument(
+        "--list-runtimes",
+        action="store_true",
+        help="Print a table of registered runtimes with availability + "
+             "implementation status, then exit. Useful before kicking off "
+             "a long run on a fresh machine.",
     )
 
     # Archive flags
@@ -593,6 +860,53 @@ def main():
     )
 
     args = parser.parse_args()
+
+    # `--list-runtimes` is a query, not a run. Print and exit cleanly so
+    # users can sanity-check their machine before kicking off a long
+    # pipeline. Honours --json by emitting a single JSON document on
+    # stdout instead of the table.
+    if args.list_runtimes:
+        snapshot = runtime_registry.list_runtimes()
+        active = runtime_registry.resolve_active()
+        if args.json:
+            json.dump(
+                {"active": active, "runtimes": snapshot},
+                sys.stdout,
+                indent=2,
+                ensure_ascii=False,
+            )
+            sys.stdout.write("\n")
+            sys.exit(0)
+        print(f"Active runtime: {active}  (ORCHESTRATOR_RUNNER env / --runtime flag)")
+        print()
+        for row in snapshot:
+            tag = "[OK]" if row["available"] else "[..]"
+            impl = " (stub)" if not row["implemented"] else ""
+            print(f"{tag} {row['runtime_id']}{impl}")
+            print(f"     {row['summary']}")
+            for note in row["notes"]:
+                print(f"     - {note}")
+            print()
+        sys.exit(0)
+
+    # --runtime <name> wins over a pre-set ORCHESTRATOR_RUNNER env var
+    # so a one-shot CLI invocation is fully reproducible. We refuse to
+    # start when the user asked for a runtime that exists in the
+    # registry but isn't yet wired in the orchestrator — silently
+    # falling back to claude would generate misleading PARTIALs.
+    if args.runtime:
+        descr = runtime_registry.get(args.runtime)
+        if not descr.implemented:
+            avail = descr.probe()
+            print(
+                f"ERROR: runtime {args.runtime!r} is registered but not yet implemented "
+                f"in the orchestrator (Web chat side has it).\nNotes:",
+                file=sys.stderr,
+            )
+            for note in avail.notes:
+                print(f"  - {note}", file=sys.stderr)
+            sys.exit(2)
+        os.environ["ORCHESTRATOR_RUNNER"] = args.runtime
 
     # In --json mode, route all decorative output (including the orchestrator's
     # own print() calls) to stderr so stdout stays NDJSON-only. The emitter
@@ -613,6 +927,10 @@ def main():
         os.environ["KEYWORDS"] = args.keywords
     if args.spec_urls:
         os.environ["SPEC_URLS"] = args.spec_urls
+    if args.scope_01a is not None:
+        # Promote CLI flag into env so _finalize_01a_state() (a
+        # parameter-less helper called from inside run_phase) can pick it up.
+        os.environ["SPECA_01A_SCOPE"] = args.scope_01a
 
     # Determine execution order
     if args.target:
@@ -638,6 +956,14 @@ def main():
         # Write env snapshot
         archiver.set_env_snapshot(_build_env_snapshot(phases))
         archiver.set_commit(_get_short_sha())
+        # Capture spec sources from SPEC_URLS env (CLI --spec-urls promoted
+        # this above). Manifest field merges with any value loaded from an
+        # existing manifest on re-entry.
+        spec_urls_env = os.environ.get("SPEC_URLS", "")
+        if spec_urls_env:
+            urls = [u.strip() for u in spec_urls_env.split(",") if u.strip()]
+            if urls:
+                archiver.add_spec_sources(urls)
         print(f"  Archive: {archiver.run_dir}")
     else:
         print(f"  Archive: disabled (--no-archive)")

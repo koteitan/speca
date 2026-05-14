@@ -1,0 +1,75 @@
+/* PhaseRow — one phase row in the Run Detail page.
+ *
+ * Layout mirrors GitHub Actions:
+ *   [status]  [label .....................]  [duration]  [chevron]
+ *
+ * The row is a <button> so the whole strip is clickable, and the chevron
+ * is purely decorative (the button itself carries the action semantics).
+ */
+
+.row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: var(--nyx-space-5);
+  width: 100%;
+  padding: var(--nyx-space-5) var(--nyx-space-6);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-content);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--nyx-motion-instant) ease;
+}
+
+.row:hover {
+  background-color: var(--ifm-color-emphasis-200);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--ifm-color-emphasis-300);
+  outline-offset: -2px;
+}
+
+.label {
+  font-weight: 500;
+}
+
+.duration {
+  font-variant-numeric: tabular-nums;
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+  font-size: var(--nyx-font-size-sm);
+}
+
+.chevron {
+  display: inline-block;
+  width: 1em;
+  transition: transform var(--nyx-motion-instant) ease;
+  opacity: 0.6;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+.detail {
+  padding: var(--nyx-space-6);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-content);
+  opacity: 0.8;
+  font-size: var(--nyx-font-size-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+}
+
+.detailActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nyx-space-2);
+  opacity: 1;
+}

@@ -1,0 +1,363 @@
+/* DiagnosticsPage — single-column report; mirrors SettingsPage layout for
+ * familiarity. Each tool renders as a row with a coloured chip on the right
+ * so the user can scan the report top-to-bottom and only stop at non-OK
+ * entries. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-6);
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--nyx-space-7);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-2);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  padding-bottom: var(--nyx-space-5);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--nyx-font-size-xl);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-4);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ifm-color-content);
+  opacity: 0.65;
+}
+
+.sectionHint {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-2);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--nyx-radius-sm);
+  background: var(--nyx-color-surface-muted);
+  padding: var(--nyx-space-4) var(--nyx-space-5);
+}
+
+[data-theme="dark"] .list {
+  background: color-mix(in oklch, var(--ifm-background-color) 90%, white 10%);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(160px, 200px) 1fr auto;
+  align-items: center;
+  gap: var(--nyx-space-5);
+  padding: var(--nyx-space-2) 0;
+}
+
+.row + .row {
+  border-top: 1px dashed var(--nyx-color-border-muted);
+  padding-top: var(--nyx-space-3);
+}
+
+.toolName {
+  font-weight: 500;
+  color: var(--ifm-color-content);
+}
+
+.toolName code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95em;
+  opacity: 0.8;
+}
+
+.toolMeta {
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-content);
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolMeta code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ---- Chip (status badge) ------------------------------------------------- */
+
+/* Chip lightness is tuned so each variant remains AA-readable on the
+ * surface background in both themes. We use oklch() with a fixed hue and
+ * a separate dark-theme override only for the foreground/background mix —
+ * the hue is shared across themes for visual continuity. */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-2);
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: var(--nyx-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.chipOk {
+  color: oklch(0.45 0.16 145);
+  background: color-mix(in oklch, oklch(0.65 0.16 145) 18%, var(--nyx-color-surface-muted));
+  border-color: color-mix(in oklch, oklch(0.65 0.16 145) 55%, var(--nyx-color-border-muted));
+}
+
+.chipMissing {
+  color: oklch(0.45 0.18 25);
+  background: color-mix(in oklch, oklch(0.6 0.18 25) 18%, var(--nyx-color-surface-muted));
+  border-color: color-mix(in oklch, oklch(0.6 0.18 25) 55%, var(--nyx-color-border-muted));
+}
+
+.chipOutdated {
+  color: oklch(0.45 0.15 75);
+  background: color-mix(in oklch, oklch(0.72 0.16 75) 22%, var(--nyx-color-surface-muted));
+  border-color: color-mix(in oklch, oklch(0.72 0.16 75) 55%, var(--nyx-color-border-muted));
+}
+
+.chipUnknown {
+  color: oklch(0.45 0.02 258);
+  background: color-mix(in oklch, oklch(0.7 0.02 258) 22%, var(--nyx-color-surface-muted));
+  border-color: var(--nyx-color-border-strong);
+}
+
+/* Dark theme: lift the foreground brightness so the chip text stays
+ * readable against the mixed background. */
+[data-theme="dark"] .chipOk {
+  color: oklch(0.85 0.14 145);
+}
+
+[data-theme="dark"] .chipMissing {
+  color: oklch(0.85 0.16 25);
+}
+
+[data-theme="dark"] .chipOutdated {
+  color: oklch(0.88 0.14 75);
+}
+
+[data-theme="dark"] .chipUnknown {
+  color: oklch(0.88 0.02 258);
+}
+
+/* ---- Summary banner (top of page) ---------------------------------------- */
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+  padding: var(--nyx-space-5) var(--nyx-space-6);
+  border-radius: var(--nyx-radius-sm);
+  border: 1px solid var(--nyx-color-border-muted);
+  background: var(--nyx-color-surface-muted);
+}
+
+.summary.summaryOk {
+  border-color: color-mix(in oklch, oklch(0.65 0.16 145) 55%, var(--nyx-color-border-muted));
+  background: color-mix(in oklch, oklch(0.65 0.16 145) 10%, var(--nyx-color-surface-muted));
+}
+
+.summary.summaryAttention {
+  border-color: color-mix(in oklch, oklch(0.6 0.18 25) 55%, var(--nyx-color-border-muted));
+  background: color-mix(in oklch, oklch(0.6 0.18 25) 10%, var(--nyx-color-surface-muted));
+}
+
+.summaryHeadline {
+  margin: 0;
+  font-size: var(--nyx-font-size-md);
+  font-weight: 600;
+}
+
+.summaryHint {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  opacity: 0.85;
+}
+
+.summaryActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nyx-space-3);
+  margin-top: var(--nyx-space-2);
+}
+
+.primaryLink {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--nyx-space-2) var(--nyx-space-5);
+  font-size: var(--nyx-font-size-sm);
+  font-weight: 600;
+  color: var(--ifm-background-color);
+  background: var(--ifm-color-primary);
+  border-radius: var(--nyx-radius-xs);
+  text-decoration: none;
+  transition: background var(--nyx-motion-instant) ease;
+}
+
+.primaryLink:hover {
+  background: var(--ifm-color-primary-darker);
+}
+
+.primaryLink:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.refreshButton {
+  align-self: flex-start;
+  padding: var(--nyx-space-2) var(--nyx-space-4);
+  font-family: var(--nyx-font-family);
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-content);
+  background: transparent;
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  cursor: pointer;
+  transition: background var(--nyx-motion-instant) ease;
+}
+
+.refreshButton:hover {
+  background: var(--nyx-color-border-muted);
+}
+
+.refreshButton:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.refreshButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ---- Install hint block --------------------------------------------------- */
+
+.installHints {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-3);
+}
+
+.installHint {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nyx-space-2);
+  padding: var(--nyx-space-3) var(--nyx-space-4);
+  border-radius: var(--nyx-radius-xs);
+  border: 1px solid var(--nyx-color-border-muted);
+  background: var(--nyx-color-surface-muted);
+}
+
+[data-theme="dark"] .installHint {
+  background: color-mix(in oklch, var(--ifm-background-color) 90%, white 10%);
+}
+
+.installHintTool {
+  font-size: var(--nyx-font-size-sm);
+  font-weight: 600;
+  color: var(--ifm-color-content);
+}
+
+.installHintTool code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  opacity: 0.85;
+}
+
+.installCommand {
+  display: block;
+  margin: 0;
+  padding: var(--nyx-space-2) var(--nyx-space-3);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-content);
+  background: var(--ifm-background-color);
+  border: 1px solid var(--nyx-color-border-strong);
+  border-radius: var(--nyx-radius-xs);
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.installLink {
+  font-size: var(--nyx-font-size-xs);
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.installLink:hover {
+  text-decoration: underline;
+}
+
+/* ---- Loading / error placeholders ---------------------------------------- */
+
+.muted {
+  margin: 0;
+  font-size: var(--nyx-font-size-sm);
+  opacity: 0.7;
+}
+
+.error {
+  font-size: var(--nyx-font-size-sm);
+  color: oklch(0.5 0.18 25);
+  background: color-mix(in oklch, oklch(0.6 0.18 25) 15%, var(--nyx-color-surface-muted));
+  border: 1px solid color-mix(in oklch, oklch(0.6 0.18 25) 50%, var(--nyx-color-border-muted));
+  border-radius: var(--nyx-radius-xs);
+  padding: var(--nyx-space-3) var(--nyx-space-4);
+}
+
+[data-theme="dark"] .error {
+  color: oklch(0.78 0.18 25);
+}
+
+@media (max-width: 560px) {
+  .row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name chip"
+      "meta meta";
+    gap: var(--nyx-space-2);
+  }
+
+  .toolName {
+    grid-area: name;
+  }
+  .chip {
+    grid-area: chip;
+  }
+  .toolMeta {
+    grid-area: meta;
+    white-space: normal;
+  }
+}

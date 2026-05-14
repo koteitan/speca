@@ -1,0 +1,53 @@
+/* SeverityChip — color tokens map roughly to the orchestrator's own
+ * threat ranking. We use oklch so the perceived lightness is constant
+ * across hues (the red `Critical` and amber `Medium` don't look unevenly
+ * weighted next to each other).
+ */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nyx-space-1);
+  padding: 2px var(--nyx-space-3);
+  border-radius: var(--nyx-radius-xs);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.compact {
+  font-size: 12px;
+  padding: 1px var(--nyx-space-2);
+}
+
+.critical {
+  background: oklch(0.93 0.05 25);
+  color: oklch(0.4 0.18 25);
+  border-color: oklch(0.6 0.18 25 / 0.4);
+}
+
+.high {
+  background: oklch(0.95 0.04 50);
+  color: oklch(0.45 0.16 50);
+  border-color: oklch(0.65 0.16 50 / 0.4);
+}
+
+.medium {
+  background: oklch(0.96 0.05 85);
+  color: oklch(0.45 0.13 85);
+  border-color: oklch(0.7 0.13 85 / 0.4);
+}
+
+.low {
+  background: oklch(0.95 0.02 258);
+  color: oklch(0.45 0.02 258);
+  border-color: oklch(0.7 0.02 258 / 0.4);
+}
+
+.info {
+  background: oklch(0.97 0.005 258);
+  color: oklch(0.5 0.005 258);
+  border-color: oklch(0.85 0.005 258);
+}

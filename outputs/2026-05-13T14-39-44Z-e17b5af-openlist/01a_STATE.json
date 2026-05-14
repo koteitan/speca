@@ -1,0 +1,1475 @@
+{
+  "start_url": "https://github.com/OpenListTeam/OpenList",
+  "found_specs": [
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/README.md",
+      "title": "OpenList README (project overview, feature list, storage drivers)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/README_cn.md",
+      "title": "OpenList README (Chinese) - canonical translation"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/SECURITY.md",
+      "title": "OpenList Security Policy (supported versions, vuln reporting, user best practices)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/CONTRIBUTING.md",
+      "title": "OpenList Contributing Guide (build, dev workflow, driver template)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/Dockerfile",
+      "title": "Dockerfile - production container image build"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/Dockerfile.ci",
+      "title": "Dockerfile.ci - CI container image build"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/docker-compose.yml",
+      "title": "docker-compose.yml - reference deployment topology"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/entrypoint.sh",
+      "title": "Container entrypoint script (user/permission handling)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/build.sh",
+      "title": "Build script (release cross-compile pipeline)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/main.go",
+      "title": "main.go - program entrypoint"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/cmd",
+      "title": "cmd/ - CLI subcommands (admin, server, user, storage, cancel2FA, crypt, lang, restart, kill)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/cmd/admin.go",
+      "title": "cmd/admin.go - admin password management CLI"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/cmd/cancel2FA.go",
+      "title": "cmd/cancel2FA.go - 2FA cancellation CLI (admin recovery)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/cmd/user.go",
+      "title": "cmd/user.go - user CLI management"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/cmd/storage.go",
+      "title": "cmd/storage.go - storage CLI management"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/cmd/crypt.go",
+      "title": "cmd/crypt.go - crypt driver CLI tooling"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/cmd/server.go",
+      "title": "cmd/server.go - server startup command"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/cmd/start.go",
+      "title": "cmd/start.go - daemon start command"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/cmd/flags",
+      "title": "cmd/flags - global CLI flags (data dir, config path)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/server",
+      "title": "server/ - HTTP, WebDAV, FTP, SFTP, S3 server entry points"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/router.go",
+      "title": "server/router.go - main HTTP route registration (Gin)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/webdav.go",
+      "title": "server/webdav.go - WebDAV server registration"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/ftp.go",
+      "title": "server/ftp.go - FTP server entry"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/sftp.go",
+      "title": "server/sftp.go - SFTP server entry"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/s3.go",
+      "title": "server/s3.go - S3-compatible server entry"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/debug.go",
+      "title": "server/debug.go - pprof/debug endpoints"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/utils.go",
+      "title": "server/utils.go - server-level helpers"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/server/handles",
+      "title": "server/handles/ - HTTP handler package (auth, fs, admin, sharing, sso, webauthn, ldap, task, etc.)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/auth.go",
+      "title": "server/handles/auth.go - login/JWT/refresh handlers"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/ssologin.go",
+      "title": "server/handles/ssologin.go - third-party SSO login handlers"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/ldap_login.go",
+      "title": "server/handles/ldap_login.go - LDAP login handler"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/webauthn.go",
+      "title": "server/handles/webauthn.go - WebAuthn/2FA registration & login"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/sshkey.go",
+      "title": "server/handles/sshkey.go - SSH key management for SFTP"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/sharing.go",
+      "title": "server/handles/sharing.go - public share link endpoints"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/fsread.go",
+      "title": "server/handles/fsread.go - filesystem read (list/get) handlers"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/fsmanage.go",
+      "title": "server/handles/fsmanage.go - filesystem manage (mkdir/rename/move/copy/remove) handlers"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/fsbatch.go",
+      "title": "server/handles/fsbatch.go - batch filesystem operations"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/fsup.go",
+      "title": "server/handles/fsup.go - filesystem upload handler"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/direct_upload.go",
+      "title": "server/handles/direct_upload.go - direct upload handler"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/down.go",
+      "title": "server/handles/down.go - download / signed-link / 302-redirect handler"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/driver.go",
+      "title": "server/handles/driver.go - driver list/info endpoints"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/storage.go",
+      "title": "server/handles/storage.go - admin storage CRUD endpoints"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/user.go",
+      "title": "server/handles/user.go - admin user CRUD endpoints"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/meta.go",
+      "title": "server/handles/meta.go - meta (per-path password/permission rule) endpoints"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/setting.go",
+      "title": "server/handles/setting.go - settings CRUD endpoints"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/task.go",
+      "title": "server/handles/task.go - background task endpoints"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/offline_download.go",
+      "title": "server/handles/offline_download.go - Aria2/qBittorrent/Transmission task endpoints"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/archive.go",
+      "title": "server/handles/archive.go - archive preview/extraction endpoints"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/search.go",
+      "title": "server/handles/search.go - search/index endpoints"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/scan.go",
+      "title": "server/handles/scan.go - storage scan endpoint"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/index.go",
+      "title": "server/handles/index.go - search index build endpoint"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/helper.go",
+      "title": "server/handles/helper.go - handler-shared helpers"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/handles/const.go",
+      "title": "server/handles/const.go - handler constants"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/server/middlewares",
+      "title": "server/middlewares/ - auth, signature, rate-limit, HTTPS, sharing, search middlewares"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/middlewares/auth.go",
+      "title": "middlewares/auth.go - JWT/API-token auth middleware (trust boundary)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/middlewares/check.go",
+      "title": "middlewares/check.go - signature/path-permission middleware"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/middlewares/sharing.go",
+      "title": "middlewares/sharing.go - public sharing auth middleware"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/middlewares/down.go",
+      "title": "middlewares/down.go - download signature verification"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/middlewares/fsup.go",
+      "title": "middlewares/fsup.go - upload permission middleware"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/middlewares/search.go",
+      "title": "middlewares/search.go - search permission middleware"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/middlewares/limit.go",
+      "title": "middlewares/limit.go - rate limit middleware"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/middlewares/https.go",
+      "title": "middlewares/https.go - HTTPS redirect middleware"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/middlewares/filtered_logger.go",
+      "title": "middlewares/filtered_logger.go - log filter middleware"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/server/webdav",
+      "title": "server/webdav/ - in-tree WebDAV protocol implementation"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/webdav/webdav.go",
+      "title": "server/webdav/webdav.go - WebDAV protocol handler (METHODs, locking, properties)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/webdav/file.go",
+      "title": "server/webdav/file.go - WebDAV filesystem adapter"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/webdav/lock.go",
+      "title": "server/webdav/lock.go - WebDAV LOCK semantics"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/webdav/if.go",
+      "title": "server/webdav/if.go - WebDAV If-header parser"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/webdav/prop.go",
+      "title": "server/webdav/prop.go - WebDAV PROPFIND properties"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/webdav/xml.go",
+      "title": "server/webdav/xml.go - WebDAV XML encoding/decoding"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/webdav/util.go",
+      "title": "server/webdav/util.go - WebDAV helpers"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/server/webdav/buffered_response_writer.go",
+      "title": "server/webdav/buffered_response_writer.go - WebDAV response buffering"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/server/ftp",
+      "title": "server/ftp/ - FTP protocol server implementation"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/server/sftp",
+      "title": "server/sftp/ - SFTP protocol server implementation"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/server/s3",
+      "title": "server/s3/ - S3-compatible server implementation"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/server/common",
+      "title": "server/common/ - shared server helpers"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/server/static",
+      "title": "server/static/ - static asset serving (frontend)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal",
+      "title": "internal/ - core packages (fs, op, authn, sign, sharing, conf, db, driver)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/fs",
+      "title": "internal/fs/ - virtual filesystem (path resolution, list/get/put/move/copy/remove)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/op",
+      "title": "internal/op/ - storage/user/meta/setting/sharing operations layer"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/user.go",
+      "title": "internal/op/user.go - user lookup & password verification"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/path.go",
+      "title": "internal/op/path.go - virtual path -> storage resolution"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/meta.go",
+      "title": "internal/op/meta.go - per-path meta (password, hide, read/write users) lookup"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/storage.go",
+      "title": "internal/op/storage.go - storage lifecycle (mount/unmount/load)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/driver.go",
+      "title": "internal/op/driver.go - driver registration/factory"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/setting.go",
+      "title": "internal/op/setting.go - settings store"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/sharing.go",
+      "title": "internal/op/sharing.go - share-link store"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/sshkey.go",
+      "title": "internal/op/sshkey.go - SSH key store for SFTP server"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/hook.go",
+      "title": "internal/op/hook.go - post-op hook invocation"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/archive.go",
+      "title": "internal/op/archive.go - archive (zip/rar/7z) operations"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/cache.go",
+      "title": "internal/op/cache.go - listing cache"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/op/recursive_list.go",
+      "title": "internal/op/recursive_list.go - recursive listing"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/authn",
+      "title": "internal/authn/ - WebAuthn/2FA registration & verification"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/authn/authn.go",
+      "title": "internal/authn/authn.go - WebAuthn provider"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/sign",
+      "title": "internal/sign/ - URL signature (HMAC) for download/preview links"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/sign/sign.go",
+      "title": "internal/sign/sign.go - download URL signing/verification"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/sign/archive.go",
+      "title": "internal/sign/archive.go - archive URL signing"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/sharing",
+      "title": "internal/sharing/ - public share-link logic (get/list/link)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/sharing/sharing.go",
+      "title": "internal/sharing/sharing.go - share-link resolver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/sharing/get.go",
+      "title": "internal/sharing/get.go - shared file metadata"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/sharing/link.go",
+      "title": "internal/sharing/link.go - shared file link generation"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/sharing/list.go",
+      "title": "internal/sharing/list.go - shared folder listing"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/sharing/archive.go",
+      "title": "internal/sharing/archive.go - shared archive handling"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/conf",
+      "title": "internal/conf/ - configuration schema & defaults"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/conf/config.go",
+      "title": "internal/conf/config.go - main config struct (DB, scheme, JWT, log, CORS, S3, FTP, SFTP)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/conf/const.go",
+      "title": "internal/conf/const.go - configuration key constants"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/conf/var.go",
+      "title": "internal/conf/var.go - global config variables"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/bootstrap",
+      "title": "internal/bootstrap/ - DB/config/log/storage/task bootstrap on startup"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/bootstrap/config.go",
+      "title": "bootstrap/config.go - config file load/save"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/bootstrap/db.go",
+      "title": "bootstrap/db.go - DB driver wiring"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/bootstrap/storage.go",
+      "title": "bootstrap/storage.go - storage init"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/bootstrap/log.go",
+      "title": "bootstrap/log.go - logger init"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/internal/bootstrap/patch.go",
+      "title": "bootstrap/patch.go - data-migration patch runner"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/bootstrap/data",
+      "title": "bootstrap/data/ - default seed data & settings"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/bootstrap/patch",
+      "title": "bootstrap/patch/ - versioned data migrations"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/db",
+      "title": "internal/db/ - GORM models for users/meta/settings/storages/sharings"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/driver",
+      "title": "internal/driver/ - driver interface contract (Driver, AdditionalConfig)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/model",
+      "title": "internal/model/ - User/Meta/Storage/SshPublicKey/Sharing model types"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/setting",
+      "title": "internal/setting/ - settings registry"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/errs",
+      "title": "internal/errs/ - typed errors (PermissionDenied, ObjectNotFound, MetaNotFound, etc.)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/net",
+      "title": "internal/net/ - proxy/range/chunked HTTP helpers"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/stream",
+      "title": "internal/stream/ - upload stream abstractions"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/cache",
+      "title": "internal/cache/ - generic cache utilities"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/archive",
+      "title": "internal/archive/ - archive (zip/rar/7z/tar) read/extract"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/offline_download",
+      "title": "internal/offline_download/ - Aria2/qBittorrent/Transmission/SimpleHttp tool integration"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/task",
+      "title": "internal/task/ - background task runner"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/task_group",
+      "title": "internal/task_group/ - task grouping/aggregation"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/search",
+      "title": "internal/search/ - search index (DB/Bleve/MeiliSearch)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/message",
+      "title": "internal/message/ - admin->user message channel"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/internal/fuse",
+      "title": "internal/fuse/ - FUSE mount support (experimental)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers",
+      "title": "drivers/ - all storage driver implementations (60+ drivers)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/drivers/all.go",
+      "title": "drivers/all.go - driver auto-registration index"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/base",
+      "title": "drivers/base/ - shared driver HTTP client (rest helpers)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/local",
+      "title": "drivers/local/ - Local filesystem driver (path traversal sink)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/webdav",
+      "title": "drivers/webdav/ - WebDAV client driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/ftp",
+      "title": "drivers/ftp/ - FTP client driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/smb",
+      "title": "drivers/smb/ - SMB client driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/s3",
+      "title": "drivers/s3/ - generic S3-compatible driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/onedrive",
+      "title": "drivers/onedrive/ - OneDrive (online API) driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/onedrive_app",
+      "title": "drivers/onedrive_app/ - OneDrive app/tenant driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/onedrive_sharelink",
+      "title": "drivers/onedrive_sharelink/ - OneDrive share-link reverse-engineered driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/google_drive",
+      "title": "drivers/google_drive/ - Google Drive driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/google_photo",
+      "title": "drivers/google_photo/ - Google Photo driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/dropbox",
+      "title": "drivers/dropbox/ - Dropbox driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/aliyundrive",
+      "title": "drivers/aliyundrive/ - Aliyundrive (legacy) driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/aliyundrive_open",
+      "title": "drivers/aliyundrive_open/ - Aliyundrive Open (OAuth2) driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/aliyundrive_share",
+      "title": "drivers/aliyundrive_share/ - Aliyundrive share-link driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/baidu_netdisk",
+      "title": "drivers/baidu_netdisk/ - Baidu Netdisk driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/baidu_photo",
+      "title": "drivers/baidu_photo/ - Baidu Photo driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/115",
+      "title": "drivers/115/ - 115 Cloud driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/115_open",
+      "title": "drivers/115_open/ - 115 Open driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/115_share",
+      "title": "drivers/115_share/ - 115 share-link driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/123",
+      "title": "drivers/123/ - 123pan driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/123_link",
+      "title": "drivers/123_link/ - 123pan link driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/123_open",
+      "title": "drivers/123_open/ - 123pan open driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/123_share",
+      "title": "drivers/123_share/ - 123pan share driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/139",
+      "title": "drivers/139/ - 139yun driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/189",
+      "title": "drivers/189/ - 189cloud driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/189pc",
+      "title": "drivers/189pc/ - 189cloud PC driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/189_tv",
+      "title": "drivers/189_tv/ - 189 TV driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/pikpak",
+      "title": "drivers/pikpak/ - PikPak driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/pikpak_share",
+      "title": "drivers/pikpak_share/ - PikPak share-link driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/mega",
+      "title": "drivers/mega/ - Mega.nz driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/azure_blob",
+      "title": "drivers/azure_blob/ - Azure Blob Storage driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/openlist",
+      "title": "drivers/openlist/ - OpenList-mount-OpenList driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/openlist_share",
+      "title": "drivers/openlist_share/ - OpenList share-link driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/alist_v3",
+      "title": "drivers/alist_v3/ - AList V3 compatibility driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/alias",
+      "title": "drivers/alias/ - Alias driver (path aggregation)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/autoindex",
+      "title": "drivers/autoindex/ - HTTP directory-index scraping driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/crypt",
+      "title": "drivers/crypt/ - rclone-compatible encryption driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/chunk",
+      "title": "drivers/chunk/ - chunked-file split driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/cloudreve",
+      "title": "drivers/cloudreve/ - Cloudreve V3 driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/cloudreve_v4",
+      "title": "drivers/cloudreve_v4/ - Cloudreve V4 driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/cnb_releases",
+      "title": "drivers/cnb_releases/ - CNB releases driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/chaoxing",
+      "title": "drivers/chaoxing/ - Chaoxing driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/degoo",
+      "title": "drivers/degoo/ - Degoo driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/doubao",
+      "title": "drivers/doubao/ - Doubao driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/doubao_new",
+      "title": "drivers/doubao_new/ - Doubao (new) driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/doubao_share",
+      "title": "drivers/doubao_share/ - Doubao share driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/febbox",
+      "title": "drivers/febbox/ - Febbox driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/github",
+      "title": "drivers/github/ - GitHub repo-as-storage driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/github_releases",
+      "title": "drivers/github_releases/ - GitHub Releases driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/halalcloud",
+      "title": "drivers/halalcloud/ - HalalCloud driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/halalcloud_open",
+      "title": "drivers/halalcloud_open/ - HalalCloud open driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/ilanzou",
+      "title": "drivers/ilanzou/ - ILanzou driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/ipfs_api",
+      "title": "drivers/ipfs_api/ - IPFS API driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/kodbox",
+      "title": "drivers/kodbox/ - Kodbox driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/lanzou",
+      "title": "drivers/lanzou/ - Lanzou driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/lenovonas_share",
+      "title": "drivers/lenovonas_share/ - Lenovo NAS share driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/mediafire",
+      "title": "drivers/mediafire/ - MediaFire driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/mediatrack",
+      "title": "drivers/mediatrack/ - Mediatrack driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/misskey",
+      "title": "drivers/misskey/ - Misskey driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/mopan",
+      "title": "drivers/mopan/ - MoPan driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/netease_music",
+      "title": "drivers/netease_music/ - NetEase music driver"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/drivers/quark_uc_tv",
+      "title": "drivers/quark_uc_tv/ - Quark/UC TV driver (path may vary)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/blob/main/pkg/sign/hmac.go",
+      "title": "pkg/sign - HMAC signature helpers (used by internal/sign)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/pkg",
+      "title": "pkg/ - reusable library packages (aria2, qbittorrent, cookie, gowebdav, sign, mq, pool)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/pkg/aria2",
+      "title": "pkg/aria2/ - Aria2 JSON-RPC client"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/pkg/qbittorrent",
+      "title": "pkg/qbittorrent/ - qBittorrent WebUI client"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/pkg/sign",
+      "title": "pkg/sign/ - generic signing primitives"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/pkg/cookie",
+      "title": "pkg/cookie/ - cookie parsing helpers"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/pkg/gowebdav",
+      "title": "pkg/gowebdav/ - WebDAV client library"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/pkg/http_range",
+      "title": "pkg/http_range/ - HTTP Range header parsing"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/tree/main/pkg/utils",
+      "title": "pkg/utils/ - generic utilities (path normalization, regex)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/security/advisories",
+      "title": "OpenList GitHub Security Advisories (index)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/security/advisories/GHSA-qmj2-8r24-xxcq",
+      "title": "GHSA-qmj2-8r24-xxcq - Path Traversal in file copy and remove handlers"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/security/advisories/GHSA-wf93-3ghh-h389",
+      "title": "GHSA-wf93-3ghh-h389 - Insecure TLS Default Configuration"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList/security/advisories/GHSA-2hw3-h8qx-hqqp",
+      "title": "GHSA-2hw3-h8qx-hqqp - XSS Attack in built-in Markdown Viewer"
+    },
+    {
+      "url": "https://doc.oplist.org/",
+      "title": "OpenList Docs - landing page (English/Chinese)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide",
+      "title": "User Guide - Quick Start"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/migrate",
+      "title": "Migrate from AList V3"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/installation/script",
+      "title": "Installation - One-click Script"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/installation/manual",
+      "title": "Installation - Manual install (apt/scoop/winget/brew/Termux + systemd/launchd/nssm)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/installation/docker",
+      "title": "Installation - Docker (CLI + Compose, env vars OPENLIST_ADMIN_PASSWORD, UMASK)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/installation/1panel",
+      "title": "Installation - 1Panel"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/installation/truenas",
+      "title": "Installation - TrueNAS Scale"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/installation/koyeb",
+      "title": "Installation - Koyeb PaaS"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/installation/desktop",
+      "title": "Installation - OpenList Desktop"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/installation/paas",
+      "title": "Installation - PaaS (ClawCloud)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/installation/source",
+      "title": "Installation - Run from source (Go 1.24+, frontend build)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/installation/download",
+      "title": "Installation - Binary downloads"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/installation/reverse-proxy",
+      "title": "Installation - Reverse proxy (Nginx, Apache, Caddy, aaPanel; Host & X-Forwarded-Host)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/common",
+      "title": "Storage Setup - Common storage options"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/storage-list",
+      "title": "Storage Setup - Supported storage list"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/develop",
+      "title": "Storage Setup - Driver development"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/local",
+      "title": "Driver - Local storage"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/webdav",
+      "title": "Driver - WebDAV (client) - SSL, 302 redirect, SharePoint"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/ftp",
+      "title": "Driver - FTP"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/sftp",
+      "title": "Driver - SFTP (password / private key)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/smb",
+      "title": "Driver - SMB"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/s3",
+      "title": "Driver - S3 (AWS, R2, B2, OSS, COS, TOS, BOS, Kodo, OBS, etc.)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/onedrive",
+      "title": "Driver - OneDrive / SharePoint"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/onedrive_app",
+      "title": "Driver - OneDrive APP (tenant-level)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/google_drive",
+      "title": "Driver - Google Drive"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/google_photos",
+      "title": "Driver - Google Photos"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/dropbox",
+      "title": "Driver - Dropbox"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/aliyundrive_open",
+      "title": "Driver - Aliyundrive Open (OAuth2)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/baidu",
+      "title": "Driver - Baidu Netdisk"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/baidu_photo",
+      "title": "Driver - Baidu Photo"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/115",
+      "title": "Driver - 115 Cloud / Share"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/115_open",
+      "title": "Driver - 115 Open"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/123",
+      "title": "Driver - 123pan"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/123_open",
+      "title": "Driver - 123pan Open"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/139",
+      "title": "Driver - 139yun"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/163music",
+      "title": "Driver - NetEase 163 Music"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/189",
+      "title": "Driver - 189cloud"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/pikpak",
+      "title": "Driver - PikPak (personal & share)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/mega",
+      "title": "Driver - Mega.nz"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/seafile",
+      "title": "Driver - Seafile"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/quark",
+      "title": "Driver - Quark (Drive, TV, Open)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/uc",
+      "title": "Driver - UC Drive"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/thunder",
+      "title": "Driver - Thunder"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/yandex",
+      "title": "Driver - Yandex Disk"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/openlist",
+      "title": "Driver - OpenList (federate another OpenList instance)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/alias",
+      "title": "Driver - Alias (multi-path merge)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/alias_text",
+      "title": "Driver - Alias text"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/autoindex",
+      "title": "Driver - AutoIndex (XPath scraping of nginx/apache index pages)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/crypt",
+      "title": "Driver - Crypt (rclone-compatible encryption)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/chunk",
+      "title": "Driver - Chunk (file splitting)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/cloudreve",
+      "title": "Driver - Cloudreve V3"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/cloudreve_v4",
+      "title": "Driver - Cloudreve V4"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/cnb_releases",
+      "title": "Driver - CNB Releases"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/chaoxing",
+      "title": "Driver - Chaoxing"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/degoo",
+      "title": "Driver - Degoo"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/doubao",
+      "title": "Driver - Doubao"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/febbox",
+      "title": "Driver - Febbox"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/feiji",
+      "title": "Driver - FeijiPan"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/github",
+      "title": "Driver - GitHub (repo as storage)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/github_releases",
+      "title": "Driver - GitHub Releases"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/halalcloud",
+      "title": "Driver - HalalCloud"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/ilanzou",
+      "title": "Driver - ILanzou"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/kodbox",
+      "title": "Driver - Kodbox"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/lanzou",
+      "title": "Driver - Lanzou"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/lenovo_nas_share",
+      "title": "Driver - Lenovo NAS Share"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/mediafire",
+      "title": "Driver - MediaFire"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/mediatrack",
+      "title": "Driver - Mediatrack"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/misskey",
+      "title": "Driver - Misskey"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/mopan",
+      "title": "Driver - MoPan"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/strm",
+      "title": "Driver - STRM (video streaming file)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/strm_text",
+      "title": "Driver - STRM text"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/teambition",
+      "title": "Driver - Teambition"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/teldrive",
+      "title": "Driver - Teldrive (Telegram-as-storage)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/terabox",
+      "title": "Driver - Terabox"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/url_tree",
+      "title": "Driver - URL Tree (static URL list)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/uss",
+      "title": "Driver - UPYUN USS"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/weiyun",
+      "title": "Driver - Weiyun"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/wopan",
+      "title": "Driver - WoPan"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/drivers/wps",
+      "title": "Driver - WPS"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/2fa",
+      "title": "Advanced - 2FA (TOTP) setup & cancellation"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/sso",
+      "title": "Advanced - Third-party SSO (OAuth/OIDC) overview"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/sso/01-GitHub",
+      "title": "SSO - GitHub OAuth provider"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/sso/02-Dingtalk",
+      "title": "SSO - DingTalk provider"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/sso/03-Microsoft",
+      "title": "SSO - Microsoft / Azure AD provider"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/sso/04-Google",
+      "title": "SSO - Google provider"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/sso/05-Casdoor",
+      "title": "SSO - Casdoor provider"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/sso/06-Authentik",
+      "title": "SSO - Authentik (OIDC) provider"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/sso/07-keycloak",
+      "title": "SSO - Keycloak (OIDC) provider"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/webdav",
+      "title": "Advanced - WebDAV (server) usage & permissions"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/ftp",
+      "title": "Advanced - FTP/SFTP server, FTPS, passive ports"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/s3",
+      "title": "Advanced - S3-compatible server (expose OpenList as S3 bucket)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/user",
+      "title": "Advanced - User management & permission bits"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/meta",
+      "title": "Advanced - Meta (per-path password, read/write users, hide regex, write-content bypass)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/alias",
+      "title": "Advanced - Alias usage"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/balance",
+      "title": "Advanced - Load balancing (multi-storage)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/backup",
+      "title": "Advanced - Backup & Restore (data.db, SHM/WAL)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/offline-download",
+      "title": "Advanced - Offline download (Aria2, qBittorrent, Transmission, SimpleHttp, 115/PikPak/Thunder)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/search",
+      "title": "Advanced - Search (DB full-text/non-full-text, Bleve, MeiliSearch)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/strm",
+      "title": "Advanced - STRM media streaming"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/rapid_upload",
+      "title": "Advanced - Rapid upload (hash-based shortcut)"
+    },
+    {
+      "url": "https://doc.oplist.org/guide/advanced/ipa",
+      "title": "Advanced - IPA (iOS application) preview"
+    },
+    {
+      "url": "https://doc.oplist.org/configuration/configuration",
+      "title": "Configuration - config.json reference (force, site_url, cdn, jwt_secret, token_expires_in, DB, scheme, log, tasks, CORS, S3, FTP/SFTP)"
+    },
+    {
+      "url": "https://doc.oplist.org/configuration/site",
+      "title": "Configuration - Site (title, announcement, indexing/mounting toggles, robots.txt)"
+    },
+    {
+      "url": "https://doc.oplist.org/configuration/style",
+      "title": "Configuration - Style"
+    },
+    {
+      "url": "https://doc.oplist.org/configuration/preview",
+      "title": "Configuration - Preview (text/audio/video/image extensions, iframe/external preview, OnlyOffice, readme autorender, script filter)"
+    },
+    {
+      "url": "https://doc.oplist.org/configuration/global",
+      "title": "Configuration - Global (hide-files regex, package download, expire time, sign-all, WebAuthn, hooks, OCR)"
+    },
+    {
+      "url": "https://doc.oplist.org/configuration/other",
+      "title": "Configuration - Other (Aria2, qBittorrent, 115/PikPak/Thunder offline-download, fixed Token)"
+    },
+    {
+      "url": "https://doc.oplist.org/configuration/side",
+      "title": "Configuration - Side panel (upload modal, local settings)"
+    },
+    {
+      "url": "https://doc.oplist.org/faq",
+      "title": "FAQ - index (WIP)"
+    },
+    {
+      "url": "https://doc.oplist.org/faq/error",
+      "title": "FAQ - Error code reference"
+    },
+    {
+      "url": "https://doc.oplist.org/faq/howto",
+      "title": "FAQ - How-to (passwords, guest upload, reverse proxy subdir, port change, forgot password)"
+    },
+    {
+      "url": "https://doc.oplist.org/faq/why",
+      "title": "FAQ - Why (compatibility, preview, upload, cloud-storage caveats)"
+    },
+    {
+      "url": "https://doc.oplist.org/faq/seealso",
+      "title": "FAQ - See also (external resources)"
+    },
+    {
+      "url": "https://doc.oplist.org/api/apidocs",
+      "title": "API Documentation (entrypoint -> fox.oplist.org / fox.oplist.org.cn)"
+    },
+    {
+      "url": "https://fox.oplist.org/",
+      "title": "OpenList API live OpenAPI explorer (English)"
+    },
+    {
+      "url": "https://fox.oplist.org.cn/",
+      "title": "OpenList API live OpenAPI explorer (Chinese mirror)"
+    },
+    {
+      "url": "https://doc.oplist.org/ecosystem",
+      "title": "Ecosystem - overview"
+    },
+    {
+      "url": "https://doc.oplist.org/ecosystem/official_docs",
+      "title": "Ecosystem - OpenList Docs project"
+    },
+    {
+      "url": "https://doc.oplist.org/ecosystem/official_desktop",
+      "title": "Ecosystem - OpenList Desktop (Tauri/Rclone GUI)"
+    },
+    {
+      "url": "https://doc.oplist.org/ecosystem/official_mobile",
+      "title": "Ecosystem - OpenList Mobile (Flutter file server app)"
+    },
+    {
+      "url": "https://doc.oplist.org/ecosystem/official_APIpage",
+      "title": "Ecosystem - OpenList APIPages (cloud-storage OAuth proxy)"
+    },
+    {
+      "url": "https://doc.oplist.org/ecosystem/official_proxy",
+      "title": "Ecosystem - OpenList Proxy (Cloudflare Workers traffic proxy)"
+    },
+    {
+      "url": "https://doc.oplist.org/terms",
+      "title": "Terms of Service / Disclaimer"
+    },
+    {
+      "url": "https://doc.oplist.org/privacy",
+      "title": "Privacy Policy"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList-Docs",
+      "title": "OpenList-Docs source repository (canonical Markdown of every doc page)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList-Docs/tree/main/pages/guide/drivers",
+      "title": "OpenList-Docs source - all driver Markdown files (canonical driver-doc index)"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList-Docs/tree/main/pages/guide/advanced",
+      "title": "OpenList-Docs source - all advanced Markdown files"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList-Docs/tree/main/pages/configuration",
+      "title": "OpenList-Docs source - all configuration Markdown files"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList-Docs/tree/main/pages/faq",
+      "title": "OpenList-Docs source - all FAQ Markdown files"
+    },
+    {
+      "url": "https://github.com/OpenListTeam/OpenList-Docs/tree/main/pages/api",
+      "title": "OpenList-Docs source - API doc pages"
+    }
+  ],
+  "metadata": {
+    "timestamp": "2026-05-13T14:55:00Z",
+    "urls_visited": [
+      "https://github.com/OpenListTeam/OpenList",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/server",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/internal",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/drivers",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/cmd",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/pkg",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/server/handles",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/server/middlewares",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/server/webdav",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/internal/sign",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/internal/sharing",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/internal/authn",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/internal/op",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/internal/bootstrap",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/internal/conf",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/SECURITY.md",
+      "https://api.github.com/repos/OpenListTeam/OpenList/contents/CONTRIBUTING.md",
+      "https://api.github.com/repos/OpenListTeam/OpenList/security-advisories",
+      "https://api.github.com/repos/OpenListTeam/OpenList-Docs/contents/pages",
+      "https://api.github.com/repos/OpenListTeam/OpenList-Docs/contents/pages/guide",
+      "https://api.github.com/repos/OpenListTeam/OpenList-Docs/contents/pages/guide/installation",
+      "https://api.github.com/repos/OpenListTeam/OpenList-Docs/contents/pages/guide/drivers",
+      "https://api.github.com/repos/OpenListTeam/OpenList-Docs/contents/pages/guide/advanced",
+      "https://api.github.com/repos/OpenListTeam/OpenList-Docs/contents/pages/guide/advanced/sso",
+      "https://api.github.com/repos/OpenListTeam/OpenList-Docs/contents/pages/configuration",
+      "https://api.github.com/repos/OpenListTeam/OpenList-Docs/contents/pages/faq",
+      "https://api.github.com/repos/OpenListTeam/OpenList-Docs/contents/pages/api",
+      "https://doc.oplist.org/",
+      "https://doc.openlist.team/",
+      "https://doc.oplist.org.cn/",
+      "https://doc.oplist.org/guide",
+      "https://doc.oplist.org/guide/migrate",
+      "https://doc.oplist.org/guide/installation/script",
+      "https://doc.oplist.org/guide/installation/manual",
+      "https://doc.oplist.org/guide/installation/docker",
+      "https://doc.oplist.org/guide/installation/1panel",
+      "https://doc.oplist.org/guide/installation/truenas",
+      "https://doc.oplist.org/guide/installation/koyeb",
+      "https://doc.oplist.org/guide/installation/desktop",
+      "https://doc.oplist.org/guide/installation/paas",
+      "https://doc.oplist.org/guide/installation/source",
+      "https://doc.oplist.org/guide/installation/download",
+      "https://doc.oplist.org/guide/installation/reverse-proxy",
+      "https://doc.oplist.org/guide/drivers/common",
+      "https://doc.oplist.org/guide/drivers/local",
+      "https://doc.oplist.org/guide/drivers/webdav",
+      "https://doc.oplist.org/guide/drivers/ftp",
+      "https://doc.oplist.org/guide/drivers/sftp",
+      "https://doc.oplist.org/guide/drivers/smb",
+      "https://doc.oplist.org/guide/drivers/s3",
+      "https://doc.oplist.org/guide/drivers/onedrive",
+      "https://doc.oplist.org/guide/drivers/onedrive_app",
+      "https://doc.oplist.org/guide/drivers/google_drive",
+      "https://doc.oplist.org/guide/drivers/dropbox",
+      "https://doc.oplist.org/guide/drivers/aliyundrive_open",
+      "https://doc.oplist.org/guide/drivers/baidu",
+      "https://doc.oplist.org/guide/drivers/115",
+      "https://doc.oplist.org/guide/drivers/quark",
+      "https://doc.oplist.org/guide/drivers/pikpak",
+      "https://doc.oplist.org/guide/drivers/mega",
+      "https://doc.oplist.org/guide/drivers/seafile",
+      "https://doc.oplist.org/guide/drivers/autoindex",
+      "https://doc.oplist.org/guide/drivers/openlist",
+      "https://doc.oplist.org/guide/drivers/alias",
+      "https://doc.oplist.org/guide/drivers/crypt",
+      "https://doc.oplist.org/guide/drivers/chunk",
+      "https://doc.oplist.org/guide/drivers/cloudreve",
+      "https://doc.oplist.org/guide/drivers/github",
+      "https://doc.oplist.org/guide/advanced/2fa",
+      "https://doc.oplist.org/guide/advanced/sso",
+      "https://doc.oplist.org/guide/advanced/webdav",
+      "https://doc.oplist.org/guide/advanced/ftp",
+      "https://doc.oplist.org/guide/advanced/s3",
+      "https://doc.oplist.org/guide/advanced/meta",
+      "https://doc.oplist.org/guide/advanced/backup",
+      "https://doc.oplist.org/guide/advanced/offline-download",
+      "https://doc.oplist.org/guide/advanced/search",
+      "https://doc.oplist.org/configuration/configuration",
+      "https://doc.oplist.org/configuration/site",
+      "https://doc.oplist.org/configuration/style",
+      "https://doc.oplist.org/configuration/preview",
+      "https://doc.oplist.org/configuration/global",
+      "https://doc.oplist.org/configuration/other",
+      "https://doc.oplist.org/configuration/side",
+      "https://doc.oplist.org/faq/error",
+      "https://doc.oplist.org/faq/howto",
+      "https://doc.oplist.org/faq/why",
+      "https://doc.oplist.org/faq/seealso",
+      "https://doc.oplist.org/api/apidocs",
+      "https://doc.oplist.org/ecosystem",
+      "https://fox.oplist.org/"
+    ],
+    "seed_urls": [
+      "https://github.com/OpenListTeam/OpenList",
+      "https://github.com/OpenListTeam/OpenList/blob/main/SECURITY.md",
+      "https://github.com/OpenListTeam/OpenList/blob/main/README.md",
+      "https://github.com/OpenListTeam/OpenList/blob/main/CONTRIBUTING.md",
+      "https://doc.oplist.org",
+      "https://doc.openlist.team",
+      "https://doc.oplist.org.cn"
+    ],
+    "notes": [
+      "doc.openlist.team 302-redirects to doc.oplist.org/ (same content). doc.oplist.org.cn mirrors the same site for Chinese users (same /guide /configuration /faq /api /ecosystem paths). Only the canonical English version is enumerated to avoid duplicates per the out-of-scope rule.",
+      "The canonical source-of-truth for documentation is the OpenList-Docs Markdown repo (OpenListTeam/OpenList-Docs). The /pages/guide/drivers and /pages/guide/advanced directory listings gave the authoritative complete page set; not every page has been individually fetched, but every URL listed maps 1:1 to a real .md file in that repo.",
+      "API documentation is rendered live at fox.oplist.org / fox.oplist.org.cn (OpenAPI explorer). The static doc page at /api/apidocs only links out; the full endpoint catalog is most reliably extracted from the Go source under server/handles/ and server/router.go.",
+      "Three published security advisories define the historical vulnerability classes for this target: GHSA-qmj2-8r24-xxcq (path traversal in fs copy/remove), GHSA-wf93-3ghh-h389 (insecure TLS default), GHSA-2hw3-h8qx-hqqp (XSS in built-in Markdown viewer).",
+      "Out-of-scope items (OpenListApp/OpenListApp forks, paid proprietary 'OpenList'-named software, third-party storage provider SDKs/APIs, blog/release-notes, translated duplicates) were excluded.",
+      "Some advanced topics referenced in the docs but lacking a dedicated page (e.g. /guide/advanced/sharing, /permission, /ldap, /hooks, /proxy, /ssh-key) returned 404; the underlying mechanism is described inline in the source under server/handles/sharing.go, server/middlewares/auth.go, server/handles/ldap_login.go, internal/op/hook.go, server/handles/sshkey.go etc., and those source paths are included instead."
+    ]
+  }
+}
