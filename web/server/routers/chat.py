@@ -31,7 +31,13 @@ from web.server.schemas.chat import (
     ToolApprovalRequest,
     ToolApprovalResponse,
 )
-from web.server.services import chat_approvals, chat_history, chat_runtime
+from web.server.services import (
+    chat_approvals,
+    chat_history,
+    chat_runtime,
+    chat_runtime_cli,
+)
+from web.server.services.chat_runtime import _OAUTH_TOKEN_PREFIX, get_api_key
 
 logger = logging.getLogger(__name__)
 
@@ -89,12 +95,28 @@ async def post_message_route(
     if not text:
         raise HTTPException(status_code=400, detail="text must not be empty")
 
+    # Route subscription users (claude.ai OAuth tokens) through the CLI
+    # subprocess runtime; API-key users keep the SDK path so the custom
+    # server-side tools (list_runs / read_run_detail / launch_pipeline /
+    # stop_pipeline) remain available.
+    credential = get_api_key()
+    use_cli = isinstance(credential, str) and credential.startswith(
+        _OAUTH_TOKEN_PREFIX
+    )
+
     async def event_source() -> AsyncIterator[dict]:
         try:
-            async for event in chat_runtime.stream_response(
-                conversation_id=conversation_id,
-                user_text=text,
-            ):
+            if use_cli:
+                event_iter = chat_runtime_cli.stream_response(
+                    conversation_id=conversation_id,
+                    user_text=text,
+                )
+            else:
+                event_iter = chat_runtime.stream_response(
+                    conversation_id=conversation_id,
+                    user_text=text,
+                )
+            async for event in event_iter:
                 yield {"data": json.dumps(event, ensure_ascii=False, default=str)}
         except Exception as exc:  # pragma: no cover - defensive
             logger.exception("chat: unexpected runtime error (%s)", exc)
