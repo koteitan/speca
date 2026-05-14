@@ -20,6 +20,9 @@ from .phase0_runner import is_phase0
 if TYPE_CHECKING:
     from .archiver import Archiver
 
+if TYPE_CHECKING:
+    from .archiver import Archiver
+
 
 def create_orchestrator(
     phase_id: str,
