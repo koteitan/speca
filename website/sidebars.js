@@ -26,6 +26,7 @@ const sidebars = {
         'guide/what-is-speca',
         'guide/how-it-works',
         'guide/try-it',
+        'guide/web-ui',
         'guide/faq',
       ],
     },
@@ -42,6 +43,7 @@ const sidebars = {
       items: [
         'getting-started/installation',
         'getting-started/quickstart',
+        'getting-started/web-ui-quickstart',
         'getting-started/cli-reference',
         'getting-started/config-files',
       ],
@@ -95,6 +97,9 @@ const sidebars = {
       collapsed: false,
       items: [
         'operations/overview',
+        'operations/multi-runtime',
+        'operations/web-ui-features',
+        'operations/troubleshooting',
         'operations/dataset-refresh',
         'operations/release-artifacts',
         'operations/benchmark-rq1',
