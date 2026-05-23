@@ -1,3 +1,5 @@
+[← Back](README.md) | [English](changelog.md) | [Japanese](changelog-ja.md)
+
 # Changelog — Orchestration Modernization
 
 This branch (`make-it-modern-orchestration`) replaces SPECA's original Python orchestrator
