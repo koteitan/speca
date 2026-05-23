@@ -1,0 +1,140 @@
+{
+  "$comment": "SPECA pipeline manifest. Declarative replacement for the former scripts/orchestrator/config.py PHASE_CONFIGS. Read by the /speca-pipeline orchestrator skill (interpreted by Claude, not by Python). Each phase maps to a subagent in .claude/agents/. The orchestrator runs phases in dependency order, partitions each phase's work items into batches, and spawns one subagent per batch in parallel via the Agent tool. All inter-phase data flows through JSON files under outputs/. No MCP servers are used: web access is the built-in WebFetch tool, file and code access are the built-in Read/Write/Glob/Grep tools.",
+  "version": 2,
+  "auth": {
+    "mode": "oauth",
+    "note": "Authentication is the host Claude Code session's OAuth credentials (claude login, or `claude setup-token` for headless/CI). No ANTHROPIC_API_KEY is read or required. Subagents inherit the orchestrator session's auth."
+  },
+  "defaults": {
+    "model": "sonnet",
+    "max_batch_size": 4,
+    "max_parallel_agents": 8
+  },
+  "phases": [
+    {
+      "id": "0a",
+      "name": "Bug Bounty Scope Extraction",
+      "agent": "speca-scope",
+      "kind": "setup",
+      "depends_on": [],
+      "requires_env": ["BUG_BOUNTY_URL"],
+      "optional_env": ["CONTRACT_ADDRESSES"],
+      "outputs": ["outputs/BUG_BOUNTY_SCOPE.json", "outputs/EXTRACTED_INPUTS.json"],
+      "single_shot": true,
+      "model": "sonnet"
+    },
+    {
+      "id": "0c",
+      "name": "Target Info Capture",
+      "agent": null,
+      "kind": "setup-inline",
+      "depends_on": [],
+      "requires_env": ["SPECA_TARGET_WORKSPACE", "TARGET_REPO"],
+      "optional_env": ["TARGET_REF"],
+      "outputs": ["outputs/TARGET_INFO.json"],
+      "single_shot": true,
+      "note": "Pure git/shell. The orchestrator runs `git -C $SPECA_TARGET_WORKSPACE rev-parse HEAD` etc. via Bash and writes TARGET_INFO.json directly. No LLM call. Required before 02c/03/04."
+    },
+    {
+      "id": "01a",
+      "name": "Specification Discovery",
+      "agent": "speca-spec-discovery",
+      "depends_on": [],
+      "inputs_from_env": ["SPEC_URLS", "KEYWORDS"],
+      "queue_kind": "seeds",
+      "seed_note": "Each seed is either a remote URL (crawled via WebFetch) or a local directory/file (enumerated via Glob, read via Read — no web access). When every spec is already local, 01a can be skipped by providing outputs/01a_STATE.json directly.",
+      "outputs": ["outputs/01a_STATE.json"],
+      "consolidate": {
+        "from": "outputs/01a_PARTIAL_*.json",
+        "to": "outputs/01a_STATE.json",
+        "unwrap": "items[0]",
+        "scope_filter_env": "SPECA_01A_SCOPE"
+      },
+      "max_batch_size": 1,
+      "single_shot": true,
+      "tools": ["Read", "Write", "WebFetch"]
+    },
+    {
+      "id": "01b",
+      "name": "Subgraph Extraction",
+      "agent": "speca-subgraph-extractor",
+      "depends_on": ["01a"],
+      "inputs": ["outputs/01a_STATE.json"],
+      "queue_kind": "list",
+      "queue_list_path": "found_specs",
+      "item_id_field": "url",
+      "source_note": "Each found_spec carries url (required) and optional local_path. The 01b agent reads local_path / file:// sources with Read and only http(s):// sources with WebFetch.",
+      "outputs": ["outputs/01b_PARTIAL_*.json", "outputs/graphs/<spec>/*.mmd"],
+      "result_key": "specs",
+      "max_batch_size": 2,
+      "tools": ["Read", "Write", "WebFetch"]
+    },
+    {
+      "id": "01e",
+      "name": "Property Generation",
+      "agent": "speca-property-generator",
+      "depends_on": ["01b"],
+      "inputs": ["outputs/01b_PARTIAL_*.json", "outputs/BUG_BOUNTY_SCOPE.json"],
+      "requires": ["outputs/BUG_BOUNTY_SCOPE.json"],
+      "abort_if_missing": "outputs/BUG_BOUNTY_SCOPE.json",
+      "queue_kind": "subgraph-specs",
+      "item_id_field": "file_path",
+      "outputs": ["outputs/01e_PARTIAL_*.json"],
+      "result_key": "properties",
+      "max_batch_size": 1,
+      "tools": ["Read", "Write"]
+    },
+    {
+      "id": "02c",
+      "name": "Code Location Pre-resolution",
+      "agent": "speca-code-resolver",
+      "depends_on": ["01e", "0c"],
+      "inputs": ["outputs/01e_PARTIAL_*.json", "outputs/01b_PARTIAL_*.json", "outputs/TARGET_INFO.json"],
+      "requires": ["outputs/TARGET_INFO.json"],
+      "build_index": {
+        "from": "outputs/01b_PARTIAL_*.json",
+        "to": "outputs/01b_SUBGRAPH_INDEX.json"
+      },
+      "queue_kind": "properties",
+      "item_id_field": "property_id",
+      "min_severity": "Low",
+      "outputs": ["outputs/02c_PARTIAL_*.json"],
+      "result_key": "properties_with_code",
+      "max_batch_size": 50,
+      "model": "sonnet",
+      "tools": ["Read", "Write", "Grep", "Glob"]
+    },
+    {
+      "id": "03",
+      "name": "Audit Map (proof-based formal audit)",
+      "agent": "speca-auditor",
+      "depends_on": ["02c"],
+      "inputs": ["outputs/02c_PARTIAL_*.json", "outputs/TARGET_INFO.json"],
+      "queue_kind": "properties",
+      "item_id_field": "property_id",
+      "outputs": ["outputs/03_PARTIAL_*.json"],
+      "result_key": "audit_items",
+      "max_batch_size": 1,
+      "model": "sonnet",
+      "tools": ["Read", "Write", "Grep", "Glob"]
+    },
+    {
+      "id": "04",
+      "name": "Audit Review (3-gate FP filter)",
+      "agent": "speca-reviewer",
+      "depends_on": ["03"],
+      "inputs": ["outputs/03_PARTIAL_*.json", "outputs/BUG_BOUNTY_SCOPE.json", "outputs/TARGET_INFO.json"],
+      "queue_kind": "findings",
+      "item_id_field": "property_id",
+      "outputs": ["outputs/04_PARTIAL_*.json"],
+      "result_key": "reviewed_items",
+      "max_batch_size": 1,
+      "model": "sonnet",
+      "tools": ["Read", "Write", "Grep", "Glob"]
+    }
+  ],
+  "naming": {
+    "partial": "outputs/{phase_id}_PARTIAL_B{batch}_{timestamp}.json",
+    "logs": "outputs/logs/{phase_id}_B{batch}_{timestamp}.md"
+  }
+}

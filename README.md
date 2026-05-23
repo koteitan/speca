@@ -105,4 +105,10 @@ For onboarding a new target, you typically only need to write a `BUG_BOUNTY_SCOP
 
 SPECA is released under the [MIT License](LICENSE).
 
+> **Modified fork.** This repository is a modified fork of SPECA — originally by Nyx Foundation
+> and SPECA contributors (MIT License) — maintained by **koteitan**. The orchestration was
+> reworked to run natively on Claude Code (OAuth + agent teams) instead of the original Python
+> `claude -p` orchestrator. See [`changelog.md`](changelog.md) for the full before/after. This
+> fork is not endorsed by the original authors.
+
 > **Disclaimer.** SPECA is a research artifact. Findings produced by the pipeline are *candidate* vulnerabilities and **must** be validated by a human auditor before being reported to a vendor or bug-bounty program. The maintainers make no warranty as to the completeness or correctness of any audit produced by this software.

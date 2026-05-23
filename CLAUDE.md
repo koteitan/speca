@@ -4,97 +4,94 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SPECA (Specification-to-Property Agentic Auditing) — an automated security audit pipeline that uses Claude Code CLI to analyze codebases for vulnerabilities. The pipeline transforms specifications into formal program graphs, generates security properties, pre-resolves code locations, performs proof-based formal audits against target code, and filters false positives via a recall-safe 3-gate review pipeline (Dead Code, Trust Boundary, Scope Check).
+SPECA (Specification-to-Property Agentic Auditing) — an automated security audit pipeline that uses Claude Code to analyze codebases for vulnerabilities. The pipeline transforms specifications into formal program graphs, generates security properties, pre-resolves code locations, performs proof-based formal audits against target code, and filters false positives via a recall-safe 3-gate review pipeline (Dead Code, Trust Boundary, Scope Check).
+
+The orchestration is **agent-teams native**: a Claude Code skill (`/speca-pipeline`) runs inside the user's OAuth-authenticated session and dispatches one specialized **subagent per phase** (in `.claude/agents/`), several batches in parallel, via the Agent tool. There is no Python orchestrator and no `ANTHROPIC_API_KEY` — every model call is a subagent of the host session and inherits its OAuth credentials. (See `changelog.md` for the before/after of this migration.)
 
 ## Commands
 
 ```bash
-# Run tests (pre-flight check used in all CI workflows)
+# Run tests (pre-flight check used in CI)
 uv run python3 -m pytest tests/ -v --tb=short
 
-# Run a single phase
-uv run python3 scripts/run_phase.py --phase 01a
+# 1. Authenticate once (no API key)
+claude login            # interactive
+claude setup-token      # headless / CI
 
-# Run multiple phases sequentially
-uv run python3 scripts/run_phase.py --phase 01a 01b 01e
-
-# Run all phases up to a target (resolves dependency chain)
-uv run python3 scripts/run_phase.py --target 04 --workers 4
-
-# Force re-execution (clears resume state)
-uv run python3 scripts/run_phase.py --phase 03 --force --workers 4 --max-concurrent 64
-
-# Dry-run cleanup check
-uv run python3 scripts/run_phase.py --phase 03 --cleanup-dry-run
-
-# Register MCP servers
-bash scripts/setup_mcp.sh
-bash scripts/setup_mcp.sh --verify
+# 2. Run the pipeline from a Claude Code session (no MCP setup needed)
+/speca-pipeline --target 04          # run the full dependency chain up to phase 04
+/speca-pipeline 01a 01b              # run specific phases
+/speca-pipeline --phase 03 --force   # force re-run, ignoring resume
 ```
 
 ## Architecture
 
-### Orchestrator (`scripts/orchestrator/`)
+### Orchestrator (`/speca-pipeline` skill + `pipeline/pipeline.json`)
 
-The async Python orchestrator manages the full lifecycle of each phase:
+The orchestrator is the `.claude/skills/speca-pipeline/SKILL.md` skill, driven by the declarative manifest `pipeline/pipeline.json` (the replacement for the former `config.py` `PHASE_CONFIGS`). For each phase in dependency order it:
 
-1. **config.py** — `PhaseConfig` Pydantic models define each phase (prompt path, queue/output patterns, batch strategy, circuit breaker thresholds, cost limits, MCP servers, tool filters). All phases live in `PHASE_CONFIGS` dict.
-2. **base.py** — `BaseOrchestrator` loads inputs, validates with Pydantic schemas, filters already-processed items (resume), enriches with context, creates batches, executes in parallel via asyncio. Subclasses: `Phase01Orchestrator`, `Phase02cOrchestrator`, `Phase03Orchestrator`, `Phase04Orchestrator`.
-3. **runner.py** — `ClaudeRunner` invokes `claude` CLI per batch with `--prompt-path`, `--stream-json`. Includes `CircuitBreaker` (consecutive failures, total retries, empty results) and retry with exponential backoff (max 3).
-4. **watchdog.py** — `LogWatcher` tails stream-json logs in real-time via async task; `CostTracker` enforces per-phase budget (hard stop on `BudgetExceeded`).
-5. **resume.py** — `ResumeManager` scans `PARTIAL_*.json` outputs, extracts processed IDs, enables incremental execution.
-6. **collector.py** — `ResultCollector` saves partial results immediately after each batch. Validation is lenient (warns but doesn't block) to preserve partial progress. Applies `output_fields` filtering to keep PARTIALs compact.
-7. **schemas.py** — Pydantic models for all inter-phase data contracts. Cross-phase validation at boundaries (01a→01b→01e→02c→03→04).
+1. **Reads the manifest** — every phase entry declares its `agent`, `depends_on`, `inputs`/`outputs`, `result_key`, `item_id_field`, `max_batch_size`, `model`, and `tools`.
+2. **Checks preconditions** — required inputs exist; `abort_if_missing` files (e.g. 01e requires `outputs/BUG_BOUNTY_SCOPE.json`) are present.
+3. **Builds the work queue** — flattens upstream PARTIALs into work items keyed by `item_id_field`; applies severity gates (02c drops `Informational`).
+4. **Resumes** — scans existing `{phase}_PARTIAL_*.json`, skips already-processed IDs (unless `--force`).
+5. **Dispatches the subagent team** — partitions the queue into batches and issues multiple `Agent` calls in a single message so batches run in parallel; each subagent reads its items and writes its own PARTIAL. Concurrency is capped by `--max-parallel`.
+6. **Consolidates** — phase-specific merges (e.g. 01a PARTIAL → `01a_STATE.json` with the `SPECA_01A_SCOPE` filter; 02c builds `01b_SUBGRAPH_INDEX.json`).
+7. **Lightweight safety** — stops a phase if every batch in a wave fails (replaces the old shared circuit breaker / cost tracker).
+
+Phase 0 setup: **0a** scope extraction runs the `speca-scope` subagent; **0c** `TARGET_INFO.json` is generated inline by the orchestrator via `git` (no LLM call).
+
+### Subagents (`.claude/agents/`)
+
+One subagent per phase — the "team". Each `.md` has frontmatter (`name`, `description`, `tools`, `model`) and the migrated per-phase analysis logic + its `outputs/` I/O contract:
+`speca-scope` (0a), `speca-spec-discovery` (01a), `speca-subgraph-extractor` (01b), `speca-property-generator` (01e), `speca-code-resolver` (02c), `speca-auditor` (03), `speca-reviewer` (04).
+
+### Data contracts (`schemas/`)
+
+The JSON schemas under `schemas/` define every inter-phase payload (01a→01b→01e→02c→03→04). They are the source of truth for PARTIAL shapes and are now hand-maintained (the former Pydantic generator was removed with the Python orchestrator).
 
 ### Pipeline Phases
 
 Phase IDs: `01a` → `01b` → `01e` → `02c` → `03` → `04`
 
-- **01a** Spec Discovery: crawl URLs → `outputs/01a_STATE.json`
-- **01b** Subgraph Extraction: specs → enriched Mermaid state diagrams (`.mmd` with YAML frontmatter + `note right of` invariant blocks) + `01b_PARTIAL_*.json`
-- **01e** Property Generation: trust model analysis (domain-agnostic STRIDE + CWE Top 25) + formal security properties from subgraphs (depends on 01b). **Requires** `outputs/BUG_BOUNTY_SCOPE.json` — orchestrator calls `sys.exit(1)` if missing. Logic inlined in worker prompt (no skill fork). Slim output: `covers` is a string (primary element ID), `reachability` has 4 fields only.
-- **02c** Code Pre-resolution: pre-resolve code locations (`code_scope`) for properties against target repository using Tree-sitter MCP. Requires `outputs/TARGET_INFO.json` (created by 02c workflow before phase runs). Also builds `outputs/01b_SUBGRAPH_INDEX.json` from 01b partials for spec-level context. Severity gate drops `Informational` properties. Model: Sonnet.
-- **03** Audit Map: proof-based 3-phase formal audit (Map → Prove → Stress-Test) against target codebase. Tries to prove properties hold; gaps in proof are findings. Reads `outputs/TARGET_INFO.json` to auto-clone same target repository/commit. Inlined prompt (no skill fork). Model: Sonnet. Tools: Read/Write/Grep/Glob only.
-- **04** Review: 3-gate FP filter pipeline with early exit (Dead Code → Trust Boundary → Scope Check), then severity calibration. Only these 3 gates may produce DISPUTED_FP (recall-safe design). Verdicts: CONFIRMED_VULNERABILITY, CONFIRMED_POTENTIAL, DISPUTED_FP, DOWNGRADED, NEEDS_MANUAL_REVIEW, PASS_THROUGH. Model: Sonnet. Tools: Read/Write/Grep/Glob only (no MCP).
+- **01a** Spec Discovery (`speca-spec-discovery`): discover specs from a seed — a remote URL (crawl via `WebFetch`) or a local dir/file (enumerate via `Glob`) → `outputs/01a_STATE.json`. If all specs are already local, 01a may be skipped by providing `01a_STATE.json` directly.
+- **01b** Subgraph Extraction (`speca-subgraph-extractor`): specs → enriched Mermaid state diagrams (`.mmd` with YAML frontmatter + `note` invariant blocks) + `01b_PARTIAL_*.json`. Reads `local_path`/`file://` sources with `Read`, remote sources with `WebFetch`.
+- **01e** Property Generation (`speca-property-generator`): trust model analysis (domain-agnostic STRIDE + CWE Top 25) + formal security properties from subgraphs (depends on 01b). **Requires** `outputs/BUG_BOUNTY_SCOPE.json` — the orchestrator aborts the pipeline if missing. Slim output: `covers` is a string (primary element ID), `reachability` has 4 fields only.
+- **02c** Code Pre-resolution (`speca-code-resolver`): pre-resolve code locations (`code_scope`) for properties against the target repo using `Grep`/`Glob` (multi-tier fallback, metadata only — no excerpts). Requires `outputs/TARGET_INFO.json`. Also builds `outputs/01b_SUBGRAPH_INDEX.json` from 01b partials for spec-level context. Severity gate drops `Informational` properties. Model: Sonnet.
+- **03** Audit Map (`speca-auditor`): proof-based 3-phase formal audit (Map → Prove → Stress-Test) against the target codebase. Tries to prove properties hold; gaps in proof are findings. Reads `outputs/TARGET_INFO.json` for the target repo/commit. One property per subagent invocation. Model: Sonnet. Tools: Read/Write/Grep/Glob only.
+- **04** Review (`speca-reviewer`): 3-gate FP filter pipeline with early exit (Dead Code → Trust Boundary → Scope Check), then severity calibration. Only these 3 gates may produce DISPUTED_FP (recall-safe design). Verdicts: CONFIRMED_VULNERABILITY, CONFIRMED_POTENTIAL, DISPUTED_FP, DOWNGRADED, NEEDS_MANUAL_REVIEW, PASS_THROUGH. Model: Sonnet. Tools: Read/Write/Grep/Glob only.
 
 Manual (not orchestrated): `05` PoC Generation, `06` Bug-Bounty Report, `06b` Full Audit Report.
 
-### Skills System
+### Skills & Agents System
 
-Skills live in `.claude/skills/<name>/SKILL.md`. Each has YAML frontmatter (`name`, `description`, `allowed-tools`, `context: fork`). Currently active skills:
-- `spec-discovery` — Phase 01a
-- `subgraph-extractor` — Phase 01b
+- **Orchestrator skill** — `.claude/skills/speca-pipeline/SKILL.md` (`/speca-pipeline`) drives the whole pipeline.
+- **Phase subagents** — `.claude/agents/speca-*.md`, one per phase (the "team").
+- **Helper skills** — `.claude/skills/spec-discovery` and `subgraph-extractor` remain (`context: fork`) and are invoked by the 01a / 01b subagents when present.
 
-Phases 01e, 02c, 03, and 04 use **inlined prompts** (no skill fork) — all analysis logic is embedded directly in the worker prompt to reduce context fork overhead.
+All per-phase analysis logic now lives in the subagent definitions, not in separate worker prompts.
 
 ### Data Flow Convention
 
-- **Output naming:** `outputs/{phase_id}_PARTIAL_W{worker}B{batch}_{timestamp}.json`
-- **Queue files:** `outputs/{phase_id}_QUEUE_{worker_id}.json`
-- **Logs:** `outputs/logs/{phase_id}_W{worker}B{batch}_{timestamp}.jsonl`
-- Phases consume `PARTIAL_*.json` glob patterns from upstream phases.
+- **Output naming:** `outputs/{phase_id}_PARTIAL_B{batch}_{timestamp}.json` (each subagent writes its own).
+- **Logs:** `outputs/logs/{phase_id}_B{batch}_{timestamp}.md`.
+- Phases consume `PARTIAL_*.json` glob patterns from upstream phases. No queue files — the orchestrator passes each batch's items inline to its subagent.
 - **01e slim schema:** `covers` = string (primary element ID, e.g. `"FN-001"`). `reachability` = 4 fields: `classification`, `entry_points`, `attacker_controlled`, `bug_bounty_scope`.
 
 ### Key Design Decisions
 
-- **Partial results are first-class:** Every batch result is saved immediately. Resume scans these files to skip completed items. Never block saves on validation failures.
-- **Circuit breaker is shared:** All workers in a phase share one circuit breaker, so systemic issues (bad prompt, API outage) trigger fast abort.
-- **MCP-first code resolution:** Phase 02c uses `mcp__tree_sitter__get_symbols` / `run_query` for code location before reading files. Phase 03 uses built-in Read/Grep/Glob only (no MCP).
-- **Budget enforcement:** Cost tracking is built into `ClaudeRunner`, not bolted on. Raises `BudgetExceeded` at the runner level.
-- **Phase 02c/03 target consistency:** The 02c CI workflow creates `outputs/TARGET_INFO.json` **before** Phase 02c runs, containing target repository and commit info. Phases 03 and 04 read this same file, ensuring consistency without redundant copies.
-- **01b subgraph index for 02c:** Phase 02c builds `outputs/01b_SUBGRAPH_INDEX.json` from 01b partials at load time. Workers use this index to find spec-level function names, state transitions, and mermaid files for improved code resolution accuracy.
-- **Phase 02c optimization:** Pre-resolves code locations for properties before Phase 03, reducing redundant MCP calls and token consumption by ~40-60%.
-- **Inline prompts (01e, 02c, 03, 04):** Full analysis logic inlined in worker prompts (no skill fork), reducing context fork overhead. Phase 01e inlines trust model + domain-agnostic STRIDE + property generation; Phase 03 inlines proof-based 3-phase audit; Phase 04 inlines 3-gate FP filter pipeline.
-- **Required bug_bounty_scope:** Phase 01e requires `outputs/BUG_BOUNTY_SCOPE.json`. The orchestrator aborts with `sys.exit(1)` if the file is missing or unparseable. No hardcoded defaults.
-- **Domain-agnostic STRIDE + CWE Top 25:** Phase 01e uses a general STRIDE thinking framework augmented with CWE Top 25 patterns (CWE-22/78/89/94/200/502/639/770/862). No domain-specific hardcoding; suitable for any target system.
+- **OAuth, not API key:** the pipeline runs as subagents of an OAuth-authenticated Claude Code session (`claude login` / `claude setup-token`). No `ANTHROPIC_API_KEY` anywhere.
+- **No MCP servers:** web access is the built-in `WebFetch`; file/code access is `Read`/`Write`/`Glob`/`Grep`. The former `fetch`/`filesystem`/`tree_sitter` MCP servers (and `setup_mcp.sh`) are gone. Trade-off: 02c resolution is text-based (`Grep`/`Glob`) instead of AST-precise — it already had a multi-tier fallback, so it degrades gracefully.
+- **Partial results are first-class:** every subagent writes its PARTIAL immediately. Resume scans these files to skip completed items.
+- **Lightweight safety:** the orchestrator stops a phase if every batch in a wave fails (replaces the old shared circuit breaker + cost tracker). There is no hard budget enforcement layer — control cost by scoping phases and `--max-parallel`.
+- **Phase 02c/03 target consistency:** `outputs/TARGET_INFO.json` is created once (phase 0c, inline `git`) and read by 02c/03/04, ensuring a single source of truth.
+- **01b subgraph index for 02c:** the orchestrator builds `outputs/01b_SUBGRAPH_INDEX.json` from 01b partials; 02c uses it to map spec-level names → mermaid files for better code resolution.
+- **Required bug_bounty_scope:** phase 01e requires `outputs/BUG_BOUNTY_SCOPE.json`; the orchestrator aborts the pipeline if it is missing. No hardcoded defaults.
+- **Domain-agnostic STRIDE + CWE Top 25:** phase 01e uses a general STRIDE thinking framework augmented with CWE Top 25 patterns (CWE-22/78/89/94/200/502/639/770/862). No domain-specific hardcoding.
 
 ### Environment Variables
 
-- `KEYWORDS`, `SPEC_URLS` — Phase 01a discovery inputs
-- `SPECA_01A_SCOPE` — Filter Phase 01a state before 01b consumes it. Values: `all` (default), `primary`, `primary+1hop`, or a positive integer N. Equivalent to the `--01a-scope` CLI flag (the flag wins when both are set).
-- `FORCE_EXECUTE=1` — Bypass resume (set automatically by `--force` flag)
-- `CLAUDE_CODE_PERMISSIONS=bypassPermissions` — Used in CI
-- `CLAUDE_CODE_MAX_OUTPUT_TOKENS=100000` — Used in CI
-- `GITHUB_PERSONAL_ACCESS_TOKEN` — For GitHub MCP server
-- `SPECA_ARCHIVE_ROOT` — Override the per-run archive root (default: `<repo>/.speca/runs`). Use `--no-archive` to disable archiving entirely.
-- `SPECA_RUN_ID` — Pin a deterministic run-id (skips the timestamp+nonce generation). Useful for CI replay or for stitching together multi-invocation runs.
+- `KEYWORDS`, `SPEC_URLS` — Phase 01a discovery inputs (a seed may be a URL or a local path).
+- `SPECA_01A_SCOPE` — Filter Phase 01a state before 01b consumes it. Values: `all` (default), `primary`, `primary+1hop`, or a positive integer N. Equivalent to the `--01a-scope` flag (the flag wins).
+- `BUG_BOUNTY_URL`, `CONTRACT_ADDRESSES` — Phase 0a scope extraction inputs.
+- `SPECA_TARGET_WORKSPACE`, `TARGET_REPO`, `TARGET_REF` — Phase 0c `TARGET_INFO.json` inputs.
+- `SPECA_OUTPUT_DIR` — Output root (default `outputs`).
